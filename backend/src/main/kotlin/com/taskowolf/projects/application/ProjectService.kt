@@ -1,0 +1,49 @@
+package com.taskowolf.projects.application
+
+import com.taskowolf.auth.domain.User
+import com.taskowolf.core.infrastructure.ConflictException
+import com.taskowolf.core.infrastructure.ForbiddenException
+import com.taskowolf.core.infrastructure.NotFoundException
+import com.taskowolf.projects.api.dto.CreateProjectRequest
+import com.taskowolf.projects.domain.Project
+import com.taskowolf.projects.domain.ProjectMember
+import com.taskowolf.projects.domain.ProjectRole
+import com.taskowolf.projects.infrastructure.ProjectMemberRepository
+import com.taskowolf.projects.infrastructure.ProjectRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
+
+@Service
+class ProjectService(
+    private val projectRepository: ProjectRepository,
+    private val memberRepository: ProjectMemberRepository
+) {
+    @Transactional
+    fun create(request: CreateProjectRequest, owner: User): Project {
+        if (projectRepository.existsByKey(request.key)) {
+            throw ConflictException("Project key already exists: ${request.key}")
+        }
+        val project = projectRepository.save(
+            Project(key = request.key, name = request.name, description = request.description, owner = owner)
+        )
+        memberRepository.save(ProjectMember(project = project, user = owner, role = ProjectRole.ADMIN))
+        return project
+    }
+
+    @Transactional(readOnly = true)
+    fun findAllForUser(userId: UUID) = projectRepository.findAllByMemberOrOwner(userId)
+
+    @Transactional(readOnly = true)
+    fun findByKey(key: String) = projectRepository.findByKey(key)
+        ?: throw NotFoundException("Project not found: $key")
+
+    @Transactional(readOnly = true)
+    fun requireMember(projectKey: String, userId: UUID): Project {
+        val project = findByKey(projectKey)
+        val isMember = memberRepository.existsByProjectIdAndUserId(project.id, userId)
+        val isOwner = project.owner.id == userId
+        if (!isMember && !isOwner) throw ForbiddenException("Not a member of project $projectKey")
+        return project
+    }
+}
