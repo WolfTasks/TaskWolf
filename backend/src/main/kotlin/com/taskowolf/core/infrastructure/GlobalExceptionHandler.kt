@@ -35,4 +35,9 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("VALIDATION_ERROR", "Validation failed", details))
     }
+
+    @ExceptionHandler(Exception::class)
+    fun handleGeneric(ex: Exception) =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"))
 }
