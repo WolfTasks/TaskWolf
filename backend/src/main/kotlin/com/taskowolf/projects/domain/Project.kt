@@ -2,13 +2,13 @@ package com.taskowolf.projects.domain
 
 import com.taskowolf.auth.domain.User
 import com.taskowolf.core.domain.AuditableEntity
+import com.taskowolf.workflows.domain.Workflow
 import jakarta.persistence.*
-import java.util.UUID
 
 @Entity
 @Table(name = "projects")
 class Project(
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(name = "\"key\"", nullable = false, unique = true, length = 10)
     val key: String,
 
     @Column(nullable = false)
@@ -21,8 +21,9 @@ class Project(
     @JoinColumn(name = "owner_id", nullable = false)
     val owner: User,
 
-    @Column(name = "workflow_id")
-    var workflowId: UUID? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workflow_id")
+    var workflow: Workflow? = null,
 
     @Column(nullable = false)
     var archived: Boolean = false,

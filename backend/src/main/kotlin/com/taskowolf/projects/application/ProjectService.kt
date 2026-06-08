@@ -10,6 +10,7 @@ import com.taskowolf.projects.domain.ProjectMember
 import com.taskowolf.projects.domain.ProjectRole
 import com.taskowolf.projects.infrastructure.ProjectMemberRepository
 import com.taskowolf.projects.infrastructure.ProjectRepository
+import com.taskowolf.workflows.application.WorkflowService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -17,7 +18,8 @@ import java.util.UUID
 @Service
 class ProjectService(
     private val projectRepository: ProjectRepository,
-    private val memberRepository: ProjectMemberRepository
+    private val memberRepository: ProjectMemberRepository,
+    private val workflowService: WorkflowService
 ) {
     @Transactional
     fun create(request: CreateProjectRequest, owner: User): Project {
@@ -28,6 +30,9 @@ class ProjectService(
             Project(key = request.key, name = request.name, description = request.description, owner = owner)
         )
         memberRepository.save(ProjectMember(project = project, user = owner, role = ProjectRole.ADMIN))
+        val workflow = workflowService.createDefault(project)
+        project.workflow = workflow
+        projectRepository.save(project)
         return project
     }
 
