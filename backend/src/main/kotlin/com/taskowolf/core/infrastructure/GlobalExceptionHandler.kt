@@ -1,5 +1,6 @@
 package com.taskowolf.core.infrastructure
 
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -35,6 +36,11 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("VALIDATION_ERROR", "Validation failed", details))
     }
+
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    fun handleDataIntegrityViolation(ex: DataIntegrityViolationException) =
+        ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(ErrorResponse("CONFLICT", "Data integrity violation: ${ex.mostSpecificCause.message ?: "conflict"}"))
 
     @ExceptionHandler(Exception::class)
     fun handleGeneric(ex: Exception) =

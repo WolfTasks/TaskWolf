@@ -10,7 +10,7 @@ interface ProjectRepository : JpaRepository<Project, UUID> {
     fun existsByKey(key: String): Boolean
 
     @Query("""
-        SELECT p FROM Project p
+        SELECT DISTINCT p FROM Project p
         LEFT JOIN ProjectMember m ON m.project = p AND m.user.id = :userId
         WHERE p.owner.id = :userId OR m.user.id = :userId
     """)
