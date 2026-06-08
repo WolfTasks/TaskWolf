@@ -5,6 +5,7 @@ import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.workflows.application.WorkflowService
 import com.taskowolf.workflows.domain.WorkflowStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -20,6 +21,7 @@ class WorkflowController(
     private val workflowService: WorkflowService
 ) {
     @GetMapping
+    @Transactional(readOnly = true)
     fun list(@PathVariable key: String, @AuthenticationPrincipal user: User): List<WorkflowResponse> {
         val project = projectService.requireMember(key, user.id)
         return workflowService.findByProject(project.id).map { wf ->

@@ -34,8 +34,12 @@ class WorkflowService(
         .orElseThrow { NotFoundException("Status not found: $statusId") }
 
     @Transactional(readOnly = true)
-    fun getDefaultStatus(workflow: Workflow) = workflow.statuses
-        .filter { it.category == StatusCategory.TODO }
-        .minByOrNull { it.position }
-        ?: throw NotFoundException("No TODO status in workflow")
+    fun getDefaultStatus(workflowId: UUID): WorkflowStatus {
+        val workflow = workflowRepository.findById(workflowId)
+            .orElseThrow { NotFoundException("Workflow not found: $workflowId") }
+        return workflow.statuses
+            .filter { it.category == StatusCategory.TODO }
+            .minByOrNull { it.position }
+            ?: throw NotFoundException("No TODO status in workflow $workflowId")
+    }
 }
