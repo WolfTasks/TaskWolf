@@ -18,12 +18,12 @@ class AuthController(private val authService: AuthService) {
         authService.register(request)
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest) =
+    fun login(@Valid @RequestBody request: LoginRequest) =
         authService.login(request)
 
     @PostMapping("/refresh")
-    fun refresh(@RequestBody body: Map<String, String>) =
-        authService.refresh(body["refreshToken"] ?: error("Missing refreshToken"))
+    fun refresh(@Valid @RequestBody body: RefreshRequest) =
+        authService.refresh(body.refreshToken)
 
     @GetMapping("/me")
     fun me(@AuthenticationPrincipal user: User) = UserResponse.from(user)

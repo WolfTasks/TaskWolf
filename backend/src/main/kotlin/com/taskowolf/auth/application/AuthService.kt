@@ -34,21 +34,23 @@ class AuthService(
         return tokenPair(user.id)
     }
 
+    @Transactional(readOnly = true)
     fun login(request: LoginRequest): AuthResponse {
         val user = userRepository.findByEmail(request.email)
-            ?: throw NotFoundException("User not found")
-        if (!passwordEncoder.matches(request.password, user.passwordHash)) {
+        val hash = user?.passwordHash
+        if (user == null || hash == null || !passwordEncoder.matches(request.password, hash)) {
             throw ForbiddenException("Invalid credentials")
         }
         return tokenPair(user.id)
     }
 
     fun refresh(refreshToken: String): AuthResponse {
-        val userId = jwtService.validateToken(refreshToken)
+        val userId = jwtService.validateToken(refreshToken, "refresh")
             ?: throw ForbiddenException("Invalid refresh token")
         return tokenPair(userId)
     }
 
+    @Transactional(readOnly = true)
     fun me(userId: UUID) = userRepository.findById(userId)
         .orElseThrow { NotFoundException("User not found") }
 

@@ -4,6 +4,7 @@ import com.taskowolf.auth.application.AuthService
 import com.taskowolf.auth.api.dto.RegisterRequest
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
+import com.taskowolf.core.infrastructure.ForbiddenException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -38,5 +39,14 @@ class AuthServiceTest {
 
         assert(result.accessToken == "access-token")
         assert(result.refreshToken == "refresh-token")
+    }
+
+    @Test
+    fun `refresh rejects access token`() {
+        every { jwtService.validateToken("some-access-token", "refresh") } returns null
+
+        assertThrows<ForbiddenException> {
+            authService.refresh("some-access-token")
+        }
     }
 }
