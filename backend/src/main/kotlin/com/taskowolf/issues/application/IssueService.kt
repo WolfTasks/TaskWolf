@@ -43,9 +43,13 @@ class IssueService(
                 storyPoints = request.storyPoints,
                 status = status,
                 project = project,
-                assignee = request.assigneeId?.let { userRepository.findById(it).orElse(null) },
+                assignee = request.assigneeId?.let {
+                    userRepository.findById(it).orElseThrow { NotFoundException("Assignee not found: $it") }
+                },
                 reporter = reporter,
-                parent = request.parentId?.let { issueRepository.findById(it).orElse(null) }
+                parent = request.parentId?.let {
+                    issueRepository.findById(it).orElseThrow { NotFoundException("Parent issue not found: $it") }
+                }
             )
         )
         eventPublisher.publish(IssueCreatedEvent(issue))
@@ -63,10 +67,16 @@ class IssueService(
         request.description?.let { issue.description = it }
         request.priority?.let { issue.priority = it }
         request.storyPoints?.let { issue.storyPoints = it }
-        request.assigneeId?.let { issue.assignee = userRepository.findById(it).orElse(null) }
+        request.assigneeId?.let {
+            issue.assignee = userRepository.findById(it).orElseThrow { NotFoundException("Assignee not found: $it") }
+        }
         request.statusId?.let { newStatusId ->
             val oldStatus = issue.status
             val newStatus = workflowService.findStatusById(newStatusId)
+            val projectWorkflowId = issue.project.workflow?.id
+            if (projectWorkflowId != null && newStatus.workflow.id != projectWorkflowId) {
+                throw com.taskowolf.core.infrastructure.ForbiddenException("Status does not belong to project's workflow")
+            }
             issue.status = newStatus
             if (oldStatus.id != newStatus.id) {
                 eventPublisher.publish(IssueStatusChangedEvent(issue, oldStatus, newStatus))

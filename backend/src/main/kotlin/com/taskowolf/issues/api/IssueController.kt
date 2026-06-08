@@ -8,6 +8,7 @@ import com.taskowolf.issues.application.IssueService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -16,6 +17,7 @@ import java.util.UUID
 class IssueController(private val issueService: IssueService) {
 
     @GetMapping
+    @Transactional(readOnly = true)
     fun list(
         @PathVariable key: String,
         @AuthenticationPrincipal user: User,
@@ -25,6 +27,7 @@ class IssueController(private val issueService: IssueService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Transactional(readOnly = true)
     fun create(
         @PathVariable key: String,
         @Valid @RequestBody request: CreateIssueRequest,
@@ -32,6 +35,7 @@ class IssueController(private val issueService: IssueService) {
     ) = IssueResponse.from(issueService.create(key, request, user))
 
     @GetMapping("/{issueKey}")
+    @Transactional(readOnly = true)
     fun get(
         @PathVariable key: String,
         @PathVariable issueKey: String,
@@ -39,6 +43,7 @@ class IssueController(private val issueService: IssueService) {
     ) = IssueResponse.from(issueService.findByKey(key, issueKey, user.id))
 
     @PatchMapping("/{id}")
+    @Transactional(readOnly = true)
     fun update(
         @PathVariable key: String,
         @PathVariable id: UUID,
