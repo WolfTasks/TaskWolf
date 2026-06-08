@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: taskowolf
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+taskowolf:
+  jwt:
+    secret: ${TW_JWT_SECRET:dev-secret-change-in-production-min-256-bits}
+    access-token-expiry: 900      # 15 minutes
+    refresh-token-expiry: 604800  # 7 days
+  base-url: ${TW_BASE_URL:http://localhost:8080}
+  storage-path: ${TW_STORAGE_PATH:./data/attachments}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
