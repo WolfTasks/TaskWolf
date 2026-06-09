@@ -3,12 +3,14 @@ import { useParams, Link } from 'react-router-dom'
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useBoard, useMoveIssue } from '@/hooks/useBoard'
 import { useCompleteSprint } from '@/hooks/useSprints'
+import { useProjectSocket } from '@/hooks/useProjectSocket'
 import { BoardColumn } from '@/components/board/BoardColumn'
 import { SprintHeader } from '@/components/sprint/SprintHeader'
 import { CompleteSprintDialog } from '@/components/sprint/CompleteSprintDialog'
 
 export function BoardPage() {
   const { key } = useParams<{ key: string }>()
+  useProjectSocket(key!)
   const { data: board, isLoading } = useBoard(key!)
   const moveIssue = useMoveIssue(key!)
   const completeSprint = useCompleteSprint(key!)

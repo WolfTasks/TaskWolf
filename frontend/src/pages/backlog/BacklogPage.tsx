@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useBacklog } from '@/hooks/useBoard'
 import { useStartSprint, useAssignIssue, useUnassignIssue } from '@/hooks/useSprints'
+import { useProjectSocket } from '@/hooks/useProjectSocket'
 import { CreateSprintForm } from '@/components/sprint/CreateSprintForm'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 import type { Issue } from '@/types'
@@ -22,6 +23,7 @@ function IssueRow({ issue, action }: { issue: Issue; action: React.ReactNode }) 
 
 export function BacklogPage() {
   const { key } = useParams<{ key: string }>()
+  useProjectSocket(key!)
   const { data: backlog, isLoading } = useBacklog(key!)
   const startSprint = useStartSprint(key!)
   const assignIssue = useAssignIssue(key!)
