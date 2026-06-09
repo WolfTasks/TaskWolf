@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: ${TW_DB_URL}
+    username: ${TW_DB_USER}
+    password: ${TW_DB_PASS}
+  flyway:
+    baseline-on-migrate: true
+
+logging:
+  level:
+    com.taskowolf: INFO
