@@ -1,20 +1,43 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, Link, useNavigate, useParams, useMatch } from 'react-router-dom'
 
 export function AppLayout() {
   const navigate = useNavigate()
+  const { key } = useParams<{ key: string }>()
+  const insideProject = useMatch('/p/:key/*')
+
   const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     navigate('/login')
   }
 
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
+
+  const subNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `px-3 py-1.5 rounded text-sm ${isActive ? 'bg-indigo-600 text-white font-semibold' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`
+
   return (
     <div className="min-h-screen bg-gray-950 text-white flex">
       <aside className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col p-4">
         <Link to="/" className="text-xl font-bold mb-8">🐺 TaskWolf</Link>
-        <nav className="flex flex-col gap-2 flex-1">
-          <Link to="/" className="px-3 py-2 rounded hover:bg-gray-800 text-sm">Dashboard</Link>
-          <Link to="/projects" className="px-3 py-2 rounded hover:bg-gray-800 text-sm">Projects</Link>
+        <nav className="flex flex-col gap-1 flex-1">
+          <NavLink to="/" end className={navLinkClass}>Dashboard</NavLink>
+          <NavLink to="/projects" className={navLinkClass}>Projects</NavLink>
+
+          {insideProject && key && (
+            <div className="mt-4">
+              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                Project
+              </p>
+              <div className="flex flex-col gap-1">
+                <NavLink to={`/p/${key}/board`} className={subNavLinkClass}>Board</NavLink>
+                <NavLink to={`/p/${key}/backlog`} className={subNavLinkClass}>Backlog</NavLink>
+                <NavLink to={`/p/${key}/issues`} className={subNavLinkClass}>Issues</NavLink>
+                <NavLink to={`/p/${key}/reports`} className={subNavLinkClass}>Reports</NavLink>
+              </div>
+            </div>
+          )}
         </nav>
         <button onClick={logout} className="px-3 py-2 text-sm text-gray-400 hover:text-white text-left">
           Logout

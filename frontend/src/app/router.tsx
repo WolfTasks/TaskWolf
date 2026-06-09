@@ -8,6 +8,9 @@ import { ProjectListPage } from '@/pages/projects/ProjectListPage'
 import { ProjectCreatePage } from '@/pages/projects/ProjectCreatePage'
 import { IssueListPage } from '@/pages/issues/IssueListPage'
 import { IssueDetailPage } from '@/pages/issues/IssueDetailPage'
+import { BoardPage } from '@/pages/board/BoardPage'
+import { BacklogPage } from '@/pages/backlog/BacklogPage'
+import { ReportsPage } from '@/pages/reports/ReportsPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -31,6 +34,9 @@ export const router = createBrowserRouter([
       { path: '/projects/new', element: <ProjectCreatePage /> },
       { path: '/p/:key/issues', element: <IssueListPage /> },
       { path: '/p/:key/issues/:issueKey', element: <IssueDetailPage /> },
+      { path: '/p/:key/board', element: <BoardPage /> },
+      { path: '/p/:key/backlog', element: <BacklogPage /> },
+      { path: '/p/:key/reports', element: <ReportsPage /> },
     ],
   },
 ])
