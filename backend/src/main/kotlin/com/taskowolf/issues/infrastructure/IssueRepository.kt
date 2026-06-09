@@ -14,4 +14,11 @@ interface IssueRepository : JpaRepository<Issue, UUID> {
 
     @Query("SELECT COALESCE(MAX(i.keyNumber), 0) FROM Issue i WHERE i.project.id = :projectId")
     fun maxKeyNumberByProject(projectId: UUID): Int
+
+    fun findBySprintId(sprintId: UUID): List<Issue>
+
+    fun findByProjectIdAndSprintIsNull(projectId: UUID): List<Issue>
+
+    @Query("SELECT COALESCE(SUM(COALESCE(i.storyPoints, 0)), 0) FROM Issue i WHERE i.sprint.id = :sprintId")
+    fun sumStoryPointsBySprintId(sprintId: UUID): Long
 }

@@ -3,6 +3,7 @@ package com.taskowolf.issues.domain
 import com.taskowolf.auth.domain.User
 import com.taskowolf.core.domain.AuditableEntity
 import com.taskowolf.projects.domain.Project
+import com.taskowolf.sprints.domain.Sprint
 import com.taskowolf.workflows.domain.WorkflowStatus
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -47,6 +48,10 @@ class Issue(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id", nullable = false)
     val reporter: User,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id")
+    var sprint: Sprint? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
