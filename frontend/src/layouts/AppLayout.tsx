@@ -1,9 +1,15 @@
-import { Outlet, NavLink, Link, useNavigate, useParams, useMatch } from 'react-router-dom'
+import { Outlet, NavLink, Link, useNavigate, useMatch } from 'react-router-dom'
+
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
+
+const subNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `px-3 py-1.5 rounded text-sm ${isActive ? 'bg-indigo-600 text-white font-semibold' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`
 
 export function AppLayout() {
   const navigate = useNavigate()
-  const { key } = useParams<{ key: string }>()
   const insideProject = useMatch('/p/:key/*')
+  const projectKey = insideProject?.params.key
 
   const logout = () => {
     localStorage.removeItem('accessToken')
@@ -11,30 +17,24 @@ export function AppLayout() {
     navigate('/login')
   }
 
-  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
-
-  const subNavLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `px-3 py-1.5 rounded text-sm ${isActive ? 'bg-indigo-600 text-white font-semibold' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`
-
   return (
     <div className="min-h-screen bg-gray-950 text-white flex">
       <aside className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col p-4">
         <Link to="/" className="text-xl font-bold mb-8">🐺 TaskWolf</Link>
         <nav className="flex flex-col gap-1 flex-1">
           <NavLink to="/" end className={navLinkClass}>Dashboard</NavLink>
-          <NavLink to="/projects" className={navLinkClass}>Projects</NavLink>
+          <NavLink to="/projects" end className={navLinkClass}>Projects</NavLink>
 
-          {insideProject && key && (
+          {insideProject && projectKey && (
             <div className="mt-4">
               <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 Project
               </p>
               <div className="flex flex-col gap-1">
-                <NavLink to={`/p/${key}/board`} className={subNavLinkClass}>Board</NavLink>
-                <NavLink to={`/p/${key}/backlog`} className={subNavLinkClass}>Backlog</NavLink>
-                <NavLink to={`/p/${key}/issues`} className={subNavLinkClass}>Issues</NavLink>
-                <NavLink to={`/p/${key}/reports`} className={subNavLinkClass}>Reports</NavLink>
+                <NavLink to={`/p/${projectKey}/board`} className={subNavLinkClass}>Board</NavLink>
+                <NavLink to={`/p/${projectKey}/backlog`} className={subNavLinkClass}>Backlog</NavLink>
+                <NavLink to={`/p/${projectKey}/issues`} className={subNavLinkClass}>Issues</NavLink>
+                <NavLink to={`/p/${projectKey}/reports`} className={subNavLinkClass}>Reports</NavLink>
               </div>
             </div>
           )}
