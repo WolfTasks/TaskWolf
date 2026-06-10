@@ -1,6 +1,6 @@
-# Phase 2: Agile Boards — Implementation Plan
+# Phase 2: Agile Boards — Implementation Plan ✅ ABGESCHLOSSEN (2026-06-09)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Sprint Board (Kanban-View des aktiven Sprints), Backlog mit Sprint Planning, Burndown- und Velocity-Charts, Real-time WebSocket-Updates.
 
@@ -84,7 +84,7 @@ frontend/vite.config.ts             # add /ws-stomp proxy
 **Files:**
 - Create: `backend/src/main/resources/db/migration/V5__create_sprints.sql`
 
-- [ ] **Step 1: Create `V5__create_sprints.sql`**
+- [x] **Step 1: Create `V5__create_sprints.sql`**
 
 ```sql
 CREATE TABLE sprints (
@@ -107,7 +107,7 @@ ALTER TABLE issues ADD CONSTRAINT fk_issues_sprint
     FOREIGN KEY (sprint_id) REFERENCES sprints(id) ON DELETE SET NULL;
 ```
 
-- [ ] **Step 2: Verify migration runs**
+- [x] **Step 2: Verify migration runs**
 
 ```bash
 cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun &
@@ -119,7 +119,7 @@ kill %1
 ```
 Expected: `accessToken` in response — app started cleanly with V5 applied.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/src/main/resources/db/migration/V5__create_sprints.sql
@@ -136,7 +136,7 @@ git commit -m "feat: add V5 migration — sprints table, sprint_id FK on issues"
 - Create: `backend/src/main/kotlin/com/taskowolf/sprints/domain/events/SprintStartedEvent.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/sprints/domain/events/SprintCompletedEvent.kt`
 
-- [ ] **Step 1: Create `SprintStatus.kt`**
+- [x] **Step 1: Create `SprintStatus.kt`**
 
 ```kotlin
 package com.taskowolf.sprints.domain
@@ -144,7 +144,7 @@ package com.taskowolf.sprints.domain
 enum class SprintStatus { PLANNED, ACTIVE, CLOSED }
 ```
 
-- [ ] **Step 2: Create `Sprint.kt`**
+- [x] **Step 2: Create `Sprint.kt`**
 
 ```kotlin
 package com.taskowolf.sprints.domain
@@ -185,7 +185,7 @@ class Sprint(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 3: Create `SprintStartedEvent.kt`**
+- [x] **Step 3: Create `SprintStartedEvent.kt`**
 
 ```kotlin
 package com.taskowolf.sprints.domain.events
@@ -195,7 +195,7 @@ import com.taskowolf.sprints.domain.Sprint
 data class SprintStartedEvent(val sprint: Sprint)
 ```
 
-- [ ] **Step 4: Create `SprintCompletedEvent.kt`**
+- [x] **Step 4: Create `SprintCompletedEvent.kt`**
 
 ```kotlin
 package com.taskowolf.sprints.domain.events
@@ -205,14 +205,14 @@ import com.taskowolf.sprints.domain.Sprint
 data class SprintCompletedEvent(val sprint: Sprint, val movedToBacklogCount: Int)
 ```
 
-- [ ] **Step 5: Compile check**
+- [x] **Step 5: Compile check**
 
 ```bash
 cd backend && ./gradlew compileKotlin 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/sprints/domain/
@@ -227,7 +227,7 @@ git commit -m "feat: add sprints domain — Sprint entity, SprintStatus, domain 
 - Modify: `backend/src/main/kotlin/com/taskowolf/issues/domain/Issue.kt`
 - Modify: `backend/src/main/kotlin/com/taskowolf/issues/infrastructure/IssueRepository.kt`
 
-- [ ] **Step 1: Add `sprint` relationship to `Issue.kt`**
+- [x] **Step 1: Add `sprint` relationship to `Issue.kt`**
 
 Add after the `parent` field (line 53):
 
@@ -301,7 +301,7 @@ class Issue(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 2: Add sprint queries to `IssueRepository.kt`**
+- [x] **Step 2: Add sprint queries to `IssueRepository.kt`**
 
 ```kotlin
 package com.taskowolf.issues.infrastructure
@@ -330,14 +330,14 @@ interface IssueRepository : JpaRepository<Issue, UUID> {
 }
 ```
 
-- [ ] **Step 3: Compile check**
+- [x] **Step 3: Compile check**
 
 ```bash
 cd backend && ./gradlew compileKotlin 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/issues/
@@ -351,7 +351,7 @@ git commit -m "feat: add sprint relationship to Issue entity and IssueRepository
 **Files:**
 - Create: `backend/src/main/kotlin/com/taskowolf/sprints/infrastructure/SprintRepository.kt`
 
-- [ ] **Step 1: Create `SprintRepository.kt`**
+- [x] **Step 1: Create `SprintRepository.kt`**
 
 ```kotlin
 package com.taskowolf.sprints.infrastructure
@@ -368,7 +368,7 @@ interface SprintRepository : JpaRepository<Sprint, UUID> {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/sprints/infrastructure/
@@ -383,7 +383,7 @@ git commit -m "feat: add SprintRepository"
 - Create: `backend/src/test/kotlin/com/taskowolf/sprints/SprintServiceTest.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/sprints/application/SprintService.kt`
 
-- [ ] **Step 1: Write failing tests in `SprintServiceTest.kt`**
+- [x] **Step 1: Write failing tests in `SprintServiceTest.kt`**
 
 ```kotlin
 package com.taskowolf.sprints
@@ -484,14 +484,14 @@ class SprintServiceTest {
 }
 ```
 
-- [ ] **Step 2: Run to verify tests fail**
+- [x] **Step 2: Run to verify tests fail**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.sprints.SprintServiceTest" 2>&1 | tail -5
 ```
 Expected: compile error — `SprintService` not found.
 
-- [ ] **Step 3: Create `SprintService.kt`**
+- [x] **Step 3: Create `SprintService.kt`**
 
 ```kotlin
 package com.taskowolf.sprints.application
@@ -610,14 +610,14 @@ class SprintService(
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.sprints.SprintServiceTest" 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`, 4 tests passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/sprints/application/ \
@@ -636,7 +636,7 @@ git commit -m "feat: add SprintService with TDD — lifecycle, assign/unassign"
 - Create: `backend/src/main/kotlin/com/taskowolf/sprints/api/dto/SprintCompleteResponse.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/sprints/api/SprintController.kt`
 
-- [ ] **Step 1: Create DTOs**
+- [x] **Step 1: Create DTOs**
 
 `CreateSprintRequest.kt`:
 ```kotlin
@@ -702,7 +702,7 @@ package com.taskowolf.sprints.api.dto
 data class SprintCompleteResponse(val sprint: SprintResponse, val movedToBacklogCount: Int)
 ```
 
-- [ ] **Step 2: Create `SprintController.kt`**
+- [x] **Step 2: Create `SprintController.kt`**
 
 ```kotlin
 package com.taskowolf.sprints.api
@@ -777,14 +777,14 @@ class SprintController(private val sprintService: SprintService) {
 }
 ```
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/sprints/api/
@@ -802,7 +802,7 @@ git commit -m "feat: add Sprint DTOs and SprintController"
 - Create: `backend/src/main/kotlin/com/taskowolf/boards/api/dto/BoardMoveRequest.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/boards/api/dto/BacklogResponse.kt`
 
-- [ ] **Step 1: Write failing `BoardServiceTest.kt`**
+- [x] **Step 1: Write failing `BoardServiceTest.kt`**
 
 ```kotlin
 package com.taskowolf.boards
@@ -881,14 +881,14 @@ class BoardServiceTest {
 }
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.boards.BoardServiceTest" 2>&1 | tail -5
 ```
 Expected: compile error — `BoardService` not found.
 
-- [ ] **Step 3: Create Board DTOs**
+- [x] **Step 3: Create Board DTOs**
 
 `BoardResponse.kt`:
 ```kotlin
@@ -932,7 +932,7 @@ data class BacklogSprintEntry(val sprint: SprintResponse, val issues: List<Issue
 data class BacklogResponse(val sprints: List<BacklogSprintEntry>, val backlogIssues: List<IssueResponse>)
 ```
 
-- [ ] **Step 4: Create `BoardService.kt`**
+- [x] **Step 4: Create `BoardService.kt`**
 
 ```kotlin
 package com.taskowolf.boards.application
@@ -1002,14 +1002,14 @@ class BoardService(
 }
 ```
 
-- [ ] **Step 5: Run tests to verify pass**
+- [x] **Step 5: Run tests to verify pass**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.boards.BoardServiceTest" 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`, 3 tests passed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/boards/ \
@@ -1024,7 +1024,7 @@ git commit -m "feat: add BoardService with TDD — board aggregation, backlog"
 **Files:**
 - Create: `backend/src/main/kotlin/com/taskowolf/boards/api/BoardController.kt`
 
-- [ ] **Step 1: Create `BoardController.kt`**
+- [x] **Step 1: Create `BoardController.kt`**
 
 ```kotlin
 package com.taskowolf.boards.api
@@ -1066,14 +1066,14 @@ class BoardController(
 }
 ```
 
-- [ ] **Step 2: Run all tests**
+- [x] **Step 2: Run all tests**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/boards/api/BoardController.kt
@@ -1090,7 +1090,7 @@ git commit -m "feat: add BoardController — board, move, backlog endpoints"
 - Create: `backend/src/main/kotlin/com/taskowolf/reports/api/dto/BurndownResponse.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/reports/api/dto/VelocityResponse.kt`
 
-- [ ] **Step 1: Create Report DTOs**
+- [x] **Step 1: Create Report DTOs**
 
 `BurndownResponse.kt`:
 ```kotlin
@@ -1115,7 +1115,7 @@ data class VelocityEntry(val sprintId: UUID, val sprintName: String, val planned
 data class VelocityResponse(val entries: List<VelocityEntry>)
 ```
 
-- [ ] **Step 2: Create `ReportsService.kt`**
+- [x] **Step 2: Create `ReportsService.kt`**
 
 ```kotlin
 package com.taskowolf.reports.application
@@ -1177,7 +1177,7 @@ class ReportsService(
 }
 ```
 
-- [ ] **Step 3: Create `ReportsController.kt`**
+- [x] **Step 3: Create `ReportsController.kt`**
 
 ```kotlin
 package com.taskowolf.reports.api
@@ -1205,14 +1205,14 @@ class ReportsController(private val reportsService: ReportsService) {
 }
 ```
 
-- [ ] **Step 4: Run all tests**
+- [x] **Step 4: Run all tests**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/reports/
@@ -1227,7 +1227,7 @@ git commit -m "feat: add reports module — burndown and velocity endpoints"
 - Create: `backend/src/main/kotlin/com/taskowolf/core/infrastructure/WebSocketConfig.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/boards/events/BoardEventPublisher.kt`
 
-- [ ] **Step 1: Create `WebSocketConfig.kt`**
+- [x] **Step 1: Create `WebSocketConfig.kt`**
 
 ```kotlin
 package com.taskowolf.core.infrastructure
@@ -1254,7 +1254,7 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 }
 ```
 
-- [ ] **Step 2: Create `BoardEventPublisher.kt`**
+- [x] **Step 2: Create `BoardEventPublisher.kt`**
 
 ```kotlin
 package com.taskowolf.boards.events
@@ -1295,14 +1295,14 @@ class BoardEventPublisher(private val messagingTemplate: SimpMessagingTemplate) 
 }
 ```
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/core/infrastructure/WebSocketConfig.kt \
@@ -1317,7 +1317,7 @@ git commit -m "feat: add WebSocket config and BoardEventPublisher for real-time 
 **Files:**
 - Create: `backend/src/test/kotlin/com/taskowolf/sprints/SprintLifecycleIntegrationTest.kt`
 
-- [ ] **Step 1: Create `SprintLifecycleIntegrationTest.kt`**
+- [x] **Step 1: Create `SprintLifecycleIntegrationTest.kt`**
 
 ```kotlin
 package com.taskowolf.sprints
@@ -1451,21 +1451,21 @@ class SprintLifecycleIntegrationTest : IntegrationTestBase() {
 }
 ```
 
-- [ ] **Step 2: Run the integration test**
+- [x] **Step 2: Run the integration test**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.sprints.SprintLifecycleIntegrationTest" 2>&1 | tail -20
 ```
 Expected: `BUILD SUCCESSFUL`, 1 test passed.
 
-- [ ] **Step 3: Run full test suite**
+- [x] **Step 3: Run full test suite**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`, all tests green.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/src/test/kotlin/com/taskowolf/sprints/SprintLifecycleIntegrationTest.kt
@@ -1484,7 +1484,7 @@ git commit -m "test: add SprintLifecycleIntegrationTest — full flow E2E"
 - Create: `frontend/src/api/board.ts`
 - Create: `frontend/src/api/reports.ts`
 
-- [ ] **Step 1: Add dependencies to `frontend/package.json`**
+- [x] **Step 1: Add dependencies to `frontend/package.json`**
 
 Add to `dependencies`:
 ```json
@@ -1494,7 +1494,7 @@ Add to `dependencies`:
 "recharts": "^2.12.0"
 ```
 
-- [ ] **Step 2: Update `frontend/vite.config.ts`** — add `/ws-stomp` proxy
+- [x] **Step 2: Update `frontend/vite.config.ts`** — add `/ws-stomp` proxy
 
 ```typescript
 import { defineConfig } from 'vite'
@@ -1517,14 +1517,14 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 3: Install dependencies**
+- [x] **Step 3: Install dependencies**
 
 ```bash
 cd frontend && npm install
 ```
 Expected: no errors.
 
-- [ ] **Step 4: Append Sprint + Board + Report types to `frontend/src/types/index.ts`**
+- [x] **Step 4: Append Sprint + Board + Report types to `frontend/src/types/index.ts`**
 
 Add to the end of the existing file:
 ```typescript
@@ -1595,7 +1595,7 @@ export interface VelocityResponse {
 }
 ```
 
-- [ ] **Step 5: Create `frontend/src/api/sprints.ts`**
+- [x] **Step 5: Create `frontend/src/api/sprints.ts`**
 
 ```typescript
 import { apiClient } from './client'
@@ -1619,7 +1619,7 @@ export const sprintsApi = {
 }
 ```
 
-- [ ] **Step 6: Create `frontend/src/api/board.ts`**
+- [x] **Step 6: Create `frontend/src/api/board.ts`**
 
 ```typescript
 import { apiClient } from './client'
@@ -1635,7 +1635,7 @@ export const boardApi = {
 }
 ```
 
-- [ ] **Step 7: Create `frontend/src/api/reports.ts`**
+- [x] **Step 7: Create `frontend/src/api/reports.ts`**
 
 ```typescript
 import { apiClient } from './client'
@@ -1649,14 +1649,14 @@ export const reportsApi = {
 }
 ```
 
-- [ ] **Step 8: Verify TypeScript compiles**
+- [x] **Step 8: Verify TypeScript compiles**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no TypeScript errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add frontend/package.json frontend/package-lock.json frontend/vite.config.ts \
@@ -1673,7 +1673,7 @@ git commit -m "feat: add frontend deps (dnd-kit, stomp, recharts), types, API mo
 - Create: `frontend/src/hooks/useBoard.ts`
 - Create: `frontend/src/hooks/useReports.ts`
 
-- [ ] **Step 1: Create `frontend/src/hooks/useSprints.ts`**
+- [x] **Step 1: Create `frontend/src/hooks/useSprints.ts`**
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -1738,7 +1738,7 @@ export function useUnassignIssue(projectKey: string) {
 }
 ```
 
-- [ ] **Step 2: Create `frontend/src/hooks/useBoard.ts`**
+- [x] **Step 2: Create `frontend/src/hooks/useBoard.ts`**
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -1768,7 +1768,7 @@ export function useMoveIssue(projectKey: string) {
 }
 ```
 
-- [ ] **Step 3: Create `frontend/src/hooks/useReports.ts`**
+- [x] **Step 3: Create `frontend/src/hooks/useReports.ts`**
 
 ```typescript
 import { useQuery } from '@tanstack/react-query'
@@ -1790,14 +1790,14 @@ export function useVelocity(projectKey: string) {
 }
 ```
 
-- [ ] **Step 4: Verify build**
+- [x] **Step 4: Verify build**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/hooks/useSprints.ts frontend/src/hooks/useBoard.ts \
@@ -1816,7 +1816,7 @@ git commit -m "feat: add useSprints, useBoard, useReports hooks"
 - Create: `frontend/src/components/sprint/CompleteSprintDialog.tsx`
 - Create: `frontend/src/pages/board/BoardPage.tsx`
 
-- [ ] **Step 1: Create `frontend/src/components/board/DraggableCard.tsx`**
+- [x] **Step 1: Create `frontend/src/components/board/DraggableCard.tsx`**
 
 ```tsx
 import { useDraggable } from '@dnd-kit/core'
@@ -1864,7 +1864,7 @@ export function DraggableCard({ issue }: Props) {
 }
 ```
 
-- [ ] **Step 2: Create `frontend/src/components/board/BoardColumn.tsx`**
+- [x] **Step 2: Create `frontend/src/components/board/BoardColumn.tsx`**
 
 ```tsx
 import { useDroppable } from '@dnd-kit/core'
@@ -1902,7 +1902,7 @@ export function BoardColumn({ column }: Props) {
 }
 ```
 
-- [ ] **Step 3: Create `frontend/src/components/sprint/SprintHeader.tsx`**
+- [x] **Step 3: Create `frontend/src/components/sprint/SprintHeader.tsx`**
 
 ```tsx
 import type { BoardSprintSummary } from '@/types'
@@ -1949,7 +1949,7 @@ export function SprintHeader({ sprint, onComplete }: Props) {
 }
 ```
 
-- [ ] **Step 4: Create `frontend/src/components/sprint/CompleteSprintDialog.tsx`**
+- [x] **Step 4: Create `frontend/src/components/sprint/CompleteSprintDialog.tsx`**
 
 ```tsx
 interface Props {
@@ -1991,7 +1991,7 @@ export function CompleteSprintDialog({ sprintName, openIssueCount, onConfirm, on
 }
 ```
 
-- [ ] **Step 5: Create `frontend/src/pages/board/BoardPage.tsx`**
+- [x] **Step 5: Create `frontend/src/pages/board/BoardPage.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2067,14 +2067,14 @@ export function BoardPage() {
 }
 ```
 
-- [ ] **Step 6: Verify build**
+- [x] **Step 6: Verify build**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no errors.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/components/board/ frontend/src/components/sprint/CompleteSprintDialog.tsx \
@@ -2090,7 +2090,7 @@ git commit -m "feat: add Board page — Kanban columns, drag & drop, sprint head
 - Create: `frontend/src/components/sprint/CreateSprintForm.tsx`
 - Create: `frontend/src/pages/backlog/BacklogPage.tsx`
 
-- [ ] **Step 1: Create `frontend/src/components/sprint/CreateSprintForm.tsx`**
+- [x] **Step 1: Create `frontend/src/components/sprint/CreateSprintForm.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2141,7 +2141,7 @@ export function CreateSprintForm({ projectKey, onCreated, onCancel }: Props) {
 }
 ```
 
-- [ ] **Step 2: Create `frontend/src/pages/backlog/BacklogPage.tsx`**
+- [x] **Step 2: Create `frontend/src/pages/backlog/BacklogPage.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2279,14 +2279,14 @@ export function BacklogPage() {
 }
 ```
 
-- [ ] **Step 3: Verify build**
+- [x] **Step 3: Verify build**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/components/sprint/CreateSprintForm.tsx \
@@ -2301,7 +2301,7 @@ git commit -m "feat: add Backlog page — sprint planning, issue assignment, sta
 **Files:**
 - Create: `frontend/src/pages/reports/ReportsPage.tsx`
 
-- [ ] **Step 1: Create `frontend/src/pages/reports/ReportsPage.tsx`**
+- [x] **Step 1: Create `frontend/src/pages/reports/ReportsPage.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2397,14 +2397,14 @@ export function ReportsPage() {
 }
 ```
 
-- [ ] **Step 2: Verify build**
+- [x] **Step 2: Verify build**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/pages/reports/
@@ -2420,7 +2420,7 @@ git commit -m "feat: add Reports page — burndown and velocity charts with rech
 - Modify: `frontend/src/pages/board/BoardPage.tsx`
 - Modify: `frontend/src/pages/backlog/BacklogPage.tsx`
 
-- [ ] **Step 1: Create `frontend/src/hooks/useProjectSocket.ts`**
+- [x] **Step 1: Create `frontend/src/hooks/useProjectSocket.ts`**
 
 ```typescript
 import { useEffect } from 'react'
@@ -2454,7 +2454,7 @@ export function useProjectSocket(projectKey: string) {
 }
 ```
 
-- [ ] **Step 2: Add `useProjectSocket` to `BoardPage.tsx`**
+- [x] **Step 2: Add `useProjectSocket` to `BoardPage.tsx`**
 
 Add import after existing imports:
 ```tsx
@@ -2466,7 +2466,7 @@ Add as first line inside `BoardPage()` function body:
 useProjectSocket(key!)
 ```
 
-- [ ] **Step 3: Add `useProjectSocket` to `BacklogPage.tsx`**
+- [x] **Step 3: Add `useProjectSocket` to `BacklogPage.tsx`**
 
 Add import after existing imports:
 ```tsx
@@ -2478,14 +2478,14 @@ Add as first line inside `BacklogPage()` function body:
 useProjectSocket(key!)
 ```
 
-- [ ] **Step 4: Verify build**
+- [x] **Step 4: Verify build**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/hooks/useProjectSocket.ts \
@@ -2502,7 +2502,7 @@ git commit -m "feat: add WebSocket hook for real-time board and backlog updates"
 - Modify: `frontend/src/layouts/AppLayout.tsx`
 - Modify: `frontend/src/app/router.tsx`
 
-- [ ] **Step 1: Update `frontend/src/layouts/AppLayout.tsx`** — add project sub-nav
+- [x] **Step 1: Update `frontend/src/layouts/AppLayout.tsx`** — add project sub-nav
 
 ```tsx
 import { Outlet, Link, useNavigate, useParams, useMatch } from 'react-router-dom'
@@ -2553,7 +2553,7 @@ export function AppLayout() {
 }
 ```
 
-- [ ] **Step 2: Update `frontend/src/app/router.tsx`** — add board, backlog, reports routes
+- [x] **Step 2: Update `frontend/src/app/router.tsx`** — add board, backlog, reports routes
 
 ```tsx
 import { createBrowserRouter, Navigate } from 'react-router-dom'
@@ -2600,14 +2600,14 @@ export const router = createBrowserRouter([
 ])
 ```
 
-- [ ] **Step 3: Verify final build**
+- [x] **Step 3: Verify final build**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no TypeScript errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/layouts/AppLayout.tsx frontend/src/app/router.tsx
@@ -2618,14 +2618,14 @@ git commit -m "feat: add board/backlog/reports routes and project sub-nav to sid
 
 ## Task 19: Final Integration Test
 
-- [ ] **Step 1: Build backend JAR**
+- [x] **Step 1: Build backend JAR**
 
 ```bash
 cd backend && ./gradlew bootJar 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 2: Build and start full stack**
+- [x] **Step 2: Build and start full stack**
 
 ```bash
 docker compose build && docker compose up -d
@@ -2636,7 +2636,7 @@ curl -s http://localhost/api/v1/auth/register \
 ```
 Expected: `{"accessToken":"...","refreshToken":"..."}`
 
-- [ ] **Step 3: Manual flow verification**
+- [x] **Step 3: Manual flow verification**
 
 Open `http://localhost` and verify:
 1. Login → redirect to dashboard
@@ -2651,13 +2651,13 @@ Open `http://localhost` and verify:
 10. Navigate to **Backlog** → unfinished issue appears in backlog
 11. Navigate to **Reports** → Velocity shows Sprint 1 with 5 completed points
 
-- [ ] **Step 4: Stop stack**
+- [x] **Step 4: Stop stack**
 
 ```bash
 docker compose down
 ```
 
-- [ ] **Step 5: Final commit**
+- [x] **Step 5: Final commit**
 
 ```bash
 git add .

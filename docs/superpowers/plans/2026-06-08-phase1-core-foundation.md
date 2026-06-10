@@ -1,6 +1,6 @@
-# Phase 1: Core Foundation — Implementation Plan
+# Phase 1: Core Foundation — Implementation Plan ✅ ABGESCHLOSSEN (2026-06-08)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Ein laufendes, self-hosted TaskWolf bei dem Nutzer sich registrieren/einloggen, Projekte anlegen, und Issues mit Status-Workflows verwalten können — startbar mit `docker compose up`.
 
@@ -140,13 +140,13 @@ docker-compose.dev.yml
 - Create: `backend/src/main/resources/application-dev.yml`
 - Create: `backend/src/main/resources/application-prod.yml`
 
-- [ ] **Step 1: Create `backend/settings.gradle.kts`**
+- [x] **Step 1: Create `backend/settings.gradle.kts`**
 
 ```kotlin
 rootProject.name = "taskowolf"
 ```
 
-- [ ] **Step 2: Create `backend/build.gradle.kts`**
+- [x] **Step 2: Create `backend/build.gradle.kts`**
 
 ```kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -201,7 +201,7 @@ tasks.withType<Test> {
 }
 ```
 
-- [ ] **Step 3: Create `backend/src/main/kotlin/com/taskowolf/TaskWolfApplication.kt`**
+- [x] **Step 3: Create `backend/src/main/kotlin/com/taskowolf/TaskWolfApplication.kt`**
 
 ```kotlin
 package com.taskowolf
@@ -217,7 +217,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-- [ ] **Step 4: Create `backend/src/main/resources/application.yml`**
+- [x] **Step 4: Create `backend/src/main/resources/application.yml`**
 
 ```yaml
 spring:
@@ -247,7 +247,7 @@ springdoc:
     path: /swagger-ui.html
 ```
 
-- [ ] **Step 5: Create `backend/src/main/resources/application-dev.yml`**
+- [x] **Step 5: Create `backend/src/main/resources/application-dev.yml`**
 
 ```yaml
 spring:
@@ -268,7 +268,7 @@ logging:
     com.taskowolf: DEBUG
 ```
 
-- [ ] **Step 6: Create `backend/src/main/resources/application-prod.yml`**
+- [x] **Step 6: Create `backend/src/main/resources/application-prod.yml`**
 
 ```yaml
 spring:
@@ -284,14 +284,14 @@ logging:
     com.taskowolf: INFO
 ```
 
-- [ ] **Step 7: Verify the project compiles**
+- [x] **Step 7: Verify the project compiles**
 
 ```bash
 cd backend && ./gradlew compileKotlin
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add backend/
@@ -308,7 +308,7 @@ git commit -m "feat: scaffold Spring Boot backend"
 - Create: `backend/src/main/kotlin/com/taskowolf/core/infrastructure/GlobalExceptionHandler.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/core/infrastructure/ErrorResponse.kt`
 
-- [ ] **Step 1: Create `AuditableEntity.kt`**
+- [x] **Step 1: Create `AuditableEntity.kt`**
 
 ```kotlin
 package com.taskowolf.core.domain
@@ -336,7 +336,7 @@ abstract class AuditableEntity(
 )
 ```
 
-- [ ] **Step 2: Enable JPA Auditing in `TaskWolfApplication.kt`**
+- [x] **Step 2: Enable JPA Auditing in `TaskWolfApplication.kt`**
 
 ```kotlin
 package com.taskowolf
@@ -354,7 +354,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-- [ ] **Step 3: Create `DomainEventPublisher.kt`**
+- [x] **Step 3: Create `DomainEventPublisher.kt`**
 
 ```kotlin
 package com.taskowolf.core.application
@@ -368,7 +368,7 @@ class DomainEventPublisher(private val publisher: ApplicationEventPublisher) {
 }
 ```
 
-- [ ] **Step 4: Create `ErrorResponse.kt`**
+- [x] **Step 4: Create `ErrorResponse.kt`**
 
 ```kotlin
 package com.taskowolf.core.infrastructure
@@ -380,7 +380,7 @@ data class ErrorResponse(
 )
 ```
 
-- [ ] **Step 5: Create `GlobalExceptionHandler.kt`**
+- [x] **Step 5: Create `GlobalExceptionHandler.kt`**
 
 ```kotlin
 package com.taskowolf.core.infrastructure
@@ -423,7 +423,7 @@ class GlobalExceptionHandler {
 }
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/core/
@@ -440,7 +440,7 @@ git commit -m "feat: add core module with auditing, event publisher, error handl
 - Create: `backend/src/main/resources/db/migration/V3__create_workflows.sql`
 - Create: `backend/src/main/resources/db/migration/V4__create_issues.sql`
 
-- [ ] **Step 1: Create `V1__create_users.sql`**
+- [x] **Step 1: Create `V1__create_users.sql`**
 
 ```sql
 CREATE TABLE users (
@@ -459,7 +459,7 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 ```
 
-- [ ] **Step 2: Create `V2__create_projects.sql`**
+- [x] **Step 2: Create `V2__create_projects.sql`**
 
 ```sql
 CREATE TABLE projects (
@@ -489,7 +489,7 @@ CREATE INDEX idx_project_members_project ON project_members(project_id);
 CREATE INDEX idx_project_members_user ON project_members(user_id);
 ```
 
-- [ ] **Step 3: Create `V3__create_workflows.sql`**
+- [x] **Step 3: Create `V3__create_workflows.sql`**
 
 ```sql
 CREATE TABLE workflows (
@@ -528,7 +528,7 @@ CREATE INDEX idx_workflows_project ON workflows(project_id);
 CREATE INDEX idx_workflow_statuses_workflow ON workflow_statuses(workflow_id);
 ```
 
-- [ ] **Step 4: Create `V4__create_issues.sql`**
+- [x] **Step 4: Create `V4__create_issues.sql`**
 
 ```sql
 CREATE TABLE issues (
@@ -569,7 +569,7 @@ CREATE INDEX idx_issue_links_from ON issue_links(from_issue_id);
 CREATE INDEX idx_issue_links_to ON issue_links(to_issue_id);
 ```
 
-- [ ] **Step 5: Verify migrations run on H2**
+- [x] **Step 5: Verify migrations run on H2**
 
 ```bash
 cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun &
@@ -579,7 +579,7 @@ kill %1
 ```
 Expected: `{"status":"UP"}` (add `spring-boot-starter-actuator` to build.gradle.kts if needed)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/src/main/resources/db/
@@ -602,7 +602,7 @@ git commit -m "feat: add Flyway migrations V1-V4 for users, projects, workflows,
 - Create: `backend/src/main/kotlin/com/taskowolf/auth/api/dto/*.kt`
 - Test: `backend/src/test/kotlin/com/taskowolf/auth/AuthServiceTest.kt`
 
-- [ ] **Step 1: Create `SystemRole.kt`**
+- [x] **Step 1: Create `SystemRole.kt`**
 
 ```kotlin
 package com.taskowolf.auth.domain
@@ -610,7 +610,7 @@ package com.taskowolf.auth.domain
 enum class SystemRole { ADMIN, MEMBER }
 ```
 
-- [ ] **Step 2: Create `User.kt`**
+- [x] **Step 2: Create `User.kt`**
 
 ```kotlin
 package com.taskowolf.auth.domain
@@ -641,7 +641,7 @@ class User(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 3: Create `UserRepository.kt`**
+- [x] **Step 3: Create `UserRepository.kt`**
 
 ```kotlin
 package com.taskowolf.auth.infrastructure
@@ -656,7 +656,7 @@ interface UserRepository : JpaRepository<User, UUID> {
 }
 ```
 
-- [ ] **Step 4: Create DTO classes**
+- [x] **Step 4: Create DTO classes**
 
 `RegisterRequest.kt`:
 ```kotlin
@@ -701,7 +701,7 @@ data class UserResponse(val id: UUID, val email: String, val displayName: String
 }
 ```
 
-- [ ] **Step 5: Write failing test for AuthService**
+- [x] **Step 5: Write failing test for AuthService**
 
 `backend/src/test/kotlin/com/taskowolf/auth/AuthServiceTest.kt`:
 ```kotlin
@@ -749,14 +749,14 @@ class AuthServiceTest {
 }
 ```
 
-- [ ] **Step 6: Run test to verify it fails**
+- [x] **Step 6: Run test to verify it fails**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.auth.AuthServiceTest" 2>&1 | tail -5
 ```
 Expected: `AuthService` class not found error.
 
-- [ ] **Step 7: Create `JwtService.kt`**
+- [x] **Step 7: Create `JwtService.kt`**
 
 ```kotlin
 package com.taskowolf.auth.application
@@ -794,7 +794,7 @@ class JwtService(
 }
 ```
 
-- [ ] **Step 8: Create `AuthService.kt`**
+- [x] **Step 8: Create `AuthService.kt`**
 
 ```kotlin
 package com.taskowolf.auth.application
@@ -859,7 +859,7 @@ class AuthService(
 class ForbiddenException(message: String) : RuntimeException(message)
 ```
 
-- [ ] **Step 9: Create `JwtAuthFilter.kt`**
+- [x] **Step 9: Create `JwtAuthFilter.kt`**
 
 ```kotlin
 package com.taskowolf.auth.infrastructure
@@ -907,7 +907,7 @@ class JwtAuthFilter(
 }
 ```
 
-- [ ] **Step 10: Create `SecurityConfig.kt`**
+- [x] **Step 10: Create `SecurityConfig.kt`**
 
 ```kotlin
 package com.taskowolf.auth.infrastructure
@@ -947,7 +947,7 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
 }
 ```
 
-- [ ] **Step 11: Create `AuthController.kt`**
+- [x] **Step 11: Create `AuthController.kt`**
 
 ```kotlin
 package com.taskowolf.auth.api
@@ -982,14 +982,14 @@ class AuthController(private val authService: AuthService) {
 }
 ```
 
-- [ ] **Step 12: Run tests to verify they pass**
+- [x] **Step 12: Run tests to verify they pass**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.auth.AuthServiceTest" 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`, 2 tests passed.
 
-- [ ] **Step 13: Smoke test the API**
+- [x] **Step 13: Smoke test the API**
 
 ```bash
 cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun &
@@ -1001,7 +1001,7 @@ kill %1
 ```
 Expected: JSON with `accessToken` and `refreshToken`.
 
-- [ ] **Step 14: Commit**
+- [x] **Step 14: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/auth/ backend/src/test/kotlin/com/taskowolf/auth/
@@ -1023,7 +1023,7 @@ git commit -m "feat: add auth module — JWT register/login/refresh"
 - Create: `backend/src/main/kotlin/com/taskowolf/projects/api/dto/*.kt`
 - Test: `backend/src/test/kotlin/com/taskowolf/projects/ProjectServiceTest.kt`
 
-- [ ] **Step 1: Create `ProjectRole.kt`**
+- [x] **Step 1: Create `ProjectRole.kt`**
 
 ```kotlin
 package com.taskowolf.projects.domain
@@ -1031,7 +1031,7 @@ package com.taskowolf.projects.domain
 enum class ProjectRole { ADMIN, MEMBER, VIEWER }
 ```
 
-- [ ] **Step 2: Create `Project.kt`**
+- [x] **Step 2: Create `Project.kt`**
 
 ```kotlin
 package com.taskowolf.projects.domain
@@ -1069,7 +1069,7 @@ class Project(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 3: Create `ProjectMember.kt`**
+- [x] **Step 3: Create `ProjectMember.kt`**
 
 ```kotlin
 package com.taskowolf.projects.domain
@@ -1095,7 +1095,7 @@ class ProjectMember(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 4: Create repositories**
+- [x] **Step 4: Create repositories**
 
 `ProjectRepository.kt`:
 ```kotlin
@@ -1134,7 +1134,7 @@ interface ProjectMemberRepository : JpaRepository<ProjectMember, UUID> {
 }
 ```
 
-- [ ] **Step 5: Create DTOs**
+- [x] **Step 5: Create DTOs**
 
 `CreateProjectRequest.kt`:
 ```kotlin
@@ -1176,7 +1176,7 @@ data class ProjectResponse(
 }
 ```
 
-- [ ] **Step 6: Write failing test**
+- [x] **Step 6: Write failing test**
 
 `backend/src/test/kotlin/com/taskowolf/projects/ProjectServiceTest.kt`:
 ```kotlin
@@ -1224,14 +1224,14 @@ class ProjectServiceTest {
 }
 ```
 
-- [ ] **Step 7: Run test to verify it fails**
+- [x] **Step 7: Run test to verify it fails**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.projects.ProjectServiceTest" 2>&1 | tail -5
 ```
 Expected: `ProjectService` not found error.
 
-- [ ] **Step 8: Create `ProjectService.kt`**
+- [x] **Step 8: Create `ProjectService.kt`**
 
 ```kotlin
 package com.taskowolf.projects.application
@@ -1282,7 +1282,7 @@ class ProjectService(
 }
 ```
 
-- [ ] **Step 9: Create `ProjectController.kt`**
+- [x] **Step 9: Create `ProjectController.kt`**
 
 ```kotlin
 package com.taskowolf.projects.api
@@ -1317,14 +1317,14 @@ class ProjectController(private val projectService: ProjectService) {
 }
 ```
 
-- [ ] **Step 10: Run all tests**
+- [x] **Step 10: Run all tests**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -10
 ```
 Expected: `BUILD SUCCESSFUL`, all tests pass.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/projects/ backend/src/test/kotlin/com/taskowolf/projects/
@@ -1344,7 +1344,7 @@ git commit -m "feat: add projects module — CRUD, membership"
 - Create: `backend/src/main/kotlin/com/taskowolf/workflows/infrastructure/*.kt`
 - Create: `backend/src/main/kotlin/com/taskowolf/workflows/api/WorkflowController.kt`
 
-- [ ] **Step 1: Create `StatusCategory.kt`**
+- [x] **Step 1: Create `StatusCategory.kt`**
 
 ```kotlin
 package com.taskowolf.workflows.domain
@@ -1352,7 +1352,7 @@ package com.taskowolf.workflows.domain
 enum class StatusCategory { TODO, IN_PROGRESS, DONE }
 ```
 
-- [ ] **Step 2: Create `Workflow.kt`**
+- [x] **Step 2: Create `Workflow.kt`**
 
 ```kotlin
 package com.taskowolf.workflows.domain
@@ -1383,7 +1383,7 @@ class Workflow(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 3: Create `WorkflowStatus.kt`**
+- [x] **Step 3: Create `WorkflowStatus.kt`**
 
 ```kotlin
 package com.taskowolf.workflows.domain
@@ -1413,7 +1413,7 @@ class WorkflowStatus(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 4: Create `WorkflowTransition.kt`**
+- [x] **Step 4: Create `WorkflowTransition.kt`**
 
 ```kotlin
 package com.taskowolf.workflows.domain
@@ -1438,7 +1438,7 @@ class WorkflowTransition(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 5: Create repositories**
+- [x] **Step 5: Create repositories**
 
 ```kotlin
 // WorkflowRepository.kt
@@ -1467,7 +1467,7 @@ interface WorkflowTransitionRepository : JpaRepository<WorkflowTransition, UUID>
 }
 ```
 
-- [ ] **Step 6: Create `WorkflowService.kt`**
+- [x] **Step 6: Create `WorkflowService.kt`**
 
 ```kotlin
 package com.taskowolf.workflows.application
@@ -1510,7 +1510,7 @@ class WorkflowService(
 }
 ```
 
-- [ ] **Step 7: Wire default workflow creation into ProjectService**
+- [x] **Step 7: Wire default workflow creation into ProjectService**
 
 In `ProjectService.kt`, inject `WorkflowService` and call `workflowService.createDefault(project)` after saving the project, then assign it: `project.workflow = workflow` and save again.
 
@@ -1526,7 +1526,7 @@ projectRepository.save(project)
 
 Change `Project.workflow` field to `var` (already `var` in the spec).
 
-- [ ] **Step 8: Create `WorkflowController.kt`**
+- [x] **Step 8: Create `WorkflowController.kt`**
 
 ```kotlin
 package com.taskowolf.workflows.api
@@ -1560,14 +1560,14 @@ class WorkflowController(
 }
 ```
 
-- [ ] **Step 9: Run all tests**
+- [x] **Step 9: Run all tests**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/workflows/
@@ -1590,7 +1590,7 @@ git commit -m "feat: add workflows module — statuses, transitions, default wor
 - Create: `backend/src/main/kotlin/com/taskowolf/issues/api/IssueController.kt`
 - Test: `backend/src/test/kotlin/com/taskowolf/issues/IssueServiceTest.kt`
 
-- [ ] **Step 1: Create enums**
+- [x] **Step 1: Create enums**
 
 ```kotlin
 // IssueType.kt
@@ -1606,7 +1606,7 @@ package com.taskowolf.issues.domain
 enum class IssueLinkType { BLOCKS, BLOCKED_BY, RELATES_TO, DUPLICATES, CLONED_BY }
 ```
 
-- [ ] **Step 2: Create `Issue.kt`**
+- [x] **Step 2: Create `Issue.kt`**
 
 ```kotlin
 package com.taskowolf.issues.domain
@@ -1667,7 +1667,7 @@ class Issue(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 3: Create `IssueLink.kt`**
+- [x] **Step 3: Create `IssueLink.kt`**
 
 ```kotlin
 package com.taskowolf.issues.domain
@@ -1692,7 +1692,7 @@ class IssueLink(
 ) : AuditableEntity()
 ```
 
-- [ ] **Step 4: Create domain events**
+- [x] **Step 4: Create domain events**
 
 ```kotlin
 // IssueCreatedEvent.kt
@@ -1707,7 +1707,7 @@ import com.taskowolf.workflows.domain.WorkflowStatus
 data class IssueStatusChangedEvent(val issue: Issue, val oldStatus: WorkflowStatus, val newStatus: WorkflowStatus)
 ```
 
-- [ ] **Step 5: Create `IssueRepository.kt`**
+- [x] **Step 5: Create `IssueRepository.kt`**
 
 ```kotlin
 package com.taskowolf.issues.infrastructure
@@ -1729,7 +1729,7 @@ interface IssueRepository : JpaRepository<Issue, UUID> {
 }
 ```
 
-- [ ] **Step 6: Create DTOs**
+- [x] **Step 6: Create DTOs**
 
 ```kotlin
 // CreateIssueRequest.kt
@@ -1783,7 +1783,7 @@ data class IssueResponse(
 }
 ```
 
-- [ ] **Step 7: Write failing tests**
+- [x] **Step 7: Write failing tests**
 
 `backend/src/test/kotlin/com/taskowolf/issues/IssueServiceTest.kt`:
 ```kotlin
@@ -1845,14 +1845,14 @@ class IssueServiceTest {
 }
 ```
 
-- [ ] **Step 8: Run to verify failure**
+- [x] **Step 8: Run to verify failure**
 
 ```bash
 cd backend && ./gradlew test --tests "com.taskowolf.issues.IssueServiceTest" 2>&1 | tail -5
 ```
 Expected: `IssueService` not found.
 
-- [ ] **Step 9: Create `IssueService.kt`**
+- [x] **Step 9: Create `IssueService.kt`**
 
 ```kotlin
 package com.taskowolf.issues.application
@@ -1953,7 +1953,7 @@ class IssueService(
 }
 ```
 
-- [ ] **Step 10: Create `IssueController.kt`**
+- [x] **Step 10: Create `IssueController.kt`**
 
 ```kotlin
 package com.taskowolf.issues.api
@@ -2014,14 +2014,14 @@ class IssueController(private val issueService: IssueService) {
 }
 ```
 
-- [ ] **Step 11: Run all tests**
+- [x] **Step 11: Run all tests**
 
 ```bash
 cd backend && ./gradlew test 2>&1 | tail -10
 ```
 Expected: `BUILD SUCCESSFUL`, all tests green.
 
-- [ ] **Step 12: End-to-end smoke test**
+- [x] **Step 12: End-to-end smoke test**
 
 ```bash
 cd backend && SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun &
@@ -2039,7 +2039,7 @@ kill %1
 ```
 Expected: Issue with `key: "WOLF-1"` returned.
 
-- [ ] **Step 13: Commit**
+- [x] **Step 13: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/issues/ backend/src/test/kotlin/com/taskowolf/issues/
@@ -2062,7 +2062,7 @@ git commit -m "feat: add issues module — CRUD, types, priorities, status trans
 - Create: `frontend/src/api/client.ts`
 - Create: `frontend/src/lib/utils.ts`
 
-- [ ] **Step 1: Create `frontend/package.json`**
+- [x] **Step 1: Create `frontend/package.json`**
 
 ```json
 {
@@ -2104,7 +2104,7 @@ git commit -m "feat: add issues module — CRUD, types, priorities, status trans
 }
 ```
 
-- [ ] **Step 2: Create `frontend/vite.config.ts`**
+- [x] **Step 2: Create `frontend/vite.config.ts`**
 
 ```typescript
 import { defineConfig } from 'vite'
@@ -2126,7 +2126,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 3: Create `frontend/src/types/index.ts`**
+- [x] **Step 3: Create `frontend/src/types/index.ts`**
 
 ```typescript
 export interface User {
@@ -2183,7 +2183,7 @@ export interface Page<T> {
 }
 ```
 
-- [ ] **Step 4: Create `frontend/src/api/client.ts`**
+- [x] **Step 4: Create `frontend/src/api/client.ts`**
 
 ```typescript
 import axios from 'axios'
@@ -2220,7 +2220,7 @@ apiClient.interceptors.response.use(
 )
 ```
 
-- [ ] **Step 5: Create API modules**
+- [x] **Step 5: Create API modules**
 
 `frontend/src/api/auth.ts`:
 ```typescript
@@ -2266,7 +2266,7 @@ export const issuesApi = {
 }
 ```
 
-- [ ] **Step 6: Create `frontend/src/app/queryClient.ts`**
+- [x] **Step 6: Create `frontend/src/app/queryClient.ts`**
 
 ```typescript
 import { QueryClient } from '@tanstack/react-query'
@@ -2278,7 +2278,7 @@ export const queryClient = new QueryClient({
 })
 ```
 
-- [ ] **Step 7: Create `frontend/src/lib/utils.ts`**
+- [x] **Step 7: Create `frontend/src/lib/utils.ts`**
 
 ```typescript
 import { type ClassValue, clsx } from 'clsx'
@@ -2289,14 +2289,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 ```
 
-- [ ] **Step 8: Install dependencies and verify build**
+- [x] **Step 8: Install dependencies and verify build**
 
 ```bash
 cd frontend && npm install && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add frontend/
@@ -2315,7 +2315,7 @@ git commit -m "feat: scaffold React frontend with Vite, Tailwind, API client, ty
 - Create: `frontend/src/pages/auth/LoginPage.tsx`
 - Create: `frontend/src/pages/auth/RegisterPage.tsx`
 
-- [ ] **Step 1: Create `frontend/src/main.tsx`**
+- [x] **Step 1: Create `frontend/src/main.tsx`**
 
 ```tsx
 import { StrictMode } from 'react'
@@ -2335,7 +2335,7 @@ createRoot(document.getElementById('root')!).render(
 )
 ```
 
-- [ ] **Step 2: Create `frontend/src/app/router.tsx`**
+- [x] **Step 2: Create `frontend/src/app/router.tsx`**
 
 ```tsx
 import { createBrowserRouter, Navigate } from 'react-router-dom'
@@ -2376,7 +2376,7 @@ export const router = createBrowserRouter([
 ])
 ```
 
-- [ ] **Step 3: Create `frontend/src/layouts/AuthLayout.tsx`**
+- [x] **Step 3: Create `frontend/src/layouts/AuthLayout.tsx`**
 
 ```tsx
 import { Outlet, Link } from 'react-router-dom'
@@ -2393,7 +2393,7 @@ export function AuthLayout() {
 }
 ```
 
-- [ ] **Step 4: Create `frontend/src/layouts/AppLayout.tsx`**
+- [x] **Step 4: Create `frontend/src/layouts/AppLayout.tsx`**
 
 ```tsx
 import { Outlet, Link, useNavigate } from 'react-router-dom'
@@ -2426,7 +2426,7 @@ export function AppLayout() {
 }
 ```
 
-- [ ] **Step 5: Create `frontend/src/pages/auth/LoginPage.tsx`**
+- [x] **Step 5: Create `frontend/src/pages/auth/LoginPage.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2478,7 +2478,7 @@ export function LoginPage() {
 }
 ```
 
-- [ ] **Step 6: Create `frontend/src/pages/auth/RegisterPage.tsx`**
+- [x] **Step 6: Create `frontend/src/pages/auth/RegisterPage.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2528,14 +2528,14 @@ export function RegisterPage() {
 }
 ```
 
-- [ ] **Step 7: Verify frontend builds**
+- [x] **Step 7: Verify frontend builds**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no TypeScript errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add frontend/src/
@@ -2556,7 +2556,7 @@ git commit -m "feat: add auth pages — login, register, app layout with sidebar
 - Create: `frontend/src/pages/issues/IssueDetailPage.tsx`
 - Create: `frontend/src/components/issue/StatusBadge.tsx`
 
-- [ ] **Step 1: Create `frontend/src/hooks/useProjects.ts`**
+- [x] **Step 1: Create `frontend/src/hooks/useProjects.ts`**
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -2586,7 +2586,7 @@ export function useCreateProject() {
 }
 ```
 
-- [ ] **Step 2: Create `frontend/src/hooks/useIssues.ts`**
+- [x] **Step 2: Create `frontend/src/hooks/useIssues.ts`**
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -2625,7 +2625,7 @@ export function useUpdateIssue(projectKey: string) {
 }
 ```
 
-- [ ] **Step 3: Create `frontend/src/components/issue/StatusBadge.tsx`**
+- [x] **Step 3: Create `frontend/src/components/issue/StatusBadge.tsx`**
 
 ```tsx
 import { cn } from '@/lib/utils'
@@ -2650,7 +2650,7 @@ export function StatusBadge({ name, category }: Props) {
 }
 ```
 
-- [ ] **Step 4: Create `frontend/src/pages/dashboard/DashboardPage.tsx`**
+- [x] **Step 4: Create `frontend/src/pages/dashboard/DashboardPage.tsx`**
 
 ```tsx
 import { Link } from 'react-router-dom'
@@ -2686,7 +2686,7 @@ export function DashboardPage() {
 }
 ```
 
-- [ ] **Step 5: Create `frontend/src/pages/projects/ProjectListPage.tsx`**
+- [x] **Step 5: Create `frontend/src/pages/projects/ProjectListPage.tsx`**
 
 ```tsx
 import { DashboardPage } from '../dashboard/DashboardPage'
@@ -2694,7 +2694,7 @@ import { DashboardPage } from '../dashboard/DashboardPage'
 export { DashboardPage as ProjectListPage }
 ```
 
-- [ ] **Step 6: Create `frontend/src/pages/projects/ProjectCreatePage.tsx`**
+- [x] **Step 6: Create `frontend/src/pages/projects/ProjectCreatePage.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2752,7 +2752,7 @@ export function ProjectCreatePage() {
 }
 ```
 
-- [ ] **Step 7: Create `frontend/src/pages/issues/IssueListPage.tsx`**
+- [x] **Step 7: Create `frontend/src/pages/issues/IssueListPage.tsx`**
 
 ```tsx
 import { useState } from 'react'
@@ -2819,7 +2819,7 @@ export function IssueListPage() {
 }
 ```
 
-- [ ] **Step 8: Create `frontend/src/pages/issues/IssueDetailPage.tsx`**
+- [x] **Step 8: Create `frontend/src/pages/issues/IssueDetailPage.tsx`**
 
 ```tsx
 import { useParams } from 'react-router-dom'
@@ -2872,20 +2872,20 @@ export function IssueDetailPage() {
 }
 ```
 
-- [ ] **Step 9: Create `frontend/src/index.css`**
+- [x] **Step 9: Create `frontend/src/index.css`**
 
 ```css
 @import "tailwindcss";
 ```
 
-- [ ] **Step 10: Verify build**
+- [x] **Step 10: Verify build**
 
 ```bash
 cd frontend && npm run build 2>&1 | tail -5
 ```
 Expected: `✓ built in` — no errors.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add frontend/src/
@@ -2905,7 +2905,7 @@ git commit -m "feat: add projects and issues pages — list, create, detail"
 - Create: `frontend/Dockerfile`
 - Create: `.gitignore`
 
-- [ ] **Step 1: Create `backend/Dockerfile`**
+- [x] **Step 1: Create `backend/Dockerfile`**
 
 ```dockerfile
 FROM eclipse-temurin:21-jre-alpine
@@ -2915,7 +2915,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
-- [ ] **Step 2: Create `frontend/Dockerfile`**
+- [x] **Step 2: Create `frontend/Dockerfile`**
 
 ```dockerfile
 FROM node:20-alpine AS builder
@@ -2943,7 +2943,7 @@ server {
 }
 ```
 
-- [ ] **Step 3: Create `docker/nginx.conf`**
+- [x] **Step 3: Create `docker/nginx.conf`**
 
 ```nginx
 upstream backend {
@@ -2972,7 +2972,7 @@ server {
 }
 ```
 
-- [ ] **Step 4: Create `docker-compose.yml`**
+- [x] **Step 4: Create `docker-compose.yml`**
 
 ```yaml
 services:
@@ -3024,7 +3024,7 @@ volumes:
   attachments:
 ```
 
-- [ ] **Step 5: Create `docker-compose.dev.yml`**
+- [x] **Step 5: Create `docker-compose.dev.yml`**
 
 ```yaml
 services:
@@ -3037,7 +3037,7 @@ services:
       TW_JWT_SECRET: dev-secret-change-in-production-min-256-bits
 ```
 
-- [ ] **Step 6: Create `.env.example`**
+- [x] **Step 6: Create `.env.example`**
 
 ```env
 TW_JWT_SECRET=replace-with-a-secure-256-bit-random-string
@@ -3046,7 +3046,7 @@ TW_DB_PASS=changeme
 TW_BASE_URL=http://localhost
 ```
 
-- [ ] **Step 7: Create `.gitignore`**
+- [x] **Step 7: Create `.gitignore`**
 
 ```
 # Build
@@ -3073,14 +3073,14 @@ data/
 .superpowers/brainstorm/
 ```
 
-- [ ] **Step 8: Build backend JAR**
+- [x] **Step 8: Build backend JAR**
 
 ```bash
 cd backend && ./gradlew bootJar 2>&1 | tail -5
 ```
 Expected: `BUILD SUCCESSFUL`, JAR in `build/libs/`.
 
-- [ ] **Step 9: Full integration test with docker-compose**
+- [x] **Step 9: Full integration test with docker-compose**
 
 ```bash
 cp .env.example .env
@@ -3093,7 +3093,7 @@ curl -s http://localhost/api/v1/auth/register \
 ```
 Expected: `{"accessToken":"...","refreshToken":"..."}`
 
-- [ ] **Step 10: Open browser and verify full flow**
+- [x] **Step 10: Open browser and verify full flow**
 
 1. Open `http://localhost` — should see TaskWolf login page
 2. Click Register, create account
@@ -3101,7 +3101,7 @@ Expected: `{"accessToken":"...","refreshToken":"..."}`
 4. Create an issue
 5. Click the issue to see detail view
 
-- [ ] **Step 11: Final commit**
+- [x] **Step 11: Final commit**
 
 ```bash
 git add .
