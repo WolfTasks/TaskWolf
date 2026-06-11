@@ -10,6 +10,9 @@ export function useProjectSocket(projectKey: string) {
     const client = new Client({
       brokerURL: `${protocol}://${window.location.host}/ws-stomp`,
       reconnectDelay: 5000,
+      connectHeaders: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken') ?? ''}`,
+      },
       onConnect: () => {
         client.subscribe(`/topic/projects/${projectKey}`, (message) => {
           const event = JSON.parse(message.body) as { type: string }

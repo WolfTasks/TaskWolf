@@ -116,3 +116,58 @@ export interface VelocityEntry {
 export interface VelocityResponse {
   entries: VelocityEntry[]
 }
+
+export interface Comment {
+  id: string
+  issueId: string
+  authorId: string
+  body: string | null
+  editedAt: string | null
+  deleted: boolean
+  createdAt: string
+}
+
+export type ActivityType =
+  | 'COMMENT'
+  | 'STATUS_CHANGED'
+  | 'ASSIGNED'
+  | 'UNASSIGNED'
+  | 'PRIORITY_CHANGED'
+  | 'TITLE_CHANGED'
+  | 'DESCRIPTION_CHANGED'
+  | 'STORY_POINTS_CHANGED'
+  | 'DUE_DATE_CHANGED'
+  | 'SPRINT_CHANGED'
+  | 'ATTACHMENT_ADDED'
+  | 'ATTACHMENT_REMOVED'
+
+export interface ActivityItem {
+  id: string
+  issueId: string
+  actorId: string
+  type: ActivityType
+  commentId: string | null
+  oldValue: string | null
+  newValue: string | null
+  createdAt: string
+}
+
+export interface Notification {
+  id: string
+  type: 'COMMENT_MENTION' | 'ISSUE_ASSIGNED'
+  title: string
+  body: string | null
+  link: string | null
+  read: boolean
+  createdAt: string
+}
+
+export interface Attachment {
+  id: string
+  issueId: string
+  uploaderId: string
+  filename: string
+  contentType: string
+  size: number
+  createdAt: string
+}
