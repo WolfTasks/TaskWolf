@@ -43,9 +43,7 @@ class IssueService(
                 storyPoints = request.storyPoints,
                 status = status,
                 project = project,
-                assignee = request.assigneeId?.let {
-                    userRepository.findById(it).orElseThrow { NotFoundException("Assignee not found: $it") }
-                },
+                assignee = request.assigneeId?.let { resolveAssignee(it, project) },
                 reporter = reporter,
                 parent = request.parentId?.let { parentId ->
                     issueRepository.findById(parentId)
@@ -69,9 +67,7 @@ class IssueService(
         request.description?.let { issue.description = it }
         request.priority?.let { issue.priority = it }
         request.storyPoints?.let { issue.storyPoints = it }
-        request.assigneeId?.let {
-            issue.assignee = userRepository.findById(it).orElseThrow { NotFoundException("Assignee not found: $it") }
-        }
+        request.assigneeId?.let { issue.assignee = resolveAssignee(it, project) }
         request.statusId?.let { newStatusId ->
             val oldStatus = issue.status
             val newStatus = workflowService.findStatusById(newStatusId)
@@ -107,5 +103,14 @@ class IssueService(
             .filter { it.project.id == project.id }
             .orElseThrow { NotFoundException("Issue not found") }
         issueRepository.delete(issue)
+    }
+
+    private fun resolveAssignee(assigneeId: UUID, project: com.taskowolf.projects.domain.Project): com.taskowolf.auth.domain.User {
+        val assignee = userRepository.findById(assigneeId)
+            .orElseThrow { NotFoundException("Assignee not found: $assigneeId") }
+        if (!projectService.isMember(project, assignee.id)) {
+            throw NotFoundException("Assignee not found: $assigneeId")
+        }
+        return assignee
     }
 }

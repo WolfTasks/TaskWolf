@@ -1,6 +1,7 @@
 package com.taskowolf.auth
 
 import com.taskowolf.auth.application.AuthService
+import com.taskowolf.auth.application.RefreshTokenService
 import com.taskowolf.auth.api.dto.RegisterRequest
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
@@ -16,7 +17,8 @@ class AuthServiceTest {
     private val userRepository = mockk<UserRepository>()
     private val passwordEncoder = mockk<PasswordEncoder>()
     private val jwtService = mockk<com.taskowolf.auth.application.JwtService>()
-    private val authService = AuthService(userRepository, passwordEncoder, jwtService)
+    private val refreshTokenService = mockk<RefreshTokenService>(relaxed = true)
+    private val authService = AuthService(userRepository, passwordEncoder, jwtService, refreshTokenService)
 
     @Test
     fun `register throws ConflictException when email already exists`() {

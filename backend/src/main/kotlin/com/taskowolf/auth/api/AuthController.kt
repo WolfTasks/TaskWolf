@@ -25,6 +25,12 @@ class AuthController(private val authService: AuthService) {
     fun refresh(@Valid @RequestBody body: RefreshRequest) =
         authService.refresh(body.refreshToken)
 
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun logout(@AuthenticationPrincipal user: User?) {
+        if (user != null) authService.logout(user.id)
+    }
+
     @GetMapping("/me")
     fun me(@AuthenticationPrincipal user: User) = UserResponse.from(user)
 }

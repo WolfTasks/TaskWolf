@@ -81,6 +81,23 @@ class IssueServiceTest {
     }
 
     @Test
+    fun `create rejects assignee who is not a project member`() {
+        val workflowId = UUID.randomUUID()
+        val stranger = com.taskowolf.auth.domain.User(email = "stranger@test.com", displayName = "Stranger")
+        every { workflow.id } returns workflowId
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { workflowService.getDefaultStatus(workflowId) } returns status
+        every { issueRepository.maxKeyNumberByProject(project.id) } returns 0
+        every { issueRepository.save(any()) } returnsArgument 0
+        every { userRepository.findById(stranger.id) } returns java.util.Optional.of(stranger)
+        every { projectService.isMember(project, stranger.id) } returns false
+
+        assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+            service.create("WOLF", CreateIssueRequest("Task", assigneeId = stranger.id), owner)
+        }
+    }
+
+    @Test
     fun `create rejects parent issue from another project`() {
         val workflowId = UUID.randomUUID()
         every { workflow.id } returns workflowId

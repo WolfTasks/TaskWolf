@@ -51,4 +51,8 @@ class ProjectService(
         if (!isMember && !isOwner) throw ForbiddenException("Not a member of project $projectKey")
         return project
     }
+
+    @Transactional(readOnly = true)
+    fun isMember(project: Project, userId: UUID): Boolean =
+        project.owner.id == userId || memberRepository.existsByProjectIdAndUserId(project.id, userId)
 }

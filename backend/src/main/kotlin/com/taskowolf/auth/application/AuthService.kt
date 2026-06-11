@@ -17,7 +17,8 @@ import java.util.UUID
 class AuthService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtService: JwtService
+    private val jwtService: JwtService,
+    private val refreshTokenService: RefreshTokenService
 ) {
     @Transactional
     fun register(request: RegisterRequest): AuthResponse {
@@ -34,7 +35,7 @@ class AuthService(
         return tokenPair(user.id)
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     fun login(request: LoginRequest): AuthResponse {
         val user = userRepository.findByEmail(request.email)
         val hash = user?.passwordHash
@@ -44,18 +45,29 @@ class AuthService(
         return tokenPair(user.id)
     }
 
+    @Transactional
     fun refresh(refreshToken: String): AuthResponse {
         val userId = jwtService.validateToken(refreshToken, "refresh")
             ?: throw ForbiddenException("Invalid refresh token")
+        refreshTokenService.consume(refreshToken)
         return tokenPair(userId)
+    }
+
+    @Transactional
+    fun logout(userId: UUID) {
+        refreshTokenService.revokeAllForUser(userId)
     }
 
     @Transactional(readOnly = true)
     fun me(userId: UUID) = userRepository.findById(userId)
         .orElseThrow { NotFoundException("User not found") }
 
-    private fun tokenPair(userId: UUID) = AuthResponse(
-        accessToken = jwtService.generateAccessToken(userId),
-        refreshToken = jwtService.generateRefreshToken(userId)
-    )
+    private fun tokenPair(userId: UUID): AuthResponse {
+        val refreshToken = jwtService.generateRefreshToken(userId)
+        refreshTokenService.store(refreshToken, userId)
+        return AuthResponse(
+            accessToken = jwtService.generateAccessToken(userId),
+            refreshToken = refreshToken
+        )
+    }
 }
