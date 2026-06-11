@@ -19,3 +19,9 @@ taskowolf:
   jwt:
     secret: ${TW_JWT_SECRET:dev-secret-change-in-production-min-256-bits}
   allowed-origins: "http://localhost:*"
+
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
