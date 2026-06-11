@@ -18,8 +18,9 @@ class JwtService(
 
     @PostConstruct
     fun validate() {
-        require(secret.toByteArray().size >= 32) {
-            "taskowolf.jwt.secret must be at least 32 bytes"
+        require(secret.isNotBlank() && secret.toByteArray().size >= 32) {
+            "TW_JWT_SECRET must be set to a random value of at least 32 bytes " +
+                "(e.g. generate one with: openssl rand -base64 48)"
         }
     }
 
