@@ -8,17 +8,36 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  mail:
+    host: ${TW_SMTP_HOST:}
+    port: ${TW_SMTP_PORT:587}
+    username: ${TW_SMTP_USER:}
+    password: ${TW_SMTP_PASS:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+  servlet:
+    multipart:
+      max-file-size: ${TW_ATTACHMENT_MAX_SIZE:26214400}
+      max-request-size: ${TW_ATTACHMENT_MAX_SIZE:26214400}
 
 server:
   port: 8080
 
 taskowolf:
   jwt:
-    secret: ${TW_JWT_SECRET:dev-secret-change-in-production-min-256-bits}
-    access-token-expiry: 900      # 15 minutes
-    refresh-token-expiry: 604800  # 7 days
+    secret: ${TW_JWT_SECRET:}
+    access-token-expiry: 900
+    refresh-token-expiry: 604800
   base-url: ${TW_BASE_URL:http://localhost:8080}
-  storage-path: ${TW_STORAGE_PATH:./data/attachments}
+  attachment:
+    max-size: ${TW_ATTACHMENT_MAX_SIZE:26214400}
+    path: ${TW_ATTACHMENT_PATH:./data/attachments}
+  smtp:
+    from: ${TW_SMTP_FROM:TaskWolf <noreply@example.com>}
+  auth:
+    registration-enabled: ${TW_REGISTRATION_ENABLED:true}
+  allowed-origins: ${TW_ALLOWED_ORIGINS:${taskowolf.base-url}}
 
 springdoc:
   swagger-ui:

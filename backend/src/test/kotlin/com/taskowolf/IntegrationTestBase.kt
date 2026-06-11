@@ -30,6 +30,7 @@ abstract class IntegrationTestBase {
             registry.add("spring.datasource.password", postgres::getPassword)
             registry.add("spring.datasource.driver-class-name") { "org.postgresql.Driver" }
             registry.add("spring.flyway.enabled") { "true" }
+            registry.add("taskowolf.jwt.secret") { "integration-test-secret-0123456789abcdef" }
         }
     }
 }
