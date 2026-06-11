@@ -1,0 +1,16 @@
+package com.taskowolf.comments.domain
+
+enum class ActivityType {
+    COMMENT,
+    STATUS_CHANGED,
+    ASSIGNED,
+    UNASSIGNED,
+    PRIORITY_CHANGED,
+    TITLE_CHANGED,
+    DESCRIPTION_CHANGED,
+    STORY_POINTS_CHANGED,
+    DUE_DATE_CHANGED,
+    SPRINT_CHANGED,
+    ATTACHMENT_ADDED,
+    ATTACHMENT_REMOVED
+}
