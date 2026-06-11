@@ -47,8 +47,10 @@ class IssueService(
                     userRepository.findById(it).orElseThrow { NotFoundException("Assignee not found: $it") }
                 },
                 reporter = reporter,
-                parent = request.parentId?.let {
-                    issueRepository.findById(it).orElseThrow { NotFoundException("Parent issue not found: $it") }
+                parent = request.parentId?.let { parentId ->
+                    issueRepository.findById(parentId)
+                        .filter { it.project.id == project.id }
+                        .orElseThrow { NotFoundException("Parent issue not found: $parentId") }
                 }
             )
         )
@@ -93,8 +95,9 @@ class IssueService(
 
     @Transactional(readOnly = true)
     fun findByKey(projectKey: String, issueKey: String, userId: UUID): Issue {
-        projectService.requireMember(projectKey, userId)
-        return issueRepository.findByKey(issueKey) ?: throw NotFoundException("Issue not found: $issueKey")
+        val project = projectService.requireMember(projectKey, userId)
+        return issueRepository.findByKeyAndProjectId(issueKey, project.id)
+            ?: throw NotFoundException("Issue not found: $issueKey")
     }
 
     @Transactional

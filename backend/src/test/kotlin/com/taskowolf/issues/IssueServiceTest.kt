@@ -69,4 +69,35 @@ class IssueServiceTest {
             service.create("WOLF", CreateIssueRequest("Issue"), owner)
         }
     }
+
+    @Test
+    fun `findByKey does not return issues from another project`() {
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findByKeyAndProjectId("OTHER-1", project.id) } returns null
+
+        assertThrows<NotFoundException> {
+            service.findByKey("WOLF", "OTHER-1", owner.id)
+        }
+    }
+
+    @Test
+    fun `create rejects parent issue from another project`() {
+        val workflowId = UUID.randomUUID()
+        every { workflow.id } returns workflowId
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { workflowService.getDefaultStatus(workflowId) } returns status
+        every { issueRepository.maxKeyNumberByProject(project.id) } returns 0
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val foreignProject = Project(key = "OTHER", name = "Other", owner = owner, workflow = workflow)
+        val foreignParent = com.taskowolf.issues.domain.Issue(
+            key = "OTHER-1", keyNumber = 1, title = "Foreign", type = com.taskowolf.issues.domain.IssueType.TASK,
+            status = status, project = foreignProject, reporter = owner
+        )
+        every { issueRepository.findById(foreignParent.id) } returns java.util.Optional.of(foreignParent)
+
+        assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+            service.create("WOLF", CreateIssueRequest("Child", parentId = foreignParent.id), owner)
+        }
+    }
 }
