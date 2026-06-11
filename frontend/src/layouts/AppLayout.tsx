@@ -1,4 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate, useMatch } from 'react-router-dom'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { authApi } from '@/api/auth'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
@@ -11,7 +13,8 @@ export function AppLayout() {
   const insideProject = useMatch('/p/:key/*')
   const projectKey = insideProject?.params.key
 
-  const logout = () => {
+  const logout = async () => {
+    try { await authApi.logout() } catch { /* ignore */ }
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     navigate('/login')
@@ -39,9 +42,12 @@ export function AppLayout() {
             </div>
           )}
         </nav>
-        <button onClick={logout} className="px-3 py-2 text-sm text-gray-400 hover:text-white text-left">
-          Logout
-        </button>
+        <div className="flex items-center gap-2 mt-auto">
+          <NotificationBell />
+          <button onClick={logout} className="flex-1 px-3 py-2 text-sm text-gray-400 hover:text-white text-left">
+            Logout
+          </button>
+        </div>
       </aside>
       <main className="flex-1 overflow-auto p-8">
         <Outlet />

@@ -11,6 +11,7 @@ import { IssueDetailPage } from '@/pages/issues/IssueDetailPage'
 import { BoardPage } from '@/pages/board/BoardPage'
 import { BacklogPage } from '@/pages/backlog/BacklogPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
+import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: '/p/:key/board', element: <BoardPage /> },
       { path: '/p/:key/backlog', element: <BacklogPage /> },
       { path: '/p/:key/reports', element: <ReportsPage /> },
+      { path: '/notifications', element: <NotificationsPage /> },
     ],
   },
 ])
