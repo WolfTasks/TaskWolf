@@ -24,7 +24,9 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
                     "/api/v1/auth/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
-                    "/h2-console/**"
+                    "/h2-console/**",
+                    "/ws/**",
+                    "/ws-stomp/**"
                 ).permitAll()
                 it.anyRequest().authenticated()
             }
