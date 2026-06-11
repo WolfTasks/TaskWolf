@@ -8,6 +8,7 @@ import com.taskowolf.issues.api.dto.CreateIssueRequest
 import com.taskowolf.issues.api.dto.UpdateIssueRequest
 import com.taskowolf.issues.domain.Issue
 import com.taskowolf.issues.domain.events.IssueCreatedEvent
+import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.projects.application.ProjectService
@@ -63,11 +64,47 @@ class IssueService(
             .filter { it.project.id == project.id }
             .orElseThrow { NotFoundException("Issue not found: $issueId") }
 
-        request.title?.let { issue.title = it }
-        request.description?.let { issue.description = it }
-        request.priority?.let { issue.priority = it }
-        request.storyPoints?.let { issue.storyPoints = it }
-        request.assigneeId?.let { issue.assignee = resolveAssignee(it, project) }
+        request.title?.let { newTitle ->
+            if (issue.title != newTitle) {
+                val old = issue.title
+                issue.title = newTitle
+                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "title", old, newTitle))
+            }
+        }
+
+        request.description?.let { newDesc ->
+            if (issue.description != newDesc) {
+                val old = issue.description
+                issue.description = newDesc
+                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "description", old, newDesc))
+            }
+        }
+
+        request.priority?.let { newPriority ->
+            if (issue.priority != newPriority) {
+                val old = issue.priority.name
+                issue.priority = newPriority
+                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "priority", old, newPriority.name))
+            }
+        }
+
+        request.storyPoints?.let { newSP ->
+            if (issue.storyPoints != newSP) {
+                val old = issue.storyPoints?.toString()
+                issue.storyPoints = newSP
+                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "storyPoints", old, newSP.toString()))
+            }
+        }
+
+        request.assigneeId?.let { assigneeId ->
+            val newAssignee = resolveAssignee(assigneeId, project)
+            if (issue.assignee?.id != newAssignee.id) {
+                val old = issue.assignee?.displayName
+                issue.assignee = newAssignee
+                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "assignee", old, newAssignee.displayName))
+            }
+        }
+
         request.statusId?.let { newStatusId ->
             val oldStatus = issue.status
             val newStatus = workflowService.findStatusById(newStatusId)
@@ -77,9 +114,10 @@ class IssueService(
             }
             issue.status = newStatus
             if (oldStatus.id != newStatus.id) {
-                eventPublisher.publish(IssueStatusChangedEvent(issue, oldStatus, newStatus))
+                eventPublisher.publish(IssueStatusChangedEvent(issue, oldStatus, newStatus, actor = currentUser))
             }
         }
+
         return issueRepository.save(issue)
     }
 
