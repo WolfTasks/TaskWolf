@@ -51,4 +51,16 @@ class ProjectService(
         if (!isMember && !isOwner) throw ForbiddenException("Not a member of project $projectKey")
         return project
     }
+
+    @Transactional(readOnly = true)
+    fun isMember(project: Project, userId: UUID): Boolean =
+        project.owner.id == userId || memberRepository.existsByProjectIdAndUserId(project.id, userId)
+
+    @Transactional(readOnly = true)
+    fun isProjectAdmin(projectKey: String, userId: UUID): Boolean {
+        val project = findByKey(projectKey)
+        if (project.owner.id == userId) return true
+        val member = memberRepository.findByProjectIdAndUserId(project.id, userId)
+        return member?.role == ProjectRole.ADMIN
+    }
 }

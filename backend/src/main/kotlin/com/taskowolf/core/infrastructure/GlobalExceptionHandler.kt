@@ -40,7 +40,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityViolation(ex: DataIntegrityViolationException) =
         ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(ErrorResponse("CONFLICT", "Data integrity violation: ${ex.mostSpecificCause.message ?: "conflict"}"))
+            .body(ErrorResponse("CONFLICT", "A data conflict occurred"))
 
     @ExceptionHandler(Exception::class)
     fun handleGeneric(ex: Exception) =

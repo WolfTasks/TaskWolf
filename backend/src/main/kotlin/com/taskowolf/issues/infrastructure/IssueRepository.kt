@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query
 import java.util.UUID
 
 interface IssueRepository : JpaRepository<Issue, UUID> {
-    fun findByKey(key: String): Issue?
+    fun findByKeyAndProjectId(key: String, projectId: UUID): Issue?
     fun findAllByProjectId(projectId: UUID, pageable: Pageable): Page<Issue>
     fun countByProjectId(projectId: UUID): Long
 

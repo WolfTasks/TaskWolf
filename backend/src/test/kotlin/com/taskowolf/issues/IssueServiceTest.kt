@@ -4,8 +4,11 @@ import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.application.DomainEventPublisher
 import com.taskowolf.issues.api.dto.CreateIssueRequest
+import com.taskowolf.issues.api.dto.UpdateIssueRequest
 import com.taskowolf.issues.application.IssueService
 import com.taskowolf.issues.domain.IssueType
+import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
+import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.projects.domain.Project
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.taskowolf.core.infrastructure.NotFoundException
 import java.util.UUID
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class IssueServiceTest {
 
@@ -30,6 +34,10 @@ class IssueServiceTest {
     private val workflow = mockk<Workflow>()
     private val status = WorkflowStatus("To Do", StatusCategory.TODO, "#6c8fef", 0, workflow)
     private val project = Project(key = "WOLF", name = "TaskWolf", owner = owner, workflow = workflow)
+    private val issue = com.taskowolf.issues.domain.Issue(
+        key = "WOLF-1", keyNumber = 1, title = "Test", type = com.taskowolf.issues.domain.IssueType.TASK,
+        status = status, project = project, reporter = owner
+    )
 
     @Test
     fun `create issue assigns next key number`() {
@@ -68,5 +76,93 @@ class IssueServiceTest {
         assertThrows<NotFoundException> {
             service.create("WOLF", CreateIssueRequest("Issue"), owner)
         }
+    }
+
+    @Test
+    fun `findByKey does not return issues from another project`() {
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findByKeyAndProjectId("OTHER-1", project.id) } returns null
+
+        assertThrows<NotFoundException> {
+            service.findByKey("WOLF", "OTHER-1", owner.id)
+        }
+    }
+
+    @Test
+    fun `create rejects assignee who is not a project member`() {
+        val workflowId = UUID.randomUUID()
+        val stranger = com.taskowolf.auth.domain.User(email = "stranger@test.com", displayName = "Stranger")
+        every { workflow.id } returns workflowId
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { workflowService.getDefaultStatus(workflowId) } returns status
+        every { issueRepository.maxKeyNumberByProject(project.id) } returns 0
+        every { issueRepository.save(any()) } returnsArgument 0
+        every { userRepository.findById(stranger.id) } returns java.util.Optional.of(stranger)
+        every { projectService.isMember(project, stranger.id) } returns false
+
+        assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+            service.create("WOLF", CreateIssueRequest("Task", assigneeId = stranger.id), owner)
+        }
+    }
+
+    @Test
+    fun `create rejects parent issue from another project`() {
+        val workflowId = UUID.randomUUID()
+        every { workflow.id } returns workflowId
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { workflowService.getDefaultStatus(workflowId) } returns status
+        every { issueRepository.maxKeyNumberByProject(project.id) } returns 0
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val foreignProject = Project(key = "OTHER", name = "Other", owner = owner, workflow = workflow)
+        val foreignParent = com.taskowolf.issues.domain.Issue(
+            key = "OTHER-1", keyNumber = 1, title = "Foreign", type = com.taskowolf.issues.domain.IssueType.TASK,
+            status = status, project = foreignProject, reporter = owner
+        )
+        every { issueRepository.findById(foreignParent.id) } returns java.util.Optional.of(foreignParent)
+
+        assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+            service.create("WOLF", CreateIssueRequest("Child", parentId = foreignParent.id), owner)
+        }
+    }
+
+    @Test
+    fun `update publishes IssueFieldChangedEvent when title changes`() {
+        val workflowId = UUID.randomUUID()
+        every { workflow.id } returns workflowId
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val events = mutableListOf<Any>()
+        every { eventPublisher.publish(capture(events)) } answers { Unit }
+
+        service.update("WOLF", issue.id, UpdateIssueRequest(title = "New Title"), owner)
+
+        val fieldEvent = events.filterIsInstance<IssueFieldChangedEvent>().first()
+        assertEquals("title", fieldEvent.field)
+        assertEquals("Test", fieldEvent.oldValue)
+        assertEquals("New Title", fieldEvent.newValue)
+        assertEquals(owner, fieldEvent.actor)
+    }
+
+    @Test
+    fun `update publishes IssueStatusChangedEvent with actor when status changes`() {
+        val workflowId = UUID.randomUUID()
+        val newStatus = WorkflowStatus("Done", StatusCategory.DONE, "#aaa", 2, workflow)
+        every { workflow.id } returns workflowId
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+        every { workflowService.findStatusById(newStatus.id) } returns newStatus
+
+        val events = mutableListOf<Any>()
+        every { eventPublisher.publish(capture(events)) } answers { Unit }
+
+        service.update("WOLF", issue.id, UpdateIssueRequest(statusId = newStatus.id), owner)
+
+        val statusEvent = events.filterIsInstance<IssueStatusChangedEvent>().first()
+        assertEquals(owner, statusEvent.actor)
+        assertEquals("Done", statusEvent.newStatus.name)
     }
 }
