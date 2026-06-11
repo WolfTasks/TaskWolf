@@ -9,13 +9,21 @@ import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 class ActivityService(private val repository: IssueActivityRepository) {
 
     private val log = LoggerFactory.getLogger(ActivityService::class.java)
+
+    @Transactional(readOnly = true)
+    fun listActivity(issueId: UUID, page: Int, size: Int): Page<IssueActivity> =
+        repository.findAllByIssueId(issueId, PageRequest.of(page, size, Sort.by("createdAt").descending()))
 
     @EventListener
     @Transactional

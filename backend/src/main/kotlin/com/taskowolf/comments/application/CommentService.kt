@@ -41,6 +41,12 @@ class CommentService(
         return commentRepository.save(comment)
     }
 
+    @Transactional(readOnly = true)
+    fun listComments(projectKey: String, issueKey: String, userId: UUID): List<Comment> {
+        val issue = issueService.findByKey(projectKey, issueKey, userId)
+        return commentRepository.findAllByIssueId(issue.id).filter { it.deletedAt == null }
+    }
+
     @Transactional
     fun deleteComment(commentId: UUID, projectKey: String, actor: User) {
         val comment = commentRepository.findById(commentId)
