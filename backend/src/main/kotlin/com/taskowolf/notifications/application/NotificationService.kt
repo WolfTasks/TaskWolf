@@ -63,4 +63,9 @@ class NotificationService(private val repository: NotificationRepository) {
 
     @Transactional(readOnly = true)
     fun countUnread(userId: UUID): Long = repository.countByUserIdAndReadFalse(userId)
+
+    @Transactional
+    fun createDirect(userId: UUID, type: NotificationType, title: String, body: String, link: String) {
+        repository.save(Notification(userId = userId, type = type, title = title, body = body, link = link))
+    }
 }
