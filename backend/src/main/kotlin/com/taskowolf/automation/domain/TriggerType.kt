@@ -1,0 +1,6 @@
+package com.taskowolf.automation.domain
+
+enum class TriggerType {
+    ISSUE_CREATED, STATUS_CHANGED, PRIORITY_CHANGED,
+    ASSIGNEE_CHANGED, COMMENT_ADDED, SPRINT_STARTED, SPRINT_COMPLETED
+}
