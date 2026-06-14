@@ -171,3 +171,61 @@ export interface Attachment {
   size: number
   createdAt: string
 }
+
+// Automation types
+
+export type TriggerType =
+  | 'ISSUE_CREATED'
+  | 'STATUS_CHANGED'
+  | 'PRIORITY_CHANGED'
+  | 'ASSIGNEE_CHANGED'
+  | 'COMMENT_ADDED'
+  | 'SPRINT_STARTED'
+  | 'SPRINT_COMPLETED'
+
+export type ConditionType =
+  | 'ISSUE_TYPE'
+  | 'PRIORITY'
+  | 'ASSIGNEE'
+  | 'STATUS'
+  | 'STORY_POINTS'
+
+export type GroupLogic = 'AND' | 'OR'
+
+export interface RuleCondition {
+  type: ConditionType
+  operator: 'IS' | 'IS_NOT' | 'CONTAINS' | 'GT' | 'LT'
+  params: Record<string, string>
+}
+
+export interface RuleConditionGroup {
+  logic: GroupLogic
+  conditions: RuleCondition[]
+  childGroups: RuleConditionGroup[]
+}
+
+export type ActionType =
+  | 'SET_STATUS'
+  | 'SET_ASSIGNEE'
+  | 'SET_PRIORITY'
+  | 'SEND_NOTIFICATION'
+  | 'CREATE_COMMENT'
+  | 'CREATE_SUBTASK'
+
+export interface RuleAction {
+  position: number
+  type: ActionType
+  params: Record<string, string>
+}
+
+export interface AutomationRule {
+  id: string
+  name: string
+  projectId: string
+  triggerType: TriggerType
+  rootConditionGroup: RuleConditionGroup
+  actions: RuleAction[]
+  enabled: boolean
+  createdAt: string
+  updatedAt: string
+}
