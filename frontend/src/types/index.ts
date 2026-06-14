@@ -154,7 +154,7 @@ export interface ActivityItem {
 
 export interface Notification {
   id: string
-  type: 'COMMENT_MENTION' | 'ISSUE_ASSIGNED'
+  type: 'COMMENT_MENTION' | 'ISSUE_ASSIGNED' | 'AUTOMATION'
   title: string
   body: string | null
   link: string | null
@@ -172,47 +172,57 @@ export interface Attachment {
   createdAt: string
 }
 
-// Automation types
+export interface TransitionGuard {
+  type: 'REQUIRED_FIELD' | 'ROLE_RESTRICTION'
+  field?: string
+  roles?: string[]
+}
+
+export interface WorkflowTransition {
+  id: string
+  fromStatusId: string | null
+  toStatusId: string
+  guards: string | null
+}
+
+export interface StatusPosition {
+  statusId: string
+  x: number
+  y: number
+}
+
+export interface WorkflowEditorData {
+  id: string
+  name: string
+  statuses: WorkflowStatus[]
+  transitions: WorkflowTransition[]
+  layout: StatusPosition[]
+}
 
 export type TriggerType =
-  | 'ISSUE_CREATED'
-  | 'STATUS_CHANGED'
-  | 'PRIORITY_CHANGED'
-  | 'ASSIGNEE_CHANGED'
-  | 'COMMENT_ADDED'
-  | 'SPRINT_STARTED'
-  | 'SPRINT_COMPLETED'
+  | 'ISSUE_CREATED' | 'STATUS_CHANGED' | 'PRIORITY_CHANGED'
+  | 'ASSIGNEE_CHANGED' | 'COMMENT_ADDED' | 'SPRINT_STARTED' | 'SPRINT_COMPLETED'
 
-export type ConditionType =
-  | 'ISSUE_TYPE'
-  | 'PRIORITY'
-  | 'ASSIGNEE'
-  | 'STATUS'
-  | 'STORY_POINTS'
-
+export type ConditionType = 'ISSUE_TYPE' | 'PRIORITY' | 'ASSIGNEE' | 'STATUS' | 'STORY_POINTS' | 'PROJECT'
+export type ActionType = 'SET_STATUS' | 'SET_ASSIGNEE' | 'SET_PRIORITY' | 'SEND_NOTIFICATION' | 'CREATE_COMMENT' | 'CREATE_SUBTASK'
 export type GroupLogic = 'AND' | 'OR'
 
 export interface RuleCondition {
+  id?: string
   type: ConditionType
   operator: 'IS' | 'IS_NOT' | 'CONTAINS' | 'GT' | 'LT'
   params: Record<string, string>
 }
 
 export interface RuleConditionGroup {
+  id?: string
   logic: GroupLogic
   conditions: RuleCondition[]
   childGroups: RuleConditionGroup[]
 }
 
-export type ActionType =
-  | 'SET_STATUS'
-  | 'SET_ASSIGNEE'
-  | 'SET_PRIORITY'
-  | 'SEND_NOTIFICATION'
-  | 'CREATE_COMMENT'
-  | 'CREATE_SUBTASK'
-
 export interface RuleAction {
+  id?: string
   position: number
   type: ActionType
   params: Record<string, string>
@@ -221,11 +231,18 @@ export interface RuleAction {
 export interface AutomationRule {
   id: string
   name: string
-  projectId: string
   triggerType: TriggerType
-  rootConditionGroup: RuleConditionGroup
-  actions: RuleAction[]
+  triggerPayload: string | null
+  scope: 'PROJECT' | 'SYSTEM'
   enabled: boolean
-  createdAt: string
-  updatedAt: string
+  projectId: string | null
+}
+
+export interface AutomationRuleDraft {
+  name: string
+  triggerType: TriggerType
+  triggerPayload?: string
+  rootGroupLogic: GroupLogic
+  conditions?: RuleCondition[]
+  actions?: RuleAction[]
 }
