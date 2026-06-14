@@ -16,5 +16,8 @@ class WorkflowTransition(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_status_id", nullable = false)
-    val toStatus: WorkflowStatus
+    val toStatus: WorkflowStatus,
+
+    @Column(columnDefinition = "TEXT")
+    var guards: String? = null
 ) : AuditableEntity()

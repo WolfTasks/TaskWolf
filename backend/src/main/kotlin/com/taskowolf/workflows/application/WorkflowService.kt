@@ -1,10 +1,17 @@
 package com.taskowolf.workflows.application
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.taskowolf.auth.domain.User
+import com.taskowolf.core.infrastructure.BadRequestException
 import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.projects.domain.Project
+import com.taskowolf.projects.infrastructure.ProjectMemberRepository
 import com.taskowolf.workflows.domain.*
 import com.taskowolf.workflows.infrastructure.WorkflowRepository
+import com.taskowolf.workflows.infrastructure.WorkflowStatusPositionRepository
 import com.taskowolf.workflows.infrastructure.WorkflowStatusRepository
+import com.taskowolf.workflows.infrastructure.WorkflowTransitionRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -12,8 +19,13 @@ import java.util.UUID
 @Service
 class WorkflowService(
     private val workflowRepository: WorkflowRepository,
-    private val statusRepository: WorkflowStatusRepository
+    private val statusRepository: WorkflowStatusRepository,
+    private val transitionRepository: WorkflowTransitionRepository,
+    private val positionRepository: WorkflowStatusPositionRepository,
+    private val projectMemberRepository: ProjectMemberRepository,
+    private val mapper: ObjectMapper
 ) {
+
     @Transactional
     fun createDefault(project: Project): Workflow {
         val workflow = workflowRepository.save(
@@ -42,4 +54,118 @@ class WorkflowService(
             .minByOrNull { it.position }
             ?: throw NotFoundException("No TODO status in workflow $workflowId")
     }
+
+    @Transactional(readOnly = true)
+    fun findWorkflowByProjectId(projectId: UUID): Workflow =
+        workflowRepository.findByProjectId(projectId).firstOrNull()
+            ?: throw NotFoundException("No workflow for project $projectId")
+
+    // ---- Transition guard validation ----
+
+    @Transactional(readOnly = true)
+    fun validateTransition(issue: com.taskowolf.issues.domain.Issue, toStatusId: UUID, actor: User) {
+        val workflowId = issue.project.workflow?.id ?: return
+        val transition = transitionRepository.findByWorkflowIdAndFromStatusIdAndToStatusId(
+            workflowId, issue.status.id, toStatusId
+        ) ?: throw BadRequestException("Transition from '${issue.status.name}' to status $toStatusId is not allowed")
+
+        val guards: List<TransitionGuard> = transition.guards
+            ?.let { mapper.readValue(it) } ?: emptyList()
+
+        val issueMap = mapOf(
+            "title" to issue.title,
+            "description" to issue.description,
+            "assigneeId" to issue.assignee?.id?.toString(),
+            "storyPoints" to issue.storyPoints?.toString(),
+            "dueDate" to issue.dueDate?.toString()
+        )
+
+        for (guard in guards) {
+            when (guard) {
+                is RequiredFieldGuard -> {
+                    val value = issueMap[guard.field]
+                    if (value.isNullOrBlank())
+                        throw BadRequestException("Transition blocked: field '${guard.field}' is required")
+                }
+                is RoleRestrictionGuard -> {
+                    val member = projectMemberRepository.findByProjectIdAndUserId(issue.project.id, actor.id)
+                    val userRole = member?.role?.name ?: "NONE"
+                    if (userRole !in guard.roles)
+                        throw BadRequestException("Transition blocked: role '$userRole' not permitted")
+                }
+            }
+        }
+    }
+
+    // ---- Editor: Status CRUD ----
+
+    @Transactional
+    fun createStatus(workflowId: UUID, name: String, category: StatusCategory, color: String): WorkflowStatus {
+        val workflow = workflowRepository.findById(workflowId)
+            .orElseThrow { NotFoundException("Workflow not found: $workflowId") }
+        val position = (workflow.statuses.maxOfOrNull { it.position } ?: -1) + 1
+        return statusRepository.save(WorkflowStatus(name, category, color, position, workflow))
+    }
+
+    @Transactional
+    fun updateStatus(statusId: UUID, name: String?, category: StatusCategory?, color: String?): WorkflowStatus {
+        val status = statusRepository.findById(statusId)
+            .orElseThrow { NotFoundException("Status not found: $statusId") }
+        name?.let { status.name = it }
+        category?.let { status.category = it }
+        color?.let { status.color = it }
+        return statusRepository.save(status)
+    }
+
+    @Transactional
+    fun deleteStatus(statusId: UUID) {
+        if (!statusRepository.existsById(statusId)) throw NotFoundException("Status not found: $statusId")
+        statusRepository.deleteById(statusId)
+    }
+
+    // ---- Editor: Transition CRUD ----
+
+    @Transactional
+    fun createTransition(workflowId: UUID, fromStatusId: UUID?, toStatusId: UUID): WorkflowTransition {
+        val workflow = workflowRepository.findById(workflowId)
+            .orElseThrow { NotFoundException("Workflow not found: $workflowId") }
+        val toStatus = statusRepository.findById(toStatusId)
+            .orElseThrow { NotFoundException("Status not found: $toStatusId") }
+        val fromStatus = fromStatusId?.let {
+            statusRepository.findById(it).orElseThrow { NotFoundException("Status not found: $it") }
+        }
+        return transitionRepository.save(WorkflowTransition(workflow, fromStatus, toStatus))
+    }
+
+    @Transactional
+    fun deleteTransition(transitionId: UUID) {
+        if (!transitionRepository.existsById(transitionId)) throw NotFoundException("Transition not found: $transitionId")
+        transitionRepository.deleteById(transitionId)
+    }
+
+    @Transactional
+    fun updateGuards(transitionId: UUID, guards: List<TransitionGuard>): WorkflowTransition {
+        val transition = transitionRepository.findById(transitionId)
+            .orElseThrow { NotFoundException("Transition not found: $transitionId") }
+        transition.guards = mapper.writeValueAsString(guards)
+        return transitionRepository.save(transition)
+    }
+
+    // ---- Editor: Canvas layout ----
+
+    @Transactional
+    fun saveLayout(workflowId: UUID, positions: List<StatusPositionInput>) {
+        positionRepository.deleteByWorkflowId(workflowId)
+        positions.forEach { p ->
+            positionRepository.save(
+                WorkflowStatusPosition(WorkflowStatusPositionId(workflowId, p.statusId), p.x, p.y)
+            )
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun getLayout(workflowId: UUID): List<WorkflowStatusPosition> =
+        positionRepository.findByIdWorkflowId(workflowId)
 }
+
+data class StatusPositionInput(val statusId: UUID, val x: Int, val y: Int)

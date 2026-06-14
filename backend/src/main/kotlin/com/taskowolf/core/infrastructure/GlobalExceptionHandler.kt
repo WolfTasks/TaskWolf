@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class NotFoundException(message: String) : RuntimeException(message)
 class ForbiddenException(message: String) : RuntimeException(message)
 class ConflictException(message: String) : RuntimeException(message)
+class BadRequestException(message: String) : RuntimeException(message)
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -28,6 +29,11 @@ class GlobalExceptionHandler {
     fun handleConflict(ex: ConflictException) =
         ResponseEntity.status(HttpStatus.CONFLICT)
             .body(ErrorResponse("CONFLICT", ex.message ?: "Conflict"))
+
+    @ExceptionHandler(BadRequestException::class)
+    fun handleBadRequest(ex: BadRequestException) =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse("BAD_REQUEST", ex.message ?: "Bad request"))
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
