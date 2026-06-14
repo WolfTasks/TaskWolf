@@ -37,6 +37,9 @@ taskowolf:
     from: ${TW_SMTP_FROM:TaskWolf <noreply@example.com>}
   auth:
     registration-enabled: ${TW_REGISTRATION_ENABLED:true}
+    rate-limit:
+      max-requests: 10
+      window-seconds: 60
   allowed-origins: ${TW_ALLOWED_ORIGINS:${taskowolf.base-url}}
 
 springdoc:

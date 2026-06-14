@@ -1,12 +1,13 @@
 package com.taskowolf.auth.infrastructure
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class RateLimiter(
-    private val maxRequests: Long = 10L,
-    private val windowSeconds: Long = 60L
+    @Value("\${taskowolf.auth.rate-limit.max-requests:10}") private val maxRequests: Long = 10L,
+    @Value("\${taskowolf.auth.rate-limit.window-seconds:60}") private val windowSeconds: Long = 60L
 ) {
     // [count, windowStart (epoch seconds)]
     private val cache = ConcurrentHashMap<String, LongArray>()

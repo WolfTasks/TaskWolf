@@ -34,6 +34,7 @@ class JwtService(
     }.getOrNull()
 
     private fun buildToken(userId: UUID, expiryMs: Long, type: String) = Jwts.builder()
+        .id(UUID.randomUUID().toString())
         .subject(userId.toString())
         .claim("type", type)
         .issuedAt(Date())
