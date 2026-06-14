@@ -53,6 +53,14 @@ class ProjectService(
     }
 
     @Transactional(readOnly = true)
+    fun requireAdmin(projectKey: String, userId: UUID): Project {
+        val project = requireMember(projectKey, userId)
+        if (!isProjectAdmin(projectKey, userId))
+            throw ForbiddenException("Project admin role required")
+        return project
+    }
+
+    @Transactional(readOnly = true)
     fun isMember(project: Project, userId: UUID): Boolean =
         project.owner.id == userId || memberRepository.existsByProjectIdAndUserId(project.id, userId)
 

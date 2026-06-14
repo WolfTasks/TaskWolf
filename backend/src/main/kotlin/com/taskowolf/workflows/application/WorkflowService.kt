@@ -60,6 +60,16 @@ class WorkflowService(
         workflowRepository.findByProjectId(projectId).firstOrNull()
             ?: throw NotFoundException("No workflow for project $projectId")
 
+    @Transactional(readOnly = true)
+    fun findWorkflowForEditor(projectId: UUID): WorkflowEditorData {
+        val wf = findWorkflowByProjectId(projectId)
+        // Access lazy collections inside the transaction so they are initialized
+        val statuses = wf.statuses.toList()
+        val transitions = wf.transitions.toList()
+        val layout = positionRepository.findByIdWorkflowId(wf.id)
+        return WorkflowEditorData(wf.id, wf.name, statuses, transitions, layout)
+    }
+
     // ---- Transition guard validation ----
 
     @Transactional(readOnly = true)
@@ -169,3 +179,11 @@ class WorkflowService(
 }
 
 data class StatusPositionInput(val statusId: UUID, val x: Int, val y: Int)
+
+data class WorkflowEditorData(
+    val id: UUID,
+    val name: String,
+    val statuses: List<com.taskowolf.workflows.domain.WorkflowStatus>,
+    val transitions: List<com.taskowolf.workflows.domain.WorkflowTransition>,
+    val layout: List<com.taskowolf.workflows.domain.WorkflowStatusPosition>
+)
