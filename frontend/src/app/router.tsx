@@ -13,6 +13,9 @@ import { BacklogPage } from '@/pages/backlog/BacklogPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
 import { WorkflowEditorPage } from '@/pages/settings/WorkflowEditorPage'
+import { AutomationPage } from '@/pages/automation/AutomationPage'
+import { AutomationRuleEditorPage } from '@/pages/automation/AutomationRuleEditorPage'
+import { AdminAutomationPage } from '@/pages/admin/AdminAutomationPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -41,6 +44,10 @@ export const router = createBrowserRouter([
       { path: '/p/:key/reports', element: <ReportsPage /> },
       { path: '/notifications', element: <NotificationsPage /> },
       { path: '/p/:key/settings/workflow', element: <WorkflowEditorPage /> },
+      { path: '/p/:key/automation', element: <AutomationPage /> },
+      { path: '/p/:key/automation/new', element: <AutomationRuleEditorPage /> },
+      { path: '/p/:key/automation/:rid/edit', element: <AutomationRuleEditorPage /> },
+      { path: '/admin/automation', element: <AdminAutomationPage /> },
     ],
   },
 ])
