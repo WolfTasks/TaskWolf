@@ -112,8 +112,9 @@ class IssueService(
             if (projectWorkflowId != null && newStatus.workflow.id != projectWorkflowId) {
                 throw com.taskowolf.core.infrastructure.ForbiddenException("Status does not belong to project's workflow")
             }
-            issue.status = newStatus
             if (oldStatus.id != newStatus.id) {
+                workflowService.validateTransition(issue, newStatusId, currentUser)
+                issue.status = newStatus
                 eventPublisher.publish(IssueStatusChangedEvent(issue, oldStatus, newStatus, actor = currentUser))
             }
         }
