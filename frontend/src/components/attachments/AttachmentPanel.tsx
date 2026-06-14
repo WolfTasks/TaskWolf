@@ -1,5 +1,4 @@
 import { useRef } from 'react'
-import type { Attachment } from '@/types'
 import { useAttachments, useUploadAttachment, useDeleteAttachment } from '@/hooks/useAttachments'
 import { attachmentsApi } from '@/api/attachments'
 

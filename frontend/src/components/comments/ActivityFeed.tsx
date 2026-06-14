@@ -20,7 +20,7 @@ function describeActivity(item: ActivityItem): string {
     case 'SPRINT_CHANGED': return `moved to sprint ${item.newValue ?? '(backlog)'}`
     case 'ATTACHMENT_ADDED': return `added attachment: ${item.newValue}`
     case 'ATTACHMENT_REMOVED': return `removed attachment: ${item.oldValue}`
-    default: return item.type.toLowerCase().replace(/_/g, ' ')
+    default: return (item.type as string).toLowerCase().replace(/_/g, ' ')
   }
 }
 

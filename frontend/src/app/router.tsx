@@ -12,6 +12,7 @@ import { BoardPage } from '@/pages/board/BoardPage'
 import { BacklogPage } from '@/pages/backlog/BacklogPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
+import { WorkflowEditorPage } from '@/pages/settings/WorkflowEditorPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
       { path: '/p/:key/backlog', element: <BacklogPage /> },
       { path: '/p/:key/reports', element: <ReportsPage /> },
       { path: '/notifications', element: <NotificationsPage /> },
+      { path: '/p/:key/settings/workflow', element: <WorkflowEditorPage /> },
     ],
   },
 ])
