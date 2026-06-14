@@ -198,3 +198,51 @@ export interface WorkflowEditorData {
   transitions: WorkflowTransition[]
   layout: StatusPosition[]
 }
+
+export type TriggerType =
+  | 'ISSUE_CREATED' | 'STATUS_CHANGED' | 'PRIORITY_CHANGED'
+  | 'ASSIGNEE_CHANGED' | 'COMMENT_ADDED' | 'SPRINT_STARTED' | 'SPRINT_COMPLETED'
+
+export type ConditionType = 'ISSUE_TYPE' | 'PRIORITY' | 'ASSIGNEE' | 'STATUS' | 'STORY_POINTS' | 'PROJECT'
+export type ActionType = 'SET_STATUS' | 'SET_ASSIGNEE' | 'SET_PRIORITY' | 'SEND_NOTIFICATION' | 'CREATE_COMMENT' | 'CREATE_SUBTASK'
+export type GroupLogic = 'AND' | 'OR'
+
+export interface RuleCondition {
+  id?: string
+  type: ConditionType
+  operator: 'IS' | 'IS_NOT' | 'CONTAINS' | 'GT' | 'LT'
+  params: Record<string, string>
+}
+
+export interface RuleConditionGroup {
+  id?: string
+  logic: GroupLogic
+  conditions: RuleCondition[]
+  childGroups: RuleConditionGroup[]
+}
+
+export interface RuleAction {
+  id?: string
+  position: number
+  type: ActionType
+  params: Record<string, string>
+}
+
+export interface AutomationRule {
+  id: string
+  name: string
+  triggerType: TriggerType
+  triggerPayload: string | null
+  scope: 'PROJECT' | 'SYSTEM'
+  enabled: boolean
+  projectId: string | null
+}
+
+export interface AutomationRuleDraft {
+  name: string
+  triggerType: TriggerType
+  triggerPayload?: string
+  rootGroupLogic: GroupLogic
+  conditions?: RuleCondition[]
+  actions?: RuleAction[]
+}
