@@ -171,3 +171,30 @@ export interface Attachment {
   size: number
   createdAt: string
 }
+
+export interface TransitionGuard {
+  type: 'REQUIRED_FIELD' | 'ROLE_RESTRICTION'
+  field?: string
+  roles?: string[]
+}
+
+export interface WorkflowTransition {
+  id: string
+  fromStatusId: string | null
+  toStatusId: string
+  guards: string | null
+}
+
+export interface StatusPosition {
+  statusId: string
+  x: number
+  y: number
+}
+
+export interface WorkflowEditorData {
+  id: string
+  name: string
+  statuses: WorkflowStatus[]
+  transitions: WorkflowTransition[]
+  layout: StatusPosition[]
+}
