@@ -56,9 +56,11 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    // Docker Desktop 4.x enforces minimum API version 1.44.
-    // docker-java (used by Testcontainers) negotiates starting at 1.32, which Docker Desktop rejects.
-    // Setting DOCKER_HOST to TCP (exposed by Docker Desktop) and api.version=1.44 bypasses this issue.
-    environment("DOCKER_HOST", "tcp://localhost:2375")
-    systemProperty("api.version", "1.44")
+    if (System.getProperty("os.name", "").lowercase().contains("win")) {
+        // Docker Desktop 4.x enforces minimum API version 1.44.
+        // docker-java (used by Testcontainers) negotiates starting at 1.32, which Docker Desktop rejects.
+        // Setting DOCKER_HOST to TCP (exposed by Docker Desktop) and api.version=1.44 bypasses this issue.
+        environment("DOCKER_HOST", "tcp://localhost:2375")
+        systemProperty("api.version", "1.44")
+    }
 }
