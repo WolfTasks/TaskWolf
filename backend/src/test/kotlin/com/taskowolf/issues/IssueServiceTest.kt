@@ -155,6 +155,7 @@ class IssueServiceTest {
         every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
         every { issueRepository.save(any()) } returnsArgument 0
         every { workflowService.findStatusById(newStatus.id) } returns newStatus
+        every { workflowService.validateTransition(any(), any(), any()) } just Runs
 
         val events = mutableListOf<Any>()
         every { eventPublisher.publish(capture(events)) } answers { Unit }
