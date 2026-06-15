@@ -21,7 +21,7 @@ data class AttachmentResponse(
             filename = a.filename,
             contentType = a.contentType,
             size = a.size,
-            createdAt = a.createdAt
+            createdAt = a.createdAt!!
         )
     }
 }

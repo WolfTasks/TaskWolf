@@ -10,6 +10,7 @@ import com.taskowolf.sprints.domain.SprintStatus
 import com.taskowolf.sprints.infrastructure.SprintRepository
 import com.taskowolf.workflows.domain.StatusCategory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -20,6 +21,7 @@ class BoardService(
     private val sprintRepository: SprintRepository,
     private val issueRepository: IssueRepository
 ) {
+    @Transactional(readOnly = true)
     fun getBoard(projectKey: String, userId: UUID): BoardResponse? {
         val project = projectService.requireMember(projectKey, userId)
         val sprint = sprintRepository.findByProjectIdAndStatus(project.id, SprintStatus.ACTIVE)
@@ -46,6 +48,7 @@ class BoardService(
         )
     }
 
+    @Transactional(readOnly = true)
     fun getBacklog(projectKey: String, userId: UUID): BacklogResponse {
         val project = projectService.requireMember(projectKey, userId)
         val plannedSprints = sprintRepository.findByProjectIdAndStatus(project.id, SprintStatus.PLANNED)
