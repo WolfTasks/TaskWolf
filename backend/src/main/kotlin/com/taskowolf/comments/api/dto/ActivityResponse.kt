@@ -24,7 +24,7 @@ data class ActivityResponse(
             commentId = a.commentId,
             oldValue = a.oldValue,
             newValue = a.newValue,
-            createdAt = a.createdAt
+            createdAt = a.createdAt!!
         )
     }
 }

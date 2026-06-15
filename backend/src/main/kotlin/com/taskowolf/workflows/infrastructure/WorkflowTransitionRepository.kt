@@ -6,6 +6,7 @@ import java.util.UUID
 
 interface WorkflowTransitionRepository : JpaRepository<WorkflowTransition, UUID> {
     fun findByWorkflowId(workflowId: UUID): List<WorkflowTransition>
+    fun existsByWorkflowId(workflowId: UUID): Boolean
     fun findByWorkflowIdAndFromStatusIdAndToStatusId(
         workflowId: UUID, fromStatusId: UUID, toStatusId: UUID
     ): WorkflowTransition?

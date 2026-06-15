@@ -60,6 +60,7 @@ class WorkflowTransitionGuardTest {
     private fun issueWithWorkflow(workflowId: UUID, statusId: UUID, storyPoints: Int? = null): Issue {
         val workflow = mockk<Workflow>()
         every { workflow.id } returns workflowId
+        every { transitionRepository.existsByWorkflowId(workflowId) } returns true
 
         val project = mockk<Project>()
         every { project.workflow } returns workflow

@@ -22,7 +22,7 @@ data class NotificationResponse(
             body = n.body,
             link = n.link,
             read = n.read,
-            createdAt = n.createdAt
+            createdAt = n.createdAt!!
         )
     }
 }

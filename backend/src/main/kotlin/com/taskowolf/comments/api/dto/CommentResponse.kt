@@ -21,7 +21,7 @@ data class CommentResponse(
             body = if (c.deletedAt != null) null else c.body,
             editedAt = c.editedAt,
             deleted = c.deletedAt != null,
-            createdAt = c.createdAt
+            createdAt = c.createdAt!!
         )
     }
 }

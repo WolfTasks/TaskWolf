@@ -75,6 +75,8 @@ class WorkflowService(
     @Transactional(readOnly = true)
     fun validateTransition(issue: com.taskowolf.issues.domain.Issue, toStatusId: UUID, actor: User) {
         val workflowId = issue.project.workflow?.id ?: return
+        // When no transitions are configured, all moves are allowed
+        if (!transitionRepository.existsByWorkflowId(workflowId)) return
         val transition = transitionRepository.findByWorkflowIdAndFromStatusIdAndToStatusId(
             workflowId, issue.status.id, toStatusId
         ) ?: throw BadRequestException("Transition from '${issue.status.name}' to status $toStatusId is not allowed")
