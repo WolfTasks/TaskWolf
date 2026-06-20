@@ -20,8 +20,11 @@ class IssueController(private val issueService: IssueService) {
         @PathVariable key: String,
         @AuthenticationPrincipal user: User,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "50") size: Int
-    ) = issueService.findByProject(key, user.id, page, size).map { IssueResponse.from(it) }
+        @RequestParam(defaultValue = "50") size: Int,
+        @RequestParam(defaultValue = "false") assigneeMe: Boolean,
+        @RequestParam(required = false) sort: String?,
+        @RequestParam(defaultValue = "false") overdue: Boolean
+    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue).map { IssueResponse.from(it) }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

@@ -13,6 +13,7 @@ import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.workflows.application.WorkflowService
+import com.taskowolf.workflows.domain.StatusCategory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -122,10 +123,31 @@ class IssueService(
         return issueRepository.save(issue)
     }
 
+    /**
+     * Filters issues for a project. When [overdue] is true, results are always ordered by dueDate ASC
+     * regardless of the [sort] parameter (the overdue query hardcodes ORDER BY dueDate ASC).
+     */
     @Transactional(readOnly = true)
-    fun findByProject(projectKey: String, userId: UUID, page: Int, size: Int): org.springframework.data.domain.Page<Issue> {
+    fun findByProject(
+        projectKey: String,
+        userId: UUID,
+        page: Int,
+        size: Int,
+        assigneeMe: Boolean = false,
+        sort: String? = null,
+        overdue: Boolean = false
+    ): org.springframework.data.domain.Page<Issue> {
         val project = projectService.requireMember(projectKey, userId)
-        return issueRepository.findAllByProjectId(project.id, PageRequest.of(page, size))
+        val pageable = when (sort) {
+            "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
+            else -> PageRequest.of(page, size)
+        }
+        return when {
+            overdue && assigneeMe -> issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, userId, StatusCategory.DONE, pageable)
+            overdue -> issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, pageable)
+            assigneeMe -> issueRepository.findByProjectIdAndAssigneeId(project.id, userId, pageable)
+            else -> issueRepository.findAllByProjectId(project.id, pageable)
+        }
     }
 
     @Transactional(readOnly = true)
