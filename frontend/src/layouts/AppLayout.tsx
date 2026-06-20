@@ -34,6 +34,7 @@ export function AppLayout() {
                 Project
               </p>
               <div className="flex flex-col gap-1">
+                <NavLink to={`/p/${projectKey}/dashboard`} className={subNavLinkClass}>Dashboard</NavLink>
                 <NavLink to={`/p/${projectKey}/board`} className={subNavLinkClass}>Board</NavLink>
                 <NavLink to={`/p/${projectKey}/backlog`} className={subNavLinkClass}>Backlog</NavLink>
                 <NavLink to={`/p/${projectKey}/issues`} className={subNavLinkClass}>Issues</NavLink>
