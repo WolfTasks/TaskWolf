@@ -21,4 +21,15 @@ interface IssueRepository : JpaRepository<Issue, UUID> {
 
     @Query("SELECT COALESCE(SUM(COALESCE(i.storyPoints, 0)), 0) FROM Issue i WHERE i.sprint.id = :sprintId")
     fun sumStoryPointsBySprintId(sprintId: UUID): Long
+
+    fun findByProjectIdAndAssigneeId(projectId: UUID, assigneeId: UUID, pageable: Pageable): Page<Issue>
+
+    @Query("""
+        SELECT i FROM Issue i
+        WHERE i.project.id = :projectId
+          AND i.dueDate < CURRENT_DATE
+          AND i.status.category <> com.taskowolf.workflows.domain.StatusCategory.DONE
+        ORDER BY i.dueDate ASC
+    """)
+    fun findOverdueByProjectId(projectId: UUID, pageable: Pageable): Page<Issue>
 }

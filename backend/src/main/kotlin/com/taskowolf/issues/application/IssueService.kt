@@ -123,9 +123,25 @@ class IssueService(
     }
 
     @Transactional(readOnly = true)
-    fun findByProject(projectKey: String, userId: UUID, page: Int, size: Int): org.springframework.data.domain.Page<Issue> {
+    fun findByProject(
+        projectKey: String,
+        userId: UUID,
+        page: Int,
+        size: Int,
+        assigneeMe: Boolean = false,
+        sort: String? = null,
+        overdue: Boolean = false
+    ): org.springframework.data.domain.Page<Issue> {
         val project = projectService.requireMember(projectKey, userId)
-        return issueRepository.findAllByProjectId(project.id, PageRequest.of(page, size))
+        val pageable = when (sort) {
+            "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
+            else -> PageRequest.of(page, size)
+        }
+        return when {
+            overdue -> issueRepository.findOverdueByProjectId(project.id, pageable)
+            assigneeMe -> issueRepository.findByProjectIdAndAssigneeId(project.id, userId, pageable)
+            else -> issueRepository.findAllByProjectId(project.id, pageable)
+        }
     }
 
     @Transactional(readOnly = true)
