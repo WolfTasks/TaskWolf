@@ -18,6 +18,8 @@ import io.mockk.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.taskowolf.core.infrastructure.NotFoundException
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import java.util.UUID
 import org.junit.jupiter.api.Assertions.assertEquals
 
@@ -165,5 +167,44 @@ class IssueServiceTest {
         val statusEvent = events.filterIsInstance<IssueStatusChangedEvent>().first()
         assertEquals(owner, statusEvent.actor)
         assertEquals("Done", statusEvent.newStatus.name)
+    }
+
+    @Test
+    fun `findByProject with overdue=true calls findOverdueByProjectId with StatusCategory DONE`() {
+        val emptyPage = PageImpl<com.taskowolf.issues.domain.Issue>(emptyList())
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, any()) } returns emptyPage
+
+        service.findByProject("WOLF", owner.id, 0, 20, overdue = true)
+
+        verify(exactly = 1) { issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, any()) }
+        verify(exactly = 0) { issueRepository.findByProjectIdAndAssigneeId(any(), any(), any()) }
+        verify(exactly = 0) { issueRepository.findAllByProjectId(any(), any()) }
+    }
+
+    @Test
+    fun `findByProject with overdue=true and assigneeMe=true calls findOverdueByProjectIdAndAssigneeId`() {
+        val emptyPage = PageImpl<com.taskowolf.issues.domain.Issue>(emptyList())
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, owner.id, StatusCategory.DONE, any()) } returns emptyPage
+
+        service.findByProject("WOLF", owner.id, 0, 20, assigneeMe = true, overdue = true)
+
+        verify(exactly = 1) { issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, owner.id, StatusCategory.DONE, any()) }
+        verify(exactly = 0) { issueRepository.findOverdueByProjectId(any(), any(), any()) }
+        verify(exactly = 0) { issueRepository.findByProjectIdAndAssigneeId(any(), any(), any()) }
+    }
+
+    @Test
+    fun `findByProject with assigneeMe=true calls findByProjectIdAndAssigneeId`() {
+        val emptyPage = PageImpl<com.taskowolf.issues.domain.Issue>(emptyList())
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) } returns emptyPage
+
+        service.findByProject("WOLF", owner.id, 0, 20, assigneeMe = true)
+
+        verify(exactly = 1) { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) }
+        verify(exactly = 0) { issueRepository.findOverdueByProjectId(any(), any(), any()) }
+        verify(exactly = 0) { issueRepository.findAllByProjectId(any(), any()) }
     }
 }

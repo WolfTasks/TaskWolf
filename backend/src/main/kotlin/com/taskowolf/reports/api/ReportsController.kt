@@ -20,4 +20,14 @@ class ReportsController(private val reportsService: ReportsService) {
     @GetMapping("/velocity")
     fun velocity(@PathVariable key: String, @AuthenticationPrincipal user: User) =
         reportsService.getVelocity(key, user.id)
+
+    @GetMapping("/cycle-time")
+    fun cycleTime(
+        @PathVariable key: String,
+        @RequestParam(required = false) sprintId: UUID?,
+        @AuthenticationPrincipal user: User
+    ) = if (sprintId != null)
+        reportsService.getCycleTime(key, sprintId, user.id)
+    else
+        reportsService.getCycleTimeAggregate(key, user.id)
 }
