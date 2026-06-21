@@ -139,7 +139,7 @@ CREATE TABLE issue_refs (
 **Invarianten:**
 - `api_keys.key_hash` — nur SHA-256 gespeichert; Plaintext einmalig zurückgegeben und dann verworfen
 - `webhooks.events` — PostgreSQL `text[]`; H2-Kompatibilität via Custom Type Converter
-- `webhook_deliveries` — Cleanup-Job löscht Records älter als 30 Tage
+- `webhook_deliveries` — `@Scheduled`-Job (täglich, 02:00 UTC) löscht Records mit `created_at < now() - 30 days`
 - `project_integrations.webhook_secret_hash` — SHA-256; Plaintext nur beim Anlegen sichtbar
 
 ---
@@ -194,6 +194,8 @@ issue.created        issue.updated       issue.status_changed
 issue.assigned       issue.deleted       sprint.started
 sprint.completed     comment.created     attachment.added
 ```
+
+**Test-Ping-Payload** (`POST .../test`): Sendet ein synthetisches Event mit `event_type: "ping"` und `{"project": "<key>", "timestamp": "<iso8601>"}`. Wird ebenfalls als `webhook_delivery` geloggt.
 
 ---
 
