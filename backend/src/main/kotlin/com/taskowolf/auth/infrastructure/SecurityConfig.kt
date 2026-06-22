@@ -34,7 +34,7 @@ class SecurityConfig(
             }
             .headers { it.frameOptions { fo -> fo.disable() } }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
-            .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(apiKeyAuthFilter, JwtAuthFilter::class.java)
         return http.build()
     }
 }
