@@ -41,6 +41,23 @@ export function AppLayout() {
                 <NavLink to={`/p/${projectKey}/reports`} className={subNavLinkClass}>Reports</NavLink>
                 <NavLink to={`/p/${projectKey}/automation`} className={subNavLinkClass}>Automation</NavLink>
               </div>
+
+              <div className="mt-4">
+                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Settings
+                </p>
+                <div className="flex flex-col gap-1">
+                  <NavLink to={`/p/${projectKey}/settings/api-keys`} className={subNavLinkClass}>
+                    API Keys
+                  </NavLink>
+                  <NavLink to={`/p/${projectKey}/settings/webhooks`} className={subNavLinkClass}>
+                    Webhooks
+                  </NavLink>
+                  <NavLink to={`/p/${projectKey}/settings/integrations`} className={subNavLinkClass}>
+                    Integrations
+                  </NavLink>
+                </div>
+              </div>
             </div>
           )}
         </nav>

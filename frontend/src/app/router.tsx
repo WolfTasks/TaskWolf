@@ -17,6 +17,7 @@ import { WorkflowEditorPage } from '@/pages/settings/WorkflowEditorPage'
 import { AutomationPage } from '@/pages/automation/AutomationPage'
 import { AutomationRuleEditorPage } from '@/pages/automation/AutomationRuleEditorPage'
 import { AdminAutomationPage } from '@/pages/admin/AdminAutomationPage'
+import { ApiKeysPage } from '@/pages/settings/ApiKeysPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       { path: '/p/:key/automation', element: <AutomationPage /> },
       { path: '/p/:key/automation/new', element: <AutomationRuleEditorPage /> },
       { path: '/p/:key/automation/:rid/edit', element: <AutomationRuleEditorPage /> },
+      { path: '/p/:key/settings/api-keys', element: <ApiKeysPage /> },
       { path: '/admin/automation', element: <AdminAutomationPage /> },
     ],
   },
