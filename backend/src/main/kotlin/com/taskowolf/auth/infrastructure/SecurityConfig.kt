@@ -9,8 +9,10 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
-class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
-
+class SecurityConfig(
+    private val jwtAuthFilter: JwtAuthFilter,
+    private val apiKeyAuthFilter: ApiKeyAuthFilter
+) {
     @Bean
     fun passwordEncoder() = BCryptPasswordEncoder()
 
@@ -32,6 +34,7 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
             }
             .headers { it.frameOptions { fo -> fo.disable() } }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 }
