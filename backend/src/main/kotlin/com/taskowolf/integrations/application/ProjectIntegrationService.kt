@@ -13,7 +13,6 @@ import com.taskowolf.projects.application.ProjectService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 import java.util.UUID
@@ -36,7 +35,7 @@ class ProjectIntegrationService(
         val integration = integrationRepository.save(
             ProjectIntegration(
                 projectId = project.id, provider = provider,
-                webhookSecretHash = sha256(plainSecret), repoUrl = req.repoUrl
+                webhookSecret = plainSecret, repoUrl = req.repoUrl
             )
         )
         val providerPath = provider.name.lowercase()
@@ -59,11 +58,6 @@ class ProjectIntegrationService(
             ?: throw NotFoundException("Integration not found: $integrationId")
         integrationRepository.delete(integration)
     }
-
-    fun sha256(input: String): String =
-        MessageDigest.getInstance("SHA-256")
-            .digest(input.toByteArray())
-            .joinToString("") { "%02x".format(it) }
 
     private fun generateSecret(): String {
         val bytes = ByteArray(32)

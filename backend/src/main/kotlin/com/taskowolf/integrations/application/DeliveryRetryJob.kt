@@ -23,7 +23,7 @@ class DeliveryRetryJob(
         }
         for (delivery in pending) {
             val hook = webhookRepository.findById(delivery.webhookId).orElse(null) ?: continue
-            dispatcher.send(delivery, hook.url, hook.secretHash)
+            dispatcher.send(delivery, hook.url, hook.secret)
         }
     }
 }

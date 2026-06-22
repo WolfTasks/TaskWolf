@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
 interface IssueRefRepository : JpaRepository<IssueRef, UUID> {
-    fun findByIssueId(issueId: UUID): List<IssueRef>
+    fun findByIssueIdOrderByCreatedAtAsc(issueId: UUID): List<IssueRef>
 }

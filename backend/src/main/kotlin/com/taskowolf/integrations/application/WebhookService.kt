@@ -41,7 +41,7 @@ class WebhookService(
         val hook = webhookRepository.save(
             Webhook(
                 projectId = project.id, url = req.url,
-                secretHash = sha256(plainSecret), events = req.events,
+                secret = plainSecret, events = req.events,
                 enabled = req.enabled, createdBy = caller.id
             )
         )

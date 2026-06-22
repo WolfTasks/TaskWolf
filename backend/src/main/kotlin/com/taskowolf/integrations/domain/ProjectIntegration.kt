@@ -16,7 +16,7 @@ class ProjectIntegration(
     val provider: IntegrationProvider,
 
     @Column(nullable = false)
-    var webhookSecretHash: String,
+    var webhookSecret: String,
 
     @Column(length = 2048)
     var repoUrl: String? = null

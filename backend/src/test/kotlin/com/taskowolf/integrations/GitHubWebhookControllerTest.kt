@@ -51,7 +51,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
         val secret = setupGitHubIntegration(token, "GH1")
 
         val payload = """{"ref":"refs/heads/main","commits":[{"id":"abc123","message":"fix bug","url":"https://github.com/org/repo/commit/abc123"}]}"""
-        val sha256secret = hmacSigner.sign(payload, sha256(secret))
+        val sha256secret = hmacSigner.sign(payload, secret)
 
         mockMvc.perform(
             post("/api/v1/integrations/github/GH1/webhook")
@@ -91,7 +91,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
         val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asText()
 
         val payload = """{"ref":"refs/heads/main","commits":[{"id":"def456","message":"fix $issueKey crash","url":"https://github.com/org/repo/commit/def456"}]}"""
-        val sig = hmacSigner.sign(payload, sha256(secret))
+        val sig = hmacSigner.sign(payload, secret)
 
         mockMvc.perform(
             post("/api/v1/integrations/github/GH3/webhook")
@@ -109,8 +109,4 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
             .andExpect(jsonPath("$.refs[0].refType").value("COMMIT"))
     }
 
-    private fun sha256(input: String): String =
-        java.security.MessageDigest.getInstance("SHA-256")
-            .digest(input.toByteArray())
-            .joinToString("") { "%02x".format(it) }
 }

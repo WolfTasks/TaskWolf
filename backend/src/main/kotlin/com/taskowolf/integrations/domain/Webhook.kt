@@ -15,7 +15,7 @@ class Webhook(
     var url: String,
 
     @Column(nullable = false)
-    var secretHash: String,
+    var secret: String,
 
     @Convert(converter = StringListConverter::class)
     @Column(nullable = false, columnDefinition = "TEXT")

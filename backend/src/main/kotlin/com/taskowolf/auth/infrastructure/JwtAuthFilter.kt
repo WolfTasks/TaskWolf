@@ -21,20 +21,22 @@ class JwtAuthFilter(
         response: HttpServletResponse,
         chain: FilterChain
     ) {
-        val token = request.getHeader("Authorization")
-            ?.takeIf { it.startsWith("Bearer ") }
-            ?.substring(7)
+        if (SecurityContextHolder.getContext().authentication == null) {
+            val token = request.getHeader("Authorization")
+                ?.takeIf { it.startsWith("Bearer ") }
+                ?.substring(7)
 
-        if (token != null) {
-            val userId = jwtService.validateToken(token)
-            if (userId != null) {
-                val user = userRepository.findById(userId).orElse(null)
-                if (user != null) {
-                    val auth = UsernamePasswordAuthenticationToken(
-                        user, null,
-                        listOf(SimpleGrantedAuthority("ROLE_${user.systemRole.name}"))
-                    )
-                    SecurityContextHolder.getContext().authentication = auth
+            if (token != null) {
+                val userId = jwtService.validateToken(token)
+                if (userId != null) {
+                    val user = userRepository.findById(userId).orElse(null)
+                    if (user != null) {
+                        val auth = UsernamePasswordAuthenticationToken(
+                            user, null,
+                            listOf(SimpleGrantedAuthority("ROLE_${user.systemRole.name}"))
+                        )
+                        SecurityContextHolder.getContext().authentication = auth
+                    }
                 }
             }
         }

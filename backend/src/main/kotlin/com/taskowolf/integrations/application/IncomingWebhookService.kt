@@ -30,11 +30,15 @@ class IncomingWebhookService(
     fun handleGitHub(projectKey: String, payload: String, signatureHeader: String?) {
         val project = projectRepository.findByKey(projectKey) ?: return
         val integration = integrationRepository.findByProjectIdAndProvider(project.id, IntegrationProvider.GITHUB) ?: return
-        if (!verifyGitHubSignature(payload, integration.webhookSecretHash, signatureHeader)) {
+        if (!verifyGitHubSignature(payload, integration.webhookSecret, signatureHeader)) {
             log.warn("GitHub webhook signature mismatch for project {}", projectKey)
             throw SecurityException("Invalid GitHub webhook signature")
         }
-        val node = objectMapper.readTree(payload)
+        val node = try {
+            objectMapper.readTree(payload)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid JSON payload")
+        }
         processGitHubPayload(node, project.id, projectKey)
     }
 
@@ -42,19 +46,21 @@ class IncomingWebhookService(
     fun handleGitLab(projectKey: String, payload: String, tokenHeader: String?) {
         val project = projectRepository.findByKey(projectKey) ?: return
         val integration = integrationRepository.findByProjectIdAndProvider(project.id, IntegrationProvider.GITLAB) ?: return
-        val expectedHash = integration.webhookSecretHash
-        val actualHash = sha256(tokenHeader ?: "")
-        if (expectedHash != actualHash) {
+        if (integration.webhookSecret != (tokenHeader ?: "")) {
             log.warn("GitLab webhook token mismatch for project {}", projectKey)
             throw SecurityException("Invalid GitLab webhook token")
         }
-        val node = objectMapper.readTree(payload)
+        val node = try {
+            objectMapper.readTree(payload)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid JSON payload")
+        }
         processGitLabPayload(node, project.id, projectKey)
     }
 
-    private fun verifyGitHubSignature(payload: String, secretHash: String, signatureHeader: String?): Boolean {
+    private fun verifyGitHubSignature(payload: String, secret: String, signatureHeader: String?): Boolean {
         if (signatureHeader == null) return false
-        return hmacSigner.verify(payload, secretHash, signatureHeader)
+        return hmacSigner.verify(payload, secret, signatureHeader)
     }
 
     private fun processGitHubPayload(node: JsonNode, projectId: UUID, projectKey: String) {
@@ -128,8 +134,4 @@ class IncomingWebhookService(
         }
     }
 
-    private fun sha256(input: String): String =
-        java.security.MessageDigest.getInstance("SHA-256")
-            .digest(input.toByteArray())
-            .joinToString("") { "%02x".format(it) }
 }

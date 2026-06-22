@@ -96,7 +96,7 @@ class WebhookDispatcher(
     fun sendAsync(deliveryId: UUID) {
         val delivery = deliveryRepository.findById(deliveryId).orElse(null) ?: return
         val hook = webhookRepository.findById(delivery.webhookId).orElse(null) ?: return
-        send(delivery, hook.url, hook.secretHash)
+        send(delivery, hook.url, hook.secret)
     }
 
     fun send(delivery: WebhookDelivery, url: String, secretHash: String) {

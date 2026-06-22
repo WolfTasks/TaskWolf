@@ -37,7 +37,7 @@ class WebhookServiceTest {
     private fun mockProject(user: User) = Project(key = "WH", name = "WH", owner = user)
 
     @Test
-    fun `create validates SSRF and stores hashed secret`() {
+    fun `create validates SSRF and stores plaintext secret`() {
         val user = mockUser()
         val project = mockProject(user)
         every { projectService.requireAdmin("WH", user.id) } returns project
@@ -54,8 +54,8 @@ class WebhookServiceTest {
         verify { ssrfValidator.validate("https://hooks.example.com/payload") }
         verify {
             webhookRepository.save(withArg { webhook ->
-                assert(webhook.secretHash != "mysecret") {
-                    "secretHash should be a hash, not the plaintext secret"
+                assert(webhook.secret == "mysecret") {
+                    "secret should be stored as plaintext for HMAC verification"
                 }
             })
         }

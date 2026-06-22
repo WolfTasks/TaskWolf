@@ -47,7 +47,7 @@ class IssueController(
         @AuthenticationPrincipal user: User
     ): IssueResponse {
         val issue = issueService.findByKey(key, issueKey, user.id)
-        val refs = issueRefRepository.findByIssueId(issue.id).map { IssueRefResponse.from(it) }
+        val refs = issueRefRepository.findByIssueIdOrderByCreatedAtAsc(issue.id).map { IssueRefResponse.from(it) }
         return IssueResponse.from(issue, refs)
     }
 
