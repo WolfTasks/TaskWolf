@@ -17,10 +17,14 @@ export function ApiKeysPage() {
 
   async function handleCreate() {
     if (!keyName.trim()) return
-    const result = await createKey.mutateAsync({ name: keyName })
-    setNewKey(result)
-    setKeyName('')
-    setShowCreate(false)
+    try {
+      const result = await createKey.mutateAsync({ name: keyName })
+      setNewKey(result)
+      setKeyName('')
+      setShowCreate(false)
+    } catch (e: any) {
+      alert(e.response?.data?.message || 'Failed to create API key')
+    }
   }
 
   function handleCopy() {
@@ -126,7 +130,9 @@ export function ApiKeysPage() {
                 </td>
                 <td className="py-3 text-right">
                   <button
-                    onClick={() => revokeKey.mutate(k.id)}
+                    onClick={() => revokeKey.mutate(k.id, {
+                      onError: (e: any) => alert(e.response?.data?.message || 'Failed to revoke key')
+                    })}
                     className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 hover:text-red-300 rounded text-xs"
                   >
                     Revoke
