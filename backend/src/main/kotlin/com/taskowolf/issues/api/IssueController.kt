@@ -1,6 +1,8 @@
 package com.taskowolf.issues.api
 
 import com.taskowolf.auth.domain.User
+import com.taskowolf.integrations.api.dto.IssueRefResponse
+import com.taskowolf.integrations.infrastructure.IssueRefRepository
 import com.taskowolf.issues.api.dto.CreateIssueRequest
 import com.taskowolf.issues.api.dto.IssueResponse
 import com.taskowolf.issues.api.dto.UpdateIssueRequest
@@ -13,7 +15,10 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/projects/{key}/issues")
-class IssueController(private val issueService: IssueService) {
+class IssueController(
+    private val issueService: IssueService,
+    private val issueRefRepository: IssueRefRepository
+) {
 
     @GetMapping
     fun list(
@@ -24,7 +29,8 @@ class IssueController(private val issueService: IssueService) {
         @RequestParam(defaultValue = "false") assigneeMe: Boolean,
         @RequestParam(required = false) sort: String?,
         @RequestParam(defaultValue = "false") overdue: Boolean
-    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue).map { IssueResponse.from(it) }
+    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue)
+            .map { IssueResponse.from(it) }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,7 +45,11 @@ class IssueController(private val issueService: IssueService) {
         @PathVariable key: String,
         @PathVariable issueKey: String,
         @AuthenticationPrincipal user: User
-    ) = IssueResponse.from(issueService.findByKey(key, issueKey, user.id))
+    ): IssueResponse {
+        val issue = issueService.findByKey(key, issueKey, user.id)
+        val refs = issueRefRepository.findByIssueId(issue.id).map { IssueRefResponse.from(it) }
+        return IssueResponse.from(issue, refs)
+    }
 
     @PatchMapping("/{id}")
     fun update(
