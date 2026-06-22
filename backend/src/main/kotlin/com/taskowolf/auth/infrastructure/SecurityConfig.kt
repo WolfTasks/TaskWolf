@@ -24,6 +24,8 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it.requestMatchers(
                     "/api/v1/auth/**",
+                    "/api/v1/integrations/github/*/webhook",
+                    "/api/v1/integrations/gitlab/*/webhook",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/h2-console/**",
