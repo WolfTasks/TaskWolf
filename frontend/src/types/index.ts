@@ -22,6 +22,16 @@ export interface WorkflowStatus {
   position: number
 }
 
+export interface IssueRefResponse {
+  id: string
+  provider: string
+  refType: string
+  externalId: string
+  title: string | null
+  url: string
+  createdAt: string | null
+}
+
 export interface Issue {
   id: string
   key: string
@@ -37,6 +47,7 @@ export interface Issue {
   assigneeId: string | null
   reporterId: string
   parentId: string | null
+  refs?: IssueRefResponse[]
 }
 
 export interface AuthResponse {

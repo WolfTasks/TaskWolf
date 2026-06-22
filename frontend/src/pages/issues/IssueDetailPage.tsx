@@ -49,6 +49,39 @@ export function IssueDetailPage() {
           <section>
             <ActivityFeed projectKey={key!} issueKey={issueKey!} />
           </section>
+
+          {/* References */}
+          {issue.refs && issue.refs.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                References
+              </h3>
+              <div className="space-y-2">
+                {issue.refs.map((ref) => (
+                  <a
+                    key={ref.id}
+                    href={ref.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 bg-gray-800 rounded hover:bg-gray-700 transition-colors"
+                  >
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-gray-700 text-gray-300">
+                      {ref.provider}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-gray-700 text-gray-400">
+                      {ref.refType}
+                    </span>
+                    <span className="text-sm text-blue-400 truncate">
+                      {ref.title || ref.externalId}
+                    </span>
+                    <span className="text-xs text-gray-500 shrink-0">
+                      {ref.createdAt ? new Date(ref.createdAt).toLocaleDateString() : ''}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right: metadata + attachments */}

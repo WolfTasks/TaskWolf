@@ -19,6 +19,7 @@ import { AutomationRuleEditorPage } from '@/pages/automation/AutomationRuleEdito
 import { AdminAutomationPage } from '@/pages/admin/AdminAutomationPage'
 import { ApiKeysPage } from '@/pages/settings/ApiKeysPage'
 import { WebhooksPage } from '@/pages/settings/WebhooksPage'
+import { IntegrationsPage } from '@/pages/settings/IntegrationsPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -53,6 +54,7 @@ export const router = createBrowserRouter([
       { path: '/p/:key/automation/:rid/edit', element: <AutomationRuleEditorPage /> },
       { path: '/p/:key/settings/api-keys', element: <ApiKeysPage /> },
       { path: '/p/:key/settings/webhooks', element: <WebhooksPage /> },
+      { path: '/p/:key/settings/integrations', element: <IntegrationsPage /> },
       { path: '/admin/automation', element: <AdminAutomationPage /> },
     ],
   },
