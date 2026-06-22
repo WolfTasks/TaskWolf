@@ -35,6 +35,11 @@ class GlobalExceptionHandler {
         ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("BAD_REQUEST", ex.message ?: "Bad request"))
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgument(ex: IllegalArgumentException) =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse("BAD_REQUEST", ex.message ?: "Bad request"))
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
         val details = ex.bindingResult.fieldErrors
