@@ -24,13 +24,27 @@ class JwtService(
         }
     }
 
-    fun generateAccessToken(userId: UUID): String = buildToken(userId, accessExpiry * 1000, "access")
+    fun generateAccessToken(userId: UUID, orgId: UUID? = null): String = Jwts.builder()
+        .id(UUID.randomUUID().toString())
+        .subject(userId.toString())
+        .claim("type", "access")
+        .apply { orgId?.let { claim("orgId", it.toString()) } }
+        .issuedAt(Date())
+        .expiration(Date(System.currentTimeMillis() + accessExpiry * 1000))
+        .signWith(key)
+        .compact()
+
     fun generateRefreshToken(userId: UUID): String = buildToken(userId, refreshExpiry * 1000, "refresh")
 
     fun validateToken(token: String, expectedType: String = "access"): UUID? = runCatching {
         val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
         require(claims["type"] == expectedType)
         UUID.fromString(claims.subject)
+    }.getOrNull()
+
+    fun extractOrgId(token: String): UUID? = runCatching {
+        val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
+        claims.get("orgId", String::class.java)?.let { UUID.fromString(it) }
     }.getOrNull()
 
     private fun buildToken(userId: UUID, expiryMs: Long, type: String) = Jwts.builder()
