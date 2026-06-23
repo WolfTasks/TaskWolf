@@ -23,8 +23,6 @@ class AuditServiceTest {
         )
         every { eventRepo.save(any<AuditEvent>()) } returns mockk()
         service.log(AuditLevel.SECURITY, AuditAction.LOGIN_SUCCESS, "u@e.com")
-        // Give async execution time to complete
-        Thread.sleep(100)
         verify { eventRepo.save(any<AuditEvent>()) }
     }
 
@@ -34,8 +32,6 @@ class AuditServiceTest {
             AuditConfig(AuditLevel.WRITE, false)
         )
         service.log(AuditLevel.WRITE, AuditAction.ISSUE_CREATED, "u@e.com")
-        // Give async execution time to complete
-        Thread.sleep(100)
         verify(exactly = 0) { eventRepo.save(any<AuditEvent>()) }
     }
 
@@ -46,8 +42,6 @@ class AuditServiceTest {
         )
         every { eventRepo.save(any<AuditEvent>()) } returns mockk()
         service.log(AuditLevel.WRITE, AuditAction.ISSUE_CREATED, "u@e.com")
-        // Give async execution time to complete
-        Thread.sleep(100)
         verify { eventRepo.save(any<AuditEvent>()) }
     }
 }

@@ -15,7 +15,7 @@ class AuditService(
     private val eventRepo: AuditEventRepository,
     private val configRepo: AuditConfigRepository
 ) {
-    private fun isEnabled(level: AuditLevel): Boolean {
+    fun isEnabled(level: AuditLevel): Boolean {
         if (level == AuditLevel.SECURITY) return true
         return configRepo.findAll().find { it.level == level }?.enabled ?: false
     }
