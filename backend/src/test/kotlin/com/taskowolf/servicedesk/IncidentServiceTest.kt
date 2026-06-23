@@ -14,6 +14,7 @@ import io.mockk.slot
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.Optional
 import java.util.UUID
@@ -66,7 +67,7 @@ class IncidentServiceTest {
         assertEquals("Root cause: DB overload", incident.postmortemBody)
         val commentSlot = slot<Comment>()
         verify { commentRepo.save(capture(commentSlot)) }
-        assert(commentSlot.captured.body.contains("Postmortem"))
+        assertTrue(commentSlot.captured.body.contains("Postmortem"))
         assertEquals(issueId, commentSlot.captured.issueId)
     }
 
