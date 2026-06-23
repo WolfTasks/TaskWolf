@@ -43,18 +43,8 @@ class SsoService(
     fun createConfig(name: String, issuerUrl: String, clientId: String, clientSecret: String): SsoConfig =
         repo.save(SsoConfig(name, issuerUrl, clientId, encryptSecret(clientSecret)))
 
-    @Transactional
-    fun updateConfig(id: UUID, name: String, issuerUrl: String, clientId: String, clientSecret: String?, enabled: Boolean, autoProvision: Boolean): SsoConfig {
-        val config = repo.findById(id).orElseThrow()
-        if (clientSecret != null) config.clientSecretEnc = encryptSecret(clientSecret)
-        return repo.save(SsoConfig(name, issuerUrl, clientId, config.clientSecretEnc, enabled, autoProvision))
-    }
-
     @Transactional(readOnly = true)
     fun listEnabled() = repo.findAllByEnabledTrue()
-
-    @Transactional(readOnly = true)
-    fun listAll() = repo.findAll()
 
     @Transactional
     fun deleteConfig(id: UUID) = repo.deleteById(id)
