@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @RestController
@@ -70,7 +71,12 @@ class ServiceDeskController(
     ): SlaPolicyResponse {
         val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
         val sd = serviceDeskService.findByProject(project.id) ?: error("Service desk not enabled for project: $key")
-        val priority = IssuePriority.valueOf(req.priority)
+        val priority = try {
+            IssuePriority.valueOf(req.priority)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Invalid priority: ${req.priority}. Valid values: ${IssuePriority.entries.joinToString()}")
+        }
         return SlaPolicyResponse.from(
             serviceDeskService.addSlaPolicy(sd.id, req.name, priority, req.responseMinutes, req.resolutionMinutes)
         )
