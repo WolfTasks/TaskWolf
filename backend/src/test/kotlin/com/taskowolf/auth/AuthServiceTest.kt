@@ -1,5 +1,6 @@
 package com.taskowolf.auth
 
+import com.taskowolf.audit.application.SecurityAuditListener
 import com.taskowolf.auth.application.AuthService
 import com.taskowolf.auth.application.RefreshTokenService
 import com.taskowolf.auth.api.dto.RegisterRequest
@@ -20,7 +21,8 @@ class AuthServiceTest {
     private val passwordEncoder = mockk<PasswordEncoder>()
     private val jwtService = mockk<com.taskowolf.auth.application.JwtService>()
     private val refreshTokenService = mockk<RefreshTokenService>(relaxed = true)
-    private val authService = AuthService(userRepository, passwordEncoder, jwtService, refreshTokenService, registrationEnabled = true)
+    private val securityAuditListener = mockk<SecurityAuditListener>(relaxed = true)
+    private val authService = AuthService(userRepository, passwordEncoder, jwtService, refreshTokenService, registrationEnabled = true, securityAuditListener = securityAuditListener)
 
     @Test
     fun `register throws ConflictException when email already exists`() {
@@ -57,7 +59,7 @@ class AuthServiceTest {
 
     @Test
     fun `register throws ForbiddenException when registration is disabled`() {
-        val disabledService = AuthService(userRepository, passwordEncoder, jwtService, refreshTokenService, registrationEnabled = false)
+        val disabledService = AuthService(userRepository, passwordEncoder, jwtService, refreshTokenService, registrationEnabled = false, securityAuditListener = securityAuditListener)
 
         assertThrows<ForbiddenException> {
             disabledService.register(RegisterRequest("new@example.com", "New User", "password123"))

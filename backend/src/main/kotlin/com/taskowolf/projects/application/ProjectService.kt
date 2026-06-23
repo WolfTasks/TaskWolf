@@ -44,6 +44,10 @@ class ProjectService(
         ?: throw NotFoundException("Project not found: $key")
 
     @Transactional(readOnly = true)
+    fun findById(projectId: UUID) = projectRepository.findById(projectId)
+        .orElseThrow { NotFoundException("Project not found: $projectId") }
+
+    @Transactional(readOnly = true)
     fun requireMember(projectKey: String, userId: UUID): Project {
         val project = findByKey(projectKey)
         val isMember = memberRepository.existsByProjectIdAndUserId(project.id, userId)

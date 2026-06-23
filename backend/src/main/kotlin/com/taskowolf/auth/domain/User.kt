@@ -2,6 +2,7 @@ package com.taskowolf.auth.domain
 
 import com.taskowolf.core.domain.AuditableEntity
 import jakarta.persistence.*
+import java.util.UUID
 
 @Entity
 @Table(name = "users")
@@ -22,5 +23,8 @@ class User(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var systemRole: SystemRole = SystemRole.MEMBER
+    var systemRole: SystemRole = SystemRole.MEMBER,
+
+    @Column
+    var orgId: UUID? = null
 ) : AuditableEntity()

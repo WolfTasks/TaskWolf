@@ -1,6 +1,9 @@
 import { Outlet, NavLink, Link, useNavigate, useMatch } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { OrgSwitcher } from '@/components/OrgSwitcher'
 import { authApi } from '@/api/auth'
+import { serviceDeskApi } from '@/api/servicedesk'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
@@ -12,6 +15,12 @@ export function AppLayout() {
   const navigate = useNavigate()
   const insideProject = useMatch('/p/:key/*')
   const projectKey = insideProject?.params.key
+
+  const { data: serviceDeskConfig } = useQuery({
+    queryKey: ['service-desk-config', projectKey],
+    queryFn: () => serviceDeskApi.get(projectKey!),
+    enabled: !!projectKey,
+  })
 
   const logout = async () => {
     try { await authApi.logout() } catch { /* ignore */ }
@@ -27,6 +36,17 @@ export function AppLayout() {
         <nav className="flex flex-col gap-1 flex-1">
           <NavLink to="/" end className={navLinkClass}>Dashboard</NavLink>
           <NavLink to="/projects" end className={navLinkClass}>Projects</NavLink>
+          <NavLink to="/orgs" end className={navLinkClass}>Organizations</NavLink>
+
+          <div className="mt-4">
+            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+              Admin
+            </p>
+            <div className="flex flex-col gap-1">
+              <NavLink to="/admin/audit" className={subNavLinkClass}>Audit Log</NavLink>
+              <NavLink to="/admin/automation" className={subNavLinkClass}>Automation</NavLink>
+            </div>
+          </div>
 
           {insideProject && projectKey && (
             <div className="mt-4">
@@ -40,6 +60,12 @@ export function AppLayout() {
                 <NavLink to={`/p/${projectKey}/issues`} className={subNavLinkClass}>Issues</NavLink>
                 <NavLink to={`/p/${projectKey}/reports`} className={subNavLinkClass}>Reports</NavLink>
                 <NavLink to={`/p/${projectKey}/automation`} className={subNavLinkClass}>Automation</NavLink>
+                {serviceDeskConfig?.enabled && (
+                  <>
+                    <NavLink to={`/p/${projectKey}/service-desk`} className={subNavLinkClass}>Service Desk</NavLink>
+                    <NavLink to={`/p/${projectKey}/incidents`} className={subNavLinkClass}>Incidents</NavLink>
+                  </>
+                )}
               </div>
 
               <div className="mt-4">
@@ -56,16 +82,22 @@ export function AppLayout() {
                   <NavLink to={`/p/${projectKey}/settings/integrations`} className={subNavLinkClass}>
                     Integrations
                   </NavLink>
+                  <NavLink to={`/p/${projectKey}/settings/audit`} className={subNavLinkClass}>
+                    Audit Log
+                  </NavLink>
                 </div>
               </div>
             </div>
           )}
         </nav>
-        <div className="flex items-center gap-2 mt-auto">
-          <NotificationBell />
-          <button onClick={logout} className="flex-1 px-3 py-2 text-sm text-gray-400 hover:text-white text-left">
-            Logout
-          </button>
+        <div className="flex flex-col gap-1 mt-auto">
+          <OrgSwitcher />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <button onClick={logout} className="flex-1 px-3 py-2 text-sm text-gray-400 hover:text-white text-left">
+              Logout
+            </button>
+          </div>
         </div>
       </aside>
       <main className="flex-1 overflow-auto p-8">

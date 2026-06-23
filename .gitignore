@@ -23,3 +23,6 @@ data/
 
 # Git worktrees
 .worktrees/
+
+# Test output
+test_output.txt

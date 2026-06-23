@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/api/auth'
+import { ssoApi, SsoConfigPublic } from '@/api/sso'
 
 export function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+
+  const { data: ssoConfigs = [] } = useQuery<SsoConfigPublic[]>({
+    queryKey: ['sso-configs-public'],
+    queryFn: ssoApi.listPublic,
+    retry: false,
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,6 +47,20 @@ export function LoginPage() {
         className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 text-sm font-medium">
         Sign in
       </button>
+      {ssoConfigs.length > 0 && (
+        <div className="flex flex-col gap-2 pt-2 border-t border-gray-700">
+          <p className="text-xs text-gray-400 text-center">or sign in with SSO</p>
+          {ssoConfigs.map(config => (
+            <a
+              key={config.id}
+              href={`/login/oauth2/authorization/${config.id}`}
+              className="bg-gray-700 hover:bg-gray-600 text-white rounded px-4 py-2 text-sm font-medium text-center"
+            >
+              Sign in with {config.name}
+            </a>
+          ))}
+        </div>
+      )}
       <p className="text-sm text-gray-400 text-center">
         No account? <Link to="/register" className="text-blue-400 hover:underline">Register</Link>
       </p>

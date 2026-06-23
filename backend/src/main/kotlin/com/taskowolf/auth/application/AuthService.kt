@@ -1,5 +1,6 @@
 package com.taskowolf.auth.application
 
+import com.taskowolf.audit.application.SecurityAuditListener
 import com.taskowolf.auth.api.dto.AuthResponse
 import com.taskowolf.auth.api.dto.LoginRequest
 import com.taskowolf.auth.api.dto.RegisterRequest
@@ -21,7 +22,8 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
     private val refreshTokenService: RefreshTokenService,
-    @Value("\${taskowolf.auth.registration-enabled:true}") private val registrationEnabled: Boolean = true
+    @Value("\${taskowolf.auth.registration-enabled:true}") private val registrationEnabled: Boolean = true,
+    private val securityAuditListener: SecurityAuditListener
 ) {
     @Transactional
     fun register(request: RegisterRequest): AuthResponse {
@@ -38,6 +40,7 @@ class AuthService(
                 systemRole = if (isFirstUser) SystemRole.ADMIN else SystemRole.MEMBER
             )
         )
+        securityAuditListener.onRegister(user.email)
         return tokenPair(user.id)
     }
 
@@ -46,9 +49,12 @@ class AuthService(
         val user = userRepository.findByEmail(request.email)
         val hash = user?.passwordHash
         if (user == null || hash == null || !passwordEncoder.matches(request.password, hash)) {
+            securityAuditListener.onLoginFailed(request.email, null)
             throw ForbiddenException("Invalid credentials")
         }
-        return tokenPair(user.id)
+        val response = tokenPair(user.id)
+        securityAuditListener.onLoginSuccess(user.email, null)
+        return response
     }
 
     @Transactional
@@ -62,6 +68,8 @@ class AuthService(
     @Transactional
     fun logout(userId: UUID) {
         refreshTokenService.revokeAllForUser(userId)
+        val user = userRepository.findById(userId).orElse(null)
+        user?.let { securityAuditListener.onLogout(it.email) }
     }
 
     @Transactional(readOnly = true)

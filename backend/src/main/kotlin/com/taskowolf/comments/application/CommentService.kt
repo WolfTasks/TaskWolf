@@ -27,7 +27,7 @@ class CommentService(
         val comment = commentRepository.save(
             Comment(issueId = issue.id, authorId = actor.id, body = body)
         )
-        eventPublisher.publish(CommentCreatedEvent(comment, issue))
+        eventPublisher.publish(CommentCreatedEvent(comment, issue, actorEmail = actor.email, actorId = actor.id))
         return comment
     }
 

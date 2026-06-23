@@ -62,7 +62,7 @@ class SprintService(
         if (sprint.startDate == null) sprint.startDate = LocalDate.now()
         sprint.plannedPoints = issueRepository.sumStoryPointsBySprintId(sprint.id).toInt()
         val saved = sprintRepository.save(sprint)
-        eventPublisher.publish(SprintStartedEvent(saved))
+        eventPublisher.publish(SprintStartedEvent(saved, actorEmail = actor.email, actorId = actor.id))
         return saved
     }
 
@@ -78,7 +78,7 @@ class SprintService(
         sprint.completedPoints = allIssues.filter { it.status.category == StatusCategory.DONE }.sumOf { it.storyPoints ?: 0 }
         sprint.status = SprintStatus.CLOSED
         val saved = sprintRepository.save(sprint)
-        eventPublisher.publish(SprintCompletedEvent(saved, openIssues.size))
+        eventPublisher.publish(SprintCompletedEvent(saved, openIssues.size, actorEmail = actor.email, actorId = actor.id))
         return SprintCompleteResult(saved, openIssues.size)
     }
 
