@@ -46,6 +46,9 @@ class SsoService(
     @Transactional(readOnly = true)
     fun listEnabled() = repo.findAllByEnabledTrue()
 
+    @Transactional(readOnly = true)
+    fun listAll() = repo.findAll()
+
     @Transactional
     fun deleteConfig(id: UUID) = repo.deleteById(id)
 }

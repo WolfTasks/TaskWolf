@@ -18,6 +18,7 @@ import { AutomationPage } from '@/pages/automation/AutomationPage'
 import { AutomationRuleEditorPage } from '@/pages/automation/AutomationRuleEditorPage'
 import { AdminAutomationPage } from '@/pages/admin/AdminAutomationPage'
 import AuditLogPage from '@/pages/admin/AuditLogPage'
+import { SsoSettingsPage } from '@/pages/admin/SsoSettingsPage'
 import { ApiKeysPage } from '@/pages/settings/ApiKeysPage'
 import { WebhooksPage } from '@/pages/settings/WebhooksPage'
 import { IntegrationsPage } from '@/pages/settings/IntegrationsPage'
@@ -60,6 +61,7 @@ export const router = createBrowserRouter([
       { path: '/p/:key/settings/audit', element: <ProjectAuditPage /> },
       { path: '/admin/automation', element: <AdminAutomationPage /> },
       { path: '/admin/audit', element: <AuditLogPage /> },
+      { path: '/admin/settings/sso', element: <SsoSettingsPage /> },
     ],
   },
 ])

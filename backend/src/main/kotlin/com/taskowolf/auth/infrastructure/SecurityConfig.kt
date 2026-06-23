@@ -43,6 +43,7 @@ class SecurityConfig(
                     "/login/oauth2/**",
                     "/oauth2/**"
                 ).permitAll()
+                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/admin/sso").permitAll()
                 it.anyRequest().authenticated()
             }
             .headers { it.frameOptions { fo -> fo.disable() } }
