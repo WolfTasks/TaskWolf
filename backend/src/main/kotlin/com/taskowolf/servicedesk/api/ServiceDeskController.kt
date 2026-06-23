@@ -46,7 +46,7 @@ class ServiceDeskController(
     @ResponseStatus(HttpStatus.CREATED)
     fun submitTicket(
         @PathVariable key: String,
-        @RequestBody req: SubmitTicketRequest
+        @Valid @RequestBody req: SubmitTicketRequest
     ) {
         val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
         issueService.createTicketFromEmail(project.id, req.title, req.description, req.senderEmail ?: "anonymous")

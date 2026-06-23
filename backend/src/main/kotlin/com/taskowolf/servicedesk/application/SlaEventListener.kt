@@ -13,12 +13,12 @@ class SlaEventListener(private val issueRepository: IssueRepository) {
 
     @EventListener
     @Transactional
-    fun onStatusChanged(event: IssueStatusChangedEvent) {
-        if (event.newStatus.category == StatusCategory.IN_PROGRESS) {
-            val issue = issueRepository.findById(event.issue.id).orElse(null) ?: return
-            if (issue.slaStartTime == null) {
-                issue.slaStartTime = Instant.now()
-            }
+    fun onStatusChanged(e: IssueStatusChangedEvent) {
+        val issue = issueRepository.findById(e.issue.id).orElse(null) ?: return
+        if (e.newStatus.category == StatusCategory.IN_PROGRESS && issue.slaStartTime == null) {
+            issue.slaStartTime = Instant.now()
+        } else if (e.newStatus.category == StatusCategory.DONE) {
+            issue.slaStartTime = null
         }
     }
 }

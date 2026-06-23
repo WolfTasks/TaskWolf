@@ -11,14 +11,14 @@ const SLA_COLOR = (status: string) =>
 
 function computeSlaStatus(
   slaStartTime: string | null | undefined,
-  slaPolicy: { durationMinutes: number } | null | undefined
+  slaPolicy: { resolutionMinutes: number } | null | undefined
 ): string {
   if (!slaStartTime || !slaPolicy) return 'N/A'
   const start = new Date(slaStartTime).getTime()
   const now = Date.now()
   const elapsedMinutes = (now - start) / 60_000
-  const warningThreshold = slaPolicy.durationMinutes * 0.8
-  if (elapsedMinutes >= slaPolicy.durationMinutes) return 'BREACHED'
+  const warningThreshold = slaPolicy.resolutionMinutes * 0.8
+  if (elapsedMinutes >= slaPolicy.resolutionMinutes) return 'BREACHED'
   if (elapsedMinutes >= warningThreshold) return 'WARNING'
   return 'OK'
 }
@@ -49,7 +49,7 @@ export default function ServiceDeskPage() {
         <div className="space-y-2">
           {tickets.map((t: any) => {
             const matchedPolicy = slaPolicies.find(
-              (p: any) => p.issueType === t.type || p.priority === t.priority
+              (p: any) => p.priority === t.priority
             ) ?? null
             const slaStatus = computeSlaStatus(t.slaStartTime, matchedPolicy)
             return (

@@ -19,8 +19,8 @@ class IncidentService(
     private val notificationService: NotificationService
 ) {
     companion object {
-        /** Well-known UUID used as authorId for system-generated comments. */
-        val SYSTEM_USER_ID: UUID = UUID(0L, 0L)
+        /** Null authorId used for system-generated comments (no FK violation since author_id is nullable). */
+        val SYSTEM_USER_ID: UUID? = null
     }
 
     @Transactional

@@ -60,9 +60,9 @@ export default function IncidentDashboardPage() {
                     Resolved: {new Date(inc.resolvedAt).toLocaleString()}
                   </p>
                 )}
-                {inc.postmortemIssueId && (
+                {inc.postmortemBody && (
                   <p className="text-xs text-gray-500">
-                    Postmortem issue: {inc.postmortemIssueId}
+                    Postmortem: {inc.postmortemBody}
                   </p>
                 )}
                 {!inc.resolvedAt && resolving === inc.id && (

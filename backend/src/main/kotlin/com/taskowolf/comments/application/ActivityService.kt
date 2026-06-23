@@ -28,10 +28,12 @@ class ActivityService(private val repository: IssueActivityRepository) {
     @EventListener
     @Transactional
     fun onCommentCreated(event: CommentCreatedEvent) {
+        // System-generated comments (authorId == null) do not produce activity records
+        val authorId = event.comment.authorId ?: return
         repository.save(
             IssueActivity(
                 issueId = event.issue.id,
-                actorId = event.comment.authorId,
+                actorId = authorId,
                 type = ActivityType.COMMENT,
                 commentId = event.comment.id
             )

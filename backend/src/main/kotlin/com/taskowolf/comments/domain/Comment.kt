@@ -11,8 +11,8 @@ class Comment(
     @Column(name = "issue_id", nullable = false)
     val issueId: UUID,
 
-    @Column(name = "author_id", nullable = false)
-    val authorId: UUID,
+    @Column(name = "author_id", nullable = true)
+    val authorId: UUID? = null,
 
     @Column(columnDefinition = "TEXT", nullable = false)
     var body: String,

@@ -46,7 +46,7 @@ class SecurityConfig(
                     "/login/oauth2/**",
                     "/oauth2/**"
                 ).permitAll()
-                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/admin/sso").permitAll()
+                it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/admin/sso/public").permitAll()
                 it.requestMatchers("/api/v1/auth/switch-org/**").authenticated()
                 it.anyRequest().authenticated()
             }

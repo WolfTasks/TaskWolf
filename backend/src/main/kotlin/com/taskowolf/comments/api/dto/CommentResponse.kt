@@ -7,7 +7,7 @@ import java.util.UUID
 data class CommentResponse(
     val id: UUID,
     val issueId: UUID,
-    val authorId: UUID,
+    val authorId: UUID?,
     val body: String?,
     val editedAt: Instant?,
     val deleted: Boolean,

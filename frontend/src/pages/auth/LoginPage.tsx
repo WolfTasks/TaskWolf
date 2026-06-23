@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/api/auth'
-import { ssoApi, SsoConfig } from '@/api/sso'
+import { ssoApi, SsoConfigPublic } from '@/api/sso'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -10,9 +10,9 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const { data: ssoConfigs = [] } = useQuery<SsoConfig[]>({
+  const { data: ssoConfigs = [] } = useQuery<SsoConfigPublic[]>({
     queryKey: ['sso-configs-public'],
-    queryFn: ssoApi.list,
+    queryFn: ssoApi.listPublic,
     retry: false,
   })
 

@@ -12,7 +12,14 @@ import java.util.UUID
 @RequestMapping("/api/v1/admin/sso")
 class SsoController(private val ssoService: SsoService) {
 
+    /** Public endpoint — returns only id and name for enabled configs (no sensitive fields). */
+    @GetMapping("/public")
+    fun listPublic() = ssoService.listEnabled().map {
+        mapOf("id" to it.id.toString(), "name" to it.name)
+    }
+
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun list() = ssoService.listAll().map {
         SsoConfigResponse(it.id.toString(), it.name, it.issuerUrl, it.clientId, it.enabled, it.autoProvision)
     }

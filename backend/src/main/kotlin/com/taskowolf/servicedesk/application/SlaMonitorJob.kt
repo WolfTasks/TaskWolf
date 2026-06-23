@@ -33,6 +33,8 @@ class SlaMonitorJob(
     fun run() {
         val now = Instant.now()
         issueRepository.findBySlaStartTimeIsNotNull().forEach { issue ->
+            // Skip if issue appears to be resolved (slaStartTime should be null after fix, but guard against race)
+            if (issue.slaStartTime == null) return@forEach
             val projectId = issue.project.id
             val desk = serviceDeskRepo.findByProjectId(projectId) ?: return@forEach
             val policy = slaPolicyRepo.findByServiceDeskId(desk.id)

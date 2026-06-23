@@ -9,6 +9,11 @@ export interface SsoConfig {
   autoProvision: boolean
 }
 
+export interface SsoConfigPublic {
+  id: string
+  name: string
+}
+
 export interface SsoConfigRequest {
   name: string
   issuerUrl: string
@@ -19,6 +24,7 @@ export interface SsoConfigRequest {
 }
 
 export const ssoApi = {
+  listPublic: () => apiClient.get<SsoConfigPublic[]>('/admin/sso/public').then(r => r.data),
   list: () => apiClient.get<SsoConfig[]>('/admin/sso').then(r => r.data),
   create: (req: SsoConfigRequest) =>
     apiClient.post<SsoConfig>('/admin/sso', req).then(r => r.data),
