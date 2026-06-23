@@ -6,6 +6,7 @@ import com.taskowolf.projects.domain.Project
 import com.taskowolf.sprints.domain.Sprint
 import com.taskowolf.workflows.domain.WorkflowStatus
 import jakarta.persistence.*
+import java.time.Instant
 import java.time.LocalDate
 
 @Entity
@@ -57,5 +58,7 @@ class Issue(
     @JoinColumn(name = "parent_id")
     var parent: Issue? = null,
 
-    var dueDate: LocalDate? = null
+    var dueDate: LocalDate? = null,
+
+    var slaStartTime: Instant? = null
 ) : AuditableEntity()
