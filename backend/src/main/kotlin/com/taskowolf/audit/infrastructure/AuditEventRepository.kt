@@ -1,7 +1,6 @@
 package com.taskowolf.audit.infrastructure
 
 import com.taskowolf.audit.domain.AuditEvent
-import com.taskowolf.audit.domain.AuditLevel
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
