@@ -35,6 +35,15 @@ taskowolf:
     path: ${TW_ATTACHMENT_PATH:./data/attachments}
   smtp:
     from: ${TW_SMTP_FROM:TaskWolf <noreply@example.com>}
+  mail:
+    imap:
+      enabled: ${TW_MAIL_IMAP_ENABLED:false}
+      host: ${TW_MAIL_IMAP_HOST:}
+      port: ${TW_MAIL_IMAP_PORT:993}
+      user: ${TW_MAIL_IMAP_USER:}
+      password: ${TW_MAIL_IMAP_PASS:}
+      folder: INBOX
+      polling-interval: 30000
   auth:
     registration-enabled: ${TW_REGISTRATION_ENABLED:true}
     rate-limit:

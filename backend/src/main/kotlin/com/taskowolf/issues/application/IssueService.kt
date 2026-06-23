@@ -7,6 +7,7 @@ import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.issues.api.dto.CreateIssueRequest
 import com.taskowolf.issues.api.dto.UpdateIssueRequest
 import com.taskowolf.issues.domain.Issue
+import com.taskowolf.issues.domain.IssueType
 import com.taskowolf.issues.domain.events.IssueCreatedEvent
 import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
@@ -164,6 +165,34 @@ class IssueService(
             .filter { it.project.id == project.id }
             .orElseThrow { NotFoundException("Issue not found") }
         issueRepository.delete(issue)
+    }
+
+    /**
+     * Creates a ticket from an incoming email. Uses the project owner as the system reporter.
+     * Only called when IMAP ingestion is enabled ([EmailIngestionService]).
+     */
+    @Transactional
+    fun createTicketFromEmail(projectId: UUID, title: String, body: String, senderEmail: String): Issue {
+        val project = projectService.findById(projectId)
+        val workflow = project.workflow ?: throw com.taskowolf.core.infrastructure.NotFoundException("Project has no workflow")
+        val status = workflowService.getDefaultStatus(workflow.id)
+        val nextNumber = issueRepository.maxKeyNumberByProject(project.id) + 1
+        val reporter = project.owner
+
+        val issue = issueRepository.save(
+            Issue(
+                key = "${project.key}-$nextNumber",
+                keyNumber = nextNumber,
+                title = title,
+                description = "**From:** $senderEmail\n\n$body",
+                type = IssueType.TASK,
+                status = status,
+                project = project,
+                reporter = reporter
+            )
+        )
+        eventPublisher.publish(IssueCreatedEvent(issue, actorEmail = senderEmail, actorId = reporter.id))
+        return issue
     }
 
     private fun resolveAssignee(assigneeId: UUID, project: com.taskowolf.projects.domain.Project): com.taskowolf.auth.domain.User {
