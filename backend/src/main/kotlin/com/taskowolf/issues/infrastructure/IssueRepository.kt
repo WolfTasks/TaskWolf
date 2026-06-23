@@ -26,6 +26,8 @@ interface IssueRepository : JpaRepository<Issue, UUID> {
 
     fun findByProjectIdAndAssigneeId(projectId: UUID, assigneeId: UUID, pageable: Pageable): Page<Issue>
 
+    fun findBySlaStartTimeIsNotNull(): List<Issue>
+
     @Query("""
         SELECT i FROM Issue i
         WHERE i.project.id = :projectId
