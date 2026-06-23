@@ -4,6 +4,7 @@ import com.taskowolf.auth.domain.User
 import com.taskowolf.core.domain.AuditableEntity
 import com.taskowolf.workflows.domain.Workflow
 import jakarta.persistence.*
+import java.util.UUID
 
 @Entity
 @Table(name = "projects")
@@ -29,5 +30,8 @@ class Project(
     var archived: Boolean = false,
 
     @Column
-    var nodeId: String? = null
+    var nodeId: String? = null,
+
+    @Column
+    var orgId: UUID? = null
 ) : AuditableEntity()
