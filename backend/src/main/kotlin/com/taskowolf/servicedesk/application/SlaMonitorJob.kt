@@ -29,7 +29,7 @@ class SlaMonitorJob(
     private val log = LoggerFactory.getLogger(SlaMonitorJob::class.java)
 
     @Scheduled(fixedDelay = 60_000)
-    @Transactional(readOnly = true)
+    @Transactional
     fun run() {
         val now = Instant.now()
         issueRepository.findBySlaStartTimeIsNotNull().forEach { issue ->
