@@ -1,5 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate, useMatch } from 'react-router-dom'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { OrgSwitcher } from '@/components/OrgSwitcher'
 import { authApi } from '@/api/auth'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -27,6 +28,7 @@ export function AppLayout() {
         <nav className="flex flex-col gap-1 flex-1">
           <NavLink to="/" end className={navLinkClass}>Dashboard</NavLink>
           <NavLink to="/projects" end className={navLinkClass}>Projects</NavLink>
+          <NavLink to="/orgs" end className={navLinkClass}>Organizations</NavLink>
 
           <div className="mt-4">
             <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -74,11 +76,14 @@ export function AppLayout() {
             </div>
           )}
         </nav>
-        <div className="flex items-center gap-2 mt-auto">
-          <NotificationBell />
-          <button onClick={logout} className="flex-1 px-3 py-2 text-sm text-gray-400 hover:text-white text-left">
-            Logout
-          </button>
+        <div className="flex flex-col gap-1 mt-auto">
+          <OrgSwitcher />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <button onClick={logout} className="flex-1 px-3 py-2 text-sm text-gray-400 hover:text-white text-left">
+              Logout
+            </button>
+          </div>
         </div>
       </aside>
       <main className="flex-1 overflow-auto p-8">

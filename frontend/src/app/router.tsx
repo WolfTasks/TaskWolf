@@ -23,6 +23,8 @@ import { ApiKeysPage } from '@/pages/settings/ApiKeysPage'
 import { WebhooksPage } from '@/pages/settings/WebhooksPage'
 import { IntegrationsPage } from '@/pages/settings/IntegrationsPage'
 import ProjectAuditPage from '@/pages/projects/settings/ProjectAuditPage'
+import { OrgsPage } from '@/pages/orgs/OrgsPage'
+import { OrgSettingsPage } from '@/pages/orgs/OrgSettingsPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -62,6 +64,8 @@ export const router = createBrowserRouter([
       { path: '/admin/automation', element: <AdminAutomationPage /> },
       { path: '/admin/audit', element: <AuditLogPage /> },
       { path: '/admin/settings/sso', element: <SsoSettingsPage /> },
+      { path: '/orgs', element: <OrgsPage /> },
+      { path: '/orgs/:orgId/settings', element: <OrgSettingsPage /> },
     ],
   },
 ])
