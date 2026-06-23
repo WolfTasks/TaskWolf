@@ -54,7 +54,7 @@ class IssueService(
                 }
             )
         )
-        eventPublisher.publish(IssueCreatedEvent(issue))
+        eventPublisher.publish(IssueCreatedEvent(issue, actorEmail = reporter.email, actorId = reporter.id))
         return issue
     }
 

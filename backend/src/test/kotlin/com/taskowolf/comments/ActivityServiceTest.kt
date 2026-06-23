@@ -44,7 +44,7 @@ class ActivityServiceTest {
     @Test
     fun `onCommentCreated saves COMMENT activity`() {
         val comment = Comment(issueId = issue.id, authorId = owner.id, body = "Hello")
-        val event = CommentCreatedEvent(comment, issue)
+        val event = CommentCreatedEvent(comment, issue, actorEmail = owner.email, actorId = owner.id)
 
         service.onCommentCreated(event)
 
