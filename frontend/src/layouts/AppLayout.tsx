@@ -28,6 +28,16 @@ export function AppLayout() {
           <NavLink to="/" end className={navLinkClass}>Dashboard</NavLink>
           <NavLink to="/projects" end className={navLinkClass}>Projects</NavLink>
 
+          <div className="mt-4">
+            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+              Admin
+            </p>
+            <div className="flex flex-col gap-1">
+              <NavLink to="/admin/audit" className={subNavLinkClass}>Audit Log</NavLink>
+              <NavLink to="/admin/automation" className={subNavLinkClass}>Automation</NavLink>
+            </div>
+          </div>
+
           {insideProject && projectKey && (
             <div className="mt-4">
               <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -55,6 +65,9 @@ export function AppLayout() {
                   </NavLink>
                   <NavLink to={`/p/${projectKey}/settings/integrations`} className={subNavLinkClass}>
                     Integrations
+                  </NavLink>
+                  <NavLink to={`/p/${projectKey}/settings/audit`} className={subNavLinkClass}>
+                    Audit Log
                   </NavLink>
                 </div>
               </div>

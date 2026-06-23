@@ -17,9 +17,11 @@ import { WorkflowEditorPage } from '@/pages/settings/WorkflowEditorPage'
 import { AutomationPage } from '@/pages/automation/AutomationPage'
 import { AutomationRuleEditorPage } from '@/pages/automation/AutomationRuleEditorPage'
 import { AdminAutomationPage } from '@/pages/admin/AdminAutomationPage'
+import AuditLogPage from '@/pages/admin/AuditLogPage'
 import { ApiKeysPage } from '@/pages/settings/ApiKeysPage'
 import { WebhooksPage } from '@/pages/settings/WebhooksPage'
 import { IntegrationsPage } from '@/pages/settings/IntegrationsPage'
+import ProjectAuditPage from '@/pages/projects/settings/ProjectAuditPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -55,7 +57,9 @@ export const router = createBrowserRouter([
       { path: '/p/:key/settings/api-keys', element: <ApiKeysPage /> },
       { path: '/p/:key/settings/webhooks', element: <WebhooksPage /> },
       { path: '/p/:key/settings/integrations', element: <IntegrationsPage /> },
+      { path: '/p/:key/settings/audit', element: <ProjectAuditPage /> },
       { path: '/admin/automation', element: <AdminAutomationPage /> },
+      { path: '/admin/audit', element: <AuditLogPage /> },
     ],
   },
 ])
