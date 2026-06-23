@@ -7,7 +7,9 @@ import com.taskowolf.servicedesk.api.dto.ResolveIncidentRequest
 import com.taskowolf.servicedesk.application.IncidentService
 import com.taskowolf.servicedesk.domain.IncidentSeverity
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @RestController
@@ -19,20 +21,31 @@ class IncidentController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@projectSecurity.isProjectAdmin(#key, authentication)")
     fun create(
         @PathVariable key: String,
         @RequestBody req: CreateIncidentRequest
-    ): IncidentResponse =
-        IncidentResponse.from(
+    ): IncidentResponse {
+        val severity = try {
+            IncidentSeverity.valueOf(req.severity)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid severity '${req.severity}'. Must be one of: ${IncidentSeverity.entries.joinToString()}"
+            )
+        }
+        return IncidentResponse.from(
             incidentService.create(
                 req.issueId,
-                IncidentSeverity.valueOf(req.severity),
+                severity,
                 req.onCallAssigneeId,
                 req.notifyUserIds
             )
         )
+    }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     fun list(@PathVariable key: String): List<IncidentResponse> {
         val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
         return incidentService.listByProject(project.id).map { IncidentResponse.from(it) }
@@ -40,6 +53,7 @@ class IncidentController(
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.isProjectAdmin(#key, authentication)")
     fun resolve(
         @PathVariable key: String,
         @PathVariable id: UUID,

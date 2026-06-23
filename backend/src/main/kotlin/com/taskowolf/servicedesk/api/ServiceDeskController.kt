@@ -7,6 +7,7 @@ import com.taskowolf.issues.domain.IssuePriority
 import com.taskowolf.projects.infrastructure.ProjectRepository
 import com.taskowolf.servicedesk.api.dto.*
 import com.taskowolf.servicedesk.application.ServiceDeskService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -51,6 +52,7 @@ class ServiceDeskController(
     }
 
     @GetMapping("/tickets")
+    @PreAuthorize("isAuthenticated()")
     fun listTickets(
         @PathVariable key: String,
         @AuthenticationPrincipal user: User,
@@ -64,7 +66,7 @@ class ServiceDeskController(
     @PreAuthorize("@projectSecurity.isProjectAdmin(#key, authentication)")
     fun addSlaPolicy(
         @PathVariable key: String,
-        @RequestBody req: CreateSlaPolicyRequest
+        @Valid @RequestBody req: CreateSlaPolicyRequest
     ): SlaPolicyResponse {
         val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
         val sd = serviceDeskService.findByProject(project.id) ?: error("Service desk not enabled for project: $key")

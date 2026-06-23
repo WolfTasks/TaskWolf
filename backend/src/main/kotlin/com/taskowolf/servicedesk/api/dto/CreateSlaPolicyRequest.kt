@@ -1,8 +1,11 @@
 package com.taskowolf.servicedesk.api.dto
 
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+
 data class CreateSlaPolicyRequest(
-    val name: String,
+    @field:NotBlank val name: String,
     val priority: String,
-    val responseMinutes: Int,
-    val resolutionMinutes: Int
+    @field:Min(1) val responseMinutes: Int,
+    @field:Min(1) val resolutionMinutes: Int
 )
