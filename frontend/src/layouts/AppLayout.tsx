@@ -1,7 +1,9 @@
 import { Outlet, NavLink, Link, useNavigate, useMatch } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { OrgSwitcher } from '@/components/OrgSwitcher'
 import { authApi } from '@/api/auth'
+import { serviceDeskApi } from '@/api/servicedesk'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
@@ -13,6 +15,12 @@ export function AppLayout() {
   const navigate = useNavigate()
   const insideProject = useMatch('/p/:key/*')
   const projectKey = insideProject?.params.key
+
+  const { data: serviceDeskConfig } = useQuery({
+    queryKey: ['service-desk-config', projectKey],
+    queryFn: () => serviceDeskApi.get(projectKey!),
+    enabled: !!projectKey,
+  })
 
   const logout = async () => {
     try { await authApi.logout() } catch { /* ignore */ }
@@ -52,6 +60,12 @@ export function AppLayout() {
                 <NavLink to={`/p/${projectKey}/issues`} className={subNavLinkClass}>Issues</NavLink>
                 <NavLink to={`/p/${projectKey}/reports`} className={subNavLinkClass}>Reports</NavLink>
                 <NavLink to={`/p/${projectKey}/automation`} className={subNavLinkClass}>Automation</NavLink>
+                {serviceDeskConfig?.enabled && (
+                  <>
+                    <NavLink to={`/p/${projectKey}/service-desk`} className={subNavLinkClass}>Service Desk</NavLink>
+                    <NavLink to={`/p/${projectKey}/incidents`} className={subNavLinkClass}>Incidents</NavLink>
+                  </>
+                )}
               </div>
 
               <div className="mt-4">

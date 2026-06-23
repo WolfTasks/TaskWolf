@@ -25,6 +25,8 @@ import { IntegrationsPage } from '@/pages/settings/IntegrationsPage'
 import ProjectAuditPage from '@/pages/projects/settings/ProjectAuditPage'
 import { OrgsPage } from '@/pages/orgs/OrgsPage'
 import { OrgSettingsPage } from '@/pages/orgs/OrgSettingsPage'
+import ServiceDeskPage from '@/pages/projects/servicedesk/ServiceDeskPage'
+import IncidentDashboardPage from '@/pages/projects/servicedesk/IncidentDashboardPage'
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
@@ -66,6 +68,8 @@ export const router = createBrowserRouter([
       { path: '/admin/settings/sso', element: <SsoSettingsPage /> },
       { path: '/orgs', element: <OrgsPage /> },
       { path: '/orgs/:orgId/settings', element: <OrgSettingsPage /> },
+      { path: '/p/:key/service-desk', element: <ServiceDeskPage /> },
+      { path: '/p/:key/incidents', element: <IncidentDashboardPage /> },
     ],
   },
 ])
