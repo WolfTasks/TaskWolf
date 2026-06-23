@@ -37,6 +37,7 @@ class SecurityConfig(
                     "/api/v1/auth/refresh",
                     "/api/v1/integrations/github/*/webhook",
                     "/api/v1/integrations/gitlab/*/webhook",
+                    "/api/v1/projects/*/service-desk/tickets",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/h2-console/**",
