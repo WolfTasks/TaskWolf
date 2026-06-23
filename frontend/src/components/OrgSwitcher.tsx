@@ -5,6 +5,7 @@ import { organizationsApi } from '@/api/organizations'
 export function OrgSwitcher() {
   const [switching, setSwitching] = useState(false)
   const [open, setOpen] = useState(false)
+  const [switchError, setSwitchError] = useState<string | null>(null)
 
   const { data: orgs = [] } = useQuery({
     queryKey: ['orgs-mine'],
@@ -13,12 +14,15 @@ export function OrgSwitcher() {
 
   const handleSwitch = async (orgId: string) => {
     setSwitching(true)
+    setSwitchError(null)
     setOpen(false)
     try {
       const { data } = await organizationsApi.switchOrg(orgId)
       localStorage.setItem('accessToken', data.accessToken)
       window.location.reload()
-    } catch {
+    } catch (err) {
+      console.error('Failed to switch organization', err)
+      setSwitchError('Failed to switch organization')
       setSwitching(false)
     }
   }
@@ -27,6 +31,9 @@ export function OrgSwitcher() {
 
   return (
     <div className="relative">
+      {switchError && (
+        <p className="text-red-400 text-xs px-3 pb-1">{switchError}</p>
+      )}
       <button
         onClick={() => setOpen(o => !o)}
         disabled={switching}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { organizationsApi, CreateOrganizationRequest } from '@/api/organizations'
+import { useMe } from '@/hooks/useAuth'
 
 const emptyForm: CreateOrganizationRequest = { name: '', slug: '' }
 
@@ -8,10 +9,13 @@ export function OrgsPage() {
   const queryClient = useQueryClient()
   const [form, setForm] = useState<CreateOrganizationRequest>(emptyForm)
   const [formError, setFormError] = useState('')
+  const { data: me } = useMe()
+  const isAdmin = me?.role === 'ADMIN'
 
   const { data: orgs = [], isLoading } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => organizationsApi.listAll().then(r => r.data),
+    enabled: isAdmin,
   })
 
   const createMutation = useMutation({
@@ -33,6 +37,14 @@ export function OrgsPage() {
       return
     }
     createMutation.mutate(form)
+  }
+
+  if (me !== undefined && !isAdmin) {
+    return (
+      <div className="p-6">
+        <p className="text-gray-400 text-sm">You do not have permission to manage organizations.</p>
+      </div>
+    )
   }
 
   return (

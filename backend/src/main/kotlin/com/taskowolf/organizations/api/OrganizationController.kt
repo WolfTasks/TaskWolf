@@ -22,6 +22,7 @@ class OrganizationController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     fun create(
         @Valid @RequestBody req: CreateOrganizationRequest,
         @AuthenticationPrincipal user: User
@@ -41,6 +42,7 @@ class OrganizationController(
 
     @PostMapping("/{id}/members")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     fun addMember(
         @PathVariable id: UUID,
         @RequestBody req: AddMemberRequest
@@ -48,6 +50,7 @@ class OrganizationController(
 
     @DeleteMapping("/{id}/members/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     fun removeMember(@PathVariable id: UUID, @PathVariable userId: UUID) {
         orgService.removeMember(id, userId)
     }

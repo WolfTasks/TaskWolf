@@ -32,7 +32,9 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) }
             .authorizeHttpRequests {
                 it.requestMatchers(
-                    "/api/v1/auth/**",
+                    "/api/v1/auth/register",
+                    "/api/v1/auth/login",
+                    "/api/v1/auth/refresh",
                     "/api/v1/integrations/github/*/webhook",
                     "/api/v1/integrations/gitlab/*/webhook",
                     "/swagger-ui/**",
@@ -44,6 +46,7 @@ class SecurityConfig(
                     "/oauth2/**"
                 ).permitAll()
                 it.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/admin/sso").permitAll()
+                it.requestMatchers("/api/v1/auth/switch-org/**").authenticated()
                 it.anyRequest().authenticated()
             }
             .headers { it.frameOptions { fo -> fo.disable() } }

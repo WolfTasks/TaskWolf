@@ -5,15 +5,22 @@ import com.taskowolf.auth.application.AuthService
 import com.taskowolf.auth.application.JwtService
 import com.taskowolf.auth.domain.User
 import com.taskowolf.organizations.api.dto.SwitchOrgResponse
+import com.taskowolf.organizations.application.OrganizationService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/auth")
-class AuthController(private val authService: AuthService, private val jwtService: JwtService) {
+class AuthController(
+    private val authService: AuthService,
+    private val jwtService: JwtService,
+    private val organizationService: OrganizationService
+) {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -38,8 +45,15 @@ class AuthController(private val authService: AuthService, private val jwtServic
     fun me(@AuthenticationPrincipal user: User) = UserResponse.from(user)
 
     @PostMapping("/switch-org/{orgId}")
+    @PreAuthorize("isAuthenticated()")
     fun switchOrg(
         @PathVariable orgId: UUID,
         @AuthenticationPrincipal user: User
-    ) = SwitchOrgResponse(accessToken = jwtService.generateAccessToken(user.id, orgId))
+    ): SwitchOrgResponse {
+        val userOrgs = organizationService.listOrgsForUser(user.id)
+        if (userOrgs.none { it.id == orgId }) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Not a member of this organization")
+        }
+        return SwitchOrgResponse(accessToken = jwtService.generateAccessToken(user.id, orgId))
+    }
 }

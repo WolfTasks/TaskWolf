@@ -3,6 +3,7 @@ export interface User {
   email: string
   displayName: string
   avatarUrl: string | null
+  role: 'ADMIN' | 'MEMBER'
 }
 
 export interface Project {
