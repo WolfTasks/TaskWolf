@@ -4,6 +4,9 @@
 
 TaskWolf is a Jira-style issue tracker and agile board you run on your own infrastructure. Single Docker image, zero vendor lock-in, PostgreSQL in production and H2 in development.
 
+[![Backend](https://img.shields.io/docker/v/taskwolf/taskowolf-backend?label=backend&logo=docker)](https://hub.docker.com/r/taskwolf/taskowolf-backend)
+[![Frontend](https://img.shields.io/docker/v/taskwolf/taskowolf-frontend?label=frontend&logo=docker)](https://hub.docker.com/r/taskwolf/taskowolf-frontend)
+
 ---
 
 ## Features
