@@ -1,0 +1,63 @@
+site_name: TaskWolf
+site_description: Open-source, self-hosted project management
+repo_url: https://github.com/taskowolf/TaskWolf
+repo_name: taskowolf/TaskWolf
+docs_dir: mkdocs
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Configuration: configuration.md
+  - User Guide:
+      - Projects & Issues: user-guide/projects.md
+      - Boards & Sprints: user-guide/boards.md
+      - Automation: user-guide/automation.md
+      - Dashboards: user-guide/dashboards.md
+  - Admin Guide:
+      - SSO / OIDC: admin-guide/sso.md
+      - Organizations: admin-guide/organizations.md
+      - Service Desk: admin-guide/service-desk.md
+      - Audit Logs: admin-guide/audit-logs.md
+  - API Reference: api.md
+  - Development: development.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
