@@ -14,10 +14,10 @@ jobs:
       matrix:
         include:
           - context: ./backend
-            image: taskwolf/taskowolf-backend
+            image: kwolfgang/taskowolf-backend
             gradle_build: true
           - context: ./frontend
-            image: taskwolf/taskowolf-frontend
+            image: kwolfgang/taskowolf-frontend
             gradle_build: false
 
     steps:
