@@ -58,4 +58,4 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - OIDC provider discovery now uses RFC-compliant `/.well-known/openid-configuration` instead of hardcoded Keycloak paths — compatible with Okta, Azure AD, Auth0, Google Workspace
 - `GET /organizations/{id}` and `GET /organizations/{id}/members` now enforce membership authorization; non-members receive 403
-- Audit log CSV export uses OWASP-recommended formula-injection escaping (values starting with `=`, `+`, `-`, `@` are prefixed with `'`)
+- Audit log CSV export uses OWASP-recommended formula-injection escaping (values starting with `=`, `+`, `-`, `@`, tab, or carriage return are prefixed with `'`)
