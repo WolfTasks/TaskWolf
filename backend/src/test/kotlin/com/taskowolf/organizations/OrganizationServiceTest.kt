@@ -76,4 +76,41 @@ class OrganizationServiceTest {
         service.removeMember(orgId, userId)
         verify { memberRepo.deleteById(OrganizationMemberId(orgId, userId)) }
     }
+
+    // --- requireMembershipOrAdmin ---
+
+    @Test
+    fun `requireMembershipOrAdmin permits SYSTEM_ADMIN regardless of membership`() {
+        val orgId = UUID.randomUUID()
+        val user = mockk<com.taskowolf.auth.domain.User>(relaxed = true)
+        every { user.systemRole } returns com.taskowolf.auth.domain.SystemRole.ADMIN
+        // must not throw
+        service.requireMembershipOrAdmin(orgId, user)
+    }
+
+    @Test
+    fun `requireMembershipOrAdmin permits org member`() {
+        val orgId = UUID.randomUUID()
+        val userId = UUID.randomUUID()
+        val user = mockk<com.taskowolf.auth.domain.User>(relaxed = true)
+        every { user.systemRole } returns com.taskowolf.auth.domain.SystemRole.MEMBER
+        every { user.id } returns userId
+        val member = OrganizationMember(OrganizationMemberId(orgId, userId), OrgRole.MEMBER)
+        every { memberRepo.findByIdOrgId(orgId) } returns listOf(member)
+        // must not throw
+        service.requireMembershipOrAdmin(orgId, user)
+    }
+
+    @Test
+    fun `requireMembershipOrAdmin denies non-member SYSTEM_MEMBER`() {
+        val orgId = UUID.randomUUID()
+        val userId = UUID.randomUUID()
+        val user = mockk<com.taskowolf.auth.domain.User>(relaxed = true)
+        every { user.systemRole } returns com.taskowolf.auth.domain.SystemRole.MEMBER
+        every { user.id } returns userId
+        every { memberRepo.findByIdOrgId(orgId) } returns emptyList()
+        org.junit.jupiter.api.assertThrows<org.springframework.security.access.AccessDeniedException> {
+            service.requireMembershipOrAdmin(orgId, user)
+        }
+    }
 }

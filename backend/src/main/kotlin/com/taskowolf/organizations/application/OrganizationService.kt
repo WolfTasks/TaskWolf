@@ -2,8 +2,11 @@ package com.taskowolf.organizations.application
 
 import com.taskowolf.organizations.domain.*
 import com.taskowolf.organizations.infrastructure.*
+import com.taskowolf.auth.domain.SystemRole
+import com.taskowolf.auth.domain.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.security.access.AccessDeniedException
 import java.util.UUID
 
 @Service
@@ -41,4 +44,10 @@ class OrganizationService(
     @Transactional(readOnly = true)
     fun listOrgsForUser(userId: UUID) = memberRepo.findByIdUserId(userId).map { it.id.orgId }
         .let { ids -> if (ids.isEmpty()) emptyList() else orgRepo.findAllById(ids) }
+
+    fun requireMembershipOrAdmin(orgId: UUID, user: User) {
+        if (user.systemRole == SystemRole.ADMIN) return
+        val isMember = memberRepo.findByIdOrgId(orgId).any { it.id.userId == user.id }
+        if (!isMember) throw AccessDeniedException("Not a member of organization $orgId")
+    }
 }

@@ -33,12 +33,22 @@ class OrganizationController(
         orgService.listOrgsForUser(user.id).map { OrganizationResponse.from(it) }
 
     @GetMapping("/{id}")
-    fun getById(@PathVariable id: UUID) =
-        OrganizationResponse.from(orgService.findById(id))
+    fun getById(
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal user: User
+    ): OrganizationResponse {
+        orgService.requireMembershipOrAdmin(id, user)
+        return OrganizationResponse.from(orgService.findById(id))
+    }
 
     @GetMapping("/{id}/members")
-    fun listMembers(@PathVariable id: UUID) =
-        orgService.listMembers(id).map { OrganizationMemberResponse.from(it) }
+    fun listMembers(
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal user: User
+    ): List<OrganizationMemberResponse> {
+        orgService.requireMembershipOrAdmin(id, user)
+        return orgService.listMembers(id).map { OrganizationMemberResponse.from(it) }
+    }
 
     @PostMapping("/{id}/members")
     @ResponseStatus(HttpStatus.CREATED)
