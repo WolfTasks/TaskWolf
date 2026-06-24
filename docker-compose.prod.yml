@@ -1,0 +1,58 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+      - frontend
+    restart: unless-stopped
+
+  app:
+    image: taskwolf/taskowolf-backend:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      TW_DB_URL: ${TW_DB_URL:-jdbc:postgresql://db:5432/taskowolf}
+      TW_DB_USER: ${TW_DB_USER:-taskowolf}
+      TW_DB_PASS: ${TW_DB_PASS}
+      TW_JWT_SECRET: ${TW_JWT_SECRET}
+      TW_BASE_URL: ${TW_BASE_URL:-http://localhost}
+      TW_STORAGE_PATH: /data/attachments
+    volumes:
+      - attachments:/data/attachments
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend:
+    image: taskwolf/taskowolf-frontend:latest
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: taskowolf
+      POSTGRES_USER: ${TW_DB_USER:-taskowolf}
+      POSTGRES_PASSWORD: ${TW_DB_PASS}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TW_DB_USER:-taskowolf}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  attachments:

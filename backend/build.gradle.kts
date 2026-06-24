@@ -43,6 +43,7 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("com.squareup.okhttp3:mockwebserver")
 }
 
 // Override Spring Boot BOM version for Testcontainers to support Docker Desktop 4.x on Windows

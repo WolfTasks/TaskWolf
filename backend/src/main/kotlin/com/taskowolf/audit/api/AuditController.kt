@@ -24,6 +24,13 @@ class AuditController(
     private val projectRepository: ProjectRepository,
     private val objectMapper: ObjectMapper
 ) {
+    companion object {
+        internal fun escapeCsvCell(value: String?): String {
+            if (value.isNullOrEmpty()) return ""
+            return if (value[0] in charArrayOf('=', '+', '-', '@', '\t', '\r')) "'$value" else value
+        }
+    }
+
     @GetMapping("/admin/audit")
     @PreAuthorize("hasRole('ADMIN')")
     fun listAll(
@@ -45,7 +52,16 @@ class AuditController(
             val csv = buildString {
                 appendLine("id,timestamp,userEmail,action,level,resourceType,resourceId,ipAddress")
                 events.forEach {
-                    appendLine("${it.id},${it.timestamp},${it.userEmail},${it.action},${it.level},${it.resourceType},${it.resourceId},${it.ipAddress}")
+                    appendLine(
+                        "${escapeCsvCell(it.id.toString())}," +
+                        "${escapeCsvCell(it.timestamp.toString())}," +
+                        "${escapeCsvCell(it.userEmail)}," +
+                        "${escapeCsvCell(it.action)}," +
+                        "${escapeCsvCell(it.level)}," +
+                        "${escapeCsvCell(it.resourceType)}," +
+                        "${escapeCsvCell(it.resourceId)}," +
+                        escapeCsvCell(it.ipAddress)
+                    )
                 }
             }
             ResponseEntity.ok()
