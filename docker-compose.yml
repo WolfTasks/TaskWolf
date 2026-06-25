@@ -18,7 +18,7 @@ services:
       TW_DB_PASS: ${TW_DB_PASS:-changeme}
       TW_JWT_SECRET: ${TW_JWT_SECRET}
       TW_BASE_URL: ${TW_BASE_URL:-http://localhost}
-      TW_STORAGE_PATH: /data/attachments
+      TASKOWOLF_ATTACHMENT_PATH: /data/attachments
     volumes:
       - attachments:/data/attachments
     depends_on:

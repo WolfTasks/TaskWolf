@@ -19,7 +19,7 @@ services:
       TW_DB_PASS: ${TW_DB_PASS}
       TW_JWT_SECRET: ${TW_JWT_SECRET}
       TW_BASE_URL: ${TW_BASE_URL:-http://localhost}
-      TW_STORAGE_PATH: /data/attachments
+      TASKOWOLF_ATTACHMENT_PATH: /data/attachments
     volumes:
       - attachments:/data/attachments
     depends_on:
@@ -44,6 +44,8 @@ services:
       POSTGRES_DB: taskowolf
       POSTGRES_USER: ${TW_DB_USER:-taskowolf}
       POSTGRES_PASSWORD: ${TW_DB_PASS}
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
