@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import DOMPurify from 'dompurify'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface Props {
   value: string | null
@@ -23,6 +23,9 @@ function normalise(html: string): string {
 
 export function RichTextEditor({ value, onSave }: Props) {
   const [editing, setEditing] = useState(false)
+  // Tracks the last HTML string as TipTap understands it (after parsing),
+  // so we can detect real changes rather than comparing raw value vs TipTap output.
+  const committedHtmlRef = useRef<string>('')
 
   const editor = useEditor({
     extensions: [
@@ -36,20 +39,29 @@ export function RichTextEditor({ value, onSave }: Props) {
         class: 'min-h-24 focus:outline-none text-sm text-gray-300 [&_strong]:font-bold [&_em]:italic [&_code]:bg-gray-800 [&_code]:rounded [&_code]:px-1 [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4',
       },
     },
+    onCreate: ({ editor }) => {
+      // Capture TipTap's parsed representation of the initial value.
+      committedHtmlRef.current = normalise(editor.getHTML())
+    },
     onBlur: ({ editor }) => {
       const html = normalise(editor.getHTML())
-      const current = normalise(sanitize(value))
-      if (html !== current) onSave(html)
+      if (html !== committedHtmlRef.current) {
+        committedHtmlRef.current = html
+        onSave(html)
+      }
       setEditing(false)
     },
   })
 
-  // Sync editor content when value changes from server (e.g. after a save + refetch)
+  // Sync editor when value changes from outside (after server refetch),
+  // but only when not actively editing.
   useEffect(() => {
     if (editor && !editing) {
-      const current = normalise(editor.getHTML())
       const incoming = normalise(sanitize(value))
-      if (current !== incoming) editor.commands.setContent(incoming)
+      if (incoming !== committedHtmlRef.current) {
+        editor.commands.setContent(incoming)
+        committedHtmlRef.current = normalise(editor.getHTML())
+      }
     }
   }, [editor, value, editing])
 
@@ -68,7 +80,6 @@ export function RichTextEditor({ value, onSave }: Props) {
 
   return (
     <div className="bg-gray-900 rounded-lg ring-1 ring-blue-500">
-      {/* Toolbar */}
       <div className="flex gap-1 p-2 border-b border-gray-800">
         {[
           { label: 'B', title: 'Bold', action: () => editor?.chain().focus().toggleBold().run(), active: () => editor?.isActive('bold') },
@@ -81,7 +92,7 @@ export function RichTextEditor({ value, onSave }: Props) {
             key={btn.label}
             title={btn.title}
             onMouseDown={e => { e.preventDefault(); btn.action() }}
-            className={`px-2 py-0.5 text-xs rounded ${btn.active?.() ? 'bg-gray-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}
+            className={`px-2 py-0.5 text-xs rounded ${btn.active() ? 'bg-gray-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}
           >
             {btn.label}
           </button>
