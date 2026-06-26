@@ -48,22 +48,37 @@ val updatedAt: Instant
 ### `UpdateIssueRequest.kt` additions
 
 ```kotlin
-val dueDate: LocalDate?       // new
-val type: IssueType?          // was missing despite being in DB
-val sprintId: UUID?           // null = remove from sprint
+val type: IssueType? = null          // new — null = don't change
+val dueDate: LocalDate? = null       // new — use clearDueDate to explicitly clear
+val clearDueDate: Boolean = false    // new — true = set dueDate to null
+val sprintId: UUID? = null           // new — use clearSprint to explicitly remove
+val clearSprint: Boolean = false     // new — true = remove from sprint
 ```
+
+**Why the `clearXxx` booleans:** the existing service convention uses `?.let`, so `null` means "field absent / don't change." Without an explicit signal, a single-field PATCH like `{ "type": "BUG" }` would leave `sprintId` as null in the deserialized request and accidentally remove the sprint. The `clearXxx` pattern avoids requiring `Optional<T>` or a custom deserializer while remaining unambiguous.
 
 ### `IssueService.update()` additions
 
 ```kotlin
 request.type?.let { issue.type = it }
-request.dueDate.let { issue.dueDate = it }   // explicit null allowed (to clear)
-request.sprintId.let { id ->
-    issue.sprint = if (id == null) null else sprintRepository.findById(id).orElseThrow()
+
+when {
+    request.clearDueDate -> issue.dueDate = null
+    request.dueDate != null -> issue.dueDate = request.dueDate
+}
+
+when {
+    request.clearSprint -> issue.sprint = null
+    request.sprintId != null -> {
+        issue.sprint = sprintRepository.findById(request.sprintId)
+            .orElseThrow { NotFoundException("Sprint not found: ${request.sprintId}") }
+    }
 }
 ```
 
 `SprintRepository` is already a Spring bean — just inject it into `IssueService`.
+
+**Unassigning** is handled the same way: add `clearAssignee: Boolean = false` to `UpdateIssueRequest` and handle it before the existing `request.assigneeId?.let { ... }` block.
 
 ---
 
@@ -162,7 +177,7 @@ dompurify
 
 **Saving:**
 - On blur: calls `editor.getHTML()`, skips PATCH if content is unchanged, otherwise calls `onSave(html)`
-- Empty editor serialises to `""` (not `"<p></p>"`), stored as `null` on the backend
+- TipTap returns `"<p></p>"` for an empty document; the component normalises this to `null` before calling `onSave`, so the backend stores `null` instead of an empty paragraph tag
 
 **Empty state:**
 - TipTap placeholder extension: "Add a description…"
