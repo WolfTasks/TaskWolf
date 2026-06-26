@@ -16,7 +16,7 @@ class AuditEvent(
     @Enumerated(EnumType.STRING) @Column(nullable = false) val level: AuditLevel,
     val resourceType: String? = null,
     val resourceId: String? = null,
-    @Column(columnDefinition = "JSONB") val details: String? = null,
+    val details: String? = null,
     val ipAddress: String? = null,
     val userAgent: String? = null
 )
