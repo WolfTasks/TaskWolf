@@ -46,8 +46,15 @@ export interface Issue {
   statusCategory: 'TODO' | 'IN_PROGRESS' | 'DONE'
   projectId: string
   assigneeId: string | null
+  assigneeName: string | null
   reporterId: string
+  reporterName: string
   parentId: string | null
+  dueDate: string | null
+  sprintId: string | null
+  sprintName: string | null
+  createdAt: string
+  updatedAt: string
   refs?: IssueRefResponse[]
 }
 
