@@ -4,6 +4,8 @@ import com.taskowolf.integrations.api.dto.IssueRefResponse
 import com.taskowolf.issues.domain.Issue
 import com.taskowolf.issues.domain.IssuePriority
 import com.taskowolf.issues.domain.IssueType
+import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 data class IssueResponse(
@@ -19,16 +21,41 @@ data class IssueResponse(
     val statusCategory: String,
     val projectId: UUID,
     val assigneeId: UUID?,
+    val assigneeName: String?,
     val reporterId: UUID,
+    val reporterName: String,
     val parentId: UUID?,
+    val dueDate: LocalDate?,
+    val sprintId: UUID?,
+    val sprintName: String?,
+    val createdAt: Instant,
+    val updatedAt: Instant,
     val refs: List<IssueRefResponse> = emptyList()
 ) {
     companion object {
         fun from(i: Issue, refs: List<IssueRefResponse> = emptyList()) = IssueResponse(
-            i.id, i.key, i.title, i.description, i.type, i.priority, i.storyPoints,
-            i.status.id, i.status.name, i.status.category.name,
-            i.project.id, i.assignee?.id, i.reporter.id, i.parent?.id,
-            refs
+            id = i.id,
+            key = i.key,
+            title = i.title,
+            description = i.description,
+            type = i.type,
+            priority = i.priority,
+            storyPoints = i.storyPoints,
+            statusId = i.status.id,
+            statusName = i.status.name,
+            statusCategory = i.status.category.name,
+            projectId = i.project.id,
+            assigneeId = i.assignee?.id,
+            assigneeName = i.assignee?.displayName,
+            reporterId = i.reporter.id,
+            reporterName = i.reporter.displayName,
+            parentId = i.parent?.id,
+            dueDate = i.dueDate,
+            sprintId = i.sprint?.id,
+            sprintName = i.sprint?.name,
+            createdAt = i.createdAt ?: Instant.now(),
+            updatedAt = i.updatedAt,
+            refs = refs
         )
     }
 }

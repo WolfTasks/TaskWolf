@@ -30,7 +30,8 @@ class IssueServiceTest {
     private val workflowService = mockk<WorkflowService>()
     private val userRepository = mockk<UserRepository>()
     private val eventPublisher = mockk<DomainEventPublisher>(relaxed = true)
-    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher)
+    private val sprintRepository = mockk<com.taskowolf.sprints.infrastructure.SprintRepository>()
+    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository)
 
     private val owner = User(email = "owner@test.com", displayName = "Owner")
     private val workflow = mockk<Workflow>()
@@ -206,5 +207,97 @@ class IssueServiceTest {
         verify(exactly = 1) { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) }
         verify(exactly = 0) { issueRepository.findOverdueByProjectId(any(), any(), any()) }
         verify(exactly = 0) { issueRepository.findAllByProjectId(any(), any()) }
+    }
+
+    @Test
+    fun `update sets type when type provided`() {
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = service.update("WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(type = com.taskowolf.issues.domain.IssueType.BUG),
+            owner)
+
+        assert(updated.type == com.taskowolf.issues.domain.IssueType.BUG)
+    }
+
+    @Test
+    fun `update sets dueDate when provided`() {
+        val date = java.time.LocalDate.of(2026, 12, 31)
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = service.update("WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(dueDate = date),
+            owner)
+
+        assert(updated.dueDate == date)
+    }
+
+    @Test
+    fun `update clears dueDate when clearDueDate is true`() {
+        issue.dueDate = java.time.LocalDate.of(2026, 1, 1)
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = service.update("WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(clearDueDate = true),
+            owner)
+
+        assert(updated.dueDate == null)
+    }
+
+    @Test
+    fun `update unassigns when clearAssignee is true`() {
+        val assignee = User(email = "dev@test.com", displayName = "Dev")
+        issue.assignee = assignee
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = service.update("WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(clearAssignee = true),
+            owner)
+
+        assert(updated.assignee == null)
+    }
+
+    @Test
+    fun `update assigns sprint when sprintId provided`() {
+        val sprint = com.taskowolf.sprints.domain.Sprint(
+            name = "Sprint 1", project = project,
+            status = com.taskowolf.sprints.domain.SprintStatus.ACTIVE
+        )
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { sprintRepository.findById(sprint.id) } returns java.util.Optional.of(sprint)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = service.update("WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(sprintId = sprint.id),
+            owner)
+
+        assert(updated.sprint?.id == sprint.id)
+    }
+
+    @Test
+    fun `update clears sprint when clearSprint is true`() {
+        val sprint = com.taskowolf.sprints.domain.Sprint(
+            name = "Sprint 1", project = project,
+            status = com.taskowolf.sprints.domain.SprintStatus.ACTIVE
+        )
+        issue.sprint = sprint
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = service.update("WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(clearSprint = true),
+            owner)
+
+        assert(updated.sprint == null)
     }
 }
