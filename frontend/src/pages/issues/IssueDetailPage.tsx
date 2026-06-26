@@ -10,6 +10,7 @@ import { TypeSelector } from '@/components/issue/TypeSelector'
 import { AssigneeSelector } from '@/components/issue/AssigneeSelector'
 import { SprintSelector } from '@/components/issue/SprintSelector'
 import { DueDatePicker } from '@/components/issue/DueDatePicker'
+import { RichTextEditor } from '@/components/issue/RichTextEditor'
 import { CommentThread } from '@/components/comments/CommentThread'
 import { ActivityFeed } from '@/components/comments/ActivityFeed'
 import { AttachmentPanel } from '@/components/attachments/AttachmentPanel'
@@ -52,14 +53,13 @@ export function IssueDetailPage() {
       <div className="grid grid-cols-3 gap-8">
         {/* Left: description + comments + activity */}
         <div className="col-span-2 space-y-8">
-          {/* Description (plain display — replaced in Task 4) */}
+          {/* Description */}
           <section>
             <h2 className="text-sm font-medium text-gray-400 mb-2">Description</h2>
-            <div className="bg-gray-900 rounded-lg p-4 text-sm text-gray-300 min-h-24">
-              {issue.description
-                ? <div dangerouslySetInnerHTML={{ __html: issue.description }} />
-                : <span className="text-gray-600 italic">No description</span>}
-            </div>
+            <RichTextEditor
+              value={issue.description}
+              onSave={description => patch({ description })}
+            />
           </section>
 
           <section>
