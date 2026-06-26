@@ -13,6 +13,7 @@ import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.projects.application.ProjectService
+import com.taskowolf.sprints.infrastructure.SprintRepository
 import com.taskowolf.workflows.application.WorkflowService
 import com.taskowolf.workflows.domain.StatusCategory
 import org.springframework.data.domain.PageRequest
@@ -26,7 +27,8 @@ class IssueService(
     private val projectService: ProjectService,
     private val workflowService: WorkflowService,
     private val userRepository: UserRepository,
-    private val eventPublisher: DomainEventPublisher
+    private val eventPublisher: DomainEventPublisher,
+    private val sprintRepository: SprintRepository
 ) {
     @Transactional
     fun create(projectKey: String, request: CreateIssueRequest, reporter: User): Issue {
@@ -98,12 +100,59 @@ class IssueService(
             }
         }
 
-        request.assigneeId?.let { assigneeId ->
-            val newAssignee = resolveAssignee(assigneeId, project)
-            if (issue.assignee?.id != newAssignee.id) {
-                val old = issue.assignee?.displayName
-                issue.assignee = newAssignee
-                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "assignee", old, newAssignee.displayName))
+        if (request.clearAssignee) {
+            val old = issue.assignee?.displayName
+            issue.assignee = null
+            if (old != null) eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "assignee", old, null))
+        } else {
+            request.assigneeId?.let { assigneeId ->
+                val newAssignee = resolveAssignee(assigneeId, project)
+                if (issue.assignee?.id != newAssignee.id) {
+                    val old = issue.assignee?.displayName
+                    issue.assignee = newAssignee
+                    eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "assignee", old, newAssignee.displayName))
+                }
+            }
+        }
+
+        request.type?.let { newType ->
+            if (issue.type != newType) {
+                val old = issue.type.name
+                issue.type = newType
+                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "type", old, newType.name))
+            }
+        }
+
+        when {
+            request.clearDueDate -> {
+                val old = issue.dueDate?.toString()
+                issue.dueDate = null
+                if (old != null) eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "dueDate", old, null))
+            }
+            request.dueDate != null -> {
+                val old = issue.dueDate?.toString()
+                if (old != request.dueDate.toString()) {
+                    issue.dueDate = request.dueDate
+                    eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "dueDate", old, request.dueDate.toString()))
+                }
+            }
+        }
+
+        when {
+            request.clearSprint -> {
+                val old = issue.sprint?.name
+                issue.sprint = null
+                if (old != null) eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "sprint", old, null))
+            }
+            request.sprintId != null -> {
+                val newSprint = sprintRepository.findById(request.sprintId)
+                    .filter { it.project.id == project.id }
+                    .orElseThrow { NotFoundException("Sprint not found: ${request.sprintId}") }
+                if (issue.sprint?.id != newSprint.id) {
+                    val old = issue.sprint?.name
+                    issue.sprint = newSprint
+                    eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "sprint", old, newSprint.name))
+                }
             }
         }
 
