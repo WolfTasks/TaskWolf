@@ -1,17 +1,18 @@
 import { useParams } from 'react-router-dom'
-import { useIssue } from '@/hooks/useIssues'
+import { useIssue, useUpdateIssue } from '@/hooks/useIssues'
 import { useMe } from '@/hooks/useAuth'
+import { useSprints } from '@/hooks/useSprints'
+import { useProjectMembers } from '@/hooks/useProjectMembers'
 import { StatusBadge } from '@/components/issue/StatusBadge'
+import { InlineEditTitle } from '@/components/issue/InlineEditTitle'
+import { PrioritySelector } from '@/components/issue/PrioritySelector'
+import { TypeSelector } from '@/components/issue/TypeSelector'
+import { AssigneeSelector } from '@/components/issue/AssigneeSelector'
+import { SprintSelector } from '@/components/issue/SprintSelector'
+import { DueDatePicker } from '@/components/issue/DueDatePicker'
 import { CommentThread } from '@/components/comments/CommentThread'
 import { ActivityFeed } from '@/components/comments/ActivityFeed'
 import { AttachmentPanel } from '@/components/attachments/AttachmentPanel'
-
-const priorityColors: Record<string, string> = {
-  CRITICAL: 'text-red-400',
-  HIGH: 'text-orange-400',
-  MEDIUM: 'text-yellow-400',
-  LOW: 'text-green-400',
-}
 
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -26,25 +27,32 @@ export function IssueDetailPage() {
   const { key, issueKey } = useParams<{ key: string; issueKey: string }>()
   const { data: issue, isLoading } = useIssue(key!, issueKey!)
   const { data: me } = useMe()
+  const updateIssue = useUpdateIssue(key!)
+  const { data: members = [] } = useProjectMembers(key!)
+  const { data: sprints = [] } = useSprints(key!)
 
   if (isLoading) return <div className="text-gray-400">Loading...</div>
   if (!issue) return <div className="text-red-400">Issue not found</div>
+
+  function patch(data: Record<string, unknown>) {
+    updateIssue.mutate({ id: issue!.id, data })
+  }
 
   return (
     <div className="max-w-5xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
         <span className="text-sm text-gray-500 font-mono">{issue.key}</span>
-        <span className="text-xs px-2 py-0.5 bg-gray-800 rounded text-gray-400">{issue.type}</span>
         <StatusBadge name={issue.statusName} category={issue.statusCategory} />
       </div>
-      <h1 className="text-2xl font-bold text-white mb-6">{issue.title}</h1>
+
+      <InlineEditTitle value={issue.title} onSave={title => patch({ title })} />
 
       {/* Two-column layout */}
       <div className="grid grid-cols-3 gap-8">
         {/* Left: description + comments + activity */}
         <div className="col-span-2 space-y-8">
-          {/* Description */}
+          {/* Description (plain display — replaced in Task 4) */}
           <section>
             <h2 className="text-sm font-medium text-gray-400 mb-2">Description</h2>
             <div className="bg-gray-900 rounded-lg p-4 text-sm text-gray-300 min-h-24">
@@ -54,17 +62,14 @@ export function IssueDetailPage() {
             </div>
           </section>
 
-          {/* Comments */}
           <section>
             <CommentThread projectKey={key!} issueKey={issueKey!} currentUserId={me?.id} />
           </section>
 
-          {/* Activity */}
           <section>
             <ActivityFeed projectKey={key!} issueKey={issueKey!} />
           </section>
 
-          {/* References */}
           {issue.refs && issue.refs.length > 0 && (
             <div className="mt-6">
               <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">References</h3>
@@ -89,17 +94,28 @@ export function IssueDetailPage() {
         <div className="flex flex-col gap-4">
           <section className="space-y-4">
             <SidebarField label="Priority">
-              <span className={`text-sm font-medium ${priorityColors[issue.priority] ?? 'text-white'}`}>
-                {issue.priority}
-              </span>
+              <PrioritySelector
+                value={issue.priority}
+                onSave={priority => patch({ priority })}
+              />
             </SidebarField>
 
             <SidebarField label="Type">
-              <span className="text-sm text-gray-300">{issue.type}</span>
+              <TypeSelector
+                value={issue.type}
+                onSave={type => patch({ type })}
+              />
             </SidebarField>
 
             <SidebarField label="Assignee">
-              <span className="text-sm text-gray-300">{issue.assigneeName ?? 'Unassigned'}</span>
+              <AssigneeSelector
+                value={issue.assigneeName}
+                assigneeId={issue.assigneeId}
+                members={members}
+                onSave={userId =>
+                  userId ? patch({ assigneeId: userId }) : patch({ clearAssignee: true })
+                }
+              />
             </SidebarField>
 
             <SidebarField label="Reporter">
@@ -107,13 +123,23 @@ export function IssueDetailPage() {
             </SidebarField>
 
             <SidebarField label="Sprint">
-              <span className="text-sm text-gray-300">{issue.sprintName ?? 'No sprint'}</span>
+              <SprintSelector
+                value={issue.sprintName}
+                sprintId={issue.sprintId}
+                sprints={sprints}
+                onSave={sprintId =>
+                  sprintId ? patch({ sprintId }) : patch({ clearSprint: true })
+                }
+              />
             </SidebarField>
 
             <SidebarField label="Due Date">
-              <span className="text-sm text-gray-300">
-                {issue.dueDate ? new Date(issue.dueDate).toLocaleDateString() : 'No due date'}
-              </span>
+              <DueDatePicker
+                value={issue.dueDate}
+                onSave={date =>
+                  date ? patch({ dueDate: date }) : patch({ clearDueDate: true })
+                }
+              />
             </SidebarField>
 
             {issue.storyPoints != null && (
@@ -131,7 +157,6 @@ export function IssueDetailPage() {
             </SidebarField>
           </section>
 
-          {/* Attachments */}
           <section>
             <AttachmentPanel projectKey={key!} issueKey={issueKey!} currentUserId={me?.id} />
           </section>
