@@ -140,38 +140,25 @@ None. `SlaMonitorJob` sends notifications via `NotificationService.createDirect(
 @Transactional
 fun run() {
     val now = Instant.now()
-    issueRepository.findBySlaStartTimeIsNotNull().forEach { issue ->
-        if (issue.slaStartTime == null) return@forEach
-        val desk = serviceDeskRepo.findByProjectId(issue.project.id) ?: return@forEach
-        val policy = slaPolicyRepo.findByServiceDeskId(desk.id)
-            .find { it.priority == issue.priority } ?: return@forEach
-        val elapsed = Duration.between(issue.slaStartTime, now).toMinutes()
-        if (elapsed >= policy.resolutionMinutes) {
-            escalationRuleRepo.findBySlaPolicyId(policy.id).forEach { rule ->
-                rule.notifyUserIds.forEach { uid ->
-                    notificationService.createDirect(
-                        userId = uid,
-                        type = NotificationType.SLA_BREACHED,
-                        title = "SLA Breached: ${issue.key}",
-                        body = "Issue ${issue.key} exceeded ${policy.resolutionMinutes} minutes.",
-                        link = "/issues/${issue.key}"
-                    )
-                }
-            }
-            auditService.log(
-                level = AuditLevel.WRITE,
-                action = AuditAction.SLA_BREACHED,
-                userEmail = "system",
-                projectId = issue.project.id,
-                resourceType = "ISSUE",
-                resourceId = issue.id.toString()
-            )
-        }
+    // outer loops: iterate issues, resolve service desk and matching SLA policy per issue
+    val elapsed = Duration.between(issue.slaStartTime, now).toMinutes()
+    if (elapsed >= policy.resolutionMinutes) {
+        notificationService.createDirect(
+            userId = uid, type = NotificationType.SLA_BREACHED,
+            title = "SLA Breached: ${issue.key}",
+            body = "Issue ${issue.key} exceeded ${policy.resolutionMinutes} minutes.",
+            link = "/issues/${issue.key}"
+        )
+        auditService.log(
+            level = AuditLevel.WRITE, action = AuditAction.SLA_BREACHED,
+            userEmail = "system", projectId = issue.project.id,
+            resourceType = "ISSUE", resourceId = issue.id.toString()
+        )
     }
 }
 ```
 
-The null guard (`if (issue.slaStartTime == null) return@forEach`) defends against a race where `SlaEventListener` clears `slaStartTime` between `findBySlaStartTimeIsNotNull()` and the loop body.
+The full method wraps this in three nested `forEach` loops: one over `issueRepository.findBySlaStartTimeIsNotNull()`, one over `escalationRuleRepo.findBySlaPolicyId(policy.id)`, and one over `rule.notifyUserIds`. A null guard (`if (issue.slaStartTime == null) return@forEach`) defends against a race where `SlaEventListener` clears `slaStartTime` between the repository query and the loop body.
 
 ---
 

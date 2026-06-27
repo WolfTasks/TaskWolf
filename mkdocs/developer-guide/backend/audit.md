@@ -123,20 +123,33 @@ None. The audit module does not publish domain events.
 
 ## Example
 
-Calling `AuditService.log()` from `SlaMonitorJob` when an SLA is breached:
+Calling `AuditService.log()` with a serialized `details` payload, as done in `SlaMonitorJob` when an SLA is breached:
 
 ```kotlin
-auditService.log(
-    level = AuditLevel.WRITE,
-    action = AuditAction.SLA_BREACHED,
-    userEmail = "system",
-    projectId = projectId,
-    resourceType = "ISSUE",
-    resourceId = issue.id.toString()
-)
+@Service
+class SlaMonitorJob(
+    private val auditService: AuditService,
+    private val objectMapper: ObjectMapper
+) {
+    fun recordBreach(issue: Issue, policy: SlaPolicy) {
+        // ... breach-detection logic ...
+        val details = objectMapper.writeValueAsString(
+            mapOf("resolutionMinutes" to policy.resolutionMinutes)
+        )
+        auditService.log(
+            level = AuditLevel.WRITE,
+            action = AuditAction.SLA_BREACHED,
+            userEmail = "system",
+            projectId = issue.project.id,
+            resourceType = "ISSUE",
+            resourceId = issue.id.toString(),
+            details = details
+        )
+    }
+}
 ```
 
-`userEmail = "system"` is the convention for machine-initiated events where no human actor exists. `details` is omitted here; pass a JSON string when structured context (e.g., old/new values) is needed.
+`userEmail = "system"` is the convention for machine-initiated events where no human actor exists. The `details` column is `TEXT` (see V22), so always serialize structured data to a JSON string via `ObjectMapper` before passing it — JSONB operators will not work on this column.
 
 ---
 
