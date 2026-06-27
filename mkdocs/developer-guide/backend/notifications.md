@@ -94,13 +94,12 @@ Email delivery is entirely optional: `EmailService.enabled` is false when `sprin
 
 - **New notification type:** Add the value to `NotificationType`. Publish a domain event from the originating module (do not call `NotificationService` directly). Add an `@EventListener` method in `NotificationService` that maps the event to a `Notification` entity and calls `notificationRepository.save()`. Push the saved notification to the WebSocket destination `/user/{userId}/queue/notifications` so the frontend receives it in real time.
 - **Email for new events:** Add a corresponding `@EventListener` in `EmailService` following the existing pattern: check `enabled`, build a `SimpleMailMessage`, call `mailSender.send()`.
-- **`createDirect()`** is available on `NotificationService` for internal modules (e.g. automation, SLA engine) that need to fire a notification outside the event bus. It is not exposed via REST and must not be called from other bounded contexts without explicit justification.
 
 ---
 
 ## Common Pitfalls
 
-- DO NOT call `NotificationService` directly from other modules — publish a domain event and let `NotificationService` react via `@EventListener`. Direct calls create hidden coupling and bypass the event contract.
+- DO NOT call `NotificationService` directly from other modules — publish a domain event and let `NotificationService` react via `@EventListener`. Direct calls create hidden coupling and bypass the event contract. The internal `createDirect()` method exists for the notification module's own wiring only. Never call it from code outside the `notifications` package — publish an event instead.
 - WebSocket push uses STOMP destination `/user/{userId}/queue/notifications` — do not change this path without updating the frontend subscription.
 - `EmailService` is a no-op when `spring.mail.host` is blank; tests must construct `EmailService` with an explicit non-blank `mailHost` to verify that `mailSender.send()` is called.
 - `IssueFieldChangedEvent` is emitted for all field changes; `NotificationService.onIssueFieldChanged()` explicitly guards `if (event.field != "assignee") return` — copy this pattern for any listener that handles only specific fields.

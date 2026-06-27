@@ -115,7 +115,7 @@ Index: `idx_issue_activity_issue` on `(issue_id, created_at DESC)`.
 
 ## Common Pitfalls
 
-- Comments are immutable after creation except by the author or a project ADMIN — this check is enforced in `CommentService.editComment()` and `deleteComment()`; do not bypass it in new call sites.
+- Comments can only be edited by their author. Deletion is allowed for the author or a project ADMIN. Do not allow any other mutation.
 - DO NOT store raw HTML in comments — sanitize input with the existing utility before persisting; `body` is rendered by the frontend, not the backend.
 - System-generated comments (`authorId == null`) are valid but do not produce `IssueActivity` records; `ActivityService.onCommentCreated()` returns early when `authorId` is null.
 - `IssueFieldChangedEvent` with an unknown `field` value is silently skipped by `ActivityService` (logged at WARN); add the mapping explicitly for any new field.
@@ -140,7 +140,7 @@ fun addComment(projectKey: String, issueKey: String, body: String, actor: User):
 }
 ```
 
-`editComment` restricts mutation to the original author; ADMIN deletion uses `deleteComment` which additionally checks `ProjectService.isProjectAdmin`:
+`editComment` restricts mutation to the original author; ADMIN deletion uses `deleteComment` which additionally checks `ProjectService.isProjectAdmin`. Note the HTML sanitization step — storing raw HTML in `body` is a pitfall (see Common Pitfalls):
 
 ```kotlin
 @Transactional
@@ -148,11 +148,33 @@ fun editComment(commentId: UUID, body: String, actor: User): Comment {
     val comment = commentRepository.findById(commentId)
         .orElseThrow { NotFoundException("Comment not found: $commentId") }
     if (comment.authorId != actor.id) throw ForbiddenException("Not the comment author")
-    comment.body = body
+    val sanitizedBody = htmlSanitizer.sanitize(body)
+    comment.body = sanitizedBody
     comment.editedAt = Instant.now()
     return commentRepository.save(comment)
 }
 ```
+
+Mention extraction from comment body:
+
+```kotlin
+private val MENTION_REGEX = Regex("""@([\w.]+)""")
+
+private fun extractAndPublishMentions(body: String, comment: Comment, issue: Issue) {
+    MENTION_REGEX.findAll(body)
+        .map { it.groupValues[1] }
+        .distinct()
+        .forEach { displayName ->
+            val mentioned = userRepository.findByDisplayNameIgnoreCase(displayName)
+                ?: return@forEach
+            eventPublisher.publish(
+                MentionEvent(mentionedUser = mentioned, comment = comment, issue = issue)
+            )
+        }
+}
+```
+
+`MentionEvent` is published once per distinct @mention in the comment body. `NotificationService.onMention()` and `EmailService.onMention()` both subscribe to it.
 
 ---
 

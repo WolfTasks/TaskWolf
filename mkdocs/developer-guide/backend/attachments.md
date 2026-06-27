@@ -58,7 +58,7 @@ No unique constraint on `filename` — duplicate original filenames are allowed;
 | `AttachmentAddedEvent` | `AttachmentService.upload()` | `attachment: Attachment`, `issue: Issue` |
 | `AttachmentRemovedEvent` | `AttachmentService.delete()` | `attachment: Attachment`, `issue: Issue` |
 
-`AttachmentAddedEvent` is consumed by `ActivityService.onAttachmentAdded()` to write an `ATTACHMENT_ADDED` activity record.
+`AttachmentAddedEvent` is consumed by `ActivityService.onAttachmentAdded()` to write an `ATTACHMENT_ADDED` activity record. `AttachmentRemovedEvent` is not currently consumed; reserved for future cleanup or audit hooks.
 
 ---
 
