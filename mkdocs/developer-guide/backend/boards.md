@@ -88,9 +88,16 @@ No DB migration is required — boards derive all data from other modules.
 Board column assembly in `BoardService.getBoard()` — columns ordered by `position` from the workflow, each containing only sprint issues with the matching status:
 
 ```kotlin
+val sprintIssues = issueRepository.findBySprintId(sprint.id)
+val issuesByStatus: Map<UUID, List<Issue>> = sprintIssues.groupBy { it.status.id }
 val columns = workflow.statuses.map { status ->
     BoardColumnResponse(
-        status = StatusSummary(status.id, status.name, status.category.name, status.color),
+        status = StatusSummary(
+            id = status.id,
+            name = status.name,
+            category = status.category.name,
+            color = status.color
+        ),
         issues = (issuesByStatus[status.id] ?: emptyList()).map { IssueResponse.from(it) }
     )
 }

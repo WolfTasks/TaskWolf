@@ -164,7 +164,7 @@ fun complete(projectKey: String, sprintId: UUID, actor: User): SprintCompleteRes
         .filter { it.status.category == StatusCategory.DONE }.sumOf { it.storyPoints ?: 0 }
     sprint.status = SprintStatus.CLOSED
     val saved = sprintRepository.save(sprint)
-    eventPublisher.publish(SprintCompletedEvent(saved, openIssues.size, actor.email, actor.id))
+    eventPublisher.publish(SprintCompletedEvent(sprint = saved, movedToBacklogCount = openIssues.size, actorEmail = actor.email, actorId = actor.id))
     return SprintCompleteResult(saved, openIssues.size)
 }
 ```
