@@ -88,6 +88,9 @@ export function AppLayout() {
                   <NavLink to={`/p/${projectKey}/settings/labels`} className={subNavLinkClass}>
                     Labels
                   </NavLink>
+                  <NavLink to={`/p/${projectKey}/settings/versions`} className={subNavLinkClass}>
+                    Versions
+                  </NavLink>
                 </div>
               </div>
             </div>
