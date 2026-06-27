@@ -1,6 +1,7 @@
 package com.taskowolf.integrations.application
 
 import org.springframework.stereotype.Component
+import java.security.MessageDigest
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
@@ -14,6 +15,8 @@ class HmacSigner {
         return "sha256=$hex"
     }
 
-    fun verify(payload: String, secret: String, signature: String): Boolean =
-        sign(payload, secret) == signature
+    fun verify(payload: String, secret: String, signature: String): Boolean {
+        val expected = sign(payload, secret)
+        return MessageDigest.isEqual(expected.toByteArray(), signature.toByteArray())
+    }
 }
