@@ -26,3 +26,9 @@ data/
 
 # Test output
 test_output.txt
+
+# MkDocs generated site
+site/
+
+# Clone directory
+.clone/
