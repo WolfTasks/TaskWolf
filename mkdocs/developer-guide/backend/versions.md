@@ -152,7 +152,7 @@ return IssueResponse.from(issue, refs, labels, fixVersions, affectsVersions)
 | `fixVersionId` | UUID (optional) | Return only issues where this version is a fix version |
 | `affectsVersionId` | UUID (optional) | Return only issues where this version is an affects version |
 
-Both params are AND-combinable — supplying both narrows results to issues that match on both axes simultaneously. Neither param interacts with the existing `labelId` filter; all active filters are applied together.
+Both params are AND-combinable — supplying both narrows results to issues that match on both axes simultaneously. Version filters take priority over the existing `labelId` filter — if any version filter param is present, `labelId` is not applied.
 
 ---
 
@@ -186,6 +186,7 @@ Both params are AND-combinable — supplying both narrows results to issues that
 ## Common Pitfalls
 
 - **`VersionRepository` is injected in two cross-module locations.** `IssueController.get()` uses `findByIssueIdAndType` (native SQL) to load both version sets for the single-issue GET. `IssueService.update()` uses `findAllById` to resolve incoming version IDs before saving. Both are deliberate exceptions to the no-cross-module-injection rule.
+- **`IssueVersionRepository` is injected into `IssueService` as a cross-module dependency.** Like `VersionRepository`, this is a deliberate exception to enforce transactional cleanup of version assignments. `IssueService.update()` calls `deleteByIssueIdAndType()` before re-inserting to detect actual changes and emit appropriate events.
 - **`null` vs empty list on `UpdateIssueRequest.fixVersionIds` / `affectsVersionIds`.** `null` = no change; `[]` = clear all versions of that type. The service checks `request.fixVersionIds != null` before touching the set.
 - **Versions from a different project are silently dropped.** `IssueService.update()` filters resolved versions by `it.project.id == project.id`. No error is returned — the call succeeds and only valid versions are applied.
 - **`IssueVersionRepository.deleteByIssueIdAndType` is a `@Modifying` JPQL query.** It requires an active transaction and must run before `saveAll` in the same transaction. Do not call it outside a `@Transactional` context.
