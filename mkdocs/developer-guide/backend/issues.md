@@ -176,7 +176,7 @@ Add the new value to `IssueType.kt`. No migration is needed — `type` is stored
 - Parent issues are validated to belong to the same project. A parent from a different project throws `NotFoundException`.
 - Status transitions are validated by `WorkflowService.validateTransition()`. The new status must belong to the project's assigned workflow; a cross-workflow status throws `ForbiddenException`.
 - When `overdue=true` in list queries, results are always ordered by `dueDate ASC` regardless of the `sort` parameter — the overdue JPQL query hardcodes `ORDER BY dueDate ASC`.
-- **`IssueController.get()` injects `LabelRepository` directly.** This is a deliberate exception to the no-cross-module-injection rule, required to fetch labels via native SQL on `issue_labels`. The list endpoint (`IssueController.list()`) does not populate labels; only the single-issue GET does.
+- **`LabelRepository` is injected in two cross-module locations.** `IssueController.get()` injects it to call `findByIssueId` (native SQL on `issue_labels`) for the single-issue GET — the list endpoint does not populate labels. `IssueService.update()` injects it to call `findAllById` when resolving a new label set on PATCH. Both are deliberate exceptions to the no-cross-module-injection rule; see the [labels module](labels.md) for full context.
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Manages project-scoped colored labels. Labels can be assigned to issues in any quantity (many-to-many) and used to filter the issue list. Label CRUD is performed by project members via a dedicated settings page.
+Manages project-scoped colored labels. Labels can be assigned to issues in any quantity (many-to-many) and used to filter the issue list. Label CRUD is available from the dedicated settings page (`LabelsPage`) and also inline from the `LabelSelector` component on the issue detail view (when a search has no exact match, a "+ Create label" button creates the label on the fly).
 
 ---
 
@@ -84,18 +84,19 @@ None.
 | `backend/src/main/kotlin/com/taskowolf/labels/api/dto/LabelRequest.kt` | `{name, color}` for POST/PUT |
 | `backend/src/main/kotlin/com/taskowolf/labels/api/dto/LabelResponse.kt` | `{id, name, color}` |
 | `backend/src/test/kotlin/com/taskowolf/labels/LabelServiceTest.kt` | Unit tests |
+| `frontend/src/api/labels.ts` | `labelsApi` — list, create, update, delete HTTP calls |
 
 ---
 
 ## Extension Points
 
-The color palette (`PALETTE`) is defined as a constant in `frontend/src/components/issue/LabelSelector.tsx`. The backend accepts any valid hex string — the palette is only enforced client-side.
+The color palette (`PALETTE`) is defined as a constant in both `frontend/src/components/issue/LabelSelector.tsx` and `frontend/src/pages/projects/settings/LabelsPage.tsx` (duplicated). The backend accepts any valid hex string — the palette is only enforced client-side. If you change the palette, update both files.
 
 ---
 
 ## Common Pitfalls
 
-- **`IssueController.get()` injects `LabelRepository` directly.** This is the only deliberate cross-module repository injection in the codebase. It exists because `findByIssueId` uses native SQL on `issue_labels`, a join table whose `@JoinTable` is declared on `Issue`. Do not replicate this pattern elsewhere.
+- **`LabelRepository` is injected in two cross-module locations.** `IssueController.get()` injects it to call `findByIssueId` (native SQL on `issue_labels`) for the single-issue GET. `IssueService.update()` injects it to call `findAllById` when resolving a new label set on PATCH. Both are deliberate exceptions to the no-cross-module-injection rule. Do not add further cross-module injections.
 - **`null` vs empty list on `UpdateIssueRequest.labelIds`.** `null` = no change to labels; `[]` = remove all labels. The service checks `request.labelIds != null` before touching the label set.
 - **`@ManyToMany(fetch=LAZY)` on `Issue.labels`.** Do not access `issue.labels` outside a transaction. `IssueController.get()` fetches labels explicitly via `LabelRepository.findByIssueId()` to avoid lazy-loading surprises.
 

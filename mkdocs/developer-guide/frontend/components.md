@@ -117,6 +117,7 @@ The command writes the component to `frontend/src/components/ui/`. Import it as 
 - **Do not import from the shadcn npm package directly.** All UI primitives must come from `@/components/ui/`.
 - **Do not use `style={{...}}` for values Tailwind can express.** Acceptable exception: `style={{ width: `${pct}%` }}` for dynamic numeric widths on progress bars.
 - **Do not use default exports.** Every component file must use a named export so that refactoring tools and the router can locate the export by name.
+- **`LabelChip` calls `e.stopPropagation()` in its `onClick`.** This prevents a chip click inside an issue list row from navigating to the issue detail. If you render `LabelChip` inside a clickable container, be aware that propagation is already stopped — attaching an additional click handler on the chip itself will work, but a handler on a parent element will not fire.
 
 ---
 
