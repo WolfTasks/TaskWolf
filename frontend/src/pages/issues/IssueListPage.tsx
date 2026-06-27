@@ -2,24 +2,40 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useIssues, useCreateIssue } from '@/hooks/useIssues'
 import { useLabels } from '@/hooks/useLabels'
+import { useVersions } from '@/hooks/useVersions'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 
 export function IssueListPage() {
   const { key } = useParams<{ key: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const labelId = searchParams.get('labelId') ?? undefined
+  const fixVersionId = searchParams.get('fixVersionId') ?? undefined
+  const affectsVersionId = searchParams.get('affectsVersionId') ?? undefined
 
-  const { data: page, isLoading } = useIssues(key!, labelId)
+  const { data: page, isLoading } = useIssues(key!, { labelId, fixVersionId, affectsVersionId })
   const { data: labels = [] } = useLabels(key!)
+  const { data: versions = [] } = useVersions(key!)
   const createIssue = useCreateIssue(key!)
   const [title, setTitle] = useState('')
   const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
     if (labelId && labels.length > 0 && !labels.some(l => l.id === labelId)) {
-      setSearchParams({})
+      setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('labelId'); return n })
     }
   }, [labelId, labels, setSearchParams])
+
+  useEffect(() => {
+    if (fixVersionId && versions.length > 0 && !versions.some(v => v.id === fixVersionId)) {
+      setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('fixVersionId'); return n })
+    }
+  }, [fixVersionId, versions, setSearchParams])
+
+  useEffect(() => {
+    if (affectsVersionId && versions.length > 0 && !versions.some(v => v.id === affectsVersionId)) {
+      setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('affectsVersionId'); return n })
+    }
+  }, [affectsVersionId, versions, setSearchParams])
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,9 +45,13 @@ export function IssueListPage() {
     setShowForm(false)
   }
 
-  function setLabelFilter(id: string | undefined) {
-    if (id) setSearchParams({ labelId: id })
-    else setSearchParams({})
+  function setParam(key: string, value: string | undefined) {
+    setSearchParams(prev => {
+      const n = new URLSearchParams(prev)
+      if (value) n.set(key, value)
+      else n.delete(key)
+      return n
+    })
   }
 
   if (isLoading) return <div className="text-gray-400">Loading...</div>
@@ -47,10 +67,10 @@ export function IssueListPage() {
       </div>
 
       {/* Toolbar filters */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
         <select
           value={labelId ?? ''}
-          onChange={e => setLabelFilter(e.target.value || undefined)}
+          onChange={e => setParam('labelId', e.target.value || undefined)}
           className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
         >
           <option value="">All Labels</option>
@@ -58,12 +78,35 @@ export function IssueListPage() {
             <option key={l.id} value={l.id}>{l.name}</option>
           ))}
         </select>
-        {labelId && (
+
+        <select
+          value={fixVersionId ?? ''}
+          onChange={e => setParam('fixVersionId', e.target.value || undefined)}
+          className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+        >
+          <option value="">All Fix Versions</option>
+          {versions.map(v => (
+            <option key={v.id} value={v.id}>{v.name}</option>
+          ))}
+        </select>
+
+        <select
+          value={affectsVersionId ?? ''}
+          onChange={e => setParam('affectsVersionId', e.target.value || undefined)}
+          className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+        >
+          <option value="">All Affects Versions</option>
+          {versions.map(v => (
+            <option key={v.id} value={v.id}>{v.name}</option>
+          ))}
+        </select>
+
+        {(labelId || fixVersionId || affectsVersionId) && (
           <button
-            onClick={() => setLabelFilter(undefined)}
+            onClick={() => setSearchParams({})}
             className="text-xs text-gray-400 hover:text-white"
           >
-            ✕ Clear
+            ✕ Clear filters
           </button>
         )}
       </div>
