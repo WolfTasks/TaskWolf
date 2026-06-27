@@ -3,25 +3,28 @@ package com.taskowolf.issues
 import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.application.DomainEventPublisher
+import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.issues.api.dto.CreateIssueRequest
 import com.taskowolf.issues.api.dto.UpdateIssueRequest
 import com.taskowolf.issues.application.IssueService
+import com.taskowolf.issues.domain.Issue
 import com.taskowolf.issues.domain.IssueType
 import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
+import com.taskowolf.labels.domain.Label
+import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.projects.domain.Project
 import com.taskowolf.workflows.application.WorkflowService
 import com.taskowolf.workflows.domain.*
 import io.mockk.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import com.taskowolf.core.infrastructure.NotFoundException
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import java.util.UUID
-import org.junit.jupiter.api.Assertions.assertEquals
 
 class IssueServiceTest {
 
@@ -31,15 +34,15 @@ class IssueServiceTest {
     private val userRepository = mockk<UserRepository>()
     private val eventPublisher = mockk<DomainEventPublisher>(relaxed = true)
     private val sprintRepository = mockk<com.taskowolf.sprints.infrastructure.SprintRepository>()
-    private val labelRepository = mockk<com.taskowolf.labels.infrastructure.LabelRepository>()
+    private val labelRepository = mockk<LabelRepository>()
     private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository)
 
     private val owner = User(email = "owner@test.com", displayName = "Owner")
     private val workflow = mockk<Workflow>()
     private val status = WorkflowStatus("To Do", StatusCategory.TODO, "#6c8fef", 0, workflow)
     private val project = Project(key = "WOLF", name = "TaskWolf", owner = owner, workflow = workflow)
-    private val issue = com.taskowolf.issues.domain.Issue(
-        key = "WOLF-1", keyNumber = 1, title = "Test", type = com.taskowolf.issues.domain.IssueType.TASK,
+    private val issue = Issue(
+        key = "WOLF-1", keyNumber = 1, title = "Test", type = IssueType.TASK,
         status = status, project = project, reporter = owner
     )
 
@@ -95,7 +98,7 @@ class IssueServiceTest {
     @Test
     fun `create rejects assignee who is not a project member`() {
         val workflowId = UUID.randomUUID()
-        val stranger = com.taskowolf.auth.domain.User(email = "stranger@test.com", displayName = "Stranger")
+        val stranger = User(email = "stranger@test.com", displayName = "Stranger")
         every { workflow.id } returns workflowId
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { workflowService.getDefaultStatus(workflowId) } returns status
@@ -104,7 +107,7 @@ class IssueServiceTest {
         every { userRepository.findById(stranger.id) } returns java.util.Optional.of(stranger)
         every { projectService.isMember(project, stranger.id) } returns false
 
-        assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+        assertThrows<NotFoundException> {
             service.create("WOLF", CreateIssueRequest("Task", assigneeId = stranger.id), owner)
         }
     }
@@ -119,13 +122,13 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
 
         val foreignProject = Project(key = "OTHER", name = "Other", owner = owner, workflow = workflow)
-        val foreignParent = com.taskowolf.issues.domain.Issue(
-            key = "OTHER-1", keyNumber = 1, title = "Foreign", type = com.taskowolf.issues.domain.IssueType.TASK,
+        val foreignParent = Issue(
+            key = "OTHER-1", keyNumber = 1, title = "Foreign", type = IssueType.TASK,
             status = status, project = foreignProject, reporter = owner
         )
         every { issueRepository.findById(foreignParent.id) } returns java.util.Optional.of(foreignParent)
 
-        assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+        assertThrows<NotFoundException> {
             service.create("WOLF", CreateIssueRequest("Child", parentId = foreignParent.id), owner)
         }
     }
@@ -173,7 +176,7 @@ class IssueServiceTest {
 
     @Test
     fun `findByProject with overdue=true calls findOverdueByProjectId with StatusCategory DONE`() {
-        val emptyPage = PageImpl<com.taskowolf.issues.domain.Issue>(emptyList())
+        val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, any()) } returns emptyPage
 
@@ -186,7 +189,7 @@ class IssueServiceTest {
 
     @Test
     fun `findByProject with overdue=true and assigneeMe=true calls findOverdueByProjectIdAndAssigneeId`() {
-        val emptyPage = PageImpl<com.taskowolf.issues.domain.Issue>(emptyList())
+        val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, owner.id, StatusCategory.DONE, any()) } returns emptyPage
 
@@ -199,7 +202,7 @@ class IssueServiceTest {
 
     @Test
     fun `findByProject with assigneeMe=true calls findByProjectIdAndAssigneeId`() {
-        val emptyPage = PageImpl<com.taskowolf.issues.domain.Issue>(emptyList())
+        val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) } returns emptyPage
 
@@ -217,10 +220,10 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
 
         val updated = service.update("WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(type = com.taskowolf.issues.domain.IssueType.BUG),
+            UpdateIssueRequest(type = IssueType.BUG),
             owner)
 
-        assert(updated.type == com.taskowolf.issues.domain.IssueType.BUG)
+        assert(updated.type == IssueType.BUG)
     }
 
     @Test
@@ -231,7 +234,7 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
 
         val updated = service.update("WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(dueDate = date),
+            UpdateIssueRequest(dueDate = date),
             owner)
 
         assert(updated.dueDate == date)
@@ -245,7 +248,7 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
 
         val updated = service.update("WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(clearDueDate = true),
+            UpdateIssueRequest(clearDueDate = true),
             owner)
 
         assert(updated.dueDate == null)
@@ -260,7 +263,7 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
 
         val updated = service.update("WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(clearAssignee = true),
+            UpdateIssueRequest(clearAssignee = true),
             owner)
 
         assert(updated.assignee == null)
@@ -278,7 +281,7 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
 
         val updated = service.update("WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(sprintId = sprint.id),
+            UpdateIssueRequest(sprintId = sprint.id),
             owner)
 
         assert(updated.sprint?.id == sprint.id)
@@ -296,7 +299,7 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
 
         val updated = service.update("WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(clearSprint = true),
+            UpdateIssueRequest(clearSprint = true),
             owner)
 
         assert(updated.sprint == null)
@@ -304,12 +307,12 @@ class IssueServiceTest {
 
     @Test
     fun `update sets labels when labelIds provided`() {
-        val label = com.taskowolf.labels.domain.Label(
+        val label = Label(
             name = "bug", color = "#e11d48", project = project
         )
-        val labelRepository = mockk<com.taskowolf.labels.infrastructure.LabelRepository>()
+        val labelRepository = mockk<LabelRepository>()
         // Re-create service with labelRepository
-        val serviceWithLabels = com.taskowolf.issues.application.IssueService(
+        val serviceWithLabels = IssueService(
             issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
@@ -319,7 +322,7 @@ class IssueServiceTest {
 
         val updated = serviceWithLabels.update(
             "WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(labelIds = listOf(label.id)),
+            UpdateIssueRequest(labelIds = listOf(label.id)),
             owner
         )
 
@@ -328,12 +331,12 @@ class IssueServiceTest {
 
     @Test
     fun `update clears labels when labelIds is empty list`() {
-        val label = com.taskowolf.labels.domain.Label(
+        val label = Label(
             name = "bug", color = "#e11d48", project = project
         )
         issue.labels.add(label)
-        val labelRepository = mockk<com.taskowolf.labels.infrastructure.LabelRepository>()
-        val serviceWithLabels = com.taskowolf.issues.application.IssueService(
+        val labelRepository = mockk<LabelRepository>()
+        val serviceWithLabels = IssueService(
             issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
@@ -343,7 +346,7 @@ class IssueServiceTest {
 
         val updated = serviceWithLabels.update(
             "WOLF", issue.id,
-            com.taskowolf.issues.api.dto.UpdateIssueRequest(labelIds = emptyList()),
+            UpdateIssueRequest(labelIds = emptyList()),
             owner
         )
 

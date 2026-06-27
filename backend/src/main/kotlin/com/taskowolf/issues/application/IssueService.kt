@@ -12,6 +12,7 @@ import com.taskowolf.issues.domain.events.IssueCreatedEvent
 import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
+import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.sprints.infrastructure.SprintRepository
 import com.taskowolf.workflows.application.WorkflowService
@@ -29,7 +30,7 @@ class IssueService(
     private val userRepository: UserRepository,
     private val eventPublisher: DomainEventPublisher,
     private val sprintRepository: SprintRepository,
-    private val labelRepository: com.taskowolf.labels.infrastructure.LabelRepository
+    private val labelRepository: LabelRepository
 ) {
     @Transactional
     fun create(projectKey: String, request: CreateIssueRequest, reporter: User): Issue {
