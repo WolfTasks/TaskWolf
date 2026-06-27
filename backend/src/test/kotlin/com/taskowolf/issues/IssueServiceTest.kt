@@ -352,4 +352,26 @@ class IssueServiceTest {
 
         assert(updated.labels.isEmpty())
     }
+
+    @Test
+    fun `update silently drops labels from other projects`() {
+        val otherProject = Project(key = "OTHER", name = "Other", owner = owner, workflow = null)
+        val foreignLabel = Label(name = "foreign", color = "#000000", project = otherProject)
+        val labelRepository = mockk<LabelRepository>()
+        val serviceWithLabels = IssueService(
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
+        )
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { labelRepository.findAllById(listOf(foreignLabel.id)) } returns listOf(foreignLabel)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = serviceWithLabels.update(
+            "WOLF", issue.id,
+            UpdateIssueRequest(labelIds = listOf(foreignLabel.id)),
+            owner
+        )
+
+        assert(updated.labels.isEmpty()) { "Foreign label should not be assigned" }
+    }
 }

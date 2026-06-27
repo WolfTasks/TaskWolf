@@ -174,15 +174,19 @@ class IssueService(
 
         request.labelIds?.let { ids ->
             val newLabels = if (ids.isEmpty()) mutableSetOf()
-                            else labelRepository.findAllById(ids).toMutableSet()
+                            else labelRepository.findAllById(ids)
+                                .filter { it.project.id == project.id }
+                                .toMutableSet()
             val oldNames = issue.labels.map { it.name }.sorted().joinToString(", ")
-            issue.labels.clear()
-            issue.labels.addAll(newLabels)
             val newNames = newLabels.map { it.name }.sorted().joinToString(", ")
-            eventPublisher.publish(
-                IssueFieldChangedEvent(issue, currentUser, "labels",
-                    oldNames.ifEmpty { null }, newNames.ifEmpty { null })
-            )
+            if (oldNames != newNames) {
+                issue.labels.clear()
+                issue.labels.addAll(newLabels)
+                eventPublisher.publish(
+                    IssueFieldChangedEvent(issue, currentUser, "labels",
+                        oldNames.ifEmpty { null }, newNames.ifEmpty { null })
+                )
+            }
         }
 
         return issueRepository.save(issue)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useIssues, useCreateIssue } from '@/hooks/useIssues'
 import { useLabels } from '@/hooks/useLabels'
@@ -14,6 +14,12 @@ export function IssueListPage() {
   const createIssue = useCreateIssue(key!)
   const [title, setTitle] = useState('')
   const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    if (labelId && labels.length > 0 && !labels.some(l => l.id === labelId)) {
+      setSearchParams({})
+    }
+  }, [labelId, labels, setSearchParams])
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
