@@ -108,3 +108,21 @@ Nav link added to the existing project settings sidebar navigation.
 - Bulk label assignment from the issue list.
 - Label descriptions or icons.
 - Cross-project shared labels.
+
+## Wiki Documentation (Task 8)
+
+After all implementation tasks are complete, the following developer wiki pages are created or updated:
+
+**New:** `mkdocs/developer-guide/backend/labels.md` — full module page following the standard template (Purpose, Entities Owned, DB Schema, API Endpoints, Events, Key Files, Extension Points, Common Pitfalls, Example, Test Patterns).
+
+**Updated:** `mkdocs/developer-guide/backend/issues.md` — add `labels: MutableSet<Label>` to the Issue entity row; add V23 `labels` and `issue_labels` table descriptions; extend GET list endpoint description with `labelId` filter; extend PATCH description with `labelIds`; add pitfall note about direct `LabelRepository` injection in `IssueController.get()`; add label tests to Test Patterns.
+
+**Updated:** `mkdocs.yml` — add `labels: developer-guide/backend/labels.md` to the backend nav section after `issues`.
+
+**Updated:** `mkdocs/developer-guide/frontend/components.md` — add `LabelChip`, `LabelSelector` to the `issue/` line in the component directory listing.
+
+**Updated:** `mkdocs/developer-guide/frontend/hooks.md` — add `['labels', projectKey]` row to the query key table; add `useLabels`, `useCreateLabel`, `useUpdateLabel`, `useDeleteLabel` to the hook inventory.
+
+**Updated:** `mkdocs/developer-guide/frontend/pages.md` — add `LabelsPage` to the `projects/settings/` line in the page directory listing; add Labels nav link to the AppLayout table.
+
+Verification: `python -m mkdocs build --strict` must pass with zero warnings after all edits.
