@@ -1658,6 +1658,254 @@ git commit -m "feat(labels): issue list label filter, click-to-filter from issue
 
 ---
 
+## Task 8: Wiki Documentation
+
+**Files:**
+- Create: `mkdocs/developer-guide/backend/labels.md`
+- Modify: `mkdocs/developer-guide/backend/issues.md`
+- Modify: `mkdocs.yml`
+- Modify: `mkdocs/developer-guide/frontend/components.md`
+- Modify: `mkdocs/developer-guide/frontend/hooks.md`
+- Modify: `mkdocs/developer-guide/frontend/pages.md`
+
+**Interfaces:**
+- Consumes: all implemented code from Tasks 1–7
+- Produces: `python -m mkdocs build --strict` passes with zero warnings
+
+---
+
+- [ ] **Step 1: Create `mkdocs/developer-guide/backend/labels.md`**
+
+```markdown
+# Module: labels
+
+## Purpose
+
+Manages project-scoped colored labels. Labels can be assigned to issues in any quantity (many-to-many) and used to filter the issue list. Label CRUD is performed by project members via a dedicated settings page.
+
+---
+
+## Entities Owned
+
+| Entity | Table | Key Fields |
+|---|---|---|
+| `Label` | `labels` | `name` VARCHAR(50) NOT NULL, `color` VARCHAR(7) NOT NULL (hex), `project` FK→projects NOT NULL; UNIQUE (project_id, name) |
+
+The `issue_labels` join table is owned by `Issue.labels` (`@JoinTable` on `Issue`), not by `Label`.
+
+---
+
+## DB Schema
+
+### `labels` (V23)
+
+\`\`\`sql
+CREATE TABLE labels (
+    id         UUID        NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    project_id UUID        NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    name       VARCHAR(50) NOT NULL,
+    color      VARCHAR(7)  NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (project_id, name)
+);
+\`\`\`
+
+### `issue_labels` (V23)
+
+Join table owned by `Issue.labels`. Cascade-deletes when either the issue or label is deleted.
+
+| Column | Type | Constraint |
+|---|---|---|
+| `issue_id` | UUID | FK→issues ON DELETE CASCADE |
+| `label_id` | UUID | FK→labels ON DELETE CASCADE |
+
+Primary key: `(issue_id, label_id)`.
+
+---
+
+## API Endpoints
+
+### `LabelController` — `/api/v1/projects/{key}/labels`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/v1/projects/{key}/labels` | USER | Lists all labels for the project |
+| POST | `/api/v1/projects/{key}/labels` | USER | Creates a label; 409 if name already exists in project |
+| PUT | `/api/v1/projects/{key}/labels/{id}` | USER | Replaces name and color; 409 on name conflict |
+| DELETE | `/api/v1/projects/{key}/labels/{id}` | USER | Deletes label; `issue_labels` rows removed by DB cascade |
+
+All endpoints require project membership (`ProjectService.requireMember()`).
+
+---
+
+## Events Emitted
+
+None. Label assignment changes on issues are recorded as `IssueFieldChangedEvent` by `IssueService.update()` in the issues module.
+
+---
+
+## Events Consumed
+
+None.
+
+---
+
+## Key Files
+
+| File | Purpose |
+|---|---|
+| `backend/src/main/resources/db/migration/V23__labels.sql` | Creates `labels` and `issue_labels` tables |
+| `backend/src/main/kotlin/com/taskowolf/labels/domain/Label.kt` | JPA entity |
+| `backend/src/main/kotlin/com/taskowolf/labels/infrastructure/LabelRepository.kt` | `findByProjectId`, `existsByProjectIdAndName`, `findByIssueId` (native SQL) |
+| `backend/src/main/kotlin/com/taskowolf/labels/application/LabelService.kt` | CRUD logic |
+| `backend/src/main/kotlin/com/taskowolf/labels/api/LabelController.kt` | REST controller |
+| `backend/src/main/kotlin/com/taskowolf/labels/api/dto/LabelRequest.kt` | `{name, color}` for POST/PUT |
+| `backend/src/main/kotlin/com/taskowolf/labels/api/dto/LabelResponse.kt` | `{id, name, color}` |
+| `backend/src/test/kotlin/com/taskowolf/labels/LabelServiceTest.kt` | Unit tests |
+
+---
+
+## Extension Points
+
+The color palette (`PALETTE`) is defined as a constant in `frontend/src/components/issue/LabelSelector.tsx`. The backend accepts any valid hex string — the palette is only enforced client-side.
+
+---
+
+## Common Pitfalls
+
+- **`IssueController.get()` injects `LabelRepository` directly.** This is the only deliberate cross-module repository injection in the codebase. It exists because `findByIssueId` uses native SQL on `issue_labels`, a join table whose `@JoinTable` is declared on `Issue`. Do not replicate this pattern elsewhere.
+- **`null` vs empty list on `UpdateIssueRequest.labelIds`.** `null` = no change to labels; `[]` = remove all labels. The service checks `request.labelIds != null` before touching the label set.
+- **`@ManyToMany(fetch=LAZY)` on `Issue.labels`.** Do not access `issue.labels` outside a transaction. `IssueController.get()` fetches labels explicitly via `LabelRepository.findByIssueId()` to avoid lazy-loading surprises.
+
+---
+
+## Example
+
+\`\`\`kotlin
+// Create a label then assign it to an issue
+val label = labelService.create("WOLF", LabelRequest("bug", "#e11d48"), actor)
+issueService.update("WOLF", issueId, UpdateIssueRequest(labelIds = listOf(label.id)), actor)
+\`\`\`
+
+---
+
+## Test Patterns
+
+| File | What is tested |
+|---|---|
+| `LabelServiceTest` | `list` returns labels for the correct project |
+| `LabelServiceTest` | `create` saves a new label |
+| `LabelServiceTest` | `create` throws `ConflictException` when name already exists in project |
+| `LabelServiceTest` | `update` changes name and color |
+| `LabelServiceTest` | `delete` removes the label |
+| `LabelServiceTest` | `delete` throws `NotFoundException` when label belongs to a different project |
+| `IssueServiceTest` | `update` sets labels when `labelIds` is a non-empty list |
+| `IssueServiceTest` | `update` clears labels when `labelIds` is an empty list |
+```
+
+- [ ] **Step 2: Update `mkdocs/developer-guide/backend/issues.md`**
+
+**2a — Entities Owned table:** Append `, `labels: MutableSet<Label>` (@ManyToMany LAZY, join table `issue_labels`, owned by Issue)` to the end of the Issue row's Key Fields cell.
+
+**2b — DB Schema:** After the `issue_links` section, add:
+
+```markdown
+### `labels` and `issue_labels` (V23)
+
+See the [labels module](labels.md) for the full schema. `issue_labels` is the join table declared via `@JoinTable` on `Issue.labels`.
+```
+
+**2c — API Endpoints table:** Update the two affected rows:
+
+- GET list: change description to `Lists issues paginated (`page`, `size`); optional `assigneeMe=true`, `sort=updatedAt`, `overdue=true`, `labelId=<UUID>` (single-label filter); `refs[]` is empty on list; `labels[]` is empty on list`
+- PATCH: change description to `Partial update by issue UUID; `labelIds: List<UUID>?` replaces the full label set (null = no change, [] = remove all); publishes `IssueFieldChangedEvent` or `IssueStatusChangedEvent` per changed field`
+
+**2d — Common Pitfalls:** Add after the existing pitfall list:
+
+```markdown
+- **`IssueController.get()` injects `LabelRepository` directly.** This is a deliberate exception to the no-cross-module-injection rule, required to fetch labels via native SQL on `issue_labels`. The list endpoint (`IssueController.list()`) does not populate labels; only the single-issue GET does.
+```
+
+**2e — Test Patterns (unit tests table):** Add two rows:
+
+```markdown
+| `IssueServiceTest` | `update` sets labels when `labelIds` is a non-empty list |
+| `IssueServiceTest` | `update` clears labels when `labelIds` is an empty list |
+```
+
+- [ ] **Step 3: Update `mkdocs.yml`**
+
+In the backend nav section, add `labels` after `issues`:
+
+```yaml
+          - issues: developer-guide/backend/issues.md
+          - labels: developer-guide/backend/labels.md
+```
+
+- [ ] **Step 4: Update `mkdocs/developer-guide/frontend/components.md`**
+
+In the component directory listing block, update the `issue/` line from:
+
+```
+  issue/          # StatusBadge, AssigneeSelector, PrioritySelector, InlineEditTitle,
+  #               # RichTextEditor, DueDatePicker, TypeSelector, SprintSelector
+```
+
+to:
+
+```
+  issue/          # StatusBadge, AssigneeSelector, PrioritySelector, InlineEditTitle,
+  #               # RichTextEditor, DueDatePicker, TypeSelector, SprintSelector,
+  #               # LabelChip, LabelSelector
+```
+
+- [ ] **Step 5: Update `mkdocs/developer-guide/frontend/hooks.md`**
+
+In the Query Key Conventions table, add after the `['members', projectKey]` row:
+
+```markdown
+| `['labels', projectKey]` | `useLabels`, `useCreateLabel`, `useUpdateLabel`, `useDeleteLabel` |
+```
+
+- [ ] **Step 6: Update `mkdocs/developer-guide/frontend/pages.md`**
+
+**6a — Page directory listing:** Update the `projects/settings/` line from:
+
+```
+  projects/settings/          # ProjectAuditPage
+```
+
+to:
+
+```
+  projects/settings/          # ProjectAuditPage, LabelsPage
+```
+
+**6b — AppLayout table:** In the `Project settings` row of the AppLayout slots table, append `, Labels (/p/:key/settings/labels)` to the description.
+
+- [ ] **Step 7: Verify build**
+
+```bash
+python -m mkdocs build --strict 2>&1 | tail -20
+```
+
+Expected: `INFO - Documentation built successfully.` with zero warnings.
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add mkdocs/developer-guide/backend/labels.md \
+        mkdocs/developer-guide/backend/issues.md \
+        mkdocs/developer-guide/frontend/components.md \
+        mkdocs/developer-guide/frontend/hooks.md \
+        mkdocs/developer-guide/frontend/pages.md \
+        mkdocs.yml
+git commit -m "docs(wiki): add labels module page and update issues, frontend pages"
+```
+
+---
+
 ## Self-Review Checklist
 
 **Spec coverage:**
@@ -1673,3 +1921,8 @@ git commit -m "feat(labels): issue list label filter, click-to-filter from issue
 - [x] Nav link in AppLayout — Task 6
 - [x] Issue list label filter dropdown — Task 7
 - [x] Click chip → navigate to filtered list — Task 7
+- [x] `labels.md` developer-guide page — Task 8
+- [x] `issues.md` updated (entity, schema, endpoints, pitfalls, tests) — Task 8
+- [x] `mkdocs.yml` nav entry — Task 8
+- [x] `components.md`, `hooks.md`, `pages.md` updated — Task 8
+- [x] `mkdocs build --strict` passes — Task 8
