@@ -174,7 +174,6 @@ Dispatch saves a `WebhookDelivery` record synchronously, then calls `sendAsync(d
 GitHub webhook HMAC verification — `IncomingWebhookService` calls `HmacSigner.verify()` with the plaintext secret:
 
 ```kotlin
-// IncomingWebhookService
 private fun verifyGitHubSignature(
     payload: String,
     secret: String,
@@ -183,7 +182,6 @@ private fun verifyGitHubSignature(
     if (signatureHeader == null) return false
     return hmacSigner.verify(payload, secret, signatureHeader)
 }
-
 // HmacSigner
 fun sign(payload: String, secret: String): String {
     val mac = Mac.getInstance("HmacSHA256")
