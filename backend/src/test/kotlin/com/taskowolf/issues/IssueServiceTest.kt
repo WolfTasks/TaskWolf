@@ -15,6 +15,8 @@ import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.labels.domain.Label
 import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
+import com.taskowolf.versions.infrastructure.IssueVersionRepository
+import com.taskowolf.versions.infrastructure.VersionRepository
 import com.taskowolf.projects.domain.Project
 import com.taskowolf.workflows.application.WorkflowService
 import com.taskowolf.workflows.domain.*
@@ -35,7 +37,9 @@ class IssueServiceTest {
     private val eventPublisher = mockk<DomainEventPublisher>(relaxed = true)
     private val sprintRepository = mockk<com.taskowolf.sprints.infrastructure.SprintRepository>()
     private val labelRepository = mockk<LabelRepository>()
-    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository)
+    private val versionRepository = mockk<VersionRepository>()
+    private val issueVersionRepository = mockk<IssueVersionRepository>()
+    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository)
 
     private val owner = User(email = "owner@test.com", displayName = "Owner")
     private val workflow = mockk<Workflow>()
@@ -313,7 +317,7 @@ class IssueServiceTest {
         val labelRepository = mockk<LabelRepository>()
         // Re-create service with labelRepository
         val serviceWithLabels = IssueService(
-            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
@@ -337,7 +341,7 @@ class IssueServiceTest {
         issue.labels.add(label)
         val labelRepository = mockk<LabelRepository>()
         val serviceWithLabels = IssueService(
-            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
@@ -359,7 +363,7 @@ class IssueServiceTest {
         val foreignLabel = Label(name = "foreign", color = "#000000", project = otherProject)
         val labelRepository = mockk<LabelRepository>()
         val serviceWithLabels = IssueService(
-            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)

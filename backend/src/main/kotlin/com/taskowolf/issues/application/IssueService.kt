@@ -14,6 +14,9 @@ import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
+import com.taskowolf.versions.domain.IssueVersion
+import com.taskowolf.versions.infrastructure.IssueVersionRepository
+import com.taskowolf.versions.infrastructure.VersionRepository
 import com.taskowolf.sprints.infrastructure.SprintRepository
 import com.taskowolf.workflows.application.WorkflowService
 import com.taskowolf.workflows.domain.StatusCategory
@@ -30,7 +33,9 @@ class IssueService(
     private val userRepository: UserRepository,
     private val eventPublisher: DomainEventPublisher,
     private val sprintRepository: SprintRepository,
-    private val labelRepository: LabelRepository
+    private val labelRepository: LabelRepository,
+    private val versionRepository: com.taskowolf.versions.infrastructure.VersionRepository,
+    private val issueVersionRepository: com.taskowolf.versions.infrastructure.IssueVersionRepository
 ) {
     @Transactional
     fun create(projectKey: String, request: CreateIssueRequest, reporter: User): Issue {
@@ -189,6 +194,38 @@ class IssueService(
             }
         }
 
+        request.fixVersionIds?.let { ids ->
+            val oldVersions = versionRepository.findByIssueIdAndType(issue.id, "FIX")
+            val oldNames = oldVersions.map { it.name }.sorted().joinToString(", ")
+            val newVersions = if (ids.isEmpty()) emptyList()
+                              else versionRepository.findAllById(ids).filter { it.project.id == project.id }
+            val newNames = newVersions.map { it.name }.sorted().joinToString(", ")
+            if (oldNames != newNames) {
+                issueVersionRepository.deleteByIssueIdAndType(issue.id, "FIX")
+                issueVersionRepository.saveAll(newVersions.map { IssueVersion(issue.id, it.id, "FIX") })
+                eventPublisher.publish(
+                    IssueFieldChangedEvent(issue, currentUser, "fixVersions",
+                        oldNames.ifEmpty { null }, newNames.ifEmpty { null })
+                )
+            }
+        }
+
+        request.affectsVersionIds?.let { ids ->
+            val oldVersions = versionRepository.findByIssueIdAndType(issue.id, "AFFECTS")
+            val oldNames = oldVersions.map { it.name }.sorted().joinToString(", ")
+            val newVersions = if (ids.isEmpty()) emptyList()
+                              else versionRepository.findAllById(ids).filter { it.project.id == project.id }
+            val newNames = newVersions.map { it.name }.sorted().joinToString(", ")
+            if (oldNames != newNames) {
+                issueVersionRepository.deleteByIssueIdAndType(issue.id, "AFFECTS")
+                issueVersionRepository.saveAll(newVersions.map { IssueVersion(issue.id, it.id, "AFFECTS") })
+                eventPublisher.publish(
+                    IssueFieldChangedEvent(issue, currentUser, "affectsVersions",
+                        oldNames.ifEmpty { null }, newNames.ifEmpty { null })
+                )
+            }
+        }
+
         return issueRepository.save(issue)
     }
 
@@ -205,13 +242,21 @@ class IssueService(
         assigneeMe: Boolean = false,
         sort: String? = null,
         overdue: Boolean = false,
-        labelId: UUID? = null
+        labelId: UUID? = null,
+        fixVersionId: UUID? = null,
+        affectsVersionId: UUID? = null
     ): org.springframework.data.domain.Page<Issue> {
         val project = projectService.requireMember(projectKey, userId)
         val pageable = when (sort) {
             "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
             else -> PageRequest.of(page, size)
         }
+        if (fixVersionId != null && affectsVersionId != null)
+            return issueRepository.findAllByProjectIdAndBothVersionIds(project.id, fixVersionId, affectsVersionId, pageable)
+        if (fixVersionId != null)
+            return issueRepository.findAllByProjectIdAndFixVersionId(project.id, fixVersionId, pageable)
+        if (affectsVersionId != null)
+            return issueRepository.findAllByProjectIdAndAffectsVersionId(project.id, affectsVersionId, pageable)
         if (labelId != null) return issueRepository.findAllByProjectIdAndLabelId(project.id, labelId, pageable)
         return when {
             overdue && assigneeMe -> issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, userId, StatusCategory.DONE, pageable)

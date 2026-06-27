@@ -62,4 +62,38 @@ interface IssueRepository : JpaRepository<Issue, UUID> {
         labelId: UUID,
         pageable: Pageable
     ): Page<Issue>
+
+    @Query(
+        value = "SELECT i.* FROM issues i INNER JOIN issue_versions iv ON i.id = iv.issue_id WHERE i.project_id = :projectId AND iv.version_id = :versionId AND iv.type = 'FIX'",
+        countQuery = "SELECT count(*) FROM issues i INNER JOIN issue_versions iv ON i.id = iv.issue_id WHERE i.project_id = :projectId AND iv.version_id = :versionId AND iv.type = 'FIX'",
+        nativeQuery = true
+    )
+    fun findAllByProjectIdAndFixVersionId(
+        @Param("projectId") projectId: UUID,
+        @Param("versionId") versionId: UUID,
+        pageable: Pageable
+    ): Page<Issue>
+
+    @Query(
+        value = "SELECT i.* FROM issues i INNER JOIN issue_versions iv ON i.id = iv.issue_id WHERE i.project_id = :projectId AND iv.version_id = :versionId AND iv.type = 'AFFECTS'",
+        countQuery = "SELECT count(*) FROM issues i INNER JOIN issue_versions iv ON i.id = iv.issue_id WHERE i.project_id = :projectId AND iv.version_id = :versionId AND iv.type = 'AFFECTS'",
+        nativeQuery = true
+    )
+    fun findAllByProjectIdAndAffectsVersionId(
+        @Param("projectId") projectId: UUID,
+        @Param("versionId") versionId: UUID,
+        pageable: Pageable
+    ): Page<Issue>
+
+    @Query(
+        value = "SELECT i.* FROM issues i INNER JOIN issue_versions iv1 ON i.id = iv1.issue_id AND iv1.type = 'FIX' INNER JOIN issue_versions iv2 ON i.id = iv2.issue_id AND iv2.type = 'AFFECTS' WHERE i.project_id = :projectId AND iv1.version_id = :fixVersionId AND iv2.version_id = :affectsVersionId",
+        countQuery = "SELECT count(*) FROM issues i INNER JOIN issue_versions iv1 ON i.id = iv1.issue_id AND iv1.type = 'FIX' INNER JOIN issue_versions iv2 ON i.id = iv2.issue_id AND iv2.type = 'AFFECTS' WHERE i.project_id = :projectId AND iv1.version_id = :fixVersionId AND iv2.version_id = :affectsVersionId",
+        nativeQuery = true
+    )
+    fun findAllByProjectIdAndBothVersionIds(
+        @Param("projectId") projectId: UUID,
+        @Param("fixVersionId") fixVersionId: UUID,
+        @Param("affectsVersionId") affectsVersionId: UUID,
+        pageable: Pageable
+    ): Page<Issue>
 }

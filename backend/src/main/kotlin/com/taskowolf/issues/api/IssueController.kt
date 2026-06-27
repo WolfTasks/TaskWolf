@@ -9,6 +9,8 @@ import com.taskowolf.issues.api.dto.UpdateIssueRequest
 import com.taskowolf.issues.application.IssueService
 import com.taskowolf.labels.api.dto.LabelResponse
 import com.taskowolf.labels.infrastructure.LabelRepository
+import com.taskowolf.versions.api.dto.VersionResponse
+import com.taskowolf.versions.infrastructure.VersionRepository
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -20,7 +22,8 @@ import java.util.UUID
 class IssueController(
     private val issueService: IssueService,
     private val issueRefRepository: IssueRefRepository,
-    private val labelRepository: LabelRepository
+    private val labelRepository: LabelRepository,
+    private val versionRepository: com.taskowolf.versions.infrastructure.VersionRepository
 ) {
 
     @GetMapping
@@ -32,8 +35,10 @@ class IssueController(
         @RequestParam(defaultValue = "false") assigneeMe: Boolean,
         @RequestParam(required = false) sort: String?,
         @RequestParam(defaultValue = "false") overdue: Boolean,
-        @RequestParam(required = false) labelId: UUID?
-    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue, labelId)
+        @RequestParam(required = false) labelId: UUID?,
+        @RequestParam(required = false) fixVersionId: UUID?,
+        @RequestParam(required = false) affectsVersionId: UUID?
+    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue, labelId, fixVersionId, affectsVersionId)
             .map { IssueResponse.from(it) }
 
     @PostMapping
@@ -53,7 +58,9 @@ class IssueController(
         val issue = issueService.findByKey(key, issueKey, user.id)
         val refs = issueRefRepository.findByIssueIdOrderByCreatedAtAsc(issue.id).map { IssueRefResponse.from(it) }
         val labels = labelRepository.findByIssueId(issue.id).map { LabelResponse.from(it) }
-        return IssueResponse.from(issue, refs, labels)
+        val fixVersions = versionRepository.findByIssueIdAndType(issue.id, "FIX").map { VersionResponse.from(it) }
+        val affectsVersions = versionRepository.findByIssueIdAndType(issue.id, "AFFECTS").map { VersionResponse.from(it) }
+        return IssueResponse.from(issue, refs, labels, fixVersions, affectsVersions)
     }
 
     @PatchMapping("/{id}")
