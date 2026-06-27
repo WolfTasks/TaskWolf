@@ -1,4 +1,4 @@
-﻿# Module: reports
+# Module: reports
 
 ## Purpose
 
@@ -58,6 +58,8 @@ Index: `idx_dashboard_widget_dashboard` on `(dashboard_id)`.
 | `GET` | `/api/v1/projects/{key}/reports/burndown` | USER | Burndown chart for a sprint; requires `?sprintId=<uuid>`; returns `BurndownResponse` with per-day ideal/remaining points |
 | `GET` | `/api/v1/projects/{key}/reports/velocity` | USER | Velocity for all CLOSED sprints; returns `VelocityResponse` with planned vs. completed points per sprint |
 | `GET` | `/api/v1/projects/{key}/reports/cycle-time` | USER | Cycle time per issue for a sprint (`?sprintId=<uuid>`); omit `sprintId` to get aggregate averages across all closed sprints |
+
+All three report paths (`/burndown`, `/velocity`, `/cycle-time`) are GET only — the reports module exposes no write endpoints.
 
 ### Dashboard (`/api/v1/projects/{key}/dashboard`)
 

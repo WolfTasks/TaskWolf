@@ -1,4 +1,4 @@
-﻿# Module: integrations
+# Module: integrations
 
 ## Purpose
 
@@ -151,7 +151,7 @@ Dispatch saves a `WebhookDelivery` record synchronously, then calls `sendAsync(d
 
 ## Extension Points
 
-- **Add a new outgoing webhook event type:** (1) Add a constant to `WebhookEventType`. (2) Add an `@EventListener` method in `WebhookDispatcher` for the new domain event. (3) Build the data payload map and call `dispatch(eventType, projectId, data)`.
+- **Add a new outgoing webhook event type:** (1) Add a constant to `WebhookEventType`. (2) Add an `@EventListener` method in `WebhookDispatcher` for the new domain event. (3) Build the data payload map and call `dispatch(eventType, projectId, data)`. Note: the `IssueDeleted` event type exists in the enum but has no dispatcher listener — it is a ready-made extension hook.
 - **Add a new incoming provider (e.g. Bitbucket):** (1) Add the provider to `IntegrationProvider`. (2) Add a `@RestController` at `/api/v1/integrations/bitbucket/{projectKey}/webhook`. (3) Add the path to the `permitAll()` list in `SecurityConfig`. (4) Verify the provider's signature scheme (Bitbucket uses `X-Hub-Signature` with SHA-256; reuse `HmacSigner.verify()`). (5) Add a `handleBitbucket()` method in `IncomingWebhookService` following the `handleGitHub` pattern.
 - **`IssueKeyParser`** parses issue keys from commit/PR text using a regex. Extend it if your project key format differs from the default `[A-Z]+-\d+` pattern.
 
@@ -165,6 +165,7 @@ Dispatch saves a `WebhookDelivery` record synchronously, then calls `sendAsync(d
 - **`SsrfValidator` accepts unresolvable DNS names** — if `InetAddress.getAllByName(host)` throws (DNS failure), `SsrfValidator.validate()` returns without error. Only resolved private IPs are blocked (`isLoopbackAddress`, `isSiteLocalAddress`, `isLinkLocalAddress`, `isAnyLocalAddress`, `isMulticastAddress`). A webhook URL with an unresolvable hostname passes validation and fails only at delivery time.
 - **GitLab uses token equality, not HMAC** — `IncomingWebhookService.handleGitLab()` compares `integration.webhookSecret == tokenHeader` directly (no `HmacSigner`). If the `X-Gitlab-Token` header is absent, the comparison is against an empty string.
 - **`IssueRef` duplicate upsert is silent** — `linkKeys()` catches exceptions from duplicate UNIQUE constraint violations and logs at DEBUG. A duplicate commit/PR reference silently does nothing.
+- **Use `MessageDigest.isEqual()` for HMAC signature comparison** — `String.equals()` / `==` short-circuits on the first byte mismatch and is vulnerable to timing attacks.
 
 ---
 
@@ -191,9 +192,10 @@ fun sign(payload: String, secret: String): String {
         .joinToString("") { "%02x".format(it) }
     return "sha256=$hex"
 }
-
-fun verify(payload: String, secret: String, signature: String): Boolean =
-    sign(payload, secret) == signature
+fun verify(payload: String, secret: String, signature: String): Boolean {
+    val expected = sign(payload, secret)
+    return MessageDigest.isEqual(expected.toByteArray(), signature.toByteArray())
+}
 ```
 
 `sign()` produces `sha256=<64 hex chars>`. GitHub sends this value in `X-Hub-Signature-256`. The secret passed to `sign()` must be the raw plaintext value from `project_integrations.webhook_secret`.
