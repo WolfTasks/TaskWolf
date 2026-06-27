@@ -4,6 +4,7 @@ import { useMe } from '@/hooks/useAuth'
 import { useSprints } from '@/hooks/useSprints'
 import { useProjectMembers } from '@/hooks/useProjectMembers'
 import { useLabels } from '@/hooks/useLabels'
+import { useVersions } from '@/hooks/useVersions'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 import { InlineEditTitle } from '@/components/issue/InlineEditTitle'
 import { PrioritySelector } from '@/components/issue/PrioritySelector'
@@ -12,6 +13,7 @@ import { AssigneeSelector } from '@/components/issue/AssigneeSelector'
 import { SprintSelector } from '@/components/issue/SprintSelector'
 import { DueDatePicker } from '@/components/issue/DueDatePicker'
 import { LabelSelector } from '@/components/issue/LabelSelector'
+import { VersionSelector } from '@/components/issue/VersionSelector'
 import { RichTextEditor } from '@/components/issue/RichTextEditor'
 import { CommentThread } from '@/components/comments/CommentThread'
 import { ActivityFeed } from '@/components/comments/ActivityFeed'
@@ -35,6 +37,7 @@ export function IssueDetailPage() {
   const { data: members = [] } = useProjectMembers(key!)
   const { data: sprints = [] } = useSprints(key!)
   const { data: allLabels = [] } = useLabels(key!)
+  const { data: allVersions = [] } = useVersions(key!)
 
   if (isLoading) return <div className="text-gray-400">Loading...</div>
   if (!issue) return <div className="text-red-400">Issue not found</div>
@@ -153,6 +156,24 @@ export function IssueDetailPage() {
                 allLabels={allLabels}
                 onSave={labelIds => patch({ labelIds })}
                 onChipClick={l => navigate(`/p/${key}/issues?labelId=${l.id}`)}
+              />
+            </SidebarField>
+
+            <SidebarField label="Fix Versions">
+              <VersionSelector
+                value={issue.fixVersions ?? []}
+                allVersions={allVersions}
+                onSave={fixVersionIds => patch({ fixVersionIds })}
+                onChipClick={v => navigate(`/p/${key}/issues?fixVersionId=${v.id}`)}
+              />
+            </SidebarField>
+
+            <SidebarField label="Affects Versions">
+              <VersionSelector
+                value={issue.affectsVersions ?? []}
+                allVersions={allVersions}
+                onSave={affectsVersionIds => patch({ affectsVersionIds })}
+                onChipClick={v => navigate(`/p/${key}/issues?affectsVersionId=${v.id}`)}
               />
             </SidebarField>
 
