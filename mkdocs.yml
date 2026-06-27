@@ -44,6 +44,31 @@ nav:
       - Service Desk: admin-guide/service-desk.md
       - Audit Logs: admin-guide/audit-logs.md
   - API Reference: api.md
+  - Developer Guide:
+      - Overview: developer-guide/index.md
+      - Conventions: developer-guide/conventions.md
+      - Backend:
+          - core: developer-guide/backend/core.md
+          - auth: developer-guide/backend/auth.md
+          - projects: developer-guide/backend/projects.md
+          - issues: developer-guide/backend/issues.md
+          - workflows: developer-guide/backend/workflows.md
+          - sprints: developer-guide/backend/sprints.md
+          - boards: developer-guide/backend/boards.md
+          - comments: developer-guide/backend/comments.md
+          - notifications: developer-guide/backend/notifications.md
+          - attachments: developer-guide/backend/attachments.md
+          - automation: developer-guide/backend/automation.md
+          - reports: developer-guide/backend/reports.md
+          - integrations: developer-guide/backend/integrations.md
+          - audit: developer-guide/backend/audit.md
+          - organizations: developer-guide/backend/organizations.md
+          - servicedesk: developer-guide/backend/servicedesk.md
+      - Frontend:
+          - Overview: developer-guide/frontend/overview.md
+          - Components: developer-guide/frontend/components.md
+          - Hooks: developer-guide/frontend/hooks.md
+          - Pages: developer-guide/frontend/pages.md
   - Development: development.md
 
 plugins:
