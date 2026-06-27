@@ -15,6 +15,8 @@ import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.labels.domain.Label
 import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
+import com.taskowolf.versions.domain.IssueVersion
+import com.taskowolf.versions.domain.Version
 import com.taskowolf.versions.infrastructure.IssueVersionRepository
 import com.taskowolf.versions.infrastructure.VersionRepository
 import com.taskowolf.projects.domain.Project
@@ -377,5 +379,55 @@ class IssueServiceTest {
         )
 
         assert(updated.labels.isEmpty()) { "Foreign label should not be assigned" }
+    }
+
+    @Test
+    fun `update sets fix versions when fixVersionIds is a non-empty list`() {
+        val version = Version(name = "v1.0", project = project)
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { versionRepository.findByIssueIdAndType(issue.id, "FIX") } returns emptyList()
+        every { versionRepository.findAllById(listOf(version.id)) } returns listOf(version)
+        every { issueVersionRepository.deleteByIssueIdAndType(issue.id, "FIX") } just Runs
+        every { issueVersionRepository.saveAll(any<List<IssueVersion>>()) } returnsArgument 0
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        service.update("WOLF", issue.id, UpdateIssueRequest(fixVersionIds = listOf(version.id)), owner)
+
+        verify { issueVersionRepository.deleteByIssueIdAndType(issue.id, "FIX") }
+        verify { issueVersionRepository.saveAll(match<List<IssueVersion>> { it.any { v -> v.versionId == version.id && v.type == "FIX" } }) }
+    }
+
+    @Test
+    fun `update clears fix versions when fixVersionIds is empty list`() {
+        val version = Version(name = "v1.0", project = project)
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { versionRepository.findByIssueIdAndType(issue.id, "FIX") } returns listOf(version)
+        every { issueVersionRepository.deleteByIssueIdAndType(issue.id, "FIX") } just Runs
+        every { issueVersionRepository.saveAll(any<List<IssueVersion>>()) } returnsArgument 0
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        service.update("WOLF", issue.id, UpdateIssueRequest(fixVersionIds = emptyList()), owner)
+
+        verify { issueVersionRepository.deleteByIssueIdAndType(issue.id, "FIX") }
+        verify { issueVersionRepository.saveAll(emptyList<IssueVersion>()) }
+    }
+
+    @Test
+    fun `update sets affects versions when affectsVersionIds is a non-empty list`() {
+        val version = Version(name = "v0.9", project = project)
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { versionRepository.findByIssueIdAndType(issue.id, "AFFECTS") } returns emptyList()
+        every { versionRepository.findAllById(listOf(version.id)) } returns listOf(version)
+        every { issueVersionRepository.deleteByIssueIdAndType(issue.id, "AFFECTS") } just Runs
+        every { issueVersionRepository.saveAll(any<List<IssueVersion>>()) } returnsArgument 0
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        service.update("WOLF", issue.id, UpdateIssueRequest(affectsVersionIds = listOf(version.id)), owner)
+
+        verify { issueVersionRepository.deleteByIssueIdAndType(issue.id, "AFFECTS") }
+        verify { issueVersionRepository.saveAll(match<List<IssueVersion>> { it.any { v -> v.versionId == version.id && v.type == "AFFECTS" } }) }
     }
 }

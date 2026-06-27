@@ -25,6 +25,13 @@ export function IssueListPage() {
     }
   }, [labelId, labels, setSearchParams])
 
+  // Backend prioritises version filters over labelId — auto-clear label when a version filter is active
+  useEffect(() => {
+    if (labelId && (fixVersionId || affectsVersionId)) {
+      setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('labelId'); return n })
+    }
+  }, [labelId, fixVersionId, affectsVersionId, setSearchParams])
+
   useEffect(() => {
     if (fixVersionId && versions.length > 0 && !versions.some(v => v.id === fixVersionId)) {
       setSearchParams(prev => { const n = new URLSearchParams(prev); n.delete('fixVersionId'); return n })
