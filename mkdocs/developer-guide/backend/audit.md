@@ -126,26 +126,20 @@ None. The audit module does not publish domain events.
 Calling `AuditService.log()` with a serialized `details` payload, as done in `SlaMonitorJob` when an SLA is breached:
 
 ```kotlin
-@Service
-class SlaMonitorJob(
-    private val auditService: AuditService,
-    private val objectMapper: ObjectMapper
-) {
-    fun recordBreach(issue: Issue, policy: SlaPolicy) {
-        // ... breach-detection logic ...
-        val details = objectMapper.writeValueAsString(
-            mapOf("resolutionMinutes" to policy.resolutionMinutes)
-        )
-        auditService.log(
-            level = AuditLevel.WRITE,
-            action = AuditAction.SLA_BREACHED,
-            userEmail = "system",
-            projectId = issue.project.id,
-            resourceType = "ISSUE",
-            resourceId = issue.id.toString(),
-            details = details
-        )
-    }
+fun recordBreach(issue: Issue, policy: SlaPolicy) {
+    // breach-detection logic (elapsed check) runs before this call
+    val details = objectMapper.writeValueAsString(
+        mapOf("resolutionMinutes" to policy.resolutionMinutes)
+    )
+    auditService.log(
+        level = AuditLevel.WRITE,
+        action = AuditAction.SLA_BREACHED,
+        userEmail = "system",
+        projectId = issue.project.id,
+        resourceType = "ISSUE",
+        resourceId = issue.id.toString(),
+        details = details
+    )
 }
 ```
 
