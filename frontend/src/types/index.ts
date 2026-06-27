@@ -21,6 +21,11 @@ export interface Label {
   color: string
 }
 
+export interface Version {
+  id: string
+  name: string
+}
+
 export interface WorkflowStatus {
   id: string
   name: string
@@ -63,6 +68,8 @@ export interface Issue {
   updatedAt: string
   refs?: IssueRefResponse[]
   labels?: Label[]
+  fixVersions?: Version[]
+  affectsVersions?: Version[]
 }
 
 export interface AuthResponse {
