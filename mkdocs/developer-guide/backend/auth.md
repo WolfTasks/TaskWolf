@@ -207,8 +207,10 @@ val plaintext = "tw_" + secureToken()          // 24 random bytes, base64url
 val hash = sha256(plaintext)                    // SHA-256 hex string
 val prefix = plaintext.take(12)                 // stored for display only
 apiKeyRepository.save(
-    ApiKey(name = name, keyHash = hash, keyPrefix = prefix, ...)
+    ApiKey(name = name, keyHash = hash, keyPrefix = prefix,
+           createdBy = user.id, expiresAt = expiresAt)
 )
+// projectId and lastUsedAt use their nullable defaults
 return CreateApiKeyResponse(key.id, key.name, key.keyPrefix, plaintext)
 ```
 

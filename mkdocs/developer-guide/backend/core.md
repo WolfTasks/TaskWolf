@@ -100,11 +100,7 @@ throw ResponseStatusException(HttpStatus.NOT_FOUND, "Widget not found")
 throw NotFoundException("Widget not found: $id")
 ```
 
-The `GlobalExceptionHandler` handles `NotFoundException` and returns:
-
-```json
-{ "code": "NOT_FOUND", "message": "Widget not found: abc123", "details": {} }
-```
+The `GlobalExceptionHandler` handles `NotFoundException` and returns `ErrorResponse(code = "NOT_FOUND", message = "Widget not found: abc123", details = emptyMap())`.
 
 ---
 
