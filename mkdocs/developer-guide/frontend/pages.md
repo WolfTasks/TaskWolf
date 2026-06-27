@@ -9,7 +9,7 @@ frontend/src/pages/
   auth/                       # LoginPage, RegisterPage
   dashboard/                  # DashboardPage (global)
   projects/                   # ProjectListPage, ProjectCreatePage
-  projects/settings/          # ProjectAuditPage
+  projects/settings/          # ProjectAuditPage, LabelsPage
   projects/servicedesk/       # ServiceDeskPage, IncidentDashboardPage
   issues/                     # IssueListPage, IssueDetailPage
   board/                      # BoardPage
@@ -46,7 +46,7 @@ frontend/src/pages/
 | Admin section | Audit Log (`/admin/audit`), Automation (`/admin/automation`); always visible |
 | Project section | Visible only when the URL matches `/p/:key/*`; detected via `useMatch('/p/:key/*')` |
 | Project nav links | Dashboard, Board, Backlog, Issues, Reports, Automation; conditionally adds Service Desk and Incidents when `serviceDeskConfig.enabled` is true |
-| Project settings | API Keys, Webhooks, Integrations, Audit Log — shown as a sub-section inside the project section |
+| Project settings | API Keys, Webhooks, Integrations, Audit Log, Labels (/p/:key/settings/labels) — shown as a sub-section inside the project section |
 | Footer | `OrgSwitcher`, `NotificationBell`, Logout button |
 | Main content (`<main>`) | `<Outlet />` renders the matched child route; `flex-1 overflow-auto p-8` |
 

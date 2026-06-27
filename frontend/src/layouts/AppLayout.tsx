@@ -85,6 +85,9 @@ export function AppLayout() {
                   <NavLink to={`/p/${projectKey}/settings/audit`} className={subNavLinkClass}>
                     Audit Log
                   </NavLink>
+                  <NavLink to={`/p/${projectKey}/settings/labels`} className={subNavLinkClass}>
+                    Labels
+                  </NavLink>
                 </div>
               </div>
             </div>

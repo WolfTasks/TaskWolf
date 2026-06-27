@@ -17,5 +17,6 @@ data class UpdateIssueRequest(
     val dueDate: LocalDate? = null,
     val clearDueDate: Boolean = false,
     val sprintId: UUID? = null,
-    val clearSprint: Boolean = false
+    val clearSprint: Boolean = false,
+    val labelIds: List<UUID>? = null
 )

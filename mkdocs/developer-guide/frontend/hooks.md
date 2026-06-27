@@ -54,6 +54,7 @@ Query keys are always arrays. Project-scoped keys always include `projectKey` as
 | `['projects']` | `useProjects` |
 | `['projects', key]` | `useProject` |
 | `['members', projectKey]` | `useProjectMembers` |
+| `['labels', projectKey]` | `useLabels`, `useCreateLabel`, `useUpdateLabel`, `useDeleteLabel` |
 | `['issues', projectKey]` | `useIssues` |
 | `['issues', projectKey, issueKey]` | `useIssue` |
 | `['board', projectKey]` | `useBoard` |

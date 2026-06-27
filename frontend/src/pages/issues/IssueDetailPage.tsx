@@ -1,8 +1,9 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useIssue, useUpdateIssue } from '@/hooks/useIssues'
 import { useMe } from '@/hooks/useAuth'
 import { useSprints } from '@/hooks/useSprints'
 import { useProjectMembers } from '@/hooks/useProjectMembers'
+import { useLabels } from '@/hooks/useLabels'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 import { InlineEditTitle } from '@/components/issue/InlineEditTitle'
 import { PrioritySelector } from '@/components/issue/PrioritySelector'
@@ -10,6 +11,7 @@ import { TypeSelector } from '@/components/issue/TypeSelector'
 import { AssigneeSelector } from '@/components/issue/AssigneeSelector'
 import { SprintSelector } from '@/components/issue/SprintSelector'
 import { DueDatePicker } from '@/components/issue/DueDatePicker'
+import { LabelSelector } from '@/components/issue/LabelSelector'
 import { RichTextEditor } from '@/components/issue/RichTextEditor'
 import { CommentThread } from '@/components/comments/CommentThread'
 import { ActivityFeed } from '@/components/comments/ActivityFeed'
@@ -26,11 +28,13 @@ function SidebarField({ label, children }: { label: string; children: React.Reac
 
 export function IssueDetailPage() {
   const { key, issueKey } = useParams<{ key: string; issueKey: string }>()
+  const navigate = useNavigate()
   const { data: issue, isLoading } = useIssue(key!, issueKey!)
   const { data: me } = useMe()
   const updateIssue = useUpdateIssue(key!)
   const { data: members = [] } = useProjectMembers(key!)
   const { data: sprints = [] } = useSprints(key!)
+  const { data: allLabels = [] } = useLabels(key!)
 
   if (isLoading) return <div className="text-gray-400">Loading...</div>
   if (!issue) return <div className="text-red-400">Issue not found</div>
@@ -139,6 +143,16 @@ export function IssueDetailPage() {
                 onSave={date =>
                   date ? patch({ dueDate: date }) : patch({ clearDueDate: true })
                 }
+              />
+            </SidebarField>
+
+            <SidebarField label="Labels">
+              <LabelSelector
+                projectKey={key!}
+                value={issue.labels ?? []}
+                allLabels={allLabels}
+                onSave={labelIds => patch({ labelIds })}
+                onChipClick={l => navigate(`/p/${key}/issues?labelId=${l.id}`)}
               />
             </SidebarField>
 

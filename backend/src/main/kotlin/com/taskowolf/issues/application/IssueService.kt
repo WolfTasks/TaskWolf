@@ -12,6 +12,7 @@ import com.taskowolf.issues.domain.events.IssueCreatedEvent
 import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
+import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.sprints.infrastructure.SprintRepository
 import com.taskowolf.workflows.application.WorkflowService
@@ -28,7 +29,8 @@ class IssueService(
     private val workflowService: WorkflowService,
     private val userRepository: UserRepository,
     private val eventPublisher: DomainEventPublisher,
-    private val sprintRepository: SprintRepository
+    private val sprintRepository: SprintRepository,
+    private val labelRepository: LabelRepository
 ) {
     @Transactional
     fun create(projectKey: String, request: CreateIssueRequest, reporter: User): Issue {
@@ -170,6 +172,23 @@ class IssueService(
             }
         }
 
+        request.labelIds?.let { ids ->
+            val newLabels = if (ids.isEmpty()) mutableSetOf()
+                            else labelRepository.findAllById(ids)
+                                .filter { it.project.id == project.id }
+                                .toMutableSet()
+            val oldNames = issue.labels.map { it.name }.sorted().joinToString(", ")
+            val newNames = newLabels.map { it.name }.sorted().joinToString(", ")
+            if (oldNames != newNames) {
+                issue.labels.clear()
+                issue.labels.addAll(newLabels)
+                eventPublisher.publish(
+                    IssueFieldChangedEvent(issue, currentUser, "labels",
+                        oldNames.ifEmpty { null }, newNames.ifEmpty { null })
+                )
+            }
+        }
+
         return issueRepository.save(issue)
     }
 
@@ -185,13 +204,15 @@ class IssueService(
         size: Int,
         assigneeMe: Boolean = false,
         sort: String? = null,
-        overdue: Boolean = false
+        overdue: Boolean = false,
+        labelId: UUID? = null
     ): org.springframework.data.domain.Page<Issue> {
         val project = projectService.requireMember(projectKey, userId)
         val pageable = when (sort) {
             "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
             else -> PageRequest.of(page, size)
         }
+        if (labelId != null) return issueRepository.findAllByProjectIdAndLabelId(project.id, labelId, pageable)
         return when {
             overdue && assigneeMe -> issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, userId, StatusCategory.DONE, pageable)
             overdue -> issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, pageable)

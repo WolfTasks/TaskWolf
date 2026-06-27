@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { issuesApi } from '@/api/issues'
 
-export function useIssues(projectKey: string) {
+export function useIssues(projectKey: string, labelId?: string) {
   return useQuery({
-    queryKey: ['issues', projectKey],
-    queryFn: () => issuesApi.list(projectKey).then(r => r.data)
+    queryKey: ['issues', projectKey, { labelId }],
+    queryFn: () => issuesApi.list(projectKey, 0, 50, labelId).then(r => r.data)
   })
 }
 

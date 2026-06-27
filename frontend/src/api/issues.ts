@@ -2,8 +2,10 @@ import { apiClient } from './client'
 import type { Issue, Page } from '@/types'
 
 export const issuesApi = {
-  list: (projectKey: string, page = 0, size = 50) =>
-    apiClient.get<Page<Issue>>(`/projects/${projectKey}/issues`, { params: { page, size } }),
+  list: (projectKey: string, page = 0, size = 50, labelId?: string) =>
+    apiClient.get<Page<Issue>>(`/projects/${projectKey}/issues`, {
+      params: { page, size, ...(labelId ? { labelId } : {}) }
+    }),
   get: (projectKey: string, issueKey: string) =>
     apiClient.get<Issue>(`/projects/${projectKey}/issues/${issueKey}`),
   create: (projectKey: string, data: { title: string; type?: string; priority?: string; description?: string }) =>

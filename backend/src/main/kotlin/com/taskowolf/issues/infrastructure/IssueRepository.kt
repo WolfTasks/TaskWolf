@@ -55,4 +55,11 @@ interface IssueRepository : JpaRepository<Issue, UUID> {
         @Param("done") done: StatusCategory,
         pageable: Pageable
     ): Page<Issue>
+
+    @Query("SELECT i FROM Issue i JOIN i.labels l WHERE i.project.id = :projectId AND l.id = :labelId")
+    fun findAllByProjectIdAndLabelId(
+        projectId: UUID,
+        labelId: UUID,
+        pageable: Pageable
+    ): Page<Issue>
 }
