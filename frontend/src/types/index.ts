@@ -15,6 +15,12 @@ export interface Project {
   archived: boolean
 }
 
+export interface Label {
+  id: string
+  name: string
+  color: string
+}
+
 export interface WorkflowStatus {
   id: string
   name: string
@@ -56,6 +62,7 @@ export interface Issue {
   createdAt: string
   updatedAt: string
   refs?: IssueRefResponse[]
+  labels?: Label[]
 }
 
 export interface AuthResponse {
