@@ -121,57 +121,24 @@ For a global link, add a `<NavLink>` to the top-level `<nav>` block using `navLi
 
 ## Example
 
-`frontend/src/pages/board/BoardPage.tsx` — a representative page that composes hooks, a WebSocket side-effect, drag-and-drop, and child components:
+`frontend/src/pages/notifications/NotificationsPage.tsx` — a minimal page showing the standard hook-call + loading guard + render pattern:
 
 ```typescript
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { useBoard, useMoveIssue } from '@/hooks/useBoard'
-import { useCompleteSprint } from '@/hooks/useSprints'
-import { useProjectSocket } from '@/hooks/useProjectSocket'
-import { BoardColumn } from '@/components/board/BoardColumn'
-import { SprintHeader } from '@/components/sprint/SprintHeader'
-import { CompleteSprintDialog } from '@/components/sprint/CompleteSprintDialog'
-
-export function BoardPage() {
-  const { key } = useParams<{ key: string }>()
-  useProjectSocket(key!)
-  const { data: board, isLoading } = useBoard(key!)
-  const moveIssue = useMoveIssue(key!)
-  const completeSprint = useCompleteSprint(key!)
-  const [showComplete, setShowComplete] = useState(false)
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over) return
-    const issueId = active.id as string
-    const newStatusId = over.id as string
-    const currentStatusId = board?.columns.find(c => c.issues.some(i => i.id === issueId))?.status.id
-    if (currentStatusId !== newStatusId) moveIssue.mutate({ issueId, newStatusId })
-  }
-
-  if (isLoading) return <div className="text-gray-400">Loading...</div>
-  if (!board) return <p className="text-gray-400">No active sprint.</p>
-
+// frontend/src/pages/notifications/NotificationsPage.tsx
+import { useNotifications, useMarkRead } from '@/hooks/useNotifications'
+export function NotificationsPage() {
+  const { data, isLoading } = useNotifications()
+  const markRead = useMarkRead()
+  const notifications = data?.content ?? []
+  if (isLoading) return <div className="text-gray-500">Loading...</div>
   return (
-    <div>
-      <SprintHeader sprint={board.sprint} onComplete={() => setShowComplete(true)} />
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {board.columns.map(col => <BoardColumn key={col.status.id} column={col} />)}
+    <div className="max-w-2xl">
+      <h1 className="text-2xl font-bold text-white mb-6">Notifications</h1>
+      {notifications.map(n => (
+        <div key={n.id} onClick={() => !n.read && markRead.mutate(n.id)}>
+          <p className="text-sm font-medium">{n.title}</p>
         </div>
-      </DndContext>
-      {showComplete && (
-        <CompleteSprintDialog
-          sprintName={board.sprint.name}
-          openIssueCount={0}
-          loading={completeSprint.isPending}
-          onCancel={() => setShowComplete(false)}
-          onConfirm={() => completeSprint.mutate(board.sprint.id, { onSuccess: () => setShowComplete(false) })}
-        />
-      )}
+      ))}
     </div>
   )
 }

@@ -157,7 +157,7 @@ To add a hook for a new resource:
 
 ## Example: Complete Query + Mutation Pair
 
-`frontend/src/hooks/useComments.ts` — a complete hook file showing a query, a mutation with multi-key invalidation, and edit/delete mutations:
+`frontend/src/hooks/useComments.ts` — a query hook and a mutation with multi-key invalidation:
 
 ```typescript
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -180,15 +180,6 @@ export function useAddComment(projectKey: string, issueKey: string) {
     },
   })
 }
-
-export function useDeleteComment(projectKey: string, issueKey: string) {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (commentId: string) => commentsApi.delete(projectKey, issueKey, commentId),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['comments', projectKey, issueKey] })
-      qc.invalidateQueries({ queryKey: ['activity', projectKey, issueKey] })
-    },
-  })
-}
 ```
+
+The file also exports `useDeleteComment` and `useEditComment`, which follow the same mutation pattern with identical `onSuccess` invalidation of `['comments', ...]` and `['activity', ...]`.

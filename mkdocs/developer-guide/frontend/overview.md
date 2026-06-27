@@ -179,7 +179,7 @@ Add the interface or type alias to `frontend/src/types/index.ts` and import it a
 
 - **Never fetch data in components.** Call `useX` hooks from the page or container component; pass data as props to presentational children.
 - **Never use `useState` for server data.** Data returned by any API endpoint belongs in React Query (`useQuery`), not `useState`.
-- **Never read auth tokens from `localStorage` in components or hooks.** The `apiClient` interceptor handles token injection. Bypassing it defeats the automatic refresh logic.
+- **Never read auth tokens from `localStorage` in data-fetching components or hooks — the `apiClient` interceptor handles token injection automatically. The two sanctioned exceptions are `RequireAuth` (route guarding, documented in pages.md) and `useProjectSocket` (WebSocket auth, documented in hooks.md).**
 - **Never omit `projectKey` from project-scoped query keys.** Omitting it causes cross-project cache collisions when the user switches projects without a page reload.
 
 ---

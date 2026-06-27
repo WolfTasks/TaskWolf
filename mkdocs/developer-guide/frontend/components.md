@@ -36,7 +36,6 @@ frontend/src/components/
 ```typescript
 // frontend/src/components/issue/StatusBadge.tsx
 import { cn } from '@/lib/utils'
-
 const categoryColors = {
   TODO: 'bg-blue-900 text-blue-300',
   IN_PROGRESS: 'bg-yellow-900 text-yellow-300',
@@ -69,7 +68,6 @@ export function StatusBadge({ name, category }: Props) {
 // frontend/src/components/notifications/NotificationBell.tsx
 import { useNavigate } from 'react-router-dom'
 import { useUnreadCount } from '@/hooks/useNotifications'
-
 export function NotificationBell() {
   const navigate = useNavigate()
   const count = useUnreadCount().data ?? 0
@@ -134,27 +132,15 @@ interface Props {
 }
 
 export function SprintHeader({ sprint, onComplete }: Props) {
-  const pct = sprint.totalPoints && sprint.totalPoints > 0
+  const pct = sprint.totalPoints > 0
     ? Math.round((sprint.completedPoints / sprint.totalPoints) * 100)
     : 0
-
   return (
     <div className="mb-6">
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <h1 className="text-xl font-bold text-white">{sprint.name}</h1>
-          {sprint.goal && <p className="text-sm text-gray-400 mt-0.5">{sprint.goal}</p>}
-        </div>
-        <button onClick={onComplete}
-          className="text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded border border-gray-700">
-          Complete Sprint
-        </button>
-      </div>
-      {sprint.totalPoints != null && sprint.totalPoints > 0 && (
-        <div className="mt-2 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-          <div className="h-full bg-blue-500 transition-all" style={{ width: `${pct}%` }} />
-        </div>
-      )}
+      <h1 className="text-xl font-bold text-white">{sprint.name}</h1>
+      {sprint.goal && <p className="text-sm text-gray-400">{sprint.goal}</p>}
+      <button onClick={onComplete}>Complete Sprint</button>
+      {sprint.totalPoints > 0 && <div style={{ width: `${pct}%` }} />}
     </div>
   )
 }
