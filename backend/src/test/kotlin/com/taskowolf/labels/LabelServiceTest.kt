@@ -97,4 +97,16 @@ class LabelServiceTest {
             service.delete("WOLF", label.id, actor)
         }
     }
+
+    @Test
+    fun `update throws ConflictException when new name already exists`() {
+        val label = Label(name = "bug", color = "#000000", project = project)
+        every { projectService.requireMember("WOLF", actor.id) } returns project
+        every { labelRepository.findById(label.id) } returns Optional.of(label)
+        every { labelRepository.existsByProjectIdAndName(project.id, "feature") } returns true
+
+        assertThrows<ConflictException> {
+            service.update("WOLF", label.id, LabelRequest("feature", "#e11d48"), actor)
+        }
+    }
 }
