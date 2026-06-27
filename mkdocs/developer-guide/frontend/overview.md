@@ -50,7 +50,7 @@ Never duplicate server data in local React state. Use `useQuery` via a custom ho
 
 `accessToken` and `refreshToken` are stored in `localStorage`. The axios request interceptor in `frontend/src/api/client.ts` reads `localStorage.getItem('accessToken')` on every outbound request and injects `Authorization: Bearer <token>`. On a 401 response the interceptor attempts a token refresh; on failure it clears storage and redirects to `/login`.
 
-Do not read tokens from `localStorage` in components or hooks — the `apiClient` instance handles this transparently.
+Do not read tokens from `localStorage` in data-fetching components or hooks — the `apiClient` interceptor handles injection automatically. The two sanctioned exceptions are `RequireAuth` (route guarding) and `useProjectSocket` (WebSocket auth), both documented in their respective pages.
 
 **UI state — React `useState`**
 
