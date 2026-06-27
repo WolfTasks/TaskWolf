@@ -7,6 +7,8 @@ import com.taskowolf.issues.api.dto.CreateIssueRequest
 import com.taskowolf.issues.api.dto.IssueResponse
 import com.taskowolf.issues.api.dto.UpdateIssueRequest
 import com.taskowolf.issues.application.IssueService
+import com.taskowolf.labels.api.dto.LabelResponse
+import com.taskowolf.labels.infrastructure.LabelRepository
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -17,7 +19,8 @@ import java.util.UUID
 @RequestMapping("/api/v1/projects/{key}/issues")
 class IssueController(
     private val issueService: IssueService,
-    private val issueRefRepository: IssueRefRepository
+    private val issueRefRepository: IssueRefRepository,
+    private val labelRepository: LabelRepository
 ) {
 
     @GetMapping
@@ -28,8 +31,9 @@ class IssueController(
         @RequestParam(defaultValue = "50") size: Int,
         @RequestParam(defaultValue = "false") assigneeMe: Boolean,
         @RequestParam(required = false) sort: String?,
-        @RequestParam(defaultValue = "false") overdue: Boolean
-    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue)
+        @RequestParam(defaultValue = "false") overdue: Boolean,
+        @RequestParam(required = false) labelId: UUID?
+    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue, labelId)
             .map { IssueResponse.from(it) }
 
     @PostMapping
@@ -48,7 +52,8 @@ class IssueController(
     ): IssueResponse {
         val issue = issueService.findByKey(key, issueKey, user.id)
         val refs = issueRefRepository.findByIssueIdOrderByCreatedAtAsc(issue.id).map { IssueRefResponse.from(it) }
-        return IssueResponse.from(issue, refs)
+        val labels = labelRepository.findByIssueId(issue.id).map { LabelResponse.from(it) }
+        return IssueResponse.from(issue, refs, labels)
     }
 
     @PatchMapping("/{id}")

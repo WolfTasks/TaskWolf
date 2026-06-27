@@ -4,6 +4,7 @@ import com.taskowolf.integrations.api.dto.IssueRefResponse
 import com.taskowolf.issues.domain.Issue
 import com.taskowolf.issues.domain.IssuePriority
 import com.taskowolf.issues.domain.IssueType
+import com.taskowolf.labels.api.dto.LabelResponse
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -30,10 +31,15 @@ data class IssueResponse(
     val sprintName: String?,
     val createdAt: Instant,
     val updatedAt: Instant,
-    val refs: List<IssueRefResponse> = emptyList()
+    val refs: List<IssueRefResponse> = emptyList(),
+    val labels: List<LabelResponse> = emptyList()
 ) {
     companion object {
-        fun from(i: Issue, refs: List<IssueRefResponse> = emptyList()) = IssueResponse(
+        fun from(
+            i: Issue,
+            refs: List<IssueRefResponse> = emptyList(),
+            labels: List<LabelResponse> = emptyList()
+        ) = IssueResponse(
             id = i.id,
             key = i.key,
             title = i.title,
@@ -55,7 +61,8 @@ data class IssueResponse(
             sprintName = i.sprint?.name,
             createdAt = i.createdAt ?: Instant.now(),
             updatedAt = i.updatedAt,
-            refs = refs
+            refs = refs,
+            labels = labels
         )
     }
 }

@@ -31,7 +31,8 @@ class IssueServiceTest {
     private val userRepository = mockk<UserRepository>()
     private val eventPublisher = mockk<DomainEventPublisher>(relaxed = true)
     private val sprintRepository = mockk<com.taskowolf.sprints.infrastructure.SprintRepository>()
-    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository)
+    private val labelRepository = mockk<com.taskowolf.labels.infrastructure.LabelRepository>()
+    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository)
 
     private val owner = User(email = "owner@test.com", displayName = "Owner")
     private val workflow = mockk<Workflow>()
@@ -299,5 +300,53 @@ class IssueServiceTest {
             owner)
 
         assert(updated.sprint == null)
+    }
+
+    @Test
+    fun `update sets labels when labelIds provided`() {
+        val label = com.taskowolf.labels.domain.Label(
+            name = "bug", color = "#e11d48", project = project
+        )
+        val labelRepository = mockk<com.taskowolf.labels.infrastructure.LabelRepository>()
+        // Re-create service with labelRepository
+        val serviceWithLabels = com.taskowolf.issues.application.IssueService(
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
+        )
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { labelRepository.findAllById(listOf(label.id)) } returns listOf(label)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = serviceWithLabels.update(
+            "WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(labelIds = listOf(label.id)),
+            owner
+        )
+
+        assert(updated.labels.contains(label))
+    }
+
+    @Test
+    fun `update clears labels when labelIds is empty list`() {
+        val label = com.taskowolf.labels.domain.Label(
+            name = "bug", color = "#e11d48", project = project
+        )
+        issue.labels.add(label)
+        val labelRepository = mockk<com.taskowolf.labels.infrastructure.LabelRepository>()
+        val serviceWithLabels = com.taskowolf.issues.application.IssueService(
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository
+        )
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { labelRepository.findAllById(emptyList()) } returns emptyList()
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = serviceWithLabels.update(
+            "WOLF", issue.id,
+            com.taskowolf.issues.api.dto.UpdateIssueRequest(labelIds = emptyList()),
+            owner
+        )
+
+        assert(updated.labels.isEmpty())
     }
 }

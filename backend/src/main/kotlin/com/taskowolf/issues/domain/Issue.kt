@@ -2,6 +2,7 @@ package com.taskowolf.issues.domain
 
 import com.taskowolf.auth.domain.User
 import com.taskowolf.core.domain.AuditableEntity
+import com.taskowolf.labels.domain.Label
 import com.taskowolf.projects.domain.Project
 import com.taskowolf.sprints.domain.Sprint
 import com.taskowolf.workflows.domain.WorkflowStatus
@@ -61,4 +62,12 @@ class Issue(
     var dueDate: LocalDate? = null,
 
     var slaStartTime: Instant? = null
-) : AuditableEntity()
+) : AuditableEntity() {
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "issue_labels",
+        joinColumns = [JoinColumn(name = "issue_id")],
+        inverseJoinColumns = [JoinColumn(name = "label_id")]
+    )
+    var labels: MutableSet<Label> = mutableSetOf()
+}
