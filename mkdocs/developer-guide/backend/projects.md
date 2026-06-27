@@ -109,7 +109,7 @@ Project settings live directly on `Project.kt`; there is no separate settings en
 1. Add `@Column var newSetting: T` to `Project.kt`.
 2. Create a Flyway migration V23+ that adds the column to `projects`.
 3. Add the field to `CreateProjectRequest` or a new `UpdateProjectRequest` (note: `UpdateProjectRequest` does not yet exist and would need to be created).
-4. Handle the field in `ProjectService.create()` / `ProjectService.update()`.
+4. Handle the field in `ProjectService.create()`; if updating is required, create `ProjectService.update()` (does not yet exist — see Common Pitfalls).
 
 **To add a new project-level role:**
 
