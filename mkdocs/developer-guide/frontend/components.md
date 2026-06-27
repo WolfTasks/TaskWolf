@@ -7,7 +7,8 @@ Components live in `frontend/src/components/` organised by feature domain:
 ```
 frontend/src/components/
   issue/          # StatusBadge, AssigneeSelector, PrioritySelector, InlineEditTitle,
-  #               # RichTextEditor, DueDatePicker, TypeSelector, SprintSelector
+  #               # RichTextEditor, DueDatePicker, TypeSelector, SprintSelector,
+  #               # LabelChip, LabelSelector
   board/          # DraggableCard, BoardColumn
   sprint/         # SprintHeader, CompleteSprintDialog, CreateSprintForm
   comments/       # CommentThread, ActivityFeed

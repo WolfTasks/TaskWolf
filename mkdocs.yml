@@ -52,6 +52,7 @@ nav:
           - auth: developer-guide/backend/auth.md
           - projects: developer-guide/backend/projects.md
           - issues: developer-guide/backend/issues.md
+          - labels: developer-guide/backend/labels.md
           - workflows: developer-guide/backend/workflows.md
           - sprints: developer-guide/backend/sprints.md
           - boards: developer-guide/backend/boards.md

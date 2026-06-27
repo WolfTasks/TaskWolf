@@ -10,7 +10,7 @@ Manages the full lifecycle of issues (bugs, stories, tasks, epics, subtasks). Ow
 
 | Entity | Table | Key Fields |
 |---|---|---|
-| `Issue` | `issues` | `key` VARCHAR(20) UNIQUE (e.g. `TW-5`), `keyNumber` INT, `title` VARCHAR(500) NOT NULL, `description` TEXT, `type: IssueType`, `priority: IssuePriority`, `storyPoints: Int?`, `status` FK→workflow_statuses NOT NULL, `project` FK→projects NOT NULL, `assignee` FK→users nullable, `reporter` FK→users NOT NULL, `sprint` FK→sprints nullable, `parent` FK→issues nullable (self-referential), `dueDate: LocalDate?`, `slaStartTime: Instant?` |
+| `Issue` | `issues` | `key` VARCHAR(20) UNIQUE (e.g. `TW-5`), `keyNumber` INT, `title` VARCHAR(500) NOT NULL, `description` TEXT, `type: IssueType`, `priority: IssuePriority`, `storyPoints: Int?`, `status` FK→workflow_statuses NOT NULL, `project` FK→projects NOT NULL, `assignee` FK→users nullable, `reporter` FK→users NOT NULL, `sprint` FK→sprints nullable, `parent` FK→issues nullable (self-referential), `dueDate: LocalDate?`, `slaStartTime: Instant?`, `labels: MutableSet<Label>` (@ManyToMany LAZY, join table `issue_labels`, owned by Issue) |
 | `IssueLink` | `issue_links` | `fromIssue` FK→issues NOT NULL, `toIssue` FK→issues NOT NULL, `linkType: IssueLinkType` NOT NULL; UNIQUE (from_issue_id, to_issue_id, link_type) |
 
 `IssueType` enum values: `EPIC`, `STORY`, `BUG`, `TASK`, `SUBTASK`.
@@ -63,6 +63,10 @@ Indexes: `idx_issues_project` on `project_id`, `idx_issues_assignee` on `assigne
 Unique constraint: `(from_issue_id, to_issue_id, link_type)`.
 Indexes: `idx_issue_links_from` on `from_issue_id`, `idx_issue_links_to` on `to_issue_id`.
 
+### `labels` and `issue_labels` (V23)
+
+See the [labels module](labels.md) for the full schema. `issue_labels` is the join table declared via `@JoinTable` on `Issue.labels`.
+
 ---
 
 ## API Endpoints
@@ -71,10 +75,10 @@ Indexes: `idx_issue_links_from` on `from_issue_id`, `idx_issue_links_to` on `to_
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/api/v1/projects/{key}/issues` | USER | Lists issues paginated (`page`, `size`); optional `assigneeMe=true`, `sort=updatedAt`, `overdue=true`; `refs[]` is empty on list |
+| GET | `/api/v1/projects/{key}/issues` | USER | Lists issues paginated (`page`, `size`); optional `assigneeMe=true`, `sort=updatedAt`, `overdue=true`, `labelId=<UUID>` (single-label filter); `refs[]` is empty on list; `labels[]` is empty on list |
 | POST | `/api/v1/projects/{key}/issues` | USER | Creates an issue; key is auto-generated as `{PROJECT_KEY}-{nextNumber}`; publishes `IssueCreatedEvent` |
 | GET | `/api/v1/projects/{key}/issues/{issueKey}` | USER | Returns single issue by `issueKey` (e.g. `TW-5`); `refs[]` is populated from `IssueRefRepository` |
-| PATCH | `/api/v1/projects/{key}/issues/{id}` | USER | Partial update by issue UUID; publishes `IssueFieldChangedEvent` or `IssueStatusChangedEvent` per changed field |
+| PATCH | `/api/v1/projects/{key}/issues/{id}` | USER | Partial update by issue UUID; `labelIds: List<UUID>?` replaces the full label set (null = no change, [] = remove all); publishes `IssueFieldChangedEvent` or `IssueStatusChangedEvent` per changed field |
 | DELETE | `/api/v1/projects/{key}/issues/{id}` | USER | Deletes issue by UUID; verifies issue belongs to the project |
 
 `{key}` in all paths is the project key (e.g. `TW`). The GET single endpoint uses `{issueKey}` (e.g. `TW-5`) while update and delete use the issue UUID `{id}`.
@@ -172,6 +176,7 @@ Add the new value to `IssueType.kt`. No migration is needed — `type` is stored
 - Parent issues are validated to belong to the same project. A parent from a different project throws `NotFoundException`.
 - Status transitions are validated by `WorkflowService.validateTransition()`. The new status must belong to the project's assigned workflow; a cross-workflow status throws `ForbiddenException`.
 - When `overdue=true` in list queries, results are always ordered by `dueDate ASC` regardless of the `sort` parameter — the overdue JPQL query hardcodes `ORDER BY dueDate ASC`.
+- **`IssueController.get()` injects `LabelRepository` directly.** This is a deliberate exception to the no-cross-module-injection rule, required to fetch labels via native SQL on `issue_labels`. The list endpoint (`IssueController.list()`) does not populate labels; only the single-issue GET does.
 
 ---
 
@@ -230,6 +235,8 @@ Every field follows the same guard (`old != new`) to avoid spurious audit events
 | `IssueServiceTest` | `overdue=true` calls `findOverdueByProjectId`; `overdue=true, assigneeMe=true` calls `findOverdueByProjectIdAndAssigneeId`; neither calls general list query |
 | `IssueServiceTest` | `clearAssignee=true` sets `assignee` to null; `clearDueDate=true` sets `dueDate` to null; `clearSprint=true` sets `sprint` to null |
 | `IssueServiceTest` | `sprintId` provided assigns sprint scoped to the project |
+| `IssueServiceTest` | `update` sets labels when `labelIds` is a non-empty list |
+| `IssueServiceTest` | `update` clears labels when `labelIds` is an empty list |
 
 ### Integration tests (Spring Boot Test + MockMvc + real DB, extend `IntegrationTestBase`)
 
