@@ -15,7 +15,7 @@ export function LabelChip({ label, onClick }: Props) {
         color: label.color,
         borderColor: label.color + '4d',      // ~30% opacity
       }}
-      onClick={onClick}
+      onClick={onClick ? (e: React.MouseEvent) => { e.stopPropagation(); onClick() } : undefined}
     >
       {label.name}
     </span>

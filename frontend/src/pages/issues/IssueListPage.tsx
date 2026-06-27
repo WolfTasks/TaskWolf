@@ -1,11 +1,16 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useIssues, useCreateIssue } from '@/hooks/useIssues'
+import { useLabels } from '@/hooks/useLabels'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 
 export function IssueListPage() {
   const { key } = useParams<{ key: string }>()
-  const { data: page, isLoading } = useIssues(key!)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const labelId = searchParams.get('labelId') ?? undefined
+
+  const { data: page, isLoading } = useIssues(key!, labelId)
+  const { data: labels = [] } = useLabels(key!)
   const createIssue = useCreateIssue(key!)
   const [title, setTitle] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -18,16 +23,43 @@ export function IssueListPage() {
     setShowForm(false)
   }
 
+  function setLabelFilter(id: string | undefined) {
+    if (id) setSearchParams({ labelId: id })
+    else setSearchParams({})
+  }
+
   if (isLoading) return <div className="text-gray-400">Loading...</div>
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">{key} — Issues</h1>
         <button onClick={() => setShowForm(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
           + Create Issue
         </button>
+      </div>
+
+      {/* Toolbar filters */}
+      <div className="flex items-center gap-3 mb-4">
+        <select
+          value={labelId ?? ''}
+          onChange={e => setLabelFilter(e.target.value || undefined)}
+          className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+        >
+          <option value="">All Labels</option>
+          {labels.map(l => (
+            <option key={l.id} value={l.id}>{l.name}</option>
+          ))}
+        </select>
+        {labelId && (
+          <button
+            onClick={() => setLabelFilter(undefined)}
+            className="text-xs text-gray-400 hover:text-white"
+          >
+            ✕ Clear
+          </button>
+        )}
       </div>
 
       {showForm && (

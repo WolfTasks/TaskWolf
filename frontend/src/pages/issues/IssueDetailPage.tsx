@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useIssue, useUpdateIssue } from '@/hooks/useIssues'
 import { useMe } from '@/hooks/useAuth'
 import { useSprints } from '@/hooks/useSprints'
@@ -28,6 +28,7 @@ function SidebarField({ label, children }: { label: string; children: React.Reac
 
 export function IssueDetailPage() {
   const { key, issueKey } = useParams<{ key: string; issueKey: string }>()
+  const navigate = useNavigate()
   const { data: issue, isLoading } = useIssue(key!, issueKey!)
   const { data: me } = useMe()
   const updateIssue = useUpdateIssue(key!)
@@ -151,6 +152,7 @@ export function IssueDetailPage() {
                 value={issue.labels ?? []}
                 allLabels={allLabels}
                 onSave={labelIds => patch({ labelIds })}
+                onChipClick={l => navigate(`/p/${key}/issues?labelId=${l.id}`)}
               />
             </SidebarField>
 

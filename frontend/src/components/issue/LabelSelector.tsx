@@ -14,9 +14,10 @@ interface Props {
   value: Label[]          // currently assigned labels
   allLabels: Label[]      // all project labels
   onSave: (labelIds: string[]) => void
+  onChipClick?: (label: Label) => void
 }
 
-export function LabelSelector({ projectKey, value, allLabels, onSave }: Props) {
+export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClick }: Props) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Label[]>(value)
@@ -72,7 +73,13 @@ export function LabelSelector({ projectKey, value, allLabels, onSave }: Props) {
       >
         {selected.length === 0
           ? <span className="text-sm text-gray-500 hover:text-gray-300">None</span>
-          : selected.map(l => <LabelChip key={l.id} label={l} />)
+          : selected.map(l => (
+            <LabelChip
+              key={l.id}
+              label={l}
+              onClick={onChipClick ? () => onChipClick(l) : undefined}
+            />
+          ))
         }
       </div>
       {open && (
