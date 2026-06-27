@@ -179,6 +179,8 @@ Add the new value to `IssueType.kt`. No migration is needed — `type` is stored
 
 `IssueFieldChangedEvent` publish pattern in `IssueService.update()` — only publishes when the value actually changes:
 
+Service update method — guard on value change before mutating and publishing:
+
 ```kotlin
 // IssueService.kt — title field update
 request.title?.let { newTitle ->
@@ -190,7 +192,11 @@ request.title?.let { newTitle ->
         )
     }
 }
+```
 
+Clearable fields use an explicit boolean flag rather than null-ambiguity:
+
+```kotlin
 // Same pattern for clearable fields (assignee, dueDate, sprint)
 if (request.clearAssignee) {
     val old = issue.assignee?.displayName

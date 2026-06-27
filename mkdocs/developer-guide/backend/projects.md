@@ -39,6 +39,8 @@ CREATE TABLE projects (
 
 Index: `idx_projects_key` on `"key"`.
 
+Note: `workflow_id` added by V3 (`V3__create_workflows.sql`); `org_id` added by V19 (`V19__organizations.sql`). Both columns are not present in the V2 `CREATE TABLE` above — they are applied via `ALTER TABLE` in their respective migrations.
+
 ### `project_members` (V2)
 
 | Column | Type | Constraint |
@@ -102,9 +104,11 @@ None. No `@EventListener` annotations exist in `projects/application/`.
 
 **To add a new project-scoped setting:**
 
+Project settings live directly on `Project.kt`; there is no separate settings entity.
+
 1. Add `@Column var newSetting: T` to `Project.kt`.
 2. Create a Flyway migration V23+ that adds the column to `projects`.
-3. Add the field to `CreateProjectRequest` or a new `UpdateProjectRequest`.
+3. Add the field to `CreateProjectRequest` or a new `UpdateProjectRequest` (note: `UpdateProjectRequest` does not yet exist and would need to be created).
 4. Handle the field in `ProjectService.create()` / `ProjectService.update()`.
 
 **To add a new project-level role:**
@@ -119,19 +123,27 @@ The `@Component("projectSecurity")` bean is designed for use in `@PreAuthorize` 
 
 ```kotlin
 // Example from another module's controller
-@DeleteMapping("/{id}")
-@PreAuthorize("@projectSecurity.isProjectAdmin(#key, authentication)")
-fun deleteResource(
-    @PathVariable key: String,
-    @PathVariable id: UUID,
-    @AuthenticationPrincipal user: User
-) { /* ... */ }
+@RestController
+@RequestMapping("/api/v1/projects/{key}/resources")
+class ResourceController(private val resourceService: ResourceService) {
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("@projectSecurity.isProjectAdmin(#key, authentication)")
+    fun deleteResource(
+        @PathVariable key: String,
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal user: User
+    ) {
+        resourceService.delete(id)
+    }
+}
 ```
 
 ---
 
 ## Common Pitfalls
 
+- Update and archive endpoints are not yet implemented. `ProjectController` currently exposes GET (list, single, members) and POST (create) only. There is no PATCH or archive endpoint; calling them returns 404.
 - **DO NOT** bypass project membership checks. Always call `projectService.requireMember(key, user.id)` before returning any project data. Returning data based on `key` alone without a membership check exposes all projects to any authenticated user.
 - **DO NOT** use project `id` in URLs. All project URLs use the `key` (e.g. `TW`). Using `id` breaks the URL contract and bypasses key-uniqueness enforcement.
 - **DO NOT** call `ProjectMemberRepository` from outside the `projects` package without first going through `ProjectService`. Raw membership checks in other modules duplicate authorization logic.
