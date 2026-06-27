@@ -73,9 +73,9 @@ Index: `idx_issue_activity_issue` on `(issue_id, created_at DESC)`.
 | Event | Published by | Payload |
 |---|---|---|
 | `CommentCreatedEvent` | `CommentService.addComment()` | `comment`, `issue`, `actorEmail`, `actorId` |
-| `MentionEvent` | `CommentService` (@mention parser) | `mentionedUser: User`, `comment`, `issue` |
+| `MentionEvent` | `CommentService` — **not yet wired in production**; `extractAndPublishMentions()` must be called from `addComment()` | `mentionedUser: User`, `comment`, `issue` |
 
-`MentionEvent` is published once per detected @mention in the comment body. Consumers: `NotificationService.onMention()` (in-app notification) and `EmailService.onMention()` (email delivery).
+`MentionEvent` is defined and consumed by `NotificationService.onMention()` and `EmailService.onMention()`, but `CommentService.addComment()` does not yet call `extractAndPublishMentions()`. Wire the call in `addComment()` to enable mention notifications.
 
 ---
 
@@ -174,7 +174,7 @@ private fun extractAndPublishMentions(body: String, comment: Comment, issue: Iss
 }
 ```
 
-`MentionEvent` is published once per distinct @mention in the comment body. `NotificationService.onMention()` and `EmailService.onMention()` both subscribe to it.
+`extractAndPublishMentions()` shows the intended wiring. Call it from `addComment()` after saving to enable mention notifications. `NotificationService.onMention()` and `EmailService.onMention()` are the consumers.
 
 ---
 
