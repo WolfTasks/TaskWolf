@@ -177,6 +177,7 @@ Add the new value to `IssueType.kt`. No migration is needed — `type` is stored
 - Status transitions are validated by `WorkflowService.validateTransition()`. The new status must belong to the project's assigned workflow; a cross-workflow status throws `ForbiddenException`.
 - When `overdue=true` in list queries, results are always ordered by `dueDate ASC` regardless of the `sort` parameter — the overdue JPQL query hardcodes `ORDER BY dueDate ASC`.
 - **`LabelRepository` is injected in two cross-module locations.** `IssueController.get()` injects it to call `findByIssueId` (native SQL on `issue_labels`) for the single-issue GET — the list endpoint does not populate labels. `IssueService.update()` injects it to call `findAllById` when resolving a new label set on PATCH. Both are deliberate exceptions to the no-cross-module-injection rule; see the [labels module](labels.md) for full context.
+- **Labels from a different project passed in `labelIds` are silently dropped, not rejected.** `IssueService.update()` filters the resolved labels by `it.project.id == project.id` before assignment. The call returns 200 with only the valid labels applied — no error is raised for the invalid IDs.
 
 ---
 
@@ -237,6 +238,7 @@ Every field follows the same guard (`old != new`) to avoid spurious audit events
 | `IssueServiceTest` | `sprintId` provided assigns sprint scoped to the project |
 | `IssueServiceTest` | `update` sets labels when `labelIds` is a non-empty list |
 | `IssueServiceTest` | `update` clears labels when `labelIds` is an empty list |
+| `IssueServiceTest` | `update` silently drops labels from other projects |
 
 ### Integration tests (Spring Boot Test + MockMvc + real DB, extend `IntegrationTestBase`)
 

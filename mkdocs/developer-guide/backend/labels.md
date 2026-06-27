@@ -52,9 +52,9 @@ Primary key: `(issue_id, label_id)`.
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | GET | `/api/v1/projects/{key}/labels` | USER | Lists all labels for the project |
-| POST | `/api/v1/projects/{key}/labels` | USER | Creates a label; 409 if name already exists in project |
+| POST | `/api/v1/projects/{key}/labels` | USER | Creates a label; returns 201 Created; 409 if name already exists in project |
 | PUT | `/api/v1/projects/{key}/labels/{id}` | USER | Replaces name and color; 409 on name conflict |
-| DELETE | `/api/v1/projects/{key}/labels/{id}` | USER | Deletes label; `issue_labels` rows removed by DB cascade |
+| DELETE | `/api/v1/projects/{key}/labels/{id}` | USER | Deletes label; returns 204 No Content; `issue_labels` rows removed by DB cascade |
 
 All endpoints require project membership (`ProjectService.requireMember()`).
 
@@ -98,7 +98,21 @@ The color palette (`PALETTE`) is defined as a constant in both `frontend/src/com
 
 - **`LabelRepository` is injected in two cross-module locations.** `IssueController.get()` injects it to call `findByIssueId` (native SQL on `issue_labels`) for the single-issue GET. `IssueService.update()` injects it to call `findAllById` when resolving a new label set on PATCH. Both are deliberate exceptions to the no-cross-module-injection rule. Do not add further cross-module injections.
 - **`null` vs empty list on `UpdateIssueRequest.labelIds`.** `null` = no change to labels; `[]` = remove all labels. The service checks `request.labelIds != null` before touching the label set.
+- **Labels from a different project passed in `labelIds` are silently dropped.** `IssueService.update()` filters the resolved labels by `it.project.id == project.id` before assignment. No error is returned — the call succeeds and only the valid labels are applied.
 - **`@ManyToMany(fetch=LAZY)` on `Issue.labels`.** Do not access `issue.labels` outside a transaction. `IssueController.get()` fetches labels explicitly via `LabelRepository.findByIssueId()` to avoid lazy-loading surprises.
+
+---
+
+## Frontend Integration
+
+| Concept | Detail |
+|---|---|
+| API client | `frontend/src/api/labels.ts` — `labelsApi.list`, `create`, `update`, `delete` |
+| Hooks | `useLabels`, `useCreateLabel`, `useUpdateLabel`, `useDeleteLabel` (query key: `['labels', projectKey]`) |
+| `LabelChip` | Read-only colored pill; calls `e.stopPropagation()` in its `onClick` |
+| `LabelSelector` | Dropdown for assigning labels to an issue; saves (issues PATCH `labelIds`) when the user clicks outside the dropdown, not on a submit button |
+| `LabelsPage` | Settings page at `/projects/{key}/settings/labels`; full CRUD |
+| Issue list filter | `IssueListPage` stores the active label filter in `?labelId=<UUID>` search params; auto-clears the param if the label no longer exists (e.g. after deletion) |
 
 ---
 
@@ -120,7 +134,9 @@ issueService.update("WOLF", issueId, UpdateIssueRequest(labelIds = listOf(label.
 | `LabelServiceTest` | `create` saves a new label |
 | `LabelServiceTest` | `create` throws `ConflictException` when name already exists in project |
 | `LabelServiceTest` | `update` changes name and color |
+| `LabelServiceTest` | `update` throws `ConflictException` when new name already exists in project |
 | `LabelServiceTest` | `delete` removes the label |
 | `LabelServiceTest` | `delete` throws `NotFoundException` when label belongs to a different project |
 | `IssueServiceTest` | `update` sets labels when `labelIds` is a non-empty list |
 | `IssueServiceTest` | `update` clears labels when `labelIds` is an empty list |
+| `IssueServiceTest` | `update` silently drops labels from other projects |

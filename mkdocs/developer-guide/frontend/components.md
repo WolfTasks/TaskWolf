@@ -117,7 +117,8 @@ The command writes the component to `frontend/src/components/ui/`. Import it as 
 - **Do not import from the shadcn npm package directly.** All UI primitives must come from `@/components/ui/`.
 - **Do not use `style={{...}}` for values Tailwind can express.** Acceptable exception: `style={{ width: `${pct}%` }}` for dynamic numeric widths on progress bars.
 - **Do not use default exports.** Every component file must use a named export so that refactoring tools and the router can locate the export by name.
-- **`LabelChip` calls `e.stopPropagation()` in its `onClick`.** This prevents a chip click inside an issue list row from navigating to the issue detail. If you render `LabelChip` inside a clickable container, be aware that propagation is already stopped — attaching an additional click handler on the chip itself will work, but a handler on a parent element will not fire.
+- **`LabelChip` calls `e.stopPropagation()` in its `onClick`.** This prevents a chip click inside a clickable container (such as the `LabelSelector` trigger area or a settings list row) from firing the parent's handler. If you render `LabelChip` inside a clickable container, be aware that propagation is already stopped — attaching an additional click handler on the chip itself will work, but a handler on a parent element will not fire.
+- **`LabelSelector` saves on click-outside, not on a submit button.** The `onSave` callback fires when the user clicks anywhere outside the dropdown. If you render `LabelSelector` inside a form with its own submit handler, you may receive two save events. Render it outside the `<form>` element or suppress the `onSave` call when no labels have changed.
 
 ---
 
