@@ -102,7 +102,7 @@ class LabelService(
             .orElseThrow { NotFoundException("Label not found: $labelId") }
         labelRepository.delete(label)
     }
-    // ... update and delete omitted for brevity
+    // ... update omitted for brevity
 }
 ```
 
@@ -303,7 +303,7 @@ export function useDeleteLabel(projectKey: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['labels', projectKey] }),
   })
 }
-// ... useUpdateLabel and useDeleteLabel omitted for brevity
+// ... useUpdateLabel omitted for brevity
 ```
 
 > **DO NOT** use `useState` + `useEffect` + `fetch` for server data — use React Query.  
