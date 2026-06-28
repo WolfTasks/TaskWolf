@@ -46,6 +46,7 @@ nav:
   - API Reference: api.md
   - Developer Guide:
       - Overview: developer-guide/index.md
+      - AI Implementation Guide: developer-guide/ai-guide.md
       - Conventions: developer-guide/conventions.md
       - Backend:
           - core: developer-guide/backend/core.md

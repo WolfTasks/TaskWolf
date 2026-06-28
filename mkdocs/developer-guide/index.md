@@ -40,7 +40,8 @@ All API paths: `/api/v1/projects/{key}/...` (stateless JWT; project key enables 
 
 ## How To Use This Guide
 
-1. Read [Conventions](conventions.md) — covers patterns all modules share.
-2. Open the module page for the area you are touching.
-3. Check **Extension Points** for step-by-step instructions on common tasks.
-4. Check **Common Pitfalls** before writing code.
+1. Read the [AI Implementation Guide](ai-guide.md) — mandatory checklist and canonical patterns before writing any code.
+2. Read [Conventions](conventions.md) — covers patterns all modules share.
+3. Open the module page for the area you are touching.
+4. Check **Extension Points** for step-by-step instructions on common tasks.
+5. Check **Common Pitfalls** before writing code.
