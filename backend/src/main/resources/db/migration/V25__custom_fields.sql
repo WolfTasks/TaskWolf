@@ -6,6 +6,7 @@ CREATE TABLE custom_field_definitions (
     required   BOOLEAN      NOT NULL DEFAULT FALSE,
     sort_order INT          NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
     UNIQUE (project_id, name)
 );
 
