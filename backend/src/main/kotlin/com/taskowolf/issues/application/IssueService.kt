@@ -12,6 +12,7 @@ import com.taskowolf.issues.domain.events.IssueCreatedEvent
 import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
+import com.taskowolf.issues.infrastructure.IssueSpecification
 import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.versions.domain.IssueVersion
@@ -19,7 +20,6 @@ import com.taskowolf.versions.infrastructure.IssueVersionRepository
 import com.taskowolf.versions.infrastructure.VersionRepository
 import com.taskowolf.sprints.infrastructure.SprintRepository
 import com.taskowolf.workflows.application.WorkflowService
-import com.taskowolf.workflows.domain.StatusCategory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -35,7 +35,10 @@ class IssueService(
     private val sprintRepository: SprintRepository,
     private val labelRepository: LabelRepository,
     private val versionRepository: com.taskowolf.versions.infrastructure.VersionRepository,
-    private val issueVersionRepository: com.taskowolf.versions.infrastructure.IssueVersionRepository
+    private val issueVersionRepository: com.taskowolf.versions.infrastructure.IssueVersionRepository,
+    private val customFieldDefinitionRepository: com.taskowolf.customfields.infrastructure.CustomFieldDefinitionRepository,
+    private val customFieldOptionRepository: com.taskowolf.customfields.infrastructure.CustomFieldOptionRepository,
+    private val customFieldValueRepository: com.taskowolf.customfields.infrastructure.CustomFieldValueRepository
 ) {
     @Transactional
     fun create(projectKey: String, request: CreateIssueRequest, reporter: User): Issue {
@@ -64,6 +67,8 @@ class IssueService(
                 }
             )
         )
+        validateRequiredCustomFields(project.id, request.customFieldValues)
+        request.customFieldValues?.let { applyCustomFieldValues(issue.id, it, project.id) }
         eventPublisher.publish(IssueCreatedEvent(issue, actorEmail = reporter.email, actorId = reporter.id))
         return issue
     }
@@ -226,12 +231,15 @@ class IssueService(
             }
         }
 
+        request.customFieldValues?.let { applyCustomFieldValues(issue.id, it, project.id) }
+
         return issueRepository.save(issue)
     }
 
     /**
-     * Filters issues for a project. When [overdue] is true, results are always ordered by dueDate ASC
-     * regardless of the [sort] parameter (the overdue query hardcodes ORDER BY dueDate ASC).
+     * Filters issues for a project using composable JPA Specifications.
+     * When [overdue] is true, results are ordered by dueDate ASC regardless of [sort].
+     * Custom field filters are passed as [customFieldFilters]: a map of field UUID → raw string value.
      */
     @Transactional(readOnly = true)
     fun findByProject(
@@ -244,26 +252,30 @@ class IssueService(
         overdue: Boolean = false,
         labelId: UUID? = null,
         fixVersionId: UUID? = null,
-        affectsVersionId: UUID? = null
+        affectsVersionId: UUID? = null,
+        customFieldFilters: Map<UUID, String> = emptyMap()
     ): org.springframework.data.domain.Page<Issue> {
         val project = projectService.requireMember(projectKey, userId)
-        val pageable = when (sort) {
-            "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
+
+        val pageable = when {
+            overdue -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("dueDate").ascending())
+            sort == "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
             else -> PageRequest.of(page, size)
         }
-        if (fixVersionId != null && affectsVersionId != null)
-            return issueRepository.findAllByProjectIdAndBothVersionIds(project.id, fixVersionId, affectsVersionId, pageable)
-        if (fixVersionId != null)
-            return issueRepository.findAllByProjectIdAndFixVersionId(project.id, fixVersionId, pageable)
-        if (affectsVersionId != null)
-            return issueRepository.findAllByProjectIdAndAffectsVersionId(project.id, affectsVersionId, pageable)
-        if (labelId != null) return issueRepository.findAllByProjectIdAndLabelId(project.id, labelId, pageable)
-        return when {
-            overdue && assigneeMe -> issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, userId, StatusCategory.DONE, pageable)
-            overdue -> issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, pageable)
-            assigneeMe -> issueRepository.findByProjectIdAndAssigneeId(project.id, userId, pageable)
-            else -> issueRepository.findAllByProjectId(project.id, pageable)
+
+        var spec = IssueSpecification.inProject(project.id)
+        if (assigneeMe) spec = spec.and(IssueSpecification.assignedTo(userId))
+        if (overdue) spec = spec.and(IssueSpecification.overdue())
+        if (labelId != null) spec = spec.and(IssueSpecification.hasLabel(labelId))
+        if (fixVersionId != null) spec = spec.and(IssueSpecification.hasFixVersion(fixVersionId))
+        if (affectsVersionId != null) spec = spec.and(IssueSpecification.hasAffectsVersion(affectsVersionId))
+
+        for ((fieldId, rawValue) in customFieldFilters) {
+            val fieldType = customFieldDefinitionRepository.findById(fieldId).map { it.type }.orElse(null) ?: continue
+            spec = spec.and(IssueSpecification.hasCustomFieldValue(fieldId, rawValue, fieldType))
         }
+
+        return issueRepository.findAll(spec, pageable)
     }
 
     @Transactional(readOnly = true)
@@ -308,6 +320,64 @@ class IssueService(
         )
         eventPublisher.publish(IssueCreatedEvent(issue, actorEmail = senderEmail, actorId = reporter.id))
         return issue
+    }
+
+    private fun applyCustomFieldValues(
+        issueId: UUID,
+        inputs: List<com.taskowolf.issues.api.dto.CustomFieldValueInput>,
+        projectId: UUID
+    ) {
+        val definitions = customFieldDefinitionRepository
+            .findByProjectIdOrderBySortOrder(projectId)
+            .associateBy { it.id }
+
+        for (input in inputs) {
+            val definition = definitions[input.fieldId] ?: continue
+
+            if (input.value == null) {
+                customFieldValueRepository.deleteByIssueIdAndFieldId(issueId, definition.id)
+                continue
+            }
+
+            val cfv = customFieldValueRepository
+                .findByIssueIdAndField_Id(issueId, definition.id)
+                .orElse(com.taskowolf.customfields.domain.CustomFieldValue(issueId = issueId, field = definition))
+
+            when (definition.type) {
+                com.taskowolf.customfields.domain.FieldType.TEXT -> cfv.textValue = input.value
+                com.taskowolf.customfields.domain.FieldType.NUMBER -> cfv.numberValue = input.value.toBigDecimalOrNull()
+                    ?: throw com.taskowolf.core.infrastructure.BadRequestException("Invalid number for field '${definition.name}': ${input.value}")
+                com.taskowolf.customfields.domain.FieldType.DATE -> cfv.dateValue = runCatching {
+                    java.time.LocalDate.parse(input.value)
+                }.getOrElse {
+                    throw com.taskowolf.core.infrastructure.BadRequestException("Invalid date for field '${definition.name}': ${input.value}")
+                }
+                com.taskowolf.customfields.domain.FieldType.CHECKBOX ->
+                    cfv.booleanValue = input.value.equals("true", ignoreCase = true)
+                com.taskowolf.customfields.domain.FieldType.DROPDOWN -> {
+                    val optId = runCatching { UUID.fromString(input.value) }.getOrElse {
+                        throw com.taskowolf.core.infrastructure.BadRequestException("Invalid option ID for field '${definition.name}'")
+                    }
+                    cfv.option = customFieldOptionRepository.findById(optId)
+                        .filter { it.field.id == definition.id }
+                        .orElseThrow { com.taskowolf.core.infrastructure.BadRequestException("Option not found: $optId") }
+                }
+            }
+            customFieldValueRepository.save(cfv)
+        }
+    }
+
+    private fun validateRequiredCustomFields(projectId: UUID, inputs: List<com.taskowolf.issues.api.dto.CustomFieldValueInput>?) {
+        val requiredFields = customFieldDefinitionRepository
+            .findByProjectIdOrderBySortOrder(projectId)
+            .filter { it.required }
+        val providedMap = inputs?.associateBy { it.fieldId } ?: emptyMap()
+        requiredFields.forEach { field ->
+            val input = providedMap[field.id]
+            if (input == null || input.value == null || input.value.isBlank()) {
+                throw com.taskowolf.core.infrastructure.BadRequestException("Required custom field '${field.name}' must have a value")
+            }
+        }
     }
 
     private fun resolveAssignee(assigneeId: UUID, project: com.taskowolf.projects.domain.Project): com.taskowolf.auth.domain.User {

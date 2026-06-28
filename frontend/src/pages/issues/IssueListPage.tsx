@@ -3,7 +3,9 @@ import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useIssues, useCreateIssue } from '@/hooks/useIssues'
 import { useLabels } from '@/hooks/useLabels'
 import { useVersions } from '@/hooks/useVersions'
+import { useCustomFields } from '@/hooks/useCustomFields'
 import { StatusBadge } from '@/components/issue/StatusBadge'
+import { CustomFieldInput } from '@/components/issue/CustomFieldInput'
 
 export function IssueListPage() {
   const { key } = useParams<{ key: string }>()
@@ -12,12 +14,22 @@ export function IssueListPage() {
   const fixVersionId = searchParams.get('fixVersionId') ?? undefined
   const affectsVersionId = searchParams.get('affectsVersionId') ?? undefined
 
-  const { data: page, isLoading } = useIssues(key!, { labelId, fixVersionId, affectsVersionId })
+  const { data: customFieldDefs = [] } = useCustomFields(key!)
+
+  // Build customFieldFilters map from URL params (key = fieldId, value = raw filter value)
+  const customFieldFilters: Record<string, string> = {}
+  customFieldDefs.forEach(def => {
+    const v = searchParams.get(`cf_${def.id}`)
+    if (v) customFieldFilters[def.id] = v
+  })
+
+  const { data: page, isLoading } = useIssues(key!, { labelId, fixVersionId, affectsVersionId, customFieldFilters: Object.keys(customFieldFilters).length > 0 ? customFieldFilters : undefined })
   const { data: labels = [] } = useLabels(key!)
   const { data: versions = [] } = useVersions(key!)
   const createIssue = useCreateIssue(key!)
   const [title, setTitle] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [cfValues, setCfValues] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (labelId && labels.length > 0 && !labels.some(l => l.id === labelId)) {
@@ -47,8 +59,20 @@ export function IssueListPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) return
-    await createIssue.mutateAsync({ title })
+
+    // Validate required fields
+    const missingRequired = customFieldDefs
+      .filter(d => d.required && !cfValues[d.id])
+      .map(d => d.name)
+    if (missingRequired.length > 0) {
+      alert(`Required fields missing: ${missingRequired.join(', ')}`)
+      return
+    }
+
+    const customFieldValues = Object.entries(cfValues).map(([fieldId, value]) => ({ fieldId, value }))
+    await createIssue.mutateAsync({ title, customFieldValues: customFieldValues.length > 0 ? customFieldValues : undefined })
     setTitle('')
+    setCfValues({})
     setShowForm(false)
   }
 
@@ -57,6 +81,15 @@ export function IssueListPage() {
       const n = new URLSearchParams(prev)
       if (value) n.set(key, value)
       else n.delete(key)
+      return n
+    })
+  }
+
+  function setCfParam(fieldId: string, value: string | undefined) {
+    setSearchParams(prev => {
+      const n = new URLSearchParams(prev)
+      if (value) n.set(`cf_${fieldId}`, value)
+      else n.delete(`cf_${fieldId}`)
       return n
     })
   }
@@ -108,7 +141,41 @@ export function IssueListPage() {
           ))}
         </select>
 
-        {(labelId || fixVersionId || affectsVersionId) && (
+        {customFieldDefs.map(def => (
+          <div key={def.id} className="flex flex-col">
+            <span className="text-xs text-gray-500 mb-0.5">{def.name}</span>
+            {def.type === 'DROPDOWN' ? (
+              <select
+                value={customFieldFilters[def.id] ?? ''}
+                onChange={e => setCfParam(def.id, e.target.value || undefined)}
+                className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+              >
+                <option value="">All</option>
+                {def.options?.map(opt => <option key={opt.id} value={opt.id}>{opt.label}</option>)}
+              </select>
+            ) : def.type === 'CHECKBOX' ? (
+              <select
+                value={customFieldFilters[def.id] ?? ''}
+                onChange={e => setCfParam(def.id, e.target.value || undefined)}
+                className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+              >
+                <option value="">All</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            ) : (
+              <input
+                type={def.type === 'NUMBER' ? 'number' : def.type === 'DATE' ? 'date' : 'text'}
+                value={customFieldFilters[def.id] ?? ''}
+                onChange={e => setCfParam(def.id, e.target.value || undefined)}
+                placeholder={`Filter by ${def.name}`}
+                className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+              />
+            )}
+          </div>
+        ))}
+
+        {(labelId || fixVersionId || affectsVersionId || Object.keys(customFieldFilters).length > 0) && (
           <button
             onClick={() => setSearchParams({})}
             className="text-xs text-gray-400 hover:text-white"
@@ -119,11 +186,30 @@ export function IssueListPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="mb-4 flex gap-2">
+        <form onSubmit={handleCreate} className="mb-4 flex flex-col gap-2">
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Issue title" autoFocus required
-            className="flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
-          <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Save</button>
-          <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white px-3 py-2 text-sm">Cancel</button>
+            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
+          {customFieldDefs.length > 0 && (
+            <div className="flex flex-col gap-2 mt-2">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">Custom Fields</span>
+              {customFieldDefs.map(def => (
+                <div key={def.id} className="flex flex-col gap-0.5">
+                  <label className="text-xs text-gray-400">
+                    {def.name}{def.required ? ' *' : ''}
+                  </label>
+                  <CustomFieldInput
+                    definition={def}
+                    value={cfValues[def.id] ? { fieldId: def.id, fieldName: def.name, type: def.type, required: def.required, textValue: def.type === 'TEXT' ? cfValues[def.id] : undefined, numberValue: def.type === 'NUMBER' ? parseFloat(cfValues[def.id]) : undefined, dateValue: def.type === 'DATE' ? cfValues[def.id] : undefined, booleanValue: def.type === 'CHECKBOX' ? cfValues[def.id] === 'true' : undefined, optionId: def.type === 'DROPDOWN' ? cfValues[def.id] : undefined } : undefined}
+                    onChange={val => setCfValues(prev => val === null ? (({ [def.id]: _, ...rest }) => rest)(prev) : { ...prev, [def.id]: val })}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Save</button>
+            <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white px-3 py-2 text-sm">Cancel</button>
+          </div>
         </form>
       )}
 

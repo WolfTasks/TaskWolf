@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import java.util.UUID
 
 class IssueServiceTest {
@@ -41,7 +42,10 @@ class IssueServiceTest {
     private val labelRepository = mockk<LabelRepository>()
     private val versionRepository = mockk<VersionRepository>()
     private val issueVersionRepository = mockk<IssueVersionRepository>()
-    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository)
+    private val customFieldDefinitionRepository = mockk<com.taskowolf.customfields.infrastructure.CustomFieldDefinitionRepository>()
+    private val customFieldOptionRepository = mockk<com.taskowolf.customfields.infrastructure.CustomFieldOptionRepository>()
+    private val customFieldValueRepository = mockk<com.taskowolf.customfields.infrastructure.CustomFieldValueRepository>()
+    private val service = IssueService(issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository, customFieldDefinitionRepository, customFieldOptionRepository, customFieldValueRepository)
 
     private val owner = User(email = "owner@test.com", displayName = "Owner")
     private val workflow = mockk<Workflow>()
@@ -60,6 +64,7 @@ class IssueServiceTest {
         every { workflowService.getDefaultStatus(workflowId) } returns status
         every { issueRepository.maxKeyNumberByProject(project.id) } returns 5
         every { issueRepository.save(any()) } returnsArgument 0
+        every { customFieldDefinitionRepository.findByProjectIdOrderBySortOrder(project.id) } returns emptyList()
 
         val issue = service.create("WOLF", CreateIssueRequest("Fix bug"), owner)
 
@@ -75,6 +80,7 @@ class IssueServiceTest {
         every { workflowService.getDefaultStatus(workflowId) } returns status
         every { issueRepository.maxKeyNumberByProject(project.id) } returns 0
         every { issueRepository.save(any()) } returnsArgument 0
+        every { customFieldDefinitionRepository.findByProjectIdOrderBySortOrder(project.id) } returns emptyList()
 
         val issue = service.create("WOLF", CreateIssueRequest("Big Epic", type = IssueType.EPIC), owner)
 
@@ -85,6 +91,7 @@ class IssueServiceTest {
     fun `create throws NotFoundException when project has no workflow`() {
         val projectWithoutWorkflow = Project(key = "WOLF", name = "TaskWolf", owner = owner, workflow = null)
         every { projectService.requireMember("WOLF", owner.id) } returns projectWithoutWorkflow
+        every { customFieldDefinitionRepository.findByProjectIdOrderBySortOrder(project.id) } returns emptyList()
 
         assertThrows<NotFoundException> {
             service.create("WOLF", CreateIssueRequest("Issue"), owner)
@@ -112,6 +119,7 @@ class IssueServiceTest {
         every { issueRepository.save(any()) } returnsArgument 0
         every { userRepository.findById(stranger.id) } returns java.util.Optional.of(stranger)
         every { projectService.isMember(project, stranger.id) } returns false
+        every { customFieldDefinitionRepository.findByProjectIdOrderBySortOrder(project.id) } returns emptyList()
 
         assertThrows<NotFoundException> {
             service.create("WOLF", CreateIssueRequest("Task", assigneeId = stranger.id), owner)
@@ -133,6 +141,7 @@ class IssueServiceTest {
             status = status, project = foreignProject, reporter = owner
         )
         every { issueRepository.findById(foreignParent.id) } returns java.util.Optional.of(foreignParent)
+        every { customFieldDefinitionRepository.findByProjectIdOrderBySortOrder(project.id) } returns emptyList()
 
         assertThrows<NotFoundException> {
             service.create("WOLF", CreateIssueRequest("Child", parentId = foreignParent.id), owner)
@@ -181,42 +190,36 @@ class IssueServiceTest {
     }
 
     @Test
-    fun `findByProject with overdue=true calls findOverdueByProjectId with StatusCategory DONE`() {
+    fun `findByProject with overdue=true uses Specification-based findAll`() {
         val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
-        every { issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, any()) } returns emptyPage
+        every { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) } returns emptyPage
 
         service.findByProject("WOLF", owner.id, 0, 20, overdue = true)
 
-        verify(exactly = 1) { issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, any()) }
-        verify(exactly = 0) { issueRepository.findByProjectIdAndAssigneeId(any(), any(), any()) }
-        verify(exactly = 0) { issueRepository.findAllByProjectId(any(), any()) }
+        verify(exactly = 1) { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) }
     }
 
     @Test
-    fun `findByProject with overdue=true and assigneeMe=true calls findOverdueByProjectIdAndAssigneeId`() {
+    fun `findByProject with overdue=true and assigneeMe=true uses Specification-based findAll`() {
         val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
-        every { issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, owner.id, StatusCategory.DONE, any()) } returns emptyPage
+        every { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) } returns emptyPage
 
         service.findByProject("WOLF", owner.id, 0, 20, assigneeMe = true, overdue = true)
 
-        verify(exactly = 1) { issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, owner.id, StatusCategory.DONE, any()) }
-        verify(exactly = 0) { issueRepository.findOverdueByProjectId(any(), any(), any()) }
-        verify(exactly = 0) { issueRepository.findByProjectIdAndAssigneeId(any(), any(), any()) }
+        verify(exactly = 1) { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) }
     }
 
     @Test
-    fun `findByProject with assigneeMe=true calls findByProjectIdAndAssigneeId`() {
+    fun `findByProject with assigneeMe=true uses Specification-based findAll`() {
         val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
-        every { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) } returns emptyPage
+        every { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) } returns emptyPage
 
         service.findByProject("WOLF", owner.id, 0, 20, assigneeMe = true)
 
-        verify(exactly = 1) { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) }
-        verify(exactly = 0) { issueRepository.findOverdueByProjectId(any(), any(), any()) }
-        verify(exactly = 0) { issueRepository.findAllByProjectId(any(), any()) }
+        verify(exactly = 1) { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) }
     }
 
     @Test
@@ -319,7 +322,7 @@ class IssueServiceTest {
         val labelRepository = mockk<LabelRepository>()
         // Re-create service with labelRepository
         val serviceWithLabels = IssueService(
-            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository, customFieldDefinitionRepository, customFieldOptionRepository, customFieldValueRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
@@ -343,7 +346,7 @@ class IssueServiceTest {
         issue.labels.add(label)
         val labelRepository = mockk<LabelRepository>()
         val serviceWithLabels = IssueService(
-            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository, customFieldDefinitionRepository, customFieldOptionRepository, customFieldValueRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
@@ -365,7 +368,7 @@ class IssueServiceTest {
         val foreignLabel = Label(name = "foreign", color = "#000000", project = otherProject)
         val labelRepository = mockk<LabelRepository>()
         val serviceWithLabels = IssueService(
-            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository
+            issueRepository, projectService, workflowService, userRepository, eventPublisher, sprintRepository, labelRepository, versionRepository, issueVersionRepository, customFieldDefinitionRepository, customFieldOptionRepository, customFieldValueRepository
         )
         every { projectService.requireMember("WOLF", owner.id) } returns project
         every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)

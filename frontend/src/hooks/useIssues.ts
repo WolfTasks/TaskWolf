@@ -5,13 +5,14 @@ interface IssueListOpts {
   labelId?: string
   fixVersionId?: string
   affectsVersionId?: string
+  customFieldFilters?: Record<string, string>
 }
 
 export function useIssues(projectKey: string, opts: IssueListOpts = {}) {
-  const { labelId, fixVersionId, affectsVersionId } = opts
+  const { labelId, fixVersionId, affectsVersionId, customFieldFilters } = opts
   return useQuery({
-    queryKey: ['issues', projectKey, { labelId, fixVersionId, affectsVersionId }],
-    queryFn: () => issuesApi.list(projectKey, 0, 50, labelId, fixVersionId, affectsVersionId).then(r => r.data)
+    queryKey: ['issues', projectKey, { labelId, fixVersionId, affectsVersionId, customFieldFilters }],
+    queryFn: () => issuesApi.list(projectKey, 0, 50, labelId, fixVersionId, affectsVersionId, customFieldFilters).then(r => r.data)
   })
 }
 
@@ -25,7 +26,7 @@ export function useIssue(projectKey: string, issueKey: string) {
 export function useCreateIssue(projectKey: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: { title: string; type?: string; priority?: string; description?: string }) =>
+    mutationFn: (data: { title: string; type?: string; priority?: string; description?: string; customFieldValues?: { fieldId: string; value: string | null }[] }) =>
       issuesApi.create(projectKey, data).then(r => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['issues', projectKey] })
   })

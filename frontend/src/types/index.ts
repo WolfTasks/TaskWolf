@@ -26,6 +26,34 @@ export interface Version {
   name: string
 }
 
+export interface CustomFieldOption {
+  id: string
+  label: string
+  sortOrder: number
+}
+
+export interface CustomFieldDefinition {
+  id: string
+  name: string
+  type: 'TEXT' | 'NUMBER' | 'DATE' | 'DROPDOWN' | 'CHECKBOX'
+  required: boolean
+  sortOrder: number
+  options?: CustomFieldOption[]
+}
+
+export interface CustomFieldValue {
+  fieldId: string
+  fieldName: string
+  type: string
+  required: boolean
+  textValue?: string
+  numberValue?: number
+  dateValue?: string
+  booleanValue?: boolean
+  optionId?: string
+  optionLabel?: string
+}
+
 export interface WorkflowStatus {
   id: string
   name: string
@@ -70,6 +98,7 @@ export interface Issue {
   labels?: Label[]
   fixVersions?: Version[]
   affectsVersions?: Version[]
+  customFields?: CustomFieldValue[]
 }
 
 export interface AuthResponse {

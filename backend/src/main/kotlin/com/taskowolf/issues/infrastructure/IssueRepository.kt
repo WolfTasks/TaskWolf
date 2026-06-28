@@ -5,11 +5,12 @@ import com.taskowolf.workflows.domain.StatusCategory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.UUID
 
-interface IssueRepository : JpaRepository<Issue, UUID> {
+interface IssueRepository : JpaRepository<Issue, UUID>, JpaSpecificationExecutor<Issue> {
     fun findByKeyAndProjectId(key: String, projectId: UUID): Issue?
     fun findAllByProjectId(projectId: UUID, pageable: Pageable): Page<Issue>
     fun countByProjectId(projectId: UUID): Long

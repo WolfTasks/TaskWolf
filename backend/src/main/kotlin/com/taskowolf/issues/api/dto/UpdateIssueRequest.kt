@@ -20,5 +20,6 @@ data class UpdateIssueRequest(
     val clearSprint: Boolean = false,
     val labelIds: List<UUID>? = null,
     val fixVersionIds: List<UUID>? = null,
-    val affectsVersionIds: List<UUID>? = null
+    val affectsVersionIds: List<UUID>? = null,
+    val customFieldValues: List<CustomFieldValueInput>? = null  // null = no change
 )

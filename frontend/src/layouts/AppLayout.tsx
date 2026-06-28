@@ -91,6 +91,9 @@ export function AppLayout() {
                   <NavLink to={`/p/${projectKey}/settings/versions`} className={subNavLinkClass}>
                     Versions
                   </NavLink>
+                  <NavLink to={`/p/${projectKey}/settings/custom-fields`} className={subNavLinkClass}>
+                    Custom Fields
+                  </NavLink>
                 </div>
               </div>
             </div>

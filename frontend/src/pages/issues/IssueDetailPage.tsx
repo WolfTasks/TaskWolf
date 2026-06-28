@@ -5,6 +5,8 @@ import { useSprints } from '@/hooks/useSprints'
 import { useProjectMembers } from '@/hooks/useProjectMembers'
 import { useLabels } from '@/hooks/useLabels'
 import { useVersions } from '@/hooks/useVersions'
+import { useCustomFields } from '@/hooks/useCustomFields'
+import { CustomFieldInput } from '@/components/issue/CustomFieldInput'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 import { InlineEditTitle } from '@/components/issue/InlineEditTitle'
 import { PrioritySelector } from '@/components/issue/PrioritySelector'
@@ -38,6 +40,7 @@ export function IssueDetailPage() {
   const { data: sprints = [] } = useSprints(key!)
   const { data: allLabels = [] } = useLabels(key!)
   const { data: allVersions = [] } = useVersions(key!)
+  const { data: customFieldDefs = [] } = useCustomFields(key!)
 
   if (isLoading) return <div className="text-gray-400">Loading...</div>
   if (!issue) return <div className="text-red-400">Issue not found</div>
@@ -176,6 +179,21 @@ export function IssueDetailPage() {
                 onChipClick={v => navigate(`/p/${key}/issues?affectsVersionId=${v.id}`)}
               />
             </SidebarField>
+
+            {customFieldDefs.map(def => {
+              const cfValue = issue.customFields?.find(cf => cf.fieldId === def.id)
+              return (
+                <SidebarField key={def.id} label={def.required ? `${def.name} *` : def.name}>
+                  <CustomFieldInput
+                    definition={def}
+                    value={cfValue}
+                    onChange={val => patch({
+                      customFieldValues: [{ fieldId: def.id, value: val }]
+                    })}
+                  />
+                </SidebarField>
+              )
+            })}
 
             {issue.storyPoints != null && (
               <SidebarField label="Story Points">

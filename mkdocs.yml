@@ -54,6 +54,7 @@ nav:
           - issues: developer-guide/backend/issues.md
           - labels: developer-guide/backend/labels.md
           - versions: developer-guide/backend/versions.md
+          - custom-fields: developer-guide/backend/custom-fields.md
           - workflows: developer-guide/backend/workflows.md
           - sprints: developer-guide/backend/sprints.md
           - boards: developer-guide/backend/boards.md
