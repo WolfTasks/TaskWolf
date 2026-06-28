@@ -23,7 +23,8 @@ class IssueController(
     private val issueService: IssueService,
     private val issueRefRepository: IssueRefRepository,
     private val labelRepository: LabelRepository,
-    private val versionRepository: com.taskowolf.versions.infrastructure.VersionRepository
+    private val versionRepository: com.taskowolf.versions.infrastructure.VersionRepository,
+    private val customFieldService: com.taskowolf.customfields.application.CustomFieldService
 ) {
 
     @GetMapping
@@ -60,7 +61,8 @@ class IssueController(
         val labels = labelRepository.findByIssueId(issue.id).map { LabelResponse.from(it) }
         val fixVersions = versionRepository.findByIssueIdAndType(issue.id, "FIX").map { VersionResponse.from(it) }
         val affectsVersions = versionRepository.findByIssueIdAndType(issue.id, "AFFECTS").map { VersionResponse.from(it) }
-        return IssueResponse.from(issue, refs, labels, fixVersions, affectsVersions)
+        val customFields = customFieldService.getValuesForIssue(issue.project.id, issue.id)
+        return IssueResponse.from(issue, refs, labels, fixVersions, affectsVersions, customFields)
     }
 
     @PatchMapping("/{id}")

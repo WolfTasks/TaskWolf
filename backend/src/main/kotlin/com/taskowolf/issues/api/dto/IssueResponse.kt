@@ -35,7 +35,8 @@ data class IssueResponse(
     val refs: List<IssueRefResponse> = emptyList(),
     val labels: List<LabelResponse> = emptyList(),
     val fixVersions: List<VersionResponse> = emptyList(),
-    val affectsVersions: List<VersionResponse> = emptyList()
+    val affectsVersions: List<VersionResponse> = emptyList(),
+    val customFields: List<com.taskowolf.customfields.api.dto.CustomFieldValueResponse> = emptyList()
 ) {
     companion object {
         fun from(
@@ -43,7 +44,8 @@ data class IssueResponse(
             refs: List<IssueRefResponse> = emptyList(),
             labels: List<LabelResponse> = emptyList(),
             fixVersions: List<VersionResponse> = emptyList(),
-            affectsVersions: List<VersionResponse> = emptyList()
+            affectsVersions: List<VersionResponse> = emptyList(),
+            customFields: List<com.taskowolf.customfields.api.dto.CustomFieldValueResponse> = emptyList()
         ) = IssueResponse(
             id = i.id,
             key = i.key,
@@ -69,7 +71,8 @@ data class IssueResponse(
             refs = refs,
             labels = labels,
             fixVersions = fixVersions,
-            affectsVersions = affectsVersions
+            affectsVersions = affectsVersions,
+            customFields = customFields
         )
     }
 }

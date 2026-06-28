@@ -12,5 +12,6 @@ data class CreateIssueRequest(
     val priority: IssuePriority = IssuePriority.MEDIUM,
     val assigneeId: UUID? = null,
     val parentId: UUID? = null,
-    val storyPoints: Int? = null
+    val storyPoints: Int? = null,
+    val customFieldValues: List<CustomFieldValueInput>? = null
 )

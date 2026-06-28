@@ -35,7 +35,10 @@ class IssueService(
     private val sprintRepository: SprintRepository,
     private val labelRepository: LabelRepository,
     private val versionRepository: com.taskowolf.versions.infrastructure.VersionRepository,
-    private val issueVersionRepository: com.taskowolf.versions.infrastructure.IssueVersionRepository
+    private val issueVersionRepository: com.taskowolf.versions.infrastructure.IssueVersionRepository,
+    private val customFieldDefinitionRepository: com.taskowolf.customfields.infrastructure.CustomFieldDefinitionRepository,
+    private val customFieldOptionRepository: com.taskowolf.customfields.infrastructure.CustomFieldOptionRepository,
+    private val customFieldValueRepository: com.taskowolf.customfields.infrastructure.CustomFieldValueRepository
 ) {
     @Transactional
     fun create(projectKey: String, request: CreateIssueRequest, reporter: User): Issue {
@@ -64,6 +67,8 @@ class IssueService(
                 }
             )
         )
+        validateRequiredCustomFields(project.id, request.customFieldValues)
+        request.customFieldValues?.let { applyCustomFieldValues(issue.id, it, project.id) }
         eventPublisher.publish(IssueCreatedEvent(issue, actorEmail = reporter.email, actorId = reporter.id))
         return issue
     }
@@ -226,6 +231,8 @@ class IssueService(
             }
         }
 
+        request.customFieldValues?.let { applyCustomFieldValues(issue.id, it, project.id) }
+
         return issueRepository.save(issue)
     }
 
@@ -308,6 +315,64 @@ class IssueService(
         )
         eventPublisher.publish(IssueCreatedEvent(issue, actorEmail = senderEmail, actorId = reporter.id))
         return issue
+    }
+
+    private fun applyCustomFieldValues(
+        issueId: UUID,
+        inputs: List<com.taskowolf.issues.api.dto.CustomFieldValueInput>,
+        projectId: UUID
+    ) {
+        val definitions = customFieldDefinitionRepository
+            .findByProjectIdOrderBySortOrder(projectId)
+            .associateBy { it.id }
+
+        for (input in inputs) {
+            val definition = definitions[input.fieldId] ?: continue
+
+            if (input.value == null) {
+                customFieldValueRepository.deleteByIssueIdAndFieldId(issueId, definition.id)
+                continue
+            }
+
+            val cfv = customFieldValueRepository
+                .findByIssueIdAndField_Id(issueId, definition.id)
+                .orElse(com.taskowolf.customfields.domain.CustomFieldValue(issueId = issueId, field = definition))
+
+            when (definition.type) {
+                com.taskowolf.customfields.domain.FieldType.TEXT -> cfv.textValue = input.value
+                com.taskowolf.customfields.domain.FieldType.NUMBER -> cfv.numberValue = input.value.toBigDecimalOrNull()
+                    ?: throw com.taskowolf.core.infrastructure.BadRequestException("Invalid number for field '${definition.name}': ${input.value}")
+                com.taskowolf.customfields.domain.FieldType.DATE -> cfv.dateValue = runCatching {
+                    java.time.LocalDate.parse(input.value)
+                }.getOrElse {
+                    throw com.taskowolf.core.infrastructure.BadRequestException("Invalid date for field '${definition.name}': ${input.value}")
+                }
+                com.taskowolf.customfields.domain.FieldType.CHECKBOX ->
+                    cfv.booleanValue = input.value.equals("true", ignoreCase = true)
+                com.taskowolf.customfields.domain.FieldType.DROPDOWN -> {
+                    val optId = runCatching { UUID.fromString(input.value) }.getOrElse {
+                        throw com.taskowolf.core.infrastructure.BadRequestException("Invalid option ID for field '${definition.name}'")
+                    }
+                    cfv.option = customFieldOptionRepository.findById(optId)
+                        .filter { it.field.id == definition.id }
+                        .orElseThrow { com.taskowolf.core.infrastructure.BadRequestException("Option not found: $optId") }
+                }
+            }
+            customFieldValueRepository.save(cfv)
+        }
+    }
+
+    private fun validateRequiredCustomFields(projectId: UUID, inputs: List<com.taskowolf.issues.api.dto.CustomFieldValueInput>?) {
+        val requiredFields = customFieldDefinitionRepository
+            .findByProjectIdOrderBySortOrder(projectId)
+            .filter { it.required }
+        val providedMap = inputs?.associateBy { it.fieldId } ?: emptyMap()
+        requiredFields.forEach { field ->
+            val input = providedMap[field.id]
+            if (input == null || input.value == null || input.value.isBlank()) {
+                throw com.taskowolf.core.infrastructure.BadRequestException("Required custom field '${field.name}' must have a value")
+            }
+        }
     }
 
     private fun resolveAssignee(assigneeId: UUID, project: com.taskowolf.projects.domain.Project): com.taskowolf.auth.domain.User {
