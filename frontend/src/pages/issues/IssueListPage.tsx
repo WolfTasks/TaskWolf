@@ -5,6 +5,7 @@ import { useLabels } from '@/hooks/useLabels'
 import { useVersions } from '@/hooks/useVersions'
 import { useCustomFields } from '@/hooks/useCustomFields'
 import { StatusBadge } from '@/components/issue/StatusBadge'
+import { CustomFieldInput } from '@/components/issue/CustomFieldInput'
 
 export function IssueListPage() {
   const { key } = useParams<{ key: string }>()
@@ -28,6 +29,7 @@ export function IssueListPage() {
   const createIssue = useCreateIssue(key!)
   const [title, setTitle] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [cfValues, setCfValues] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (labelId && labels.length > 0 && !labels.some(l => l.id === labelId)) {
@@ -57,8 +59,20 @@ export function IssueListPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) return
-    await createIssue.mutateAsync({ title })
+
+    // Validate required fields
+    const missingRequired = customFieldDefs
+      .filter(d => d.required && !cfValues[d.id])
+      .map(d => d.name)
+    if (missingRequired.length > 0) {
+      alert(`Required fields missing: ${missingRequired.join(', ')}`)
+      return
+    }
+
+    const customFieldValues = Object.entries(cfValues).map(([fieldId, value]) => ({ fieldId, value }))
+    await createIssue.mutateAsync({ title, customFieldValues: customFieldValues.length > 0 ? customFieldValues : undefined })
     setTitle('')
+    setCfValues({})
     setShowForm(false)
   }
 
@@ -172,11 +186,30 @@ export function IssueListPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="mb-4 flex gap-2">
+        <form onSubmit={handleCreate} className="mb-4 flex flex-col gap-2">
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Issue title" autoFocus required
-            className="flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
-          <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Save</button>
-          <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white px-3 py-2 text-sm">Cancel</button>
+            className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
+          {customFieldDefs.length > 0 && (
+            <div className="flex flex-col gap-2 mt-2">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">Custom Fields</span>
+              {customFieldDefs.map(def => (
+                <div key={def.id} className="flex flex-col gap-0.5">
+                  <label className="text-xs text-gray-400">
+                    {def.name}{def.required ? ' *' : ''}
+                  </label>
+                  <CustomFieldInput
+                    definition={def}
+                    value={cfValues[def.id] ? { fieldId: def.id, fieldName: def.name, type: def.type, required: def.required, textValue: def.type === 'TEXT' ? cfValues[def.id] : undefined, numberValue: def.type === 'NUMBER' ? parseFloat(cfValues[def.id]) : undefined, dateValue: def.type === 'DATE' ? cfValues[def.id] : undefined, booleanValue: def.type === 'CHECKBOX' ? cfValues[def.id] === 'true' : undefined, optionId: def.type === 'DROPDOWN' ? cfValues[def.id] : undefined } : undefined}
+                    onChange={val => setCfValues(prev => val === null ? (({ [def.id]: _, ...rest }) => rest)(prev) : { ...prev, [def.id]: val })}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Save</button>
+            <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white px-3 py-2 text-sm">Cancel</button>
+          </div>
         </form>
       )}
 
