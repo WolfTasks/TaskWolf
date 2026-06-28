@@ -12,6 +12,7 @@ import com.taskowolf.issues.domain.events.IssueCreatedEvent
 import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.issues.domain.events.IssueStatusChangedEvent
 import com.taskowolf.issues.infrastructure.IssueRepository
+import com.taskowolf.issues.infrastructure.IssueSpecification
 import com.taskowolf.labels.infrastructure.LabelRepository
 import com.taskowolf.projects.application.ProjectService
 import com.taskowolf.versions.domain.IssueVersion
@@ -19,7 +20,6 @@ import com.taskowolf.versions.infrastructure.IssueVersionRepository
 import com.taskowolf.versions.infrastructure.VersionRepository
 import com.taskowolf.sprints.infrastructure.SprintRepository
 import com.taskowolf.workflows.application.WorkflowService
-import com.taskowolf.workflows.domain.StatusCategory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -237,8 +237,9 @@ class IssueService(
     }
 
     /**
-     * Filters issues for a project. When [overdue] is true, results are always ordered by dueDate ASC
-     * regardless of the [sort] parameter (the overdue query hardcodes ORDER BY dueDate ASC).
+     * Filters issues for a project using composable JPA Specifications.
+     * When [overdue] is true, results are ordered by dueDate ASC regardless of [sort].
+     * Custom field filters are passed as [customFieldFilters]: a map of field UUID → raw string value.
      */
     @Transactional(readOnly = true)
     fun findByProject(
@@ -251,26 +252,30 @@ class IssueService(
         overdue: Boolean = false,
         labelId: UUID? = null,
         fixVersionId: UUID? = null,
-        affectsVersionId: UUID? = null
+        affectsVersionId: UUID? = null,
+        customFieldFilters: Map<UUID, String> = emptyMap()
     ): org.springframework.data.domain.Page<Issue> {
         val project = projectService.requireMember(projectKey, userId)
-        val pageable = when (sort) {
-            "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
+
+        val pageable = when {
+            overdue -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("dueDate").ascending())
+            sort == "updatedAt" -> PageRequest.of(page, size, org.springframework.data.domain.Sort.by("updatedAt").descending())
             else -> PageRequest.of(page, size)
         }
-        if (fixVersionId != null && affectsVersionId != null)
-            return issueRepository.findAllByProjectIdAndBothVersionIds(project.id, fixVersionId, affectsVersionId, pageable)
-        if (fixVersionId != null)
-            return issueRepository.findAllByProjectIdAndFixVersionId(project.id, fixVersionId, pageable)
-        if (affectsVersionId != null)
-            return issueRepository.findAllByProjectIdAndAffectsVersionId(project.id, affectsVersionId, pageable)
-        if (labelId != null) return issueRepository.findAllByProjectIdAndLabelId(project.id, labelId, pageable)
-        return when {
-            overdue && assigneeMe -> issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, userId, StatusCategory.DONE, pageable)
-            overdue -> issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, pageable)
-            assigneeMe -> issueRepository.findByProjectIdAndAssigneeId(project.id, userId, pageable)
-            else -> issueRepository.findAllByProjectId(project.id, pageable)
+
+        var spec = IssueSpecification.inProject(project.id)
+        if (assigneeMe) spec = spec.and(IssueSpecification.assignedTo(userId))
+        if (overdue) spec = spec.and(IssueSpecification.overdue())
+        if (labelId != null) spec = spec.and(IssueSpecification.hasLabel(labelId))
+        if (fixVersionId != null) spec = spec.and(IssueSpecification.hasFixVersion(fixVersionId))
+        if (affectsVersionId != null) spec = spec.and(IssueSpecification.hasAffectsVersion(affectsVersionId))
+
+        for ((fieldId, rawValue) in customFieldFilters) {
+            val fieldType = customFieldDefinitionRepository.findById(fieldId).map { it.type }.orElse(null) ?: continue
+            spec = spec.and(IssueSpecification.hasCustomFieldValue(fieldId, rawValue, fieldType))
         }
+
+        return issueRepository.findAll(spec, pageable)
     }
 
     @Transactional(readOnly = true)

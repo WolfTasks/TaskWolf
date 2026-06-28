@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import java.util.UUID
 
 class IssueServiceTest {
@@ -189,42 +190,36 @@ class IssueServiceTest {
     }
 
     @Test
-    fun `findByProject with overdue=true calls findOverdueByProjectId with StatusCategory DONE`() {
+    fun `findByProject with overdue=true uses Specification-based findAll`() {
         val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
-        every { issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, any()) } returns emptyPage
+        every { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) } returns emptyPage
 
         service.findByProject("WOLF", owner.id, 0, 20, overdue = true)
 
-        verify(exactly = 1) { issueRepository.findOverdueByProjectId(project.id, StatusCategory.DONE, any()) }
-        verify(exactly = 0) { issueRepository.findByProjectIdAndAssigneeId(any(), any(), any()) }
-        verify(exactly = 0) { issueRepository.findAllByProjectId(any(), any()) }
+        verify(exactly = 1) { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) }
     }
 
     @Test
-    fun `findByProject with overdue=true and assigneeMe=true calls findOverdueByProjectIdAndAssigneeId`() {
+    fun `findByProject with overdue=true and assigneeMe=true uses Specification-based findAll`() {
         val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
-        every { issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, owner.id, StatusCategory.DONE, any()) } returns emptyPage
+        every { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) } returns emptyPage
 
         service.findByProject("WOLF", owner.id, 0, 20, assigneeMe = true, overdue = true)
 
-        verify(exactly = 1) { issueRepository.findOverdueByProjectIdAndAssigneeId(project.id, owner.id, StatusCategory.DONE, any()) }
-        verify(exactly = 0) { issueRepository.findOverdueByProjectId(any(), any(), any()) }
-        verify(exactly = 0) { issueRepository.findByProjectIdAndAssigneeId(any(), any(), any()) }
+        verify(exactly = 1) { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) }
     }
 
     @Test
-    fun `findByProject with assigneeMe=true calls findByProjectIdAndAssigneeId`() {
+    fun `findByProject with assigneeMe=true uses Specification-based findAll`() {
         val emptyPage = PageImpl<Issue>(emptyList())
         every { projectService.requireMember("WOLF", owner.id) } returns project
-        every { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) } returns emptyPage
+        every { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) } returns emptyPage
 
         service.findByProject("WOLF", owner.id, 0, 20, assigneeMe = true)
 
-        verify(exactly = 1) { issueRepository.findByProjectIdAndAssigneeId(project.id, owner.id, any()) }
-        verify(exactly = 0) { issueRepository.findOverdueByProjectId(any(), any(), any()) }
-        verify(exactly = 0) { issueRepository.findAllByProjectId(any(), any()) }
+        verify(exactly = 1) { issueRepository.findAll(any<Specification<Issue>>(), any<Pageable>()) }
     }
 
     @Test

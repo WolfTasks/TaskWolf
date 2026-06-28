@@ -38,9 +38,19 @@ class IssueController(
         @RequestParam(defaultValue = "false") overdue: Boolean,
         @RequestParam(required = false) labelId: UUID?,
         @RequestParam(required = false) fixVersionId: UUID?,
-        @RequestParam(required = false) affectsVersionId: UUID?
-    ) = issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue, labelId, fixVersionId, affectsVersionId)
+        @RequestParam(required = false) affectsVersionId: UUID?,
+        @RequestParam(value = "cf", required = false) cf: List<String>?
+    ): org.springframework.data.domain.Page<com.taskowolf.issues.api.dto.IssueResponse> {
+        val customFieldFilters: Map<UUID, String> = cf?.mapNotNull { param ->
+            val colonIdx = param.indexOf(':')
+            if (colonIdx < 0) return@mapNotNull null
+            runCatching { UUID.fromString(param.substring(0, colonIdx)) to param.substring(colonIdx + 1) }.getOrNull()
+        }?.toMap() ?: emptyMap()
+
+        return issueService.findByProject(key, user.id, page, size, assigneeMe, sort, overdue,
+            labelId, fixVersionId, affectsVersionId, customFieldFilters)
             .map { IssueResponse.from(it) }
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
