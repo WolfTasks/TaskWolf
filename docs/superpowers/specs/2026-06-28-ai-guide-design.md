@@ -111,7 +111,7 @@ Compact table format. Three columns: Decision | Rejected alternative | Reason.
 - All code snippets must be extracted from actual source files — never invented.
 - The checklist is mandatory prose, not optional guidance.
 - ADR reasons must be one sentence — no multi-sentence explanations.
-- The page must not duplicate content already in `conventions.md`; cross-link instead.
+- The page must not duplicate prose rules already in `conventions.md` — cross-link instead. Snippets are not duplication: `conventions.md` states the rule, this page shows the canonical copy-paste form of that rule.
 - Page length target: dense but readable in under 5 minutes.
 
 ---
