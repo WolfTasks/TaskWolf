@@ -102,6 +102,7 @@ class LabelService(
             .orElseThrow { NotFoundException("Label not found: $labelId") }
         labelRepository.delete(label)
     }
+    // ... update and delete omitted for brevity
 }
 ```
 
@@ -140,6 +141,7 @@ class LabelController(private val labelService: LabelService) {
         @PathVariable id: UUID,
         @AuthenticationPrincipal user: User
     ) = labelService.delete(key, id, user)
+    // ... update omitted for brevity
 }
 ```
 
@@ -233,6 +235,7 @@ CREATE TABLE labels (
     updated_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
     UNIQUE (project_id, name)
 );
+-- issue_labels join table omitted for brevity
 ```
 
 > **DO NOT** use `JSONB` columns — H2 does not support it.  
@@ -300,6 +303,7 @@ export function useDeleteLabel(projectKey: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['labels', projectKey] }),
   })
 }
+// ... useUpdateLabel and useDeleteLabel omitted for brevity
 ```
 
 > **DO NOT** use `useState` + `useEffect` + `fetch` for server data — use React Query.  
@@ -313,25 +317,27 @@ export function useDeleteLabel(projectKey: string) {
 One component per file. Filename matches the exported component name (e.g. `LabelChip.tsx` exports `LabelChip`). Import shadcn/ui from `@/components/ui/` (the local copy), never the npm package. Use Tailwind for all static styling. Use `cn()` for conditional class names. Use `style` only for dynamic values (e.g. a runtime color).
 
 ```typescript
-// frontend/src/components/labels/LabelChip.tsx
-import { cn } from '@/lib/utils'
+// frontend/src/components/issue/LabelChip.tsx
+import type { Label } from '@/types'
 
-interface LabelChipProps {
-  name: string
-  color: string
-  className?: string
+interface Props {
+  label: Label
+  onClick?: () => void
 }
 
-export function LabelChip({ name, color, className }: LabelChipProps) {
+export function LabelChip({ label, onClick }: Props) {
+  const base = 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border'
   return (
     <span
-      className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium text-white',
-        className
-      )}
-      style={{ backgroundColor: color }}
+      className={`${base} ${onClick ? 'cursor-pointer hover:opacity-80' : ''}`}
+      style={{
+        backgroundColor: label.color + '26',  // ~15% opacity
+        color: label.color,
+        borderColor: label.color + '4d',      // ~30% opacity
+      }}
+      onClick={onClick ? (e: React.MouseEvent) => { e.stopPropagation(); onClick() } : undefined}
     >
-      {name}
+      {label.name}
     </span>
   )
 }
