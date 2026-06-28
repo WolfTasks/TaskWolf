@@ -3,6 +3,7 @@ import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useIssues, useCreateIssue } from '@/hooks/useIssues'
 import { useLabels } from '@/hooks/useLabels'
 import { useVersions } from '@/hooks/useVersions'
+import { useCustomFields } from '@/hooks/useCustomFields'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 
 export function IssueListPage() {
@@ -12,7 +13,16 @@ export function IssueListPage() {
   const fixVersionId = searchParams.get('fixVersionId') ?? undefined
   const affectsVersionId = searchParams.get('affectsVersionId') ?? undefined
 
-  const { data: page, isLoading } = useIssues(key!, { labelId, fixVersionId, affectsVersionId })
+  const { data: customFieldDefs = [] } = useCustomFields(key!)
+
+  // Build customFieldFilters map from URL params (key = fieldId, value = raw filter value)
+  const customFieldFilters: Record<string, string> = {}
+  customFieldDefs.forEach(def => {
+    const v = searchParams.get(`cf_${def.id}`)
+    if (v) customFieldFilters[def.id] = v
+  })
+
+  const { data: page, isLoading } = useIssues(key!, { labelId, fixVersionId, affectsVersionId, customFieldFilters: Object.keys(customFieldFilters).length > 0 ? customFieldFilters : undefined })
   const { data: labels = [] } = useLabels(key!)
   const { data: versions = [] } = useVersions(key!)
   const createIssue = useCreateIssue(key!)
@@ -57,6 +67,15 @@ export function IssueListPage() {
       const n = new URLSearchParams(prev)
       if (value) n.set(key, value)
       else n.delete(key)
+      return n
+    })
+  }
+
+  function setCfParam(fieldId: string, value: string | undefined) {
+    setSearchParams(prev => {
+      const n = new URLSearchParams(prev)
+      if (value) n.set(`cf_${fieldId}`, value)
+      else n.delete(`cf_${fieldId}`)
       return n
     })
   }
@@ -108,7 +127,41 @@ export function IssueListPage() {
           ))}
         </select>
 
-        {(labelId || fixVersionId || affectsVersionId) && (
+        {customFieldDefs.map(def => (
+          <div key={def.id} className="flex flex-col">
+            <span className="text-xs text-gray-500 mb-0.5">{def.name}</span>
+            {def.type === 'DROPDOWN' ? (
+              <select
+                value={customFieldFilters[def.id] ?? ''}
+                onChange={e => setCfParam(def.id, e.target.value || undefined)}
+                className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+              >
+                <option value="">All</option>
+                {def.options?.map(opt => <option key={opt.id} value={opt.id}>{opt.label}</option>)}
+              </select>
+            ) : def.type === 'CHECKBOX' ? (
+              <select
+                value={customFieldFilters[def.id] ?? ''}
+                onChange={e => setCfParam(def.id, e.target.value || undefined)}
+                className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+              >
+                <option value="">All</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            ) : (
+              <input
+                type={def.type === 'NUMBER' ? 'number' : def.type === 'DATE' ? 'date' : 'text'}
+                value={customFieldFilters[def.id] ?? ''}
+                onChange={e => setCfParam(def.id, e.target.value || undefined)}
+                placeholder={`Filter by ${def.name}`}
+                className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
+              />
+            )}
+          </div>
+        ))}
+
+        {(labelId || fixVersionId || affectsVersionId || Object.keys(customFieldFilters).length > 0) && (
           <button
             onClick={() => setSearchParams({})}
             className="text-xs text-gray-400 hover:text-white"
