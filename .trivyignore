@@ -1,0 +1,2 @@
+# Begründete Ausnahmen. Format pro Zeile: CVE-ID  # Grund + Datum
+# z.B.: CVE-2024-12345  # nicht ausnutzbar (Komponente ungenutzt), 2026-06-28

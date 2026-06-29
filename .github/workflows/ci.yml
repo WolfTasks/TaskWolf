@@ -69,6 +69,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
     steps:
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
         with:
@@ -106,6 +107,29 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix=sha-,format=short
 
+      - name: Build image for scan
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
+        with:
+          context: ./backend
+          load: true
+          tags: taskowolf-backend:scan
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2   # v0.28.0
+        with:
+          image-ref: taskowolf-backend:scan
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          trivyignores: .trivyignore
+          format: sarif
+          output: trivy-backend.sarif
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
+        with:
+          sarif_file: trivy-backend.sarif
+
       - name: Build and push backend image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
         with:
@@ -120,6 +144,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
     steps:
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
         with:
@@ -143,6 +168,29 @@ jobs:
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix=sha-,format=short
+
+      - name: Build image for scan
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
+        with:
+          context: ./frontend
+          load: true
+          tags: taskowolf-frontend:scan
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2   # v0.28.0
+        with:
+          image-ref: taskowolf-frontend:scan
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          trivyignores: .trivyignore
+          format: sarif
+          output: trivy-frontend.sarif
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
+        with:
+          sarif_file: trivy-frontend.sarif
 
       - name: Build and push frontend image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
