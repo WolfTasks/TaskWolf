@@ -143,6 +143,7 @@ jobs:
           build-root-directory: backend
 
   dependency-review:
+    needs: dependency-submission
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
