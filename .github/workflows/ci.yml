@@ -48,6 +48,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: npm audit (block on high/critical)
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
       - name: Build frontend
         working-directory: frontend
         run: npm run build
