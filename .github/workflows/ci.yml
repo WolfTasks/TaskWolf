@@ -12,12 +12,15 @@ env:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   backend-test:
     runs-on: ubuntu-latest
     steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
 
       - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520   # v5
@@ -36,6 +39,10 @@ jobs:
   frontend-build:
     runs-on: ubuntu-latest
     steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e   # v6
@@ -59,7 +66,14 @@ jobs:
   backend-docker:
     needs: backend-test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
 
       - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520   # v5
@@ -103,7 +117,14 @@ jobs:
   frontend-docker:
     needs: frontend-build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
 
       - name: Log in to GitHub Container Registry
@@ -136,6 +157,10 @@ jobs:
     permissions:
       contents: write   # Dependency Graph schreiben
     steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10            # v6
       - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520          # v5
         with:
@@ -154,6 +179,10 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10            # v6
       - name: Dependency Review
         uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48   # v4
