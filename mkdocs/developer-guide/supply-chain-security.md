@@ -157,7 +157,7 @@ Jeder Release-Tag (`v*.*.*`) durchläuft einen erweiterten Publish-Workflow:
 
 ```bash
 cosign verify \
-  --certificate-identity-regexp "https://github.com/taskowolf/TaskWolf" \
+  --certificate-identity-regexp "https://github.com/WolfTasks/TaskWolf" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
   kwolfgang/taskowolf-backend:<digest>
 ```
@@ -229,7 +229,7 @@ Sicherheitslücken in TaskWolf bitte **nicht** als öffentliches GitHub-Issue
 melden. Stattdessen das Private Vulnerability Reporting nutzen:
 *Security → Report a vulnerability* im Repository. Details zur Reaktionszeit
 und zum Prozess stehen in der
-[SECURITY.md](https://github.com/taskowolf/TaskWolf/blob/main/SECURITY.md)
+[SECURITY.md](https://github.com/WolfTasks/TaskWolf/blob/main/SECURITY.md)
 im Repository-Root.
 
 ---
@@ -240,5 +240,5 @@ im Repository-Root.
   Checkliste für neue Abhängigkeiten (Reife, CVEs, Cooldown, Lizenz).
 - `docs/superpowers/supply-chain-policy.md` — internes Dokument mit
   CVE-Reaktionsprozess, Update-Kadenz, IOC-Liste und Kompromittierungs-Reaktion.
-- [SECURITY.md](https://github.com/taskowolf/TaskWolf/blob/main/SECURITY.md) —
+- [SECURITY.md](https://github.com/WolfTasks/TaskWolf/blob/main/SECURITY.md) —
   Supported Versions und Responsible-Disclosure-Prozess.
