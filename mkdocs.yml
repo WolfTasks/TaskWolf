@@ -48,6 +48,7 @@ nav:
       - Overview: developer-guide/index.md
       - AI Implementation Guide: developer-guide/ai-guide.md
       - Conventions: developer-guide/conventions.md
+      - Supply-Chain Security: developer-guide/supply-chain-security.md
       - Backend:
           - core: developer-guide/backend/core.md
           - auth: developer-guide/backend/auth.md
