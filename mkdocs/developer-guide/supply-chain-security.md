@@ -119,16 +119,19 @@ Dependabot überwacht vier Ökosysteme und öffnet wöchentlich Update-PRs:
 | GitHub Actions | `/` |
 | Docker (Basis-Images) | `/backend`, `/frontend` |
 
-Alle Ökosysteme sind in Gruppen zusammengefasst, damit verwandte Updates
-gebündelt ankommen statt als Einzelflut.
+Gradle-, npm- und GitHub-Actions-Updates sind in Gruppen zusammengefasst
+(`backend-deps`, `frontend-deps`, `actions`), damit verwandte Updates gebündelt
+ankommen statt als Einzelflut. Docker-Image-Updates werden nicht gruppiert und
+treffen pro Image einzeln ein.
 
-### 5-Tage-Cooldown
+### 5-Tage-Cooldown (Gradle und npm)
 
-Der Cooldown (`cooldown.default-days: 5`) verhindert, dass Dependabot eine
-frisch veröffentlichte — und potenziell noch nicht gecheckte oder kompromittierte
-— Version sofort als PR öffnet. Dasselbe Prinzip gilt beim manuellen Pinnen:
-Niemals eine Version fixieren, die weniger als 5 Tage alt ist. Details dazu
-in der [Dependency-Checkliste im AI-Guide](ai-guide.md#adding-a-new-dependency).
+Für die Package-Registries Gradle und npm ist ein Cooldown (`cooldown.default-days: 5`)
+konfiguriert. Dieser verhindert, dass Dependabot eine frisch veröffentlichte —
+und potenziell noch nicht gecheckte oder kompromittierte — Version sofort als PR
+öffnet. GitHub Actions und Docker haben keinen Cooldown. Dasselbe Prinzip gilt
+beim manuellen Pinnen: Niemals eine Version fixieren, die weniger als 5 Tage alt
+ist. Details dazu in der [Dependency-Checkliste im AI-Guide](ai-guide.md#adding-a-new-dependency).
 
 ---
 
