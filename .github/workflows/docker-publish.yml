@@ -7,7 +7,6 @@ on:
 permissions:
   contents: read
   id-token: write   # cosign keyless via OIDC
-  packages: write
 
 jobs:
   publish:
@@ -72,7 +71,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac   # v3
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac   # v3
 
       - name: Sign image (keyless)
         env:
