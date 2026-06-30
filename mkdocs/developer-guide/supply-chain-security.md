@@ -179,7 +179,7 @@ uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v
 ```
 
 Dependabot aktualisiert die SHAs automatisch, sobald eine neue Action-Version
-erscheint — inklusive Cooldown.
+erscheint.
 
 ---
 
