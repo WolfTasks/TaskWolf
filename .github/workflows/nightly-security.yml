@@ -1,0 +1,48 @@
+name: Nightly Security Scan
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # täglich 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  owasp-dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10              # v6
+      - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520            # v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Run OWASP Dependency-Check
+        working-directory: backend
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          chmod +x gradlew
+          ./gradlew dependencyCheckAnalyze
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
+        with:
+          sarif_file: backend/build/reports/dependency-check-report.sarif
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b          # v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Nightly security scan failed (${new Date().toISOString().slice(0,10)})`,
+              body: 'OWASP Dependency-Check meldete High/Critical-CVEs. Siehe Workflow-Run und Security-Tab.',
+              labels: ['security']
+            })

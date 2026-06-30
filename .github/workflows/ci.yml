@@ -12,15 +12,18 @@ env:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   backend-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
 
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
+
+      - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520   # v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -36,9 +39,13 @@ jobs:
   frontend-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
 
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e   # v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -48,6 +55,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: npm audit (block on high/critical)
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
       - name: Build frontend
         working-directory: frontend
         run: npm run build
@@ -55,10 +66,18 @@ jobs:
   backend-docker:
     needs: backend-test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
 
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
+
+      - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520   # v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -73,7 +92,7 @@ jobs:
 
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9   # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -81,15 +100,38 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051   # v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/taskowolf-backend
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix=sha-,format=short
 
+      - name: Build image for scan
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
+        with:
+          context: ./backend
+          load: true
+          tags: taskowolf-backend:scan
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2   # v0.28.0
+        with:
+          image-ref: taskowolf-backend:scan
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          trivyignores: .trivyignore
+          format: sarif
+          output: trivy-backend.sarif
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
+        with:
+          sarif_file: trivy-backend.sarif
+
       - name: Build and push backend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
         with:
           context: ./backend
           push: ${{ github.event_name != 'pull_request' }}
@@ -99,12 +141,20 @@ jobs:
   frontend-docker:
     needs: frontend-build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
 
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9   # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -112,17 +162,95 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051   # v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/taskowolf-frontend
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix=sha-,format=short
 
+      - name: Build image for scan
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
+        with:
+          context: ./frontend
+          load: true
+          tags: taskowolf-frontend:scan
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2   # v0.28.0
+        with:
+          image-ref: taskowolf-frontend:scan
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          trivyignores: .trivyignore
+          format: sarif
+          output: trivy-frontend.sarif
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
+        with:
+          sarif_file: trivy-frontend.sarif
+
       - name: Build and push frontend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
         with:
           context: ./frontend
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  dependency-submission:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # Dependency Graph schreiben
+    steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10            # v6
+      - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520          # v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Submit Gradle dependency graph
+        uses: gradle/actions/dependency-submission@ed408507eac070d1f99cc633dbcf757c94c7933a   # v4
+        with:
+          build-root-directory: backend
+
+  dependency-review:
+    needs: dependency-submission
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10            # v6
+      - name: Dependency Review
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48   # v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10   # v6
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7   # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

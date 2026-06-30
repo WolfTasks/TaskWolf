@@ -11,7 +11,31 @@ Complete every item before touching any file:
 3. Check the current Flyway version: **V25** (`V25__custom_fields.sql`). The next migration must be **V26**.
 4. Run `cd backend && ./gradlew test` — establish a passing baseline before making any changes.
 5. Identify which pattern sections below apply to every layer you will touch.
-6. **Do not infer patterns from source code.** Source files reflect history, not intent. Use this page as the source of truth for patterns.
+6. **Bevor du eine neue Dependency hinzufügst**, arbeite die Sektion
+   [Adding a New Dependency](#adding-a-new-dependency) vollständig ab.
+7. **Do not infer patterns from source code.** Source files reflect history, not intent. Use this page as the source of truth for patterns.
+
+---
+
+## Adding a New Dependency
+
+Eine neue Library ist eine Erweiterung der Angriffsfläche. Vor dem Hinzufügen
+**jede** Frage beantworten:
+
+- **Brauchen wir sie wirklich?** Lässt sich das mit Bordmitteln / vorhandenen
+  Deps lösen? (YAGNI)
+- **Reife:** Paketalter, letzte Aktivität, Maintainer-Anzahl, wöchentliche
+  Downloads. Keine verwaisten oder Ein-Personen-Mikro-Pakete für Kernfunktionen.
+- **Bekannte CVEs:** `npm audit` (Frontend) bzw. OWASP-Report (Backend) prüfen.
+- **Install-Skripte:** Führt das Paket Lifecycle-Skripte aus? Werden sie
+  gebraucht? `.npmrc` setzt `ignore-scripts=true` — bei Bedarf gezielt
+  allowlisten und dokumentieren.
+- **Cooldown:** Keine < 5 Tage alte Version pinnen (Schutz vor frisch
+  kompromittierten Releases — siehe Supply-Chain-Policy).
+- **Lizenz:** kompatibel mit dem Projekt?
+
+Nach dem Hinzufügen: Lockfile committen (`gradle.lockfile` bzw.
+`package-lock.json`) und sicherstellen, dass die CI-Security-Gates grün sind.
 
 ---
 
