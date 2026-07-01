@@ -114,6 +114,18 @@ jobs:
           load: true
           tags: taskowolf-backend:scan
 
+      # TEMP DIAGNOSTIC (non-failing): prints the exact HIGH/CRITICAL set the
+      # gate's exit-code counts, to explain why the gate exits 1 while the
+      # uploaded SARIF shows 0 HIGH/CRITICAL. Remove once root cause is fixed.
+      - name: Trivy scan (diagnostic, non-failing)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
+        with:
+          image-ref: taskowolf-backend:scan
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          trivyignores: .trivyignore
+          format: table
+
       - name: Trivy scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
         with:
@@ -175,6 +187,18 @@ jobs:
           context: ./frontend
           load: true
           tags: taskowolf-frontend:scan
+
+      # TEMP DIAGNOSTIC (non-failing): prints the exact HIGH/CRITICAL set the
+      # gate's exit-code counts, to explain why the gate exits 1 while the
+      # uploaded SARIF shows 0 HIGH/CRITICAL. Remove once root cause is fixed.
+      - name: Trivy scan (diagnostic, non-failing)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
+        with:
+          image-ref: taskowolf-frontend:scan
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+          trivyignores: .trivyignore
+          format: table
 
       - name: Trivy scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
