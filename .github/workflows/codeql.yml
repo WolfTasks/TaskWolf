@@ -36,6 +36,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+          ram: 8192
       - name: Build backend for CodeQL
         if: matrix.language == 'java-kotlin'
         run: |
