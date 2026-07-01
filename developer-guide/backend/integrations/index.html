@@ -1,0 +1,2713 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source, self-hosted project management">
+      
+      
+      
+      
+        <link rel="prev" href="../reports/">
+      
+      
+        <link rel="next" href="../audit/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>integrations - TaskWolf</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-integrations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="TaskWolf" class="md-header__button md-logo" aria-label="TaskWolf" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TaskWolf
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              integrations
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/taskowolf/TaskWolf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskowolf/TaskWolf
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../configuration/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Configuration
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../user-guide/projects/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../admin-guide/sso/" class="md-tabs__link">
+          
+  
+  
+  Admin Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+  Developer Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../development/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="TaskWolf" class="md-nav__button md-logo" aria-label="TaskWolf" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TaskWolf
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/taskowolf/TaskWolf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskowolf/TaskWolf
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects & Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/boards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Boards & Sprints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/automation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/dashboards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Admin Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../admin-guide/sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSO / OIDC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../admin-guide/organizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Organizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../admin-guide/service-desk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Desk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../admin-guide/audit-logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Implementation Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../conventions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conventions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../supply-chain-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply-Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Backend
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom-fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    custom-fields
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sprints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sprints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    boards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../comments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    comments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    notifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../attachments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    attachments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../automation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    automation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    integrations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    integrations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entities-owned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entities Owned
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#db-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DB Schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DB Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#api_keys-v13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        api_keys (V13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webhooks-webhook_deliveries-v14-v16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        webhooks, webhook_deliveries (V14 + V16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project_integrations-issue_refs-v15-v16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        project_integrations, issue_refs (V15 + V16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#outgoing-webhooks-apiv1projectskeywebhooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outgoing webhooks (/api/v1/projects/{key}/webhooks)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-integrations-apiv1projectskeyintegrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project integrations (/api/v1/projects/{key}/integrations)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incoming-webhooks-permit-all-in-securityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incoming webhooks (permit-all in SecurityConfig)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#events-emitted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Events Emitted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#events-consumed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Events Consumed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extension-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extension Points
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../organizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    organizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../servicedesk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    servicedesk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Frontend
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../frontend/pages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entities-owned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entities Owned
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#db-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DB Schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DB Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#api_keys-v13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        api_keys (V13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webhooks-webhook_deliveries-v14-v16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        webhooks, webhook_deliveries (V14 + V16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project_integrations-issue_refs-v15-v16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        project_integrations, issue_refs (V15 + V16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#outgoing-webhooks-apiv1projectskeywebhooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outgoing webhooks (/api/v1/projects/{key}/webhooks)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-integrations-apiv1projectskeyintegrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project integrations (/api/v1/projects/{key}/integrations)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incoming-webhooks-permit-all-in-securityconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incoming webhooks (permit-all in SecurityConfig)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#events-emitted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Events Emitted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#events-consumed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Events Consumed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extension-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extension Points
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Patterns
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="module-integrations">Module: integrations<a class="headerlink" href="#module-integrations" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Manages outgoing webhooks (fanout, signed HTTP delivery with retries), incoming GitHub and GitLab event ingestion (commit/PR linking), and API key–based authentication. Owns <code>ApiKeyAuthFilter</code>, which intercepts <code>Bearer tw_*</code> tokens before <code>JwtAuthFilter</code> in the Spring Security filter chain.</p>
+<hr />
+<h2 id="entities-owned">Entities Owned<a class="headerlink" href="#entities-owned" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Table</th>
+<th>Key Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Webhook</code></td>
+<td><code>webhooks</code></td>
+<td><code>projectId</code> UUID NOT NULL, <code>url</code> VARCHAR(2048), <code>secret</code> TEXT (plaintext — see Security below), <code>events</code> TEXT (JSON array of event type strings), <code>enabled</code> BOOLEAN, <code>createdBy</code> UUID</td>
+</tr>
+<tr>
+<td><code>WebhookDelivery</code></td>
+<td><code>webhook_deliveries</code></td>
+<td><code>webhookId</code> UUID FK→webhooks ON DELETE CASCADE, <code>eventType</code> VARCHAR(100), <code>payload</code> TEXT (JSON body sent), <code>responseStatus</code> INT?, <code>responseBody</code> TEXT?, <code>attemptCount</code> INT, <code>nextRetryAt</code> Instant? (null = no more retries), <code>deliveredAt</code> Instant?</td>
+</tr>
+<tr>
+<td><code>ProjectIntegration</code></td>
+<td><code>project_integrations</code></td>
+<td><code>projectId</code> UUID NOT NULL, <code>provider: IntegrationProvider</code> (<code>GITHUB</code>/<code>GITLAB</code>), <code>webhookSecret</code> TEXT (plaintext), <code>repoUrl</code> VARCHAR(2048)?; UNIQUE <code>(project_id, provider)</code></td>
+</tr>
+<tr>
+<td><code>IssueRef</code></td>
+<td><code>issue_refs</code></td>
+<td><code>issueId</code> UUID FK→issues ON DELETE CASCADE, <code>provider: IntegrationProvider</code>, <code>refType: RefType</code> (<code>COMMIT</code>/<code>PR</code>), <code>externalId</code> VARCHAR(255), <code>url</code> VARCHAR(2048), <code>title</code> VARCHAR(1024)?; UNIQUE <code>(issue_id, provider, ref_type, external_id)</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>api_keys</code> table (V13) is used by <code>ApiKeyAuthFilter</code> but its CRUD controller is in <code>backend/src/main/kotlin/com/taskowolf/auth/api/ApiKeyController.kt</code>.</p>
+<p><code>WebhookEventType</code> constants (all strings): <code>issue.created</code>, <code>issue.updated</code>, <code>issue.status_changed</code>, <code>issue.assigned</code>, <code>issue.deleted</code>, <code>sprint.started</code>, <code>sprint.completed</code>, <code>comment.created</code>, <code>attachment.added</code>. <code>issue.deleted</code> has no dispatcher listener and is never emitted.</p>
+<hr />
+<h2 id="db-schema">DB Schema<a class="headerlink" href="#db-schema" title="Permanent link">&para;</a></h2>
+<h3 id="api_keys-v13"><code>api_keys</code> (V13)<a class="headerlink" href="#api_keys-v13" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">api_keys</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">id</span><span class="w">           </span><span class="n">UUID</span><span class="w">         </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">gen_random_uuid</span><span class="p">()</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">name</span><span class="w">         </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">key_hash</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w">  </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">key_prefix</span><span class="w">   </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w">  </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">project_id</span><span class="w">   </span><span class="n">UUID</span><span class="w">         </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">projects</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">created_by</span><span class="w">   </span><span class="n">UUID</span><span class="w">         </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">users</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">last_used_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">expires_at</span><span class="w">   </span><span class="n">TIMESTAMPTZ</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">created_at</span><span class="w">   </span><span class="n">TIMESTAMPTZ</span><span class="w">  </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">updated_at</span><span class="w">   </span><span class="n">TIMESTAMPTZ</span><span class="w">  </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">);</span>
+</code></pre></div>
+<p><code>key_hash</code> stores the SHA-256 hash of the raw <code>tw_*</code> token. The raw token is returned once at creation and never stored.</p>
+<h3 id="webhooks-webhook_deliveries-v14-v16"><code>webhooks</code>, <code>webhook_deliveries</code> (V14 + V16)<a class="headerlink" href="#webhooks-webhook_deliveries-v14-v16" title="Permanent link">&para;</a></h3>
+<p>V14 created <code>webhooks.secret_hash</code>; V16 renamed it to <code>secret</code> (now stores plaintext). The column name in the running schema is <code>secret</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">webhooks</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">id</span><span class="w">         </span><span class="n">UUID</span><span class="w">          </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">gen_random_uuid</span><span class="p">()</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">project_id</span><span class="w"> </span><span class="n">UUID</span><span class="w">          </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">projects</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">url</span><span class="w">        </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">secret</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w">   </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">events</span><span class="w">     </span><span class="nb">TEXT</span><span class="w">          </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">enabled</span><span class="w">    </span><span class="nb">BOOLEAN</span><span class="w">       </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">created_by</span><span class="w"> </span><span class="n">UUID</span><span class="w">          </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">users</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w">   </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w">   </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">);</span>
+</code></pre></div>
+<p><code>webhook_deliveries.next_retry_at</code> has a partial index <code>WHERE delivered_at IS NULL</code> — retry polling uses this index.</p>
+<h3 id="project_integrations-issue_refs-v15-v16"><code>project_integrations</code>, <code>issue_refs</code> (V15 + V16)<a class="headerlink" href="#project_integrations-issue_refs-v15-v16" title="Permanent link">&para;</a></h3>
+<p>V15 created <code>project_integrations.webhook_secret_hash</code>; V16 renamed it to <code>webhook_secret</code> (now stores plaintext).</p>
+<hr />
+<h2 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="outgoing-webhooks-apiv1projectskeywebhooks">Outgoing webhooks (<code>/api/v1/projects/{key}/webhooks</code>)<a class="headerlink" href="#outgoing-webhooks-apiv1projectskeywebhooks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/projects/{key}/webhooks</code></td>
+<td>USER</td>
+<td>List webhooks for project</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/projects/{key}/webhooks</code></td>
+<td>ADMIN</td>
+<td>Create webhook; response includes <code>plaintextSecret</code> (one-time); SSRF validation runs before save</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/api/v1/projects/{key}/webhooks/{webhookId}</code></td>
+<td>ADMIN</td>
+<td>Update URL/events/enabled</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/projects/{key}/webhooks/{webhookId}</code></td>
+<td>ADMIN</td>
+<td>Delete webhook; returns 204</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/projects/{key}/webhooks/{webhookId}/deliveries</code></td>
+<td>USER</td>
+<td>Paged delivery history (<code>page</code>, <code>size</code>)</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/projects/{key}/webhooks/{webhookId}/test</code></td>
+<td>ADMIN</td>
+<td>Send a test ping delivery; returns 201</td>
+</tr>
+</tbody>
+</table>
+<h3 id="project-integrations-apiv1projectskeyintegrations">Project integrations (<code>/api/v1/projects/{key}/integrations</code>)<a class="headerlink" href="#project-integrations-apiv1projectskeyintegrations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/v1/projects/{key}/integrations</code></td>
+<td>USER</td>
+<td>List GitHub/GitLab integrations</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/projects/{key}/integrations</code></td>
+<td>ADMIN</td>
+<td>Create integration; response includes generated <code>plaintextSecret</code></td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/v1/projects/{key}/integrations/{integrationId}</code></td>
+<td>ADMIN</td>
+<td>Remove integration; returns 204</td>
+</tr>
+</tbody>
+</table>
+<h3 id="incoming-webhooks-permit-all-in-securityconfig">Incoming webhooks (permit-all in <code>SecurityConfig</code>)<a class="headerlink" href="#incoming-webhooks-permit-all-in-securityconfig" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/integrations/github/{projectKey}/webhook</code></td>
+<td>PUBLIC</td>
+<td>Receive GitHub push/PR event; validated by <code>X-Hub-Signature-256</code> HMAC header</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/v1/integrations/gitlab/{projectKey}/webhook</code></td>
+<td>PUBLIC</td>
+<td>Receive GitLab push/MR event; validated by <code>X-Gitlab-Token</code> header equality</td>
+</tr>
+</tbody>
+</table>
+<p>Both incoming paths are <code>permitAll()</code> in <code>SecurityConfig</code> — no JWT or API key required. HMAC (GitHub) or token equality (GitLab) is the only authentication.</p>
+<hr />
+<h2 id="events-emitted">Events Emitted<a class="headerlink" href="#events-emitted" title="Permanent link">&para;</a></h2>
+<p>None. The integrations module creates <code>IssueRef</code> records but publishes no domain events.</p>
+<hr />
+<h2 id="events-consumed">Events Consumed<a class="headerlink" href="#events-consumed" title="Permanent link">&para;</a></h2>
+<p><code>WebhookDispatcher</code> listens to domain events and fans out to all enabled webhooks for the project:</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Handler</th>
+<th>Webhook event type dispatched</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IssueCreatedEvent</code></td>
+<td><code>onIssueCreated()</code></td>
+<td><code>issue.created</code></td>
+</tr>
+<tr>
+<td><code>IssueStatusChangedEvent</code></td>
+<td><code>onStatusChanged()</code></td>
+<td><code>issue.status_changed</code></td>
+</tr>
+<tr>
+<td><code>IssueFieldChangedEvent</code> (field=<code>assignee</code>)</td>
+<td><code>onFieldChanged()</code></td>
+<td><code>issue.assigned</code></td>
+</tr>
+<tr>
+<td><code>IssueFieldChangedEvent</code> (other fields)</td>
+<td><code>onFieldChanged()</code></td>
+<td><code>issue.updated</code></td>
+</tr>
+<tr>
+<td><code>SprintStartedEvent</code></td>
+<td><code>onSprintStarted()</code></td>
+<td><code>sprint.started</code></td>
+</tr>
+<tr>
+<td><code>SprintCompletedEvent</code></td>
+<td><code>onSprintCompleted()</code></td>
+<td><code>sprint.completed</code></td>
+</tr>
+<tr>
+<td><code>CommentCreatedEvent</code></td>
+<td><code>onCommentCreated()</code></td>
+<td><code>comment.created</code></td>
+</tr>
+<tr>
+<td><code>AttachmentAddedEvent</code></td>
+<td><code>onAttachmentAdded()</code></td>
+<td><code>attachment.added</code></td>
+</tr>
+</tbody>
+</table>
+<p>Dispatch saves a <code>WebhookDelivery</code> record synchronously, then calls <code>sendAsync(deliveryId)</code> which is <code>@Async</code> — the HTTP POST to the target URL happens on a background thread. Retry schedule: attempt 1 → 60 s delay, attempt 2 → 300 s, attempt 3+ → no further retries.</p>
+<p><code>DeliveryRetryJob</code> and <code>DeliveryCleanupJob</code> are scheduled jobs that process pending retries and remove old delivery records.</p>
+<hr />
+<h2 id="key-files">Key Files<a class="headerlink" href="#key-files" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/application/WebhookDispatcher.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/application/IncomingWebhookService.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/application/HmacSigner.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/application/SsrfValidator.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/application/WebhookService.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/application/IssueKeyParser.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/api/GitHubWebhookController.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/api/GitLabWebhookController.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/api/WebhookController.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/api/ProjectIntegrationController.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/integrations/domain/WebhookEventType.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/auth/infrastructure/ApiKeyAuthFilter.kt</code></li>
+<li><code>backend/src/main/kotlin/com/taskowolf/auth/infrastructure/SecurityConfig.kt</code></li>
+<li><code>backend/src/main/resources/db/migration/V13__api_keys.sql</code></li>
+<li><code>backend/src/main/resources/db/migration/V14__webhooks.sql</code></li>
+<li><code>backend/src/main/resources/db/migration/V15__integrations.sql</code></li>
+<li><code>backend/src/main/resources/db/migration/V16__webhook_secrets_plaintext.sql</code></li>
+</ul>
+<hr />
+<h2 id="extension-points">Extension Points<a class="headerlink" href="#extension-points" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Add a new outgoing webhook event type:</strong> (1) Add a constant to <code>WebhookEventType</code>. (2) Add an <code>@EventListener</code> method in <code>WebhookDispatcher</code> for the new domain event. (3) Build the data payload map and call <code>dispatch(eventType, projectId, data)</code>. Note: the <code>IssueDeleted</code> event type exists in the enum but has no dispatcher listener — it is a ready-made extension hook.</li>
+<li><strong>Add a new incoming provider (e.g. Bitbucket):</strong> (1) Add the provider to <code>IntegrationProvider</code>. (2) Add a <code>@RestController</code> at <code>/api/v1/integrations/bitbucket/{projectKey}/webhook</code>. (3) Add the path to the <code>permitAll()</code> list in <code>SecurityConfig</code>. (4) Verify the provider's signature scheme (Bitbucket uses <code>X-Hub-Signature</code> with SHA-256; reuse <code>HmacSigner.verify()</code>). (5) Add a <code>handleBitbucket()</code> method in <code>IncomingWebhookService</code> following the <code>handleGitHub</code> pattern.</li>
+<li><strong><code>IssueKeyParser</code></strong> parses issue keys from commit/PR text using a regex. Extend it if your project key format differs from the default <code>[A-Z]+-\d+</code> pattern.</li>
+</ul>
+<hr />
+<h2 id="common-pitfalls">Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Webhook secrets are stored plaintext</strong> — <code>webhooks.secret</code> and <code>project_integrations.webhook_secret</code> both hold raw secret values. V16 intentionally renamed <code>secret_hash</code> to <code>secret</code> to reflect this. HMAC verification requires the raw value; do NOT hash it before storing.</li>
+<li><strong>API key tokens (<code>tw_*</code>) ARE hashed</strong> — <code>api_keys.key_hash</code> stores the SHA-256 hash. The raw token is returned once at creation and never persisted. Authentication in <code>ApiKeyAuthFilter</code> hashes the incoming token and compares to the stored hash.</li>
+<li><strong><code>ApiKeyAuthFilter</code> position</strong> — registered <code>.addFilterBefore(apiKeyAuthFilter, JwtAuthFilter::class.java)</code> in <code>SecurityConfig</code>. It runs before JWT processing. Both filters short-circuit if <code>SecurityContextHolder</code> already has an authentication.</li>
+<li><strong><code>SsrfValidator</code> accepts unresolvable DNS names</strong> — if <code>InetAddress.getAllByName(host)</code> throws (DNS failure), <code>SsrfValidator.validate()</code> returns without error. Only resolved private IPs are blocked (<code>isLoopbackAddress</code>, <code>isSiteLocalAddress</code>, <code>isLinkLocalAddress</code>, <code>isAnyLocalAddress</code>, <code>isMulticastAddress</code>). A webhook URL with an unresolvable hostname passes validation and fails only at delivery time.</li>
+<li><strong>GitLab uses token equality, not HMAC</strong> — <code>IncomingWebhookService.handleGitLab()</code> compares <code>integration.webhookSecret == tokenHeader</code> directly (no <code>HmacSigner</code>). If the <code>X-Gitlab-Token</code> header is absent, the comparison is against an empty string.</li>
+<li><strong><code>IssueRef</code> duplicate upsert is silent</strong> — <code>linkKeys()</code> catches exceptions from duplicate UNIQUE constraint violations and logs at DEBUG. A duplicate commit/PR reference silently does nothing.</li>
+<li><strong>Use <code>MessageDigest.isEqual()</code> for HMAC signature comparison</strong> — <code>String.equals()</code> / <code>==</code> short-circuits on the first byte mismatch and is vulnerable to timing attacks.</li>
+</ul>
+<hr />
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<p>GitHub webhook HMAC verification — <code>IncomingWebhookService</code> calls <code>HmacSigner.verify()</code> with the plaintext secret:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">verifyGitHubSignature</span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">payload</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">secret</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">signatureHeader</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">signatureHeader</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">hmacSigner</span><span class="p">.</span><span class="na">verify</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">signatureHeader</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1">// HmacSigner</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">sign</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">secret</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">mac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Mac</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;HmacSHA256&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="n">mac</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">SecretKeySpec</span><span class="p">(</span><span class="n">secret</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">(</span><span class="n">Charsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;HmacSHA256&quot;</span><span class="p">))</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">hex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mac</span><span class="p">.</span><span class="na">doFinal</span><span class="p">(</span><span class="n">payload</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">(</span><span class="n">Charsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">))</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">        </span><span class="p">.</span><span class="na">joinToString</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;%02x&quot;</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;sha256=</span><span class="si">$</span><span class="n">hex</span><span class="s">&quot;</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">}</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">secret</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">signature</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sign</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span><span class="w"> </span><span class="n">secret</span><span class="p">)</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">MessageDigest</span><span class="p">.</span><span class="na">isEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">(),</span><span class="w"> </span><span class="n">signature</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">())</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>sign()</code> produces <code>sha256=&lt;64 hex chars&gt;</code>. GitHub sends this value in <code>X-Hub-Signature-256</code>. The secret passed to <code>sign()</code> must be the raw plaintext value from <code>project_integrations.webhook_secret</code>.</p>
+<hr />
+<h2 id="test-patterns">Test Patterns<a class="headerlink" href="#test-patterns" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>GitHubWebhookControllerTest</code></strong> — full integration test (<code>IntegrationTestBase</code>); creates a real project and integration via the API, then POSTs to the webhook endpoint with a valid HMAC signature. Verifies: valid signature returns 200; invalid signature returns 401; commit message containing an issue key creates an <code>IssueRef</code> visible on the issue detail endpoint.</li>
+<li><strong><code>HmacSignerTest</code></strong> — pure unit test. Verifies: signature starts with <code>sha256=</code> and is 71 chars; same input produces same output; different secret produces different signature; <code>verify()</code> returns true for matching signature; <code>verify()</code> returns false for tampered payload.</li>
+<li><strong><code>SsrfValidatorTest</code></strong> — pure unit test. Verifies: public URL accepted; <code>localhost</code>, <code>127.0.0.1</code>, <code>10.x.x.x</code>, <code>192.168.x.x</code> ranges all rejected.</li>
+<li><strong><code>WebhookServiceTest</code></strong> — pure unit test with MockK. Verifies: <code>create()</code> calls <code>ssrfValidator.validate()</code> before saving; the saved <code>Webhook.secret</code> equals the provided plaintext value (not a hash); SSRF rejection prevents <code>webhookRepository.save()</code> from being called.</li>
+<li><strong><code>WebhookControllerTest</code></strong> — MockMvc slice test; verifies endpoint routing and status codes.</li>
+<li><strong><code>IssueKeyParserTest</code></strong> — pure unit test; verifies key extraction regex against various commit message formats.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
