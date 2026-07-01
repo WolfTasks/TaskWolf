@@ -120,6 +120,10 @@ jobs:
           image-ref: taskowolf-backend:scan
           severity: HIGH,CRITICAL
           exit-code: '1'
+          # Honour `severity` for the exit-code with SARIF output. Without this
+          # the action scans all severities for the SARIF and exit-code fires on
+          # MEDIUM/LOW too — the gate must block on HIGH,CRITICAL only.
+          limit-severities-for-sarif: true
           trivyignores: .trivyignore
           format: sarif
           output: trivy-backend.sarif
@@ -129,6 +133,29 @@ jobs:
         uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
         with:
           sarif_file: trivy-backend.sarif
+
+      # Non-gating: report ALL severities to the code-scanning dashboard so
+      # MEDIUM/LOW findings stay visible (the gate above blocks on HIGH,CRITICAL
+      # only). Uploaded under a distinct category so it never collides with the
+      # gate SARIF or the frontend report.
+      - name: Trivy scan (report, all severities, non-gating)
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
+        with:
+          image-ref: taskowolf-backend:scan
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          exit-code: '0'
+          limit-severities-for-sarif: true
+          trivyignores: .trivyignore
+          format: sarif
+          output: trivy-backend-report.sarif
+
+      - name: Upload Trivy report SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
+        with:
+          sarif_file: trivy-backend-report.sarif
+          category: trivy-report-backend
 
       - name: Build and push backend image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
@@ -182,6 +209,10 @@ jobs:
           image-ref: taskowolf-frontend:scan
           severity: HIGH,CRITICAL
           exit-code: '1'
+          # Honour `severity` for the exit-code with SARIF output. Without this
+          # the action scans all severities for the SARIF and exit-code fires on
+          # MEDIUM/LOW too — the gate must block on HIGH,CRITICAL only.
+          limit-severities-for-sarif: true
           trivyignores: .trivyignore
           format: sarif
           output: trivy-frontend.sarif
@@ -191,6 +222,29 @@ jobs:
         uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
         with:
           sarif_file: trivy-frontend.sarif
+
+      # Non-gating: report ALL severities to the code-scanning dashboard so
+      # MEDIUM/LOW findings stay visible (the gate above blocks on HIGH,CRITICAL
+      # only). Uploaded under a distinct category so it never collides with the
+      # gate SARIF or the backend report.
+      - name: Trivy scan (report, all severities, non-gating)
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
+        with:
+          image-ref: taskowolf-frontend:scan
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          exit-code: '0'
+          limit-severities-for-sarif: true
+          trivyignores: .trivyignore
+          format: sarif
+          output: trivy-frontend-report.sarif
+
+      - name: Upload Trivy report SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357   # v3
+        with:
+          sarif_file: trivy-frontend-report.sarif
+          category: trivy-report-frontend
 
       - name: Build and push frontend image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8   # v6
