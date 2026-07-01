@@ -9,6 +9,12 @@ updates:
     groups:
       backend-deps:
         patterns: ["*"]
+    ignore:
+      # Stay on Spring Boot 3.5.x. Boot 4.x is a deliberate future migration
+      # (breaking changes), not an automated bump — see the CVE-remediation
+      # work in PR #10. Remove this when ready to move to Boot 4.
+      - dependency-name: "org.springframework.boot"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
     directory: /frontend
