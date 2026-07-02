@@ -3,10 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.owasp.dependencycheck") version "11.1.0"
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.spring") version "2.0.0"
-    kotlin("plugin.jpa") version "2.0.0"
+    id("org.owasp.dependencycheck") version "11.1.1"
+    kotlin("jvm") version "2.4.0"
+    kotlin("plugin.spring") version "2.4.0"
+    kotlin("plugin.jpa") version "2.4.0"
 }
 
 group = "com.taskowolf"
@@ -37,17 +37,17 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+    implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
-    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("io.mockk:mockk:1.14.11")
     // okhttp3 is no longer managed by the Spring Boot 3.5 BOM (was 4.12.0 in the 3.3 BOM); pin explicitly.
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
@@ -55,7 +55,7 @@ dependencies {
 // Override Spring Boot BOM version for Testcontainers to support Docker Desktop 4.x on Windows
 dependencyManagement {
     imports {
-        mavenBom("org.testcontainers:testcontainers-bom:1.20.4")
+        mavenBom("org.testcontainers:testcontainers-bom:1.21.4")
     }
 }
 
