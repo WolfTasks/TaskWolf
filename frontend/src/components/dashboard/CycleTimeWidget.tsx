@@ -25,7 +25,7 @@ export function CycleTimeWidget({ projectKey }: Props) {
         <YAxis stroke="#6b7280" tick={{ fontSize: 10 }} label={{ value: 'Hours', angle: -90, position: 'insideLeft', fill: '#6b7280', fontSize: 10 }} />
         <Tooltip
           contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px' }}
-          formatter={(v: number) => [`${v}h`, 'Avg Cycle Time']}
+          formatter={(v) => [`${v}h`, 'Avg Cycle Time']}
         />
         <Bar dataKey="Hours" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
       </BarChart>
