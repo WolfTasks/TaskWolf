@@ -10,10 +10,17 @@ updates:
       backend-deps:
         patterns: ["*"]
     ignore:
-      # Stay on Spring Boot 3.5.x. Boot 4.x is a deliberate future migration
-      # (breaking changes), not an automated bump — see the CVE-remediation
-      # work in PR #10. Remove this when ready to move to Boot 4.
-      - dependency-name: "org.springframework.boot"
+      # Never auto-apply backend *major* bumps. A major here means breaking
+      # changes that belong in a dedicated, hand-driven migration rather than a
+      # batched Dependabot PR. Concretely:
+      #   - Spring Boot 4.x — deliberate future migration, see PR #10 (stay on 3.5.x).
+      #   - The backend-deps group #17 batched Gradle 9, springdoc 3,
+      #     Testcontainers 2, okhttp 5 and dependency-check 12 in one PR and
+      #     failed CI. Each needs its own upgrade effort (e.g. Kotlin/Gradle 9
+      #     also entails the kotlinOptions{} -> compilerOptions{} DSL migration).
+      # Minor/patch updates still group and open automatically. Scope this down
+      # or drop it when tackling a specific major upgrade by hand.
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
