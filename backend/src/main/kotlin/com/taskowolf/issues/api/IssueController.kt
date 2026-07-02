@@ -14,6 +14,7 @@ import com.taskowolf.versions.infrastructure.VersionRepository
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -61,6 +62,8 @@ class IssueController(
     ) = IssueResponse.from(issueService.create(key, request, user))
 
     @GetMapping("/{issueKey}")
+    // Keeps the session open while IssueResponse.from() reads lazy associations (OSIV is disabled).
+    @Transactional(readOnly = true)
     fun get(
         @PathVariable key: String,
         @PathVariable issueKey: String,

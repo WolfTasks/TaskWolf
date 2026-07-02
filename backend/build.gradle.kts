@@ -5,9 +5,9 @@ plugins {
     id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.owasp.dependencycheck") version "11.1.0"
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.spring") version "2.0.0"
-    kotlin("plugin.jpa") version "2.0.0"
+    kotlin("jvm") version "2.4.0"
+    kotlin("plugin.spring") version "2.4.0"
+    kotlin("plugin.jpa") version "2.4.0"
 }
 
 group = "com.taskowolf"
