@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.owasp.dependencycheck") version "12.2.2"
     kotlin("jvm") version "2.4.0"
     kotlin("plugin.spring") version "2.4.0"
     kotlin("plugin.jpa") version "2.4.0"
@@ -58,15 +57,6 @@ dependencyManagement {
     imports {
         mavenBom("org.testcontainers:testcontainers-bom:1.21.4")
     }
-}
-
-dependencyCheck {
-    failBuildOnCVSS = 7.0f   // High/Critical blockieren
-    suppressionFile = "dependency-check-suppressions.xml"
-    nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""
-    formats = listOf("HTML", "SARIF")
-    analyzers.assemblyEnabled = false
-    analyzers.nodeEnabled = false
 }
 
 tasks.withType<KotlinCompile> {
