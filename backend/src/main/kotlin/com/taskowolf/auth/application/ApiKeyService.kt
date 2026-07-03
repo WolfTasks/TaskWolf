@@ -54,7 +54,8 @@ class ApiKeyService(
         if (!rawToken.startsWith("tw_")) return null
         val hash = sha256(rawToken)
         val key = apiKeyRepository.findByKeyHash(hash) ?: return null
-        if (key.expiresAt != null && key.expiresAt.isBefore(Instant.now())) return null
+        val expiresAt = key.expiresAt
+        if (expiresAt != null && expiresAt.isBefore(Instant.now())) return null
         key.lastUsedAt = Instant.now()
         apiKeyRepository.save(key)
         return userRepository.findById(key.createdBy).orElse(null)

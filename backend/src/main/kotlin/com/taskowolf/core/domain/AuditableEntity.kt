@@ -12,8 +12,7 @@ import java.util.UUID
 @EntityListeners(AuditingEntityListener::class)
 abstract class AuditableEntity(
     @Id
-    @get:JvmName("getEntityId")
-    val id: UUID = UUID.randomUUID(),
+    private val id: UUID = UUID.randomUUID(),
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
