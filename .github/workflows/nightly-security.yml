@@ -10,30 +10,40 @@ permissions:
   security-events: write
   issues: write
 
+# Nightly dependency (SCA) scan via Trivy. Trivy resolves its vulnerability
+# database from GHCR (OCI), independent of the NVD live API — which has been
+# returning 503/524 for extended periods and previously made the OWASP
+# Dependency-Check nightly unreliable. The gate mirrors the per-push Trivy
+# scan in ci.yml (HIGH,CRITICAL). The nightly cadence catches CVEs newly
+# disclosed against unchanged dependencies.
 jobs:
-  owasp-dependency-check:
+  trivy-repo-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411   # v2
         with:
           egress-policy: audit
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0              # v7.0.0
-      - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520            # v5
+      - name: Trivy filesystem scan (gate HIGH,CRITICAL)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25    # v0.36.0
         with:
-          java-version: '21'
-          distribution: 'temurin'
-      - name: Run OWASP Dependency-Check
-        working-directory: backend
-        env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: |
-          chmod +x gradlew
-          ./gradlew dependencyCheckAnalyze
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          # Honour `severity` for the exit-code with SARIF output (same gotcha
+          # as ci.yml): without this the SARIF covers all severities and the
+          # exit-code fires on MEDIUM/LOW too.
+          limit-severities-for-sarif: true
+          trivyignores: .trivyignore
+          format: sarif
+          output: trivy-nightly.sarif
       - name: Upload SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a   # v4.36.3
         with:
-          sarif_file: backend/build/reports/dependency-check-report.sarif
+          sarif_file: trivy-nightly.sarif
+          category: trivy-nightly
       - name: Open issue on failure
         if: failure()
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3          # v9.0.0
@@ -43,6 +53,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Nightly security scan failed (${new Date().toISOString().slice(0,10)})`,
-              body: 'OWASP Dependency-Check meldete High/Critical-CVEs. Siehe Workflow-Run und Security-Tab.',
+              body: 'Trivy meldete HIGH/CRITICAL-CVEs in Dependencies. Siehe Workflow-Run und den Security-Tab (Code scanning, Kategorie `trivy-nightly`).',
               labels: ['security']
             })
