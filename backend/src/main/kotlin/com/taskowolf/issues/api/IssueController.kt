@@ -29,6 +29,8 @@ class IssueController(
 ) {
 
     @GetMapping
+    // Keeps the session open while IssueResponse.from() reads lazy associations (OSIV is disabled).
+    @Transactional(readOnly = true)
     fun list(
         @PathVariable key: String,
         @AuthenticationPrincipal user: User,
@@ -79,6 +81,10 @@ class IssueController(
     }
 
     @PatchMapping("/{id}")
+    // Read-write (NOT readOnly): mutates the issue AND keeps the session open so IssueResponse.from()
+    // can read lazy associations after IssueService.update() returns (OSIV is disabled). A readOnly
+    // tx here would put Hibernate in MANUAL-flush mode and silently drop the update.
+    @Transactional
     fun update(
         @PathVariable key: String,
         @PathVariable id: UUID,
