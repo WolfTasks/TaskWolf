@@ -6,6 +6,9 @@ TaskWolf is a Jira-style issue tracker and agile board you run on your own infra
 
 [![Backend](https://img.shields.io/docker/v/kwolfgang/taskowolf-backend?label=backend&logo=docker)](https://hub.docker.com/r/kwolfgang/taskowolf-backend)
 [![Frontend](https://img.shields.io/docker/v/kwolfgang/taskowolf-frontend?label=frontend&logo=docker)](https://hub.docker.com/r/kwolfgang/taskowolf-frontend)
+[![Docs](https://img.shields.io/badge/docs-online-blue?logo=materialformkdocs&logoColor=white)](https://wolftasks.github.io/TaskWolf/)
+
+📖 **Documentation:** [wolftasks.github.io/TaskWolf](https://wolftasks.github.io/TaskWolf/)
 
 ---
 
@@ -237,7 +240,7 @@ SUB /user/queue/notifications     # Personal notifications
 ### Phase 8 — Release v1.0 *(planned)*
 
 - Changelog and release notes
-- User-facing documentation site
+- ✅ User-facing documentation site — [live](https://wolftasks.github.io/TaskWolf/)
 - Docker Hub publish
 - Hardening of known items:
   - OIDC endpoint discovery (currently Keycloak-style paths only)
