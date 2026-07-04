@@ -52,6 +52,12 @@ dependencies {
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
+// Security override of a Spring Boot 3.5.16 BOM-managed transitive version.
+// commons-lang3 3.17.0 -> 3.18.0 fixes CVE-2025-48924 (BOM pins 3.17.0 even though swagger-core wants 3.20.0).
+// NOTE: jackson-databind CVE-2026-54515 (2.21.4) has no installable fix yet — 2.21.5/2.22.1 are unreleased,
+// 2.18.9 is a downgrade, 3.1.4 is a major jump. Let the Spring Boot BOM carry 2.21.5 once it ships.
+extra["commons-lang3.version"] = "3.18.0"
+
 // Override Spring Boot BOM version for Testcontainers to support Docker Desktop 4.x on Windows
 dependencyManagement {
     imports {
