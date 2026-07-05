@@ -16,6 +16,7 @@ import { SprintSelector } from '@/components/issue/SprintSelector'
 import { DueDatePicker } from '@/components/issue/DueDatePicker'
 import { LabelSelector } from '@/components/issue/LabelSelector'
 import { VersionSelector } from '@/components/issue/VersionSelector'
+import { StoryPointsSelector } from '@/components/issue/StoryPointsSelector'
 import { RichTextEditor } from '@/components/issue/RichTextEditor'
 import { CommentThread } from '@/components/comments/CommentThread'
 import { ActivityFeed } from '@/components/comments/ActivityFeed'
@@ -181,11 +182,12 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               )
             })}
 
-            {issue.storyPoints != null && (
-              <SidebarField label="Story Points">
-                <span className="text-sm text-white">{issue.storyPoints}</span>
-              </SidebarField>
-            )}
+            <SidebarField label="Story Points">
+              <StoryPointsSelector
+                value={issue.storyPoints}
+                onSave={sp => sp != null ? patch({ storyPoints: sp }) : patch({ clearStoryPoints: true })}
+              />
+            </SidebarField>
 
             <SidebarField label="Created">
               <span className="text-xs text-gray-500">{new Date(issue.createdAt).toLocaleDateString()}</span>
