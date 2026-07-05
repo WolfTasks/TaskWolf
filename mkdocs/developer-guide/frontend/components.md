@@ -106,6 +106,8 @@ Issues can be viewed two ways: as a full page (`/p/:key/issues/:issueKey`) or as
 
 > `DraggableCard` waits until pointer movement is below a 5px threshold before treating a click as "open issue" — this stops a drag gesture from being misread as a click that opens the dialog.
 
+**`StoryPointsSelector`** (`frontend/src/components/issue/StoryPointsSelector.tsx`) — sidebar field selector rendered inside `IssueDetailContent`, using the same popover / outside-click pattern as `PrioritySelector` and `TypeSelector`. Options are a fixed Fibonacci grid (1, 2, 3, 5, 8, 13, 21) plus a "— Clear" item. Always rendered, even when the issue has no story points — shows the placeholder "Set points" in that case. Props: `{ value: number | null | undefined; onSave: (value: number | null) => void }`. Picking a number calls `onSave(n)`, wired by `IssueDetailContent` to `patch({ storyPoints: n })`; picking "— Clear" calls `onSave(null)`, wired to `patch({ clearStoryPoints: true })`. Board and backlog story-point chips remain read-only and continue to update via the shared React Query cache.
+
 ---
 
 ## Extension Points
