@@ -31,7 +31,7 @@ export function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex">
+    <div id="app-root" className="min-h-screen bg-gray-950 text-white flex">
       <aside className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col p-4">
         <Link to="/" className="text-xl font-bold mb-8">🐺 TaskWolf</Link>
         <nav className="flex flex-col gap-1 flex-1">

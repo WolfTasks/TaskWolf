@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { IssueDetailContent } from '@/components/issue/IssueDetailContent'
 
@@ -8,14 +9,66 @@ interface Props {
   onClose: () => void
 }
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
+  const panelRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    const previousBodyOverflow = document.body.style.overflow
+    const appRoot = document.getElementById('app-root')
+
+    document.body.style.overflow = 'hidden'
+    appRoot?.setAttribute('aria-hidden', 'true')
+
+    // Move focus into the dialog panel.
+    panelRef.current?.focus()
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key === 'Tab') {
+        const panel = panelRef.current
+        if (!panel) return
+        const focusable = Array.from(
+          panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+        ).filter(el => el.offsetParent !== null || el === document.activeElement)
+        if (focusable.length === 0) {
+          e.preventDefault()
+          return
+        }
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        const active = document.activeElement as HTMLElement | null
+
+        if (e.shiftKey) {
+          if (active === first || !panel.contains(active)) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (active === last || !panel.contains(active)) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = previousBodyOverflow
+      if (appRoot) appRoot.removeAttribute('aria-hidden')
+      previouslyFocused?.focus()
+    }
   }, [onClose])
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto"
       onClick={onClose}
@@ -23,6 +76,8 @@ export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
       aria-modal="true"
     >
       <div
+        ref={panelRef}
+        tabIndex={-1}
         className="bg-gray-950 border border-gray-800 rounded-xl w-full max-w-5xl my-8 p-6 relative"
         onClick={e => e.stopPropagation()}
       >
@@ -43,6 +98,7 @@ export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
         </div>
         <IssueDetailContent projectKey={projectKey} issueKey={issueKey} />
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
