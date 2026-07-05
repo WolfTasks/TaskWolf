@@ -1,6 +1,8 @@
+import { useRef } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { cn } from '@/lib/utils'
+import { useOpenIssue } from '@/hooks/useOpenIssue'
 import type { Issue } from '@/types'
 
 const priorityColor: Record<string, string> = {
@@ -14,6 +16,8 @@ interface Props { issue: Issue }
 
 export function DraggableCard({ issue }: Props) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: issue.id })
+  const openIssue = useOpenIssue()
+  const downPos = useRef<{ x: number; y: number } | null>(null)
 
   return (
     <div
@@ -21,6 +25,14 @@ export function DraggableCard({ issue }: Props) {
       style={{ transform: CSS.Translate.toString(transform) }}
       {...attributes}
       {...listeners}
+      onPointerDownCapture={e => { downPos.current = { x: e.clientX, y: e.clientY } }}
+      onClick={e => {
+        const start = downPos.current
+        downPos.current = null
+        if (!start) return
+        const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y)
+        if (moved < 5) openIssue(issue.key)
+      }}
       className={cn(
         'bg-gray-900 border border-gray-800 rounded-lg p-3 cursor-grab active:cursor-grabbing select-none',
         isDragging && 'opacity-50 border-blue-500 z-50'
