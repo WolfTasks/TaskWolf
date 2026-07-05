@@ -92,6 +92,22 @@ export function NotificationBell() {
 
 ---
 
+## Issue Dialog
+
+Issues can be viewed two ways: as a full page (`/p/:key/issues/:issueKey`) or as a modal overlay on top of the current page (Board, Backlog, Issue List), opened via the `?issue=KEY` URL query parameter. Both views render the same shared content component, so there is only one implementation of the issue detail UI to maintain.
+
+**`IssueDetailContent`** (`frontend/src/components/issue/IssueDetailContent.tsx`) — the shared detail content. Props: `{ projectKey: string; issueKey: string }`. Loads the issue via `useIssue(projectKey, issueKey)`, so the full page and the modal read from the same React Query cache entry (`['issues', projectKey, issueKey]`). Rendered directly by `IssueDetailPage` (the full page) and wrapped by `IssueDialog` (the modal).
+
+**`IssueDialog`** (`frontend/src/components/issue/IssueDialog.tsx`) — a hand-rolled modal overlay (no dialog library dependency added; same pattern as `CompleteSprintDialog`). Props: `{ projectKey: string; issueKey: string; onClose: () => void }`. Wraps `IssueDetailContent` in a backdrop and panel, closes on Escape, backdrop click, or the ✕ button, and renders a "Full view" link to the full-page route as an escape hatch.
+
+**`IssueDialogHost`** (`frontend/src/components/issue/IssueDialogHost.tsx`) — mounted once in `AppLayout`. Props: `{ projectKey: string }`. Reads the `issue` search param; when present, renders `IssueDialog` with `onClose` wired to remove only the `issue` param, leaving any other query params (e.g. list filters) untouched.
+
+**`useOpenIssue`** (`frontend/src/hooks/useOpenIssue.ts`) — hook that returns `(issueKey: string) => void`. Calling it sets `?issue=KEY` on the current URL while preserving all other existing query params. Used by backlog rows, issue-list rows, and board cards (`DraggableCard`) to open the modal.
+
+> `DraggableCard` waits until pointer movement is below a 5px threshold before treating a click as "open issue" — this stops a drag gesture from being misread as a click that opens the dialog.
+
+---
+
 ## Extension Points
 
 **To add a new shadcn/ui component:**

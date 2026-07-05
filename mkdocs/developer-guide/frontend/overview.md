@@ -58,6 +58,14 @@ Ephemeral UI state (modal open/closed, form inputs, selected tab) uses React `us
 
 ---
 
+## Routing
+
+Routes are defined in `frontend/src/app/router.tsx` via `createBrowserRouter`.
+
+**Modal-over-page pattern:** issue detail can be opened as a modal overlay on top of whatever page the user is on (Board, Backlog, Issue List) via the `?issue=KEY` query parameter, handled by `IssueDialogHost` (mounted once in `AppLayout`). The full page route `/p/:key/issues/:issueKey` remains as a deep-link fallback, so a direct link or page refresh always resolves to a valid view. See `components.md` for the components involved.
+
+---
+
 ## Query Keys
 
 All query keys are arrays. Project-scoped keys always include `projectKey` as the second element to prevent cross-project cache collisions.
