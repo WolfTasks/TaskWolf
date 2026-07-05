@@ -19,17 +19,7 @@ export function SprintsPage() {
 
   const go = (target: string) => () => navigate(`/p/${key}/${target}`)
 
-  const Section = ({
-    title,
-    items,
-    target,
-    emptyHint,
-  }: {
-    title: string
-    items: Sprint[]
-    target: string
-    emptyHint: string
-  }) => (
+  const renderSection = (title: string, items: Sprint[], target: string, emptyHint: string) => (
     <section className="mb-8">
       <h2 className="text-lg font-semibold text-white mb-3">{title}</h2>
       {items.length === 0 ? (
@@ -47,9 +37,9 @@ export function SprintsPage() {
   return (
     <div className="max-w-4xl">
       <h1 className="text-2xl font-bold mb-6">Sprints</h1>
-      <Section title="Laufend" items={active} target="board" emptyHint="Kein laufender Sprint." />
-      <Section title="Geplant" items={planned} target="backlog" emptyHint="Keine geplanten Sprints." />
-      <Section title="Abgeschlossen" items={closed} target="reports" emptyHint="Noch keine abgeschlossenen Sprints." />
+      {renderSection('Laufend', active, 'board', 'Kein laufender Sprint.')}
+      {renderSection('Geplant', planned, 'backlog', 'Keine geplanten Sprints.')}
+      {renderSection('Abgeschlossen', closed, 'reports', 'Noch keine abgeschlossenen Sprints.')}
     </div>
   )
 }
