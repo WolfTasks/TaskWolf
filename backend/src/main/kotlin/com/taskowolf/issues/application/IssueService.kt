@@ -104,11 +104,19 @@ class IssueService(
             }
         }
 
-        request.storyPoints?.let { newSP ->
-            if (issue.storyPoints != newSP) {
+        when {
+            request.clearStoryPoints -> {
                 val old = issue.storyPoints?.toString()
-                issue.storyPoints = newSP
-                eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "storyPoints", old, newSP.toString()))
+                issue.storyPoints = null
+                if (old != null) eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "storyPoints", old, null))
+            }
+            request.storyPoints != null -> {
+                val newSP = request.storyPoints
+                if (issue.storyPoints != newSP) {
+                    val old = issue.storyPoints?.toString()
+                    issue.storyPoints = newSP
+                    eventPublisher.publish(IssueFieldChangedEvent(issue, currentUser, "storyPoints", old, newSP.toString()))
+                }
             }
         }
 
