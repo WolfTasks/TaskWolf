@@ -373,6 +373,47 @@ export function LabelChip({ label, onClick }: Props) {
 
 ---
 
+### Frontend: Modal-via-Query-Param
+
+Use this pattern when an entity needs to be viewable both as a full page and as a modal overlay on top of whatever page the user was already on (a list, a board, etc.). An "open" hook sets a query param; one host component, mounted once in the shared layout, reads the param and renders the modal; the full page route stays in place as a deep-link fallback so the URL is always shareable and refresh-safe.
+
+```typescript
+// frontend/src/hooks/useOpenIssue.ts — sets ?issue=KEY, preserves other params
+export function useOpenIssue() {
+  const [, setSearchParams] = useSearchParams()
+  return useCallback((issueKey: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set('issue', issueKey)
+      return next
+    })
+  }, [setSearchParams])
+}
+
+// frontend/src/components/issue/IssueDialogHost.tsx — mounted once in AppLayout
+export function IssueDialogHost({ projectKey }: { projectKey: string }) {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const issueKey = searchParams.get('issue')
+  const close = useCallback(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete('issue')
+      return next
+    })
+  }, [setSearchParams])
+  if (!issueKey) return null
+  return <IssueDialog projectKey={projectKey} issueKey={issueKey} onClose={close} />
+}
+```
+
+Both the modal (`IssueDialog`) and the full page (`IssueDetailPage`) render the same shared content component (`IssueDetailContent`), so there is one implementation of the detail UI and one React Query cache entry to keep in sync.
+
+> **DO NOT** mount the host component per-page — mount it once in the shared layout (e.g. `AppLayout`) so the modal works from every page that can open it.  
+> **DO NOT** overwrite other query params when opening or closing the modal — always copy `new URLSearchParams(prev)` and mutate the copy, never construct params from scratch.  
+> **DO NOT** duplicate the detail-view markup between the full page and the modal — extract a shared content component that both can render.
+
+---
+
 ## Architecture Decisions
 
 | Decision | Rejected | Reason |

@@ -3,15 +3,21 @@ import { useParams } from 'react-router-dom'
 import { useBacklog } from '@/hooks/useBoard'
 import { useStartSprint, useAssignIssue, useUnassignIssue } from '@/hooks/useSprints'
 import { useProjectSocket } from '@/hooks/useProjectSocket'
+import { useOpenIssue } from '@/hooks/useOpenIssue'
 import { CreateSprintForm } from '@/components/sprint/CreateSprintForm'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 import type { Issue } from '@/types'
 
-function IssueRow({ issue, action }: { issue: Issue; action: React.ReactNode }) {
+function IssueRow({ issue, action, onOpen }: { issue: Issue; action: React.ReactNode; onOpen: (issueKey: string) => void }) {
   return (
     <div className="flex items-center gap-3 px-4 py-2.5 bg-gray-900/50 rounded border border-gray-800/50 hover:border-gray-700">
       <span className="text-xs text-gray-500 font-mono w-20 shrink-0">{issue.key}</span>
-      <span className="flex-1 text-sm text-white truncate">{issue.title}</span>
+      <button
+        onClick={() => onOpen(issue.key)}
+        className="flex-1 text-left text-sm text-white truncate hover:text-blue-400"
+      >
+        {issue.title}
+      </button>
       <StatusBadge name={issue.statusName} category={issue.statusCategory} />
       {issue.storyPoints != null && (
         <span className="text-xs bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded font-mono">{issue.storyPoints}</span>
@@ -28,6 +34,7 @@ export function BacklogPage() {
   const startSprint = useStartSprint(key!)
   const assignIssue = useAssignIssue(key!)
   const unassignIssue = useUnassignIssue(key!)
+  const openIssue = useOpenIssue()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
@@ -81,6 +88,7 @@ export function BacklogPage() {
                 <IssueRow
                   key={issue.id}
                   issue={issue}
+                  onOpen={openIssue}
                   action={
                     <button
                       onClick={() => unassignIssue.mutate({ sprintId: entry.sprint.id, issueId: issue.id })}
@@ -109,6 +117,7 @@ export function BacklogPage() {
             <IssueRow
               key={issue.id}
               issue={issue}
+              onOpen={openIssue}
               action={
                 backlog.sprints.length > 0 ? (
                   <select

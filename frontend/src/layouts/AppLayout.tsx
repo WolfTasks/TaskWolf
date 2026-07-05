@@ -4,6 +4,7 @@ import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { OrgSwitcher } from '@/components/OrgSwitcher'
 import { authApi } from '@/api/auth'
 import { serviceDeskApi } from '@/api/servicedesk'
+import { IssueDialogHost } from '@/components/issue/IssueDialogHost'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
@@ -30,7 +31,7 @@ export function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex">
+    <div id="app-root" className="min-h-screen bg-gray-950 text-white flex">
       <aside className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col p-4">
         <Link to="/" className="text-xl font-bold mb-8">🐺 TaskWolf</Link>
         <nav className="flex flex-col gap-1 flex-1">
@@ -111,6 +112,7 @@ export function AppLayout() {
       </aside>
       <main className="flex-1 overflow-auto p-8">
         <Outlet />
+        {projectKey && <IssueDialogHost projectKey={projectKey} />}
       </main>
     </div>
   )

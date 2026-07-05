@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useIssues, useCreateIssue } from '@/hooks/useIssues'
 import { useLabels } from '@/hooks/useLabels'
 import { useVersions } from '@/hooks/useVersions'
 import { useCustomFields } from '@/hooks/useCustomFields'
+import { useOpenIssue } from '@/hooks/useOpenIssue'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 import { CustomFieldInput } from '@/components/issue/CustomFieldInput'
 
@@ -24,6 +25,7 @@ export function IssueListPage() {
   })
 
   const { data: page, isLoading } = useIssues(key!, { labelId, fixVersionId, affectsVersionId, customFieldFilters: Object.keys(customFieldFilters).length > 0 ? customFieldFilters : undefined })
+  const openIssue = useOpenIssue()
   const { data: labels = [] } = useLabels(key!)
   const { data: versions = [] } = useVersions(key!)
   const createIssue = useCreateIssue(key!)
@@ -215,8 +217,8 @@ export function IssueListPage() {
 
       <div className="flex flex-col gap-2">
         {page?.content.map(issue => (
-          <Link key={issue.id} to={`/p/${key}/issues/${issue.key}`}
-            className="bg-gray-900 border border-gray-800 hover:border-gray-600 rounded-lg px-4 py-3 flex items-center gap-4">
+          <button key={issue.id} onClick={() => openIssue(issue.key)}
+            className="w-full text-left bg-gray-900 border border-gray-800 hover:border-gray-600 rounded-lg px-4 py-3 flex items-center gap-4">
             <span className="text-xs text-gray-500 font-mono w-20">{issue.key}</span>
             <span className="flex-1 text-sm text-white">{issue.title}</span>
             <StatusBadge name={issue.statusName} category={issue.statusCategory} />
@@ -225,7 +227,7 @@ export function IssueListPage() {
               issue.priority === 'HIGH' ? 'text-orange-400' :
               issue.priority === 'MEDIUM' ? 'text-yellow-400' : 'text-green-400'
             }`}>{issue.priority}</span>
-          </Link>
+          </button>
         ))}
         {page?.content.length === 0 && (
           <p className="text-gray-500 text-sm py-8 text-center">No issues yet. Create your first one!</p>
