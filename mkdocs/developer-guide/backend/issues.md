@@ -142,7 +142,7 @@ None. No `@EventListener` annotations exist in `issues/application/IssueService.
 | `backend/src/main/kotlin/com/taskowolf/issues/domain/events/IssueFieldChangedEvent.kt` | Data class published per changed field; `field` is a plain string name |
 | `backend/src/main/kotlin/com/taskowolf/issues/api/IssueController.kt` | REST endpoints; fetches `IssueRefRepository` on single-GET only |
 | `backend/src/main/kotlin/com/taskowolf/issues/api/dto/CreateIssueRequest.kt` | `title` required; defaults `type=TASK`, `priority=MEDIUM`; optional `assigneeId`, `parentId`, `storyPoints` |
-| `backend/src/main/kotlin/com/taskowolf/issues/api/dto/UpdateIssueRequest.kt` | All fields nullable; `clearAssignee`, `clearDueDate`, `clearSprint` booleans used to explicitly null out fields |
+| `backend/src/main/kotlin/com/taskowolf/issues/api/dto/UpdateIssueRequest.kt` | All fields nullable; `clearAssignee`, `clearDueDate`, `clearSprint`, `clearStoryPoints` booleans used to explicitly null out fields; `storyPoints` accepts any `Int?` — no Fibonacci or range validation is enforced server-side |
 | `backend/src/main/kotlin/com/taskowolf/issues/api/dto/IssueResponse.kt` | Serializes all issue fields; `refs: List<IssueRefResponse>` defaults to `emptyList()` on list endpoints |
 | `backend/src/main/kotlin/com/taskowolf/issues/application/IssueService.kt` | `create`, `update`, `findByProject`, `findByKey`, `delete`, `createTicketFromEmail`; enforces project scope on all queries |
 | `backend/src/main/kotlin/com/taskowolf/issues/infrastructure/IssueRepository.kt` | Custom queries: `maxKeyNumberByProject`, `findOverdueByProjectId`, `findOverdueByProjectIdAndAssigneeId`, `sumStoryPointsBySprintId` |
@@ -203,7 +203,7 @@ request.title?.let { newTitle ->
 Clearable fields use an explicit boolean flag rather than null-ambiguity:
 
 ```kotlin
-// Same pattern for clearable fields (assignee, dueDate, sprint)
+// Same pattern for clearable fields (assignee, dueDate, sprint, storyPoints)
 if (request.clearAssignee) {
     val old = issue.assignee?.displayName
     issue.assignee = null
@@ -235,6 +235,8 @@ Every field follows the same guard (`old != new`) to avoid spurious audit events
 | `IssueServiceTest` | `update` publishes `IssueStatusChangedEvent` with `actor` set when status changes |
 | `IssueServiceTest` | `overdue=true` calls `findOverdueByProjectId`; `overdue=true, assigneeMe=true` calls `findOverdueByProjectIdAndAssigneeId`; neither calls general list query |
 | `IssueServiceTest` | `clearAssignee=true` sets `assignee` to null; `clearDueDate=true` sets `dueDate` to null; `clearSprint=true` sets `sprint` to null |
+| `IssueServiceTest` | `storyPoints` provided in `UpdateIssueRequest` sets `storyPoints` on the issue |
+| `IssueServiceTest` | `clearStoryPoints=true` sets `storyPoints` to null and publishes `IssueFieldChangedEvent` with `oldValue`/`newValue` reflecting the change |
 | `IssueServiceTest` | `sprintId` provided assigns sprint scoped to the project |
 | `IssueServiceTest` | `update` sets labels when `labelIds` is a non-empty list |
 | `IssueServiceTest` | `update` clears labels when `labelIds` is an empty list |

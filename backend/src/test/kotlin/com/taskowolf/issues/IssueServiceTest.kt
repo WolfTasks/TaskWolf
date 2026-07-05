@@ -433,4 +433,37 @@ class IssueServiceTest {
         verify { issueVersionRepository.deleteByIssueIdAndType(issue.id, "AFFECTS") }
         verify { issueVersionRepository.saveAll(match<List<IssueVersion>> { it.any { v -> v.versionId == version.id && v.type == "AFFECTS" } }) }
     }
+
+    @Test
+    fun `update sets storyPoints when provided`() {
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val updated = service.update("WOLF", issue.id,
+            UpdateIssueRequest(storyPoints = 8),
+            owner)
+
+        assertEquals(8, updated.storyPoints)
+    }
+
+    @Test
+    fun `update clears storyPoints and logs activity when clearStoryPoints is true`() {
+        issue.storyPoints = 5
+        every { projectService.requireMember("WOLF", owner.id) } returns project
+        every { issueRepository.findById(issue.id) } returns java.util.Optional.of(issue)
+        every { issueRepository.save(any()) } returnsArgument 0
+
+        val events = mutableListOf<Any>()
+        every { eventPublisher.publish(capture(events)) } answers { Unit }
+
+        val updated = service.update("WOLF", issue.id,
+            UpdateIssueRequest(clearStoryPoints = true),
+            owner)
+
+        assertEquals(null, updated.storyPoints)
+        val fieldEvent = events.filterIsInstance<IssueFieldChangedEvent>().first { it.field == "storyPoints" }
+        assertEquals("5", fieldEvent.oldValue)
+        assertEquals(null, fieldEvent.newValue)
+    }
 }

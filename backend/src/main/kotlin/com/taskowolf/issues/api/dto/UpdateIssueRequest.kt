@@ -13,6 +13,7 @@ data class UpdateIssueRequest(
     val clearAssignee: Boolean = false,
     val priority: IssuePriority? = null,
     val storyPoints: Int? = null,
+    val clearStoryPoints: Boolean = false,
     val type: IssueType? = null,
     val dueDate: LocalDate? = null,
     val clearDueDate: Boolean = false,
