@@ -1,7 +1,8 @@
 # Agile UX: Story Points, Sprint-Übersicht & Issue-Dialog
 
-**Datum:** 2026-07-04
-**Status:** Design abgestimmt, bereit für Implementierungsplanung
+**Datum:** 2026-07-04 (Phase-3-Addendum: 2026-07-05)
+**Status:** Phase 1 & 2 ausgeliefert (PR #38, #39). Phase 3 + aufgeschobene Minors:
+Design abgestimmt, bereit für Implementierungsplanung.
 **Betroffene Bereiche:** Frontend (überwiegend), kleine Backend-Ergänzung
 
 ## Kontext & Problem
@@ -148,6 +149,39 @@ Leere Gruppen zeigen einen dezenten Hinweistext statt zu verschwinden.
 
 ---
 
+### Phase 3 — Addendum: Aufgeschobene Phase-1-Minors
+
+Drei kleine Interaktions-/Robustheitslücken aus Phase 1 (Issue-Dialog), die dort bewusst
+zurückgestellt wurden, werden zusammen mit Phase 3 behoben. Alle drei betreffen nur
+bestehende Frontend-Dateien, kein Backend, keine neue Abhängigkeit.
+
+**Minor 1 — Board-Karte per Tastatur öffenbar (`DraggableCard.tsx`).**
+Die Karte ist ein fokussierbares `role="button"`-Div (dnd-kit-`attributes`), aber
+Enter/Space auf einem Div lösen kein `onClick` aus, und der bestehende `onClick` bricht
+ohnehin ab, weil er eine pointer-basierte `downPos` erwartet. Da der Board-`DndContext`
+**nur einen `PointerSensor`** (Distanz 5) nutzt und **keinen `KeyboardSensor`**, sind
+Enter/Space frei. Lösung: ein `onKeyDown`-Handler öffnet das Issue bei `Enter`/`Space`
+(`openIssue(issue.key)`), abgesichert mit `!isDragging` und `preventDefault()` bei Space
+(kein Seiten-Scroll). Kein Konflikt mit Drag.
+
+**Minor 2 — Drag-Guard härten (Netto-Verschiebungs-Bug) (`DraggableCard.tsx`).**
+Der Guard prüft heute die Netto-Distanz `hypot(jetzt − down) < 5`; ein Hin-und-zurück-Drag
+innerhalb von 5px kann dadurch gleichzeitig droppen **und** das Modal öffnen. Lösung: ein
+`draggedRef` merkt sich, ob tatsächlich ein Drag stattfand — es wird `true`, sobald
+`isDragging` `true` wird (via `useEffect` auf `isDragging`), und bei `pointerdown`
+zurückgesetzt. `onClick` öffnet nur, wenn `!draggedRef.current`. Die Semantik wird damit
+„öffnen genau dann, wenn kein Drag passiert ist" statt „wenn nah am Startpunkt geendet".
+
+**Minor 3 — Kein Doppel-Editor über der Vollseite (`IssueDialogHost.tsx`).**
+`IssueDialogHost` ist global in `AppLayout` gemountet; ein manuelles `?issue=KEY` während
+man bereits auf `/p/:key/issues/:issueKey` ist, legt das Modal über den identischen
+Vollseiten-Editor (zwei Editoren desselben Issues). Lösung: `IssueDialogHost` unterdrückt
+das Rendern, wenn die aktuelle Route genau die Vollseiten-Route dieses Issues ist
+(Abgleich via `useMatch('/p/:key/issues/:issueKey')` gegen den `?issue=`-Key); der
+Query-Parameter wird dort schlicht ignoriert.
+
+---
+
 ## Testing
 
 **Backend:**
@@ -164,8 +198,14 @@ Leere Gruppen zeigen einen dezenten Hinweistext statt zu verschwinden.
   Parameters; `Esc`/Backdrop schließen.
 - `SprintsPage` — korrekte Gruppierung nach Status, kontextabhängige Links.
 
+**Frontend hat kein Test-Framework** (kein Vitest/RTL) — Absicherung per `npm run build`
+(Typecheck) + manuelle Verifikation, wie in allen bisherigen Phasen.
+
 **Manuell verifiziert vor Abschluss jeder Phase:** Board-Klick → Modal → editieren →
-Hintergrundseite aktualisiert sich.
+Hintergrundseite aktualisiert sich. Für die Minors zusätzlich: (1) Board-Karte per Tab
+fokussieren, Enter/Space öffnet das Issue; (2) Karte minimal hin-und-zurück ziehen öffnet
+**nicht** das Modal; (3) auf der Vollseite `?issue=SELBER-KEY` anhängen zeigt **keinen**
+zweiten Editor.
 
 ## Betroffene Dateien (Orientierung, nicht abschließend)
 
@@ -181,6 +221,10 @@ Hintergrundseite aktualisiert sich.
 `pages/issues/IssueListPage.tsx` (Öffnen via `?issue=`), `types/index.ts` /
 `api/issues.ts` (Payload-Typ `clearStoryPoints`).
 
+**Frontend — geändert (Phase-3-Addendum, Minors):**
+`components/board/DraggableCard.tsx` (Tastatur-Öffnen + Drag-Guard-Härtung),
+`components/issue/IssueDialogHost.tsx` (Doppel-Editor-Guard via `useMatch`).
+
 **Backend — geändert:**
 `issues/api/dto/UpdateIssueRequest.kt` (`clearStoryPoints`),
 `issues/application/IssueService.kt` (Clear-Semantik).
@@ -188,7 +232,8 @@ Hintergrundseite aktualisiert sich.
 ## Offene Punkte / Risiken
 
 - **dnd-kit Klick-vs-Drag** auf der Board-Karte ist der einzige nicht-triviale
-  Interaktionspunkt; in Phase 1 explizit abzusichern und manuell zu testen.
+  Interaktionspunkt; in Phase 1 abgesichert, mit dem Phase-3-Addendum (Minor 1 & 2)
+  gehärtet (Tastatur-Öffnen + Drag-tatsächlich-passiert-Guard). Weiterhin manuell testen.
 - **Wiki-Docs:** Als letzte Aufgabe je Phase die relevanten mkdocs-Seiten
   (frontend/components, frontend/overview, ggf. backend/issues) aktualisieren; `ai-guide.md`
   bei neuen Mustern (Modal-via-Query-Param) ergänzen.

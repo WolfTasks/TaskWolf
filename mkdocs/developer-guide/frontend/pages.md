@@ -14,6 +14,7 @@ frontend/src/pages/
   issues/                     # IssueListPage, IssueDetailPage
   board/                      # BoardPage
   backlog/                    # BacklogPage
+  sprints/                    # SprintsPage
   project-dashboard/          # ProjectDashboardPage (per-project widget canvas)
   reports/                    # ReportsPage
   notifications/              # NotificationsPage
@@ -45,7 +46,7 @@ frontend/src/pages/
 | Top-level nav | Dashboard (`/`), Projects (`/projects`), Organizations (`/orgs`) |
 | Admin section | Audit Log (`/admin/audit`), Automation (`/admin/automation`); always visible |
 | Project section | Visible only when the URL matches `/p/:key/*`; detected via `useMatch('/p/:key/*')` |
-| Project nav links | Dashboard, Board, Backlog, Issues, Reports, Automation; conditionally adds Service Desk and Incidents when `serviceDeskConfig.enabled` is true |
+| Project nav links | Dashboard, Board, Backlog, Sprints, Issues, Reports, Automation; conditionally adds Service Desk and Incidents when `serviceDeskConfig.enabled` is true |
 | Project settings | API Keys, Webhooks, Integrations, Audit Log, Labels (/p/:key/settings/labels) — shown as a sub-section inside the project section |
 | Footer | `OrgSwitcher`, `NotificationBell`, Logout button |
 | Main content (`<main>`) | `<Outlet />` renders the matched child route; `flex-1 overflow-auto p-8` |
@@ -67,6 +68,20 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 ```
 
 All protected routes are nested inside `<RequireAuth><AppLayout /></RequireAuth>`. Auth routes (`/login`, `/register`) are nested inside `AuthLayout` with no guard — there is no automatic redirect to `/` for already-authenticated users visiting the login page.
+
+---
+
+## Sprints Page
+
+`SprintsPage` (`frontend/src/pages/sprints/SprintsPage.tsx`), routed at `/p/:key/sprints`, is a read-only overview of all sprints for the project. It calls `useSprints(key)` and groups the result client-side into three sections by `status`:
+
+| Section | Status | Sort | Card click target |
+|---|---|---|---|
+| Laufend | `ACTIVE` | — | Board (`/p/:key/board`) |
+| Geplant | `PLANNED` | — | Backlog (`/p/:key/backlog`) |
+| Abgeschlossen | `CLOSED` | `endDate` descending (newest first) | Reports (`/p/:key/reports`) |
+
+Each section renders its sprints as a grid of `SprintCard` (see `components.md`); an empty section shows a short hint (e.g. "Kein laufender Sprint.") instead of disappearing. There is no backend endpoint dedicated to this page — it reuses the existing `useSprints` hook and query key.
 
 ---
 
