@@ -12,6 +12,12 @@ interface Props {
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
+function getFocusable(panel: HTMLElement): HTMLElement[] {
+  return Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    el => el.offsetParent !== null || el === document.activeElement
+  )
+}
+
 export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -23,8 +29,18 @@ export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
     document.body.style.overflow = 'hidden'
     appRoot?.setAttribute('aria-hidden', 'true')
 
-    // Move focus into the dialog panel.
-    panelRef.current?.focus()
+    // Move focus into the dialog: prefer the first focusable descendant so
+    // the panel container itself is never the active element (which would
+    // make Node.contains() checks below indistinguishable from "escaped").
+    const panel = panelRef.current
+    if (panel) {
+      const initialFocusable = getFocusable(panel)
+      if (initialFocusable.length > 0) {
+        initialFocusable[0].focus()
+      } else {
+        panel.focus()
+      }
+    }
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -34,9 +50,7 @@ export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
       if (e.key === 'Tab') {
         const panel = panelRef.current
         if (!panel) return
-        const focusable = Array.from(
-          panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-        ).filter(el => el.offsetParent !== null || el === document.activeElement)
+        const focusable = getFocusable(panel)
         if (focusable.length === 0) {
           e.preventDefault()
           return
@@ -44,14 +58,19 @@ export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
         const first = focusable[0]
         const last = focusable[focusable.length - 1]
         const active = document.activeElement as HTMLElement | null
+        // Treat the panel container itself as "escaped" too: Node.contains()
+        // returns true for the node itself, so without this, focus sitting
+        // on the container (e.g. right after open) would satisfy neither
+        // wrap condition and let native Tab navigation escape the trap.
+        const escaped = active === panel || !panel.contains(active)
 
         if (e.shiftKey) {
-          if (active === first || !panel.contains(active)) {
+          if (active === first || escaped) {
             e.preventDefault()
             last.focus()
           }
         } else {
-          if (active === last || !panel.contains(active)) {
+          if (active === last || escaped) {
             e.preventDefault()
             first.focus()
           }
