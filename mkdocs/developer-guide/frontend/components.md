@@ -10,7 +10,7 @@ frontend/src/components/
   #               # RichTextEditor, DueDatePicker, TypeSelector, SprintSelector,
   #               # LabelChip, LabelSelector
   board/          # DraggableCard, BoardColumn
-  sprint/         # SprintHeader, CompleteSprintDialog, CreateSprintForm
+  sprint/         # SprintHeader, CompleteSprintDialog, CreateSprintForm, SprintCard
   comments/       # CommentThread, ActivityFeed
   notifications/  # NotificationBell
   workflow/       # WorkflowCanvas, StatusNode, TransitionArrow, TransitionGuardPanel
@@ -100,13 +100,19 @@ Issues can be viewed two ways: as a full page (`/p/:key/issues/:issueKey`) or as
 
 **`IssueDialog`** (`frontend/src/components/issue/IssueDialog.tsx`) — a hand-rolled modal overlay (no dialog library dependency added; same pattern as `CompleteSprintDialog`). Props: `{ projectKey: string; issueKey: string; onClose: () => void }`. Wraps `IssueDetailContent` in a backdrop and panel, closes on Escape, backdrop click, or the ✕ button, and renders a "Full view" link to the full-page route as an escape hatch.
 
-**`IssueDialogHost`** (`frontend/src/components/issue/IssueDialogHost.tsx`) — mounted once in `AppLayout`. Props: `{ projectKey: string }`. Reads the `issue` search param; when present, renders `IssueDialog` with `onClose` wired to remove only the `issue` param, leaving any other query params (e.g. list filters) untouched.
+**`IssueDialogHost`** (`frontend/src/components/issue/IssueDialogHost.tsx`) — mounted once in `AppLayout`. Props: `{ projectKey: string }`. Reads the `issue` search param; when present, renders `IssueDialog` with `onClose` wired to remove only the `issue` param, leaving any other query params (e.g. list filters) untouched. Guards against a double editor: it also matches `/p/:key/issues/:issueKey` via `useMatch`, and if that route's `issueKey` equals the `?issue=` param, it renders nothing — the full page is already showing that issue. A `?issue=` for a *different* key still opens the modal on top of the full page.
 
 **`useOpenIssue`** (`frontend/src/hooks/useOpenIssue.ts`) — hook that returns `(issueKey: string) => void`. Calling it sets `?issue=KEY` on the current URL while preserving all other existing query params. Used by backlog rows, issue-list rows, and board cards (`DraggableCard`) to open the modal.
 
-> `DraggableCard` waits until pointer movement is below a 5px threshold before treating a click as "open issue" — this stops a drag gesture from being misread as a click that opens the dialog.
+> `DraggableCard` opens the issue modal on click, or on `Enter`/`Space` when focused (keyboard-accessible). The click guard is driven by dnd-kit's `isDragging` flag (via a ref set on drag start and reset on the next `pointerdown`), not a distance threshold — so a drag that goes out and back to the start point still counts as a drag and never opens the modal.
 
 **`StoryPointsSelector`** (`frontend/src/components/issue/StoryPointsSelector.tsx`) — sidebar field selector rendered inside `IssueDetailContent`, using the same popover / outside-click pattern as `PrioritySelector` and `TypeSelector`. Options are a fixed Fibonacci grid (1, 2, 3, 5, 8, 13, 21) plus a "— Clear" item. Always rendered, even when the issue has no story points — shows the placeholder "Set points" in that case. Props: `{ value: number | null | undefined; onSave: (value: number | null) => void }`. Picking a number calls `onSave(n)`, wired by `IssueDetailContent` to `patch({ storyPoints: n })`; picking "— Clear" calls `onSave(null)`, wired to `patch({ clearStoryPoints: true })`. Board and backlog story-point chips remain read-only and continue to update via the shared React Query cache.
+
+---
+
+## Sprint Components
+
+**`SprintCard`** (`frontend/src/components/sprint/SprintCard.tsx`) — presentational card used by `SprintsPage` (see `pages.md`). Props: `{ sprint: Sprint; onClick: () => void }`. Shows the sprint name, goal (if set), date range (`startDate`–`endDate`), and `completed / planned` points. Renders a progress bar only when `sprint.status === 'ACTIVE'` and `plannedPoints > 0`; `PLANNED` and `CLOSED` cards omit it. Entirely read-only — all navigation happens via the `onClick` callback, which `SprintsPage` wires to a status-specific target route.
 
 ---
 
