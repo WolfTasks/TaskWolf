@@ -10,6 +10,7 @@ import { IssueListPage } from '@/pages/issues/IssueListPage'
 import { IssueDetailPage } from '@/pages/issues/IssueDetailPage'
 import { BoardPage } from '@/pages/board/BoardPage'
 import { BacklogPage } from '@/pages/backlog/BacklogPage'
+import { SprintsPage } from '@/pages/sprints/SprintsPage'
 import { ProjectDashboardPage } from '@/pages/project-dashboard/ProjectDashboardPage'
 import { ReportsPage } from '@/pages/reports/ReportsPage'
 import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
@@ -56,6 +57,7 @@ export const router = createBrowserRouter([
       { path: '/p/:key/dashboard', element: <ProjectDashboardPage /> },
       { path: '/p/:key/board', element: <BoardPage /> },
       { path: '/p/:key/backlog', element: <BacklogPage /> },
+      { path: '/p/:key/sprints', element: <SprintsPage /> },
       { path: '/p/:key/reports', element: <ReportsPage /> },
       { path: '/notifications', element: <NotificationsPage /> },
       { path: '/p/:key/settings/workflow', element: <WorkflowEditorPage /> },

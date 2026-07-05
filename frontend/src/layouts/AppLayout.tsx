@@ -58,6 +58,7 @@ export function AppLayout() {
                 <NavLink to={`/p/${projectKey}/dashboard`} className={subNavLinkClass}>Dashboard</NavLink>
                 <NavLink to={`/p/${projectKey}/board`} className={subNavLinkClass}>Board</NavLink>
                 <NavLink to={`/p/${projectKey}/backlog`} className={subNavLinkClass}>Backlog</NavLink>
+                <NavLink to={`/p/${projectKey}/sprints`} className={subNavLinkClass}>Sprints</NavLink>
                 <NavLink to={`/p/${projectKey}/issues`} className={subNavLinkClass}>Issues</NavLink>
                 <NavLink to={`/p/${projectKey}/reports`} className={subNavLinkClass}>Reports</NavLink>
                 <NavLink to={`/p/${projectKey}/automation`} className={subNavLinkClass}>Automation</NavLink>
