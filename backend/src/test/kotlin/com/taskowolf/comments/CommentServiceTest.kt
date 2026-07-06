@@ -23,6 +23,8 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import java.util.Optional
 import java.util.UUID
 
@@ -58,6 +60,20 @@ class CommentServiceTest {
         val eventSlot = slot<CommentCreatedEvent>()
         verify { eventPublisher.publish(capture(eventSlot)) }
         assertEquals(comment, eventSlot.captured.comment)
+    }
+
+    @Test
+    fun `listComments returns newest-first page excluding deleted`() {
+        val newest = Comment(issueId = issue.id, authorId = author.id, body = "newest")
+        every { issueService.findByKey("WOLF", "WOLF-1", author.id) } returns issue
+        every {
+            commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(issue.id, any())
+        } returns PageImpl(listOf(newest), PageRequest.of(0, 5), 1)
+
+        val result = service.listComments("WOLF", "WOLF-1", author.id, 0, 5)
+
+        assertEquals(1, result.totalElements)
+        assertEquals("newest", result.content[0].body)
     }
 
     @Test

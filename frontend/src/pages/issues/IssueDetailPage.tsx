@@ -4,7 +4,7 @@ import { IssueDetailContent } from '@/components/issue/IssueDetailContent'
 export function IssueDetailPage() {
   const { key, issueKey } = useParams<{ key: string; issueKey: string }>()
   return (
-    <div className="max-w-5xl">
+    <div>
       <IssueDetailContent projectKey={key!} issueKey={issueKey!} />
     </div>
   )

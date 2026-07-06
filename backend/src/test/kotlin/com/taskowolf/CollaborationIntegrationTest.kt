@@ -66,7 +66,7 @@ class CollaborationIntegrationTest : IntegrationTestBase() {
                 .header("Authorization", "Bearer $token")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$[0].body").value("This is a test comment"))
+            .andExpect(jsonPath("$.content[0].body").value("This is a test comment"))
 
         // Edit comment
         mockMvc.perform(
@@ -100,7 +100,7 @@ class CollaborationIntegrationTest : IntegrationTestBase() {
                 .header("Authorization", "Bearer $token")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$").isArray)
+            .andExpect(jsonPath("$.content").isArray)
         // Soft-deleted comments are filtered out (deletedAt != null filtered in listComments)
         // So the list should be empty
     }

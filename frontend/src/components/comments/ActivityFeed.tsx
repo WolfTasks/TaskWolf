@@ -30,8 +30,10 @@ interface Props {
 }
 
 export function ActivityFeed({ projectKey, issueKey }: Props) {
-  const { data, isLoading } = useActivity(projectKey, issueKey)
-  const items = data?.content ?? []
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useActivity(projectKey, issueKey)
+
+  // Pages arrive newest-first; keep that order for the activity log.
+  const items: ActivityItem[] = (data?.pages ?? []).flatMap(p => p.content)
 
   if (isLoading) return <div className="text-gray-500 text-sm">Loading activity...</div>
 
@@ -40,8 +42,7 @@ export function ActivityFeed({ projectKey, issueKey }: Props) {
   }
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Activity</h3>
+    <div className="max-h-[26rem] overflow-y-auto space-y-2 pr-1">
       {items.map((item: ActivityItem) => (
         <div key={item.id} className="flex gap-2 items-start text-sm">
           <div className="w-1.5 h-1.5 rounded-full bg-gray-600 mt-1.5 flex-shrink-0" />
@@ -53,6 +54,16 @@ export function ActivityFeed({ projectKey, issueKey }: Props) {
           </div>
         </div>
       ))}
+
+      {hasNextPage && (
+        <button
+          onClick={() => fetchNextPage()}
+          disabled={isFetchingNextPage}
+          className="text-xs text-indigo-400 hover:text-indigo-300 disabled:opacity-50"
+        >
+          {isFetchingNextPage ? 'Loading...' : 'Load more'}
+        </button>
+      )}
     </div>
   )
 }

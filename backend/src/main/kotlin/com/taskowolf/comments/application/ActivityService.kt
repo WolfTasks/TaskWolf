@@ -23,7 +23,10 @@ class ActivityService(private val repository: IssueActivityRepository) {
 
     @Transactional(readOnly = true)
     fun listActivity(issueId: UUID, page: Int, size: Int): Page<IssueActivity> =
-        repository.findAllByIssueId(issueId, PageRequest.of(page, size, Sort.by("createdAt").descending()))
+        repository.findAllByIssueId(
+            issueId,
+            PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")))
+        )
 
     @EventListener
     @Transactional

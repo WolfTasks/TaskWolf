@@ -1,17 +1,25 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentsApi } from '@/api/comments'
 
 export function useComments(projectKey: string, issueKey: string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['comments', projectKey, issueKey],
-    queryFn: () => commentsApi.list(projectKey, issueKey).then(r => r.data),
+    queryFn: ({ pageParam }) =>
+      commentsApi.list(projectKey, issueKey, pageParam, 5).then(r => r.data),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.number + 1 < lastPage.totalPages ? lastPage.number + 1 : undefined,
   })
 }
 
 export function useActivity(projectKey: string, issueKey: string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['activity', projectKey, issueKey],
-    queryFn: () => commentsApi.listActivity(projectKey, issueKey).then(r => r.data),
+    queryFn: ({ pageParam }) =>
+      commentsApi.listActivity(projectKey, issueKey, pageParam, 5).then(r => r.data),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.number + 1 < lastPage.totalPages ? lastPage.number + 1 : undefined,
   })
 }
 
@@ -20,7 +28,7 @@ export function useAddComment(projectKey: string, issueKey: string) {
   return useMutation({
     mutationFn: (body: string) => commentsApi.create(projectKey, issueKey, body).then(r => r.data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['comments', projectKey, issueKey] })
+      qc.resetQueries({ queryKey: ['comments', projectKey, issueKey] })
       qc.invalidateQueries({ queryKey: ['activity', projectKey, issueKey] })
     },
   })
@@ -40,7 +48,7 @@ export function useDeleteComment(projectKey: string, issueKey: string) {
   return useMutation({
     mutationFn: (commentId: string) => commentsApi.delete(projectKey, issueKey, commentId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['comments', projectKey, issueKey] })
+      qc.resetQueries({ queryKey: ['comments', projectKey, issueKey] })
       qc.invalidateQueries({ queryKey: ['activity', projectKey, issueKey] })
     },
   })

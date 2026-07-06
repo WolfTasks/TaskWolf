@@ -9,7 +9,7 @@ import com.taskowolf.comments.application.ActivityService
 import com.taskowolf.comments.application.CommentService
 import com.taskowolf.issues.application.IssueService
 import jakarta.validation.Valid
-import org.springframework.data.web.PagedModel
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -35,8 +35,10 @@ class CommentController(
     fun listComments(
         @PathVariable key: String,
         @PathVariable issueKey: String,
-        @AuthenticationPrincipal user: User
-    ) = commentService.listComments(key, issueKey, user.id).map { CommentResponse.from(it) }
+        @AuthenticationPrincipal user: User,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "5") size: Int
+    ) = commentService.listComments(key, issueKey, user.id, page, size).map { CommentResponse.from(it) }
 
     @PutMapping("/comments/{commentId}")
     fun editComment(
@@ -62,10 +64,9 @@ class CommentController(
         @PathVariable issueKey: String,
         @AuthenticationPrincipal user: User,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "50") size: Int
-    ): PagedModel<ActivityResponse> {
+        @RequestParam(defaultValue = "5") size: Int
+    ): Page<ActivityResponse> {
         val issue = issueService.findByKey(key, issueKey, user.id)
-        val activityPage = activityService.listActivity(issue.id, page, size)
-        return PagedModel(activityPage.map { ActivityResponse.from(it) })
+        return activityService.listActivity(issue.id, page, size).map { ActivityResponse.from(it) }
     }
 }
