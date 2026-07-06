@@ -8,7 +8,7 @@ import java.util.UUID
 
 interface CommentRepository : JpaRepository<Comment, UUID> {
     fun findAllByIssueId(issueId: UUID): List<Comment>
-    fun findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+    fun findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
         issueId: UUID,
         pageable: Pageable
     ): Page<Comment>

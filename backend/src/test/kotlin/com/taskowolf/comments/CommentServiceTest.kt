@@ -67,7 +67,7 @@ class CommentServiceTest {
         val newest = Comment(issueId = issue.id, authorId = author.id, body = "newest")
         every { issueService.findByKey("WOLF", "WOLF-1", author.id) } returns issue
         every {
-            commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDesc(issue.id, any())
+            commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(issue.id, any())
         } returns PageImpl(listOf(newest), PageRequest.of(0, 5), 1)
 
         val result = service.listComments("WOLF", "WOLF-1", author.id, 0, 5)

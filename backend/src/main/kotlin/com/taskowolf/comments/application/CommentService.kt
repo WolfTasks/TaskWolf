@@ -46,7 +46,7 @@ class CommentService(
     @Transactional(readOnly = true)
     fun listComments(projectKey: String, issueKey: String, userId: UUID, page: Int, size: Int): Page<Comment> {
         val issue = issueService.findByKey(projectKey, issueKey, userId)
-        return commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+        return commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
             issue.id, PageRequest.of(page, size)
         )
     }
