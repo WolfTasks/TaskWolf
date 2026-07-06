@@ -6,6 +6,7 @@ import com.taskowolf.comments.application.ActivityService
 import com.taskowolf.comments.domain.ActivityType
 import com.taskowolf.comments.infrastructure.CommentRepository
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -19,10 +20,24 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Real-database (Testcontainers Postgres) regression coverage for the offset-pagination
- * stability fix: both the comments and activity feeds must break createdAt ties by id
+ * Real-database (Testcontainers Postgres) regression guard for the offset-pagination
+ * stability fix: both the comments and activity feeds must break `createdAt` ties by `id`
  * (descending) so that rows sharing an identical timestamp are ordered deterministically
  * instead of risking duplication/omission across page boundaries.
+ *
+ * Design — built so it FAILS reliably if the `id` tiebreaker is removed:
+ *  - Four rows are inserted with an IDENTICAL `createdAt`, using explicit KNOWN UUIDs.
+ *  - The ids are chosen so their descending order (0004, 0003, 0002, 0001) DIFFERS from the
+ *    insertion order (0001, 0004, 0002, 0003). Without the `id` tiebreaker the query falls back
+ *    to scan/insertion order for the tied rows, which is not the expected id-descending order, so
+ *    the assertions break. The expected order is written LITERALLY, not derived from a raw
+ *    `ORDER BY ... id DESC` query (which would be circular and self-fulfilling).
+ *  - Results are fetched across a REAL page boundary (page size 2 < 4 rows) — the only place the
+ *    duplicate/skipped-row symptom can manifest. Pages 0 and 1 are concatenated and checked for
+ *    exact order, no duplicates, and no missing ids.
+ *
+ * The UUIDs use only low-order bytes, so Postgres' unsigned-uuid ordering and Java's signed
+ * UUID#compareTo agree — the hardcoded expected order is unambiguous under both.
  */
 class CommentPaginationTiebreakerIntegrationTest : IntegrationTestBase() {
 
@@ -31,6 +46,18 @@ class CommentPaginationTiebreakerIntegrationTest : IntegrationTestBase() {
     @Autowired private lateinit var jdbcTemplate: JdbcTemplate
     @Autowired private lateinit var commentRepository: CommentRepository
     @Autowired private lateinit var activityService: ActivityService
+
+    private val id1 = UUID.fromString("00000000-0000-0000-0000-000000000001")
+    private val id2 = UUID.fromString("00000000-0000-0000-0000-000000000002")
+    private val id3 = UUID.fromString("00000000-0000-0000-0000-000000000003")
+    private val id4 = UUID.fromString("00000000-0000-0000-0000-000000000004")
+
+    // Insertion order deliberately != id-descending order.
+    private val insertionOrder = listOf(id1, id4, id2, id3)
+    // Expected result: strictly id-descending, written literally (NOT derived from SQL).
+    private val expectedIdDesc = listOf(id4, id3, id2, id1)
+
+    private val fixedInstant = Timestamp.from(Instant.parse("2026-01-01T12:00:00Z"))
 
     private fun register(email: String): String {
         val result = mockMvc.perform(
@@ -63,69 +90,58 @@ class CommentPaginationTiebreakerIntegrationTest : IntegrationTestBase() {
         return issueId to authorId
     }
 
-    @Test
-    fun `comments with identical createdAt are ordered deterministically by id descending`() {
-        val token = register("tiebreak-comments@example.com")
-        val (issueId, authorId) = createProjectAndIssue(token, "TIEB")
+    private fun assertStableCrossPageOrder(page0: List<UUID>, page1: List<UUID>) {
+        // Each page reflects the id-descending order split at the boundary.
+        assertEquals(listOf(id4, id3), page0, "page 0 must be the two highest ids, id-descending")
+        assertEquals(listOf(id2, id1), page1, "page 1 must be the two lowest ids, id-descending")
 
-        val fixedInstant = Timestamp.from(Instant.parse("2026-01-01T12:00:00Z"))
-        val commentIdA = UUID.randomUUID()
-        val commentIdB = UUID.randomUUID()
-        jdbcTemplate.update(
-            "INSERT INTO comments (id, body, issue_id, author_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-            commentIdA, "Comment A", issueId, authorId, fixedInstant, fixedInstant
-        )
-        jdbcTemplate.update(
-            "INSERT INTO comments (id, body, issue_id, author_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-            commentIdB, "Comment B", issueId, authorId, fixedInstant, fixedInstant
-        )
-
-        // Ground truth: what Postgres itself returns for "ORDER BY created_at DESC, id DESC".
-        // We don't assert this equals a Java-side UUID.sortedDescending() computation, since
-        // Postgres orders uuid bytes unsigned while java.util.UUID#compareTo compares signed
-        // longs — the two can legitimately disagree. The repository result must match the DB's
-        // own ordering, which is what actually determines pagination stability.
-        val expectedOrder = jdbcTemplate.queryForList(
-            "SELECT id FROM comments WHERE issue_id = ? ORDER BY created_at DESC, id DESC",
-            issueId
-        ).map { it["id"] as UUID }
-        assertEquals(setOf(commentIdA, commentIdB), expectedOrder.toSet())
-
-        val firstCall = commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
-            issueId, PageRequest.of(0, 10)
-        ).content.map { it.id }
-        val secondCall = commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
-            issueId, PageRequest.of(0, 10)
-        ).content.map { it.id }
-
-        assertEquals(expectedOrder, firstCall)
-        assertEquals(firstCall, secondCall) // stable across repeated calls, no reshuffling of tied rows
+        val concatenated = page0 + page1
+        // (a) exact order across the page boundary
+        assertEquals(expectedIdDesc, concatenated, "rows must be newest-first with id-descending tiebreaker")
+        // (b) no duplicate id across page 0 + page 1 (the "repeated row" symptom)
+        assertEquals(concatenated.size, concatenated.toSet().size, "duplicate id across page boundary: $concatenated")
+        // (c) no expected id missing (the "skipped row" symptom)
+        assertTrue(concatenated.toSet().containsAll(expectedIdDesc), "missing id across page boundary: $concatenated")
     }
 
     @Test
-    fun `activity entries with identical createdAt are ordered deterministically by id descending`() {
+    fun `comments with identical createdAt page deterministically by id descending across boundary`() {
+        val token = register("tiebreak-comments@example.com")
+        val (issueId, authorId) = createProjectAndIssue(token, "TIEB")
+
+        insertionOrder.forEachIndexed { i, id ->
+            jdbcTemplate.update(
+                "INSERT INTO comments (id, body, issue_id, author_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                id, "Comment #$i", issueId, authorId, fixedInstant, fixedInstant
+            )
+        }
+
+        // Page size 2 < 4 rows → forces a real boundary between page 0 and page 1.
+        val page0 = commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
+            issueId, PageRequest.of(0, 2)
+        ).content.map { it.id }
+        val page1 = commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
+            issueId, PageRequest.of(1, 2)
+        ).content.map { it.id }
+
+        assertStableCrossPageOrder(page0, page1)
+    }
+
+    @Test
+    fun `activity with identical createdAt pages deterministically by id descending across boundary`() {
         val token = register("tiebreak-activity@example.com")
         val (issueId, authorId) = createProjectAndIssue(token, "TIEA")
 
-        val fixedInstant = Timestamp.from(Instant.parse("2026-01-01T12:00:00Z"))
-        val activityIdA = UUID.randomUUID()
-        val activityIdB = UUID.randomUUID()
-        jdbcTemplate.update(
-            "INSERT INTO issue_activities (id, issue_id, actor_id, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-            activityIdA, issueId, authorId, ActivityType.TITLE_CHANGED.name, fixedInstant, fixedInstant
-        )
-        jdbcTemplate.update(
-            "INSERT INTO issue_activities (id, issue_id, actor_id, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-            activityIdB, issueId, authorId, ActivityType.TITLE_CHANGED.name, fixedInstant, fixedInstant
-        )
+        insertionOrder.forEach { id ->
+            jdbcTemplate.update(
+                "INSERT INTO issue_activities (id, issue_id, actor_id, type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                id, issueId, authorId, ActivityType.TITLE_CHANGED.name, fixedInstant, fixedInstant
+            )
+        }
 
-        val expectedOrder = jdbcTemplate.queryForList(
-            "SELECT id FROM issue_activities WHERE issue_id = ? ORDER BY created_at DESC, id DESC",
-            issueId
-        ).map { it["id"] as UUID }
-        assertEquals(setOf(activityIdA, activityIdB), expectedOrder.toSet())
+        val page0 = activityService.listActivity(issueId, 0, 2).content.map { it.id }
+        val page1 = activityService.listActivity(issueId, 1, 2).content.map { it.id }
 
-        val page = activityService.listActivity(issueId, 0, 10)
-        assertEquals(expectedOrder, page.content.map { it.id })
+        assertStableCrossPageOrder(page0, page1)
     }
 }
