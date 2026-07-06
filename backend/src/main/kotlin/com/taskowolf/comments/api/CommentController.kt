@@ -35,8 +35,10 @@ class CommentController(
     fun listComments(
         @PathVariable key: String,
         @PathVariable issueKey: String,
-        @AuthenticationPrincipal user: User
-    ) = commentService.listComments(key, issueKey, user.id).map { CommentResponse.from(it) }
+        @AuthenticationPrincipal user: User,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "5") size: Int
+    ) = commentService.listComments(key, issueKey, user.id, page, size).map { CommentResponse.from(it) }
 
     @PutMapping("/comments/{commentId}")
     fun editComment(

@@ -9,6 +9,8 @@ import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.issues.application.IssueService
 import com.taskowolf.projects.application.ProjectService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -42,9 +44,11 @@ class CommentService(
     }
 
     @Transactional(readOnly = true)
-    fun listComments(projectKey: String, issueKey: String, userId: UUID): List<Comment> {
+    fun listComments(projectKey: String, issueKey: String, userId: UUID, page: Int, size: Int): Page<Comment> {
         val issue = issueService.findByKey(projectKey, issueKey, userId)
-        return commentRepository.findAllByIssueId(issue.id).filter { it.deletedAt == null }
+        return commentRepository.findByIssueIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+            issue.id, PageRequest.of(page, size)
+        )
     }
 
     @Transactional
