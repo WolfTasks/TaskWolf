@@ -18,8 +18,7 @@ import { LabelSelector } from '@/components/issue/LabelSelector'
 import { VersionSelector } from '@/components/issue/VersionSelector'
 import { StoryPointsSelector } from '@/components/issue/StoryPointsSelector'
 import { RichTextEditor } from '@/components/issue/RichTextEditor'
-import { CommentThread } from '@/components/comments/CommentThread'
-import { ActivityFeed } from '@/components/comments/ActivityFeed'
+import { CommentsActivityTabs } from '@/components/comments/CommentsActivityTabs'
 import { AttachmentPanel } from '@/components/attachments/AttachmentPanel'
 
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -62,9 +61,9 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
       <InlineEditTitle value={issue.title} onSave={title => patch({ title })} />
 
       {/* Two-column layout */}
-      <div className="grid grid-cols-3 gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Left: description + comments + activity */}
-        <div className="col-span-2 space-y-8">
+        <div className="flex-1 min-w-0 space-y-8">
           <section>
             <h2 className="text-sm font-medium text-gray-400 mb-2">Description</h2>
             <RichTextEditor
@@ -74,11 +73,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
           </section>
 
           <section>
-            <CommentThread projectKey={projectKey} issueKey={issueKey} currentUserId={me?.id} />
-          </section>
-
-          <section>
-            <ActivityFeed projectKey={projectKey} issueKey={issueKey} />
+            <CommentsActivityTabs projectKey={projectKey} issueKey={issueKey} currentUserId={me?.id} />
           </section>
 
           {issue.refs && issue.refs.length > 0 && (
@@ -102,7 +97,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
         </div>
 
         {/* Right: metadata + attachments */}
-        <div className="flex flex-col gap-4">
+        <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
           <section className="space-y-4">
             <SidebarField label="Priority">
               <PrioritySelector value={issue.priority} onSave={priority => patch({ priority })} />
