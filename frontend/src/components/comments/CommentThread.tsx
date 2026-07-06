@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function CommentThread({ projectKey, issueKey, currentUserId }: Props) {
-  const { data: comments = [], isLoading } = useComments(projectKey, issueKey)
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useComments(projectKey, issueKey)
   const addComment = useAddComment(projectKey, issueKey)
   const editComment = useEditComment(projectKey, issueKey)
   const deleteComment = useDeleteComment(projectKey, issueKey)
@@ -22,6 +22,12 @@ export function CommentThread({ projectKey, issueKey, currentUserId }: Props) {
   const [newBody, setNewBody] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editBody, setEditBody] = useState('')
+
+  // Pages arrive newest-first; flatten to oldest -> newest for chat-style display.
+  const comments: Comment[] = (data?.pages ?? [])
+    .slice()
+    .reverse()
+    .flatMap(p => p.content.slice().reverse())
 
   const handleAdd = async () => {
     if (!newBody.trim()) return
@@ -45,64 +51,78 @@ export function CommentThread({ projectKey, issueKey, currentUserId }: Props) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Comments</h3>
+      <div className="max-h-[26rem] overflow-y-auto space-y-4 pr-1">
+        {hasNextPage && (
+          <button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="text-xs text-indigo-400 hover:text-indigo-300 disabled:opacity-50"
+          >
+            {isFetchingNextPage ? 'Loading...' : 'Load older comments'}
+          </button>
+        )}
 
-      {comments.map((comment: Comment) => (
-        <div key={comment.id} className="bg-gray-900 rounded-lg p-3">
-          {editingId === comment.id ? (
-            <div className="space-y-2">
-              <textarea
-                className="w-full bg-gray-800 text-sm text-white rounded p-2 resize-none min-h-16 border border-gray-700 focus:outline-none focus:border-indigo-500"
-                value={editBody}
-                onChange={e => setEditBody(e.target.value)}
-                rows={3}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(comment.id)}
-                  className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs rounded"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded"
-                >
-                  Cancel
-                </button>
+        {comments.length === 0 && (
+          <p className="text-gray-600 text-sm italic">No comments yet</p>
+        )}
+
+        {comments.map((comment: Comment) => (
+          <div key={comment.id} className="bg-gray-900 rounded-lg p-3">
+            {editingId === comment.id ? (
+              <div className="space-y-2">
+                <textarea
+                  className="w-full bg-gray-800 text-sm text-white rounded p-2 resize-none min-h-16 border border-gray-700 focus:outline-none focus:border-indigo-500"
+                  value={editBody}
+                  onChange={e => setEditBody(e.target.value)}
+                  rows={3}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(comment.id)}
+                    className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs rounded"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <>
-              <p className="text-sm text-gray-300 whitespace-pre-wrap">
-                {comment.deleted ? <span className="italic text-gray-600">Comment deleted</span> : comment.body}
-              </p>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-gray-600">
-                  {formatTime(comment.createdAt)}
-                  {comment.editedAt && ' (edited)'}
-                </span>
-                {!comment.deleted && currentUserId === comment.authorId && (
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => { setEditingId(comment.id); setEditBody(comment.body ?? '') }}
-                      className="text-xs text-gray-500 hover:text-indigo-400 px-2 py-0.5 rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(comment.id)}
-                      className="text-xs text-gray-500 hover:text-red-400 px-2 py-0.5 rounded"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      ))}
+            ) : (
+              <>
+                <p className="text-sm text-gray-300 whitespace-pre-wrap">
+                  {comment.deleted ? <span className="italic text-gray-600">Comment deleted</span> : comment.body}
+                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-gray-600">
+                    {formatTime(comment.createdAt)}
+                    {comment.editedAt && ' (edited)'}
+                  </span>
+                  {!comment.deleted && currentUserId === comment.authorId && (
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => { setEditingId(comment.id); setEditBody(comment.body ?? '') }}
+                        className="text-xs text-gray-500 hover:text-indigo-400 px-2 py-0.5 rounded"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(comment.id)}
+                        className="text-xs text-gray-500 hover:text-red-400 px-2 py-0.5 rounded"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
 
       <div className="mt-4 space-y-2">
         <textarea

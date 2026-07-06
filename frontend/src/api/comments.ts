@@ -2,8 +2,10 @@ import { apiClient } from './client'
 import type { Comment, ActivityItem, Page } from '@/types'
 
 export const commentsApi = {
-  list: (projectKey: string, issueKey: string) =>
-    apiClient.get<Comment[]>(`/projects/${projectKey}/issues/${issueKey}/comments`),
+  list: (projectKey: string, issueKey: string, page = 0, size = 5) =>
+    apiClient.get<Page<Comment>>(`/projects/${projectKey}/issues/${issueKey}/comments`, {
+      params: { page, size },
+    }),
 
   create: (projectKey: string, issueKey: string, body: string) =>
     apiClient.post<Comment>(`/projects/${projectKey}/issues/${issueKey}/comments`, { body }),
