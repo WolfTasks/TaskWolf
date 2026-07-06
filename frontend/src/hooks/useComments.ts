@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentsApi } from '@/api/comments'
 
 export function useComments(projectKey: string, issueKey: string) {
@@ -13,9 +13,13 @@ export function useComments(projectKey: string, issueKey: string) {
 }
 
 export function useActivity(projectKey: string, issueKey: string) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['activity', projectKey, issueKey],
-    queryFn: () => commentsApi.listActivity(projectKey, issueKey).then(r => r.data),
+    queryFn: ({ pageParam }) =>
+      commentsApi.listActivity(projectKey, issueKey, pageParam, 5).then(r => r.data),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.number + 1 < lastPage.totalPages ? lastPage.number + 1 : undefined,
   })
 }
 
