@@ -47,11 +47,13 @@ export function CommentThread({ projectKey, issueKey, currentUserId }: Props) {
     }
   }
 
-  if (isLoading) return <div className="text-gray-500 text-sm">Loading comments...</div>
-
   return (
     <div className="space-y-4">
       <div className="max-h-[26rem] overflow-y-auto space-y-4 pr-1">
+        {isLoading ? (
+          <div className="text-gray-500 text-sm">Loading comments...</div>
+        ) : (
+          <>
         {hasNextPage && (
           <button
             onClick={() => fetchNextPage()}
@@ -122,6 +124,8 @@ export function CommentThread({ projectKey, issueKey, currentUserId }: Props) {
             )}
           </div>
         ))}
+          </>
+        )}
       </div>
 
       <div className="mt-4 space-y-2">
