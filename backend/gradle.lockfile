@@ -136,6 +136,7 @@ org.junit.platform:junit-platform-commons:1.12.2=testCompileClasspath,testRuntim
 org.junit.platform:junit-platform-engine:1.12.2=testRuntimeClasspath
 org.junit.platform:junit-platform-launcher:1.12.2=testRuntimeClasspath
 org.junit:junit-bom:5.12.2=testCompileClasspath,testRuntimeClasspath
+org.mockito.kotlin:mockito-kotlin:5.4.0=testCompileClasspath,testRuntimeClasspath
 org.mockito:mockito-core:5.17.0=testCompileClasspath,testRuntimeClasspath
 org.mockito:mockito-junit-jupiter:5.17.0=testCompileClasspath,testRuntimeClasspath
 org.objenesis:objenesis:3.4=testCompileClasspath,testRuntimeClasspath
