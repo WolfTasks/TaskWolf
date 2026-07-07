@@ -12,6 +12,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.time.Instant
 import java.util.*
 
 class UserAccountServiceTest {
@@ -60,5 +62,28 @@ class UserAccountServiceTest {
         assertFalse(admin.active)
         verify { accessTokenService.revokeAllForUser(admin.id) }
         verify { refreshTokenService.revokeAllForUser(admin.id) }
+    }
+
+    @Test
+    fun `activate throws ConflictException for a soft-deleted account`() {
+        val user = User(email = "deleted-x@deleted.invalid", displayName = "Deleted User", systemRole = SystemRole.MEMBER)
+        user.active = false
+        user.deletedAt = Instant.now()
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+
+        assertThrows<ConflictException> { service.activate(user.id) }
+        assertFalse(user.active)
+    }
+
+    @Test
+    fun `list returns only non-deleted users`() {
+        val user = User(email = "real2@x.com", displayName = "Real2", systemRole = SystemRole.MEMBER)
+        every { userRepository.findByDeletedAtIsNull() } returns listOf(user)
+
+        val result = service.list()
+
+        assertEquals(1, result.size)
+        assertEquals(user.id, result[0].id)
+        verify { userRepository.findByDeletedAtIsNull() }
     }
 }

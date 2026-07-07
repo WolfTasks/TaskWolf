@@ -10,4 +10,5 @@ interface UserRepository : JpaRepository<User, UUID> {
     fun existsByEmail(email: String): Boolean
     fun findByDisplayNameIgnoreCase(displayName: String): User?
     fun countBySystemRoleAndActiveTrue(systemRole: SystemRole): Long
+    fun findByDeletedAtIsNull(): List<User>
 }

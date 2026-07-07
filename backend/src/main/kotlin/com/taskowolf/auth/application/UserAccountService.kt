@@ -18,7 +18,7 @@ class UserAccountService(
     private val refreshTokenService: RefreshTokenService
 ) {
     @Transactional(readOnly = true)
-    fun list(): List<AdminUserResponse> = userRepository.findAll().map { AdminUserResponse.from(it) }
+    fun list(): List<AdminUserResponse> = userRepository.findByDeletedAtIsNull().map { AdminUserResponse.from(it) }
 
     @Transactional
     fun deactivate(userId: UUID) {
@@ -33,6 +33,9 @@ class UserAccountService(
     @Transactional
     fun activate(userId: UUID) {
         val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        if (user.deletedAt != null) {
+            throw ConflictException("Cannot reactivate a deleted account")
+        }
         user.active = true
         userRepository.save(user)
     }
