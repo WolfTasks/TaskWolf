@@ -52,6 +52,10 @@ class AuthService(
             securityAuditListener.onLoginFailed(request.email, null)
             throw ForbiddenException("Invalid credentials")
         }
+        if (!user.active) {
+            securityAuditListener.onLoginFailed(request.email, null)
+            throw ForbiddenException("Account is disabled")
+        }
         val response = tokenPair(user.id)
         securityAuditListener.onLoginSuccess(user.email, null)
         return response

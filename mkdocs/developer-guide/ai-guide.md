@@ -8,7 +8,7 @@ Complete every item before touching any file:
 
 1. Read [Conventions](conventions.md) — all cross-cutting rules apply to every module.
 2. Read the module page for the area you are modifying (e.g. `backend/issues.md`).
-3. Check the current Flyway version: **V25** (`V25__custom_fields.sql`). The next migration must be **V26**.
+3. Check the current Flyway version: **V28** (`V28__access_tokens.sql`; also see `V27__users_active.sql`). The next migration must be **V29**.
 4. Run `cd backend && ./gradlew test` — establish a passing baseline before making any changes.
 5. Identify which pattern sections below apply to every layer you will touch.
 6. **Bevor du eine neue Dependency hinzufügst**, arbeite die Sektion
@@ -246,7 +246,7 @@ class LabelServiceTest {
 
 ### Backend: Flyway Migration
 
-File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V25** — the next file must be named **V26**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
+File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V28** — the next file must be named **V29**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
 
 ```sql
 -- backend/src/main/resources/db/migration/V23__labels.sql
@@ -266,6 +266,23 @@ CREATE TABLE labels (
 > **DO NOT** use `SERIAL` or `BIGSERIAL` for primary keys — use `UUID DEFAULT gen_random_uuid()`.  
 > **DO NOT** skip `ON DELETE CASCADE` on foreign keys to `projects(id)` — orphaned rows will cause constraint violations.  
 > **DO NOT** use a version number already taken — check `backend/src/main/resources/db/migration/` first.
+
+---
+
+### Backend: Personal Access Tokens & User Lifecycle
+
+Personal access tokens (`AccessToken` entity, `twk_` prefix) are distinct from project API keys (`ApiKey` entity, `tw_` prefix) — same SHA-256-hash-only-storage pattern, different prefix, different filter, and scoped to a user rather than a project.
+
+- `AccessTokenAuthFilter` runs **before** `JwtAuthFilter` (`addFilterBefore(accessTokenAuthFilter, JwtAuthFilter::class.java)`), same as `ApiKeyAuthFilter`. It only activates on a `Bearer twk_…` header, so it does not interfere with JWT or API-key requests.
+- `TokenScope` (`READ_ONLY` / `READ_WRITE`) is enforced by the filter, not the service: a `READ_ONLY` token is rejected with `403` for any request whose HTTP method is outside `{GET, HEAD, OPTIONS}`.
+- `AccessTokenService.authenticate()` re-checks `user.active` on **every** request (loaded fresh from `UserRepository`, not cached on the token) — a deactivated or deleted user's tokens stop working immediately, with no separate revocation step needed. `JwtAuthFilter` applies the identical `user.active` check for JWTs, and `AuthService.login()` rejects inactive users at login time.
+- `UserAccountService.deactivate()` / `.softDelete()` call `AccessTokenService.revokeAllForUser()` and `RefreshTokenService.revokeAllForUser()` in the same transaction — deactivation and deletion revoke both token families immediately, not just going forward.
+- `UserAccountService.softDelete()` anonymizes PII in place (`email`, `displayName`, `passwordHash`, `oauthProvider`, `oauthSubject`, `avatarUrl`) and sets `deletedAt`; it never deletes the `User` row (FK integrity for existing issues/comments/audit rows).
+- Both `deactivate()` and `softDelete()` guard against removing the **last active admin** via `requireNotLastActiveAdmin()` (`UserRepository.countBySystemRoleAndActiveTrue`), throwing `ConflictException` if the target is the only active `ADMIN`.
+
+> **DO NOT** confuse `twk_` (personal access tokens, `AccessToken` entity) with `tw_` (project API keys, `ApiKey` entity) — they use separate filters, tables, and prefixes.  
+> **DO NOT** enforce read-only scope in the service layer — it belongs in `AccessTokenAuthFilter`, before the request reaches a controller.  
+> **DO NOT** hard-delete a `User` row on account deletion — soft-delete (`active = false`, `deletedAt` set, PII anonymized) preserves referential integrity.
 
 ---
 

@@ -38,11 +38,13 @@ nav:
       - Boards & Sprints: user-guide/boards.md
       - Automation: user-guide/automation.md
       - Dashboards: user-guide/dashboards.md
+      - Personal Access Tokens: user-guide/access-tokens.md
   - Admin Guide:
       - SSO / OIDC: admin-guide/sso.md
       - Organizations: admin-guide/organizations.md
       - Service Desk: admin-guide/service-desk.md
       - Audit Logs: admin-guide/audit-logs.md
+      - User Management: admin-guide/user-management.md
   - API Reference: api.md
   - Developer Guide:
       - Overview: developer-guide/index.md

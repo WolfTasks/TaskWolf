@@ -18,6 +18,11 @@ export function AppLayout() {
   const insideProject = useMatch('/p/:key/*')
   const projectKey = insideProject?.params.key
 
+  const { data: me } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => authApi.me().then(r => r.data),
+  })
+
   const { data: serviceDeskConfig } = useQuery({
     queryKey: ['service-desk-config', projectKey],
     queryFn: () => serviceDeskApi.get(projectKey!),
@@ -47,6 +52,19 @@ export function AppLayout() {
             <div className="flex flex-col gap-1">
               <NavLink to="/admin/audit" className={subNavLinkClass}>Audit Log</NavLink>
               <NavLink to="/admin/automation" className={subNavLinkClass}>Automation</NavLink>
+              {me?.role === 'ADMIN' && (
+                <NavLink to="/admin/users" className={subNavLinkClass}>Users</NavLink>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+              Account
+            </p>
+            <div className="flex flex-col gap-1">
+              <NavLink to="/settings/tokens" className={subNavLinkClass}>Access Tokens</NavLink>
+              <NavLink to="/settings/account" className={subNavLinkClass}>Account</NavLink>
             </div>
           </div>
 

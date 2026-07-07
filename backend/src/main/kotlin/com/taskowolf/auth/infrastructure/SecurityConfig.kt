@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.oauth2.core.oidc.user.OidcUser
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
@@ -19,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter,
     private val apiKeyAuthFilter: ApiKeyAuthFilter,
+    private val accessTokenAuthFilter: AccessTokenAuthFilter,
     private val dbClientRegistrationRepository: DbClientRegistrationRepository,
     private val oidcUserProvisioningService: OidcUserProvisioningService
 ) {
@@ -30,6 +33,7 @@ class SecurityConfig(
         http
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) }
+            .exceptionHandling { it.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)) }
             .authorizeHttpRequests {
                 it.requestMatchers(
                     "/api/v1/auth/register",
@@ -58,6 +62,7 @@ class SecurityConfig(
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(apiKeyAuthFilter, JwtAuthFilter::class.java)
+            .addFilterBefore(accessTokenAuthFilter, JwtAuthFilter::class.java)
         return http.build()
     }
 
