@@ -49,6 +49,15 @@ export function AppLayout() {
             </div>
           </div>
 
+          <div className="mt-4">
+            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+              Account
+            </p>
+            <div className="flex flex-col gap-1">
+              <NavLink to="/settings/tokens" className={subNavLinkClass}>Access Tokens</NavLink>
+            </div>
+          </div>
+
           {insideProject && projectKey && (
             <div className="mt-4">
               <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
