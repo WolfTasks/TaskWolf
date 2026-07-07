@@ -48,7 +48,6 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("io.mockk:mockk:1.14.11")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     // okhttp3 is no longer managed by the Spring Boot 3.5 BOM (was 4.12.0 in the 3.3 BOM); pin explicitly.
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
