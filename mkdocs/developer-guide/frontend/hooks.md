@@ -77,6 +77,7 @@ Query keys are always arrays. Project-scoped keys always include `projectKey` as
 | `['integrations', projectKey]` | `useProjectIntegrations` |
 | `['dashboard', projectKey]` | `useProjectDashboard` |
 | `['me']` | `useMe` |
+| N/A (mutation-only) | `useDeleteAccount` |
 | `['access-tokens']` | `useAccessTokens`, `useCreateAccessToken`, `useRevokeAccessToken` |
 | `['admin-users']` | `useAdminUsers`, `useActivateUser`, `useDeactivateUser`, `useDeleteUser` |
 
