@@ -3,6 +3,7 @@ package com.taskowolf.core.infrastructure
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -52,6 +53,11 @@ class GlobalExceptionHandler {
     fun handleDataIntegrityViolation(ex: DataIntegrityViolationException) =
         ResponseEntity.status(HttpStatus.CONFLICT)
             .body(ErrorResponse("CONFLICT", "A data conflict occurred"))
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDenied(ex: AccessDeniedException) =
+        ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse("FORBIDDEN", ex.message ?: "Access denied"))
 
     @ExceptionHandler(Exception::class)
     fun handleGeneric(ex: Exception) =
