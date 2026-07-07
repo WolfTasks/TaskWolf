@@ -18,9 +18,10 @@ frontend/src/pages/
   project-dashboard/          # ProjectDashboardPage (per-project widget canvas)
   reports/                    # ReportsPage
   notifications/              # NotificationsPage
-  settings/                   # WorkflowEditorPage, ApiKeysPage, WebhooksPage, IntegrationsPage
+  settings/                   # WorkflowEditorPage, ApiKeysPage, WebhooksPage, IntegrationsPage,
+                               # AccessTokensPage, AccountSettingsPage
   automation/                 # AutomationPage, AutomationRuleEditorPage
-  admin/                      # AdminAutomationPage, AuditLogPage, SsoSettingsPage
+  admin/                      # AdminAutomationPage, AuditLogPage, SsoSettingsPage, AdminUsersPage
   orgs/                       # OrgsPage, OrgSettingsPage
 ```
 
@@ -44,7 +45,8 @@ frontend/src/pages/
 |---|---|
 | Left sidebar (`<aside>`) | Fixed 56-wide (`w-56`); dark background (`bg-gray-900`); full-height flex column |
 | Top-level nav | Dashboard (`/`), Projects (`/projects`), Organizations (`/orgs`) |
-| Admin section | Audit Log (`/admin/audit`), Automation (`/admin/automation`); always visible |
+| Admin section | Audit Log (`/admin/audit`), Automation (`/admin/automation`) always visible; Users (`/admin/users`) shown only when `me?.role === 'ADMIN'` |
+| Account section | Access Tokens (`/settings/tokens`), Account (`/settings/account`); always visible |
 | Project section | Visible only when the URL matches `/p/:key/*`; detected via `useMatch('/p/:key/*')` |
 | Project nav links | Dashboard, Board, Backlog, Sprints, Issues, Reports, Automation; conditionally adds Service Desk and Incidents when `serviceDeskConfig.enabled` is true |
 | Project settings | API Keys, Webhooks, Integrations, Audit Log, Labels (/p/:key/settings/labels) — shown as a sub-section inside the project section |

@@ -77,6 +77,8 @@ Query keys are always arrays. Project-scoped keys always include `projectKey` as
 | `['integrations', projectKey]` | `useProjectIntegrations` |
 | `['dashboard', projectKey]` | `useProjectDashboard` |
 | `['me']` | `useMe` |
+| `['access-tokens']` | `useAccessTokens`, `useCreateAccessToken`, `useRevokeAccessToken` |
+| `['admin-users']` | `useAdminUsers`, `useActivateUser`, `useDeactivateUser`, `useDeleteUser` |
 
 ---
 
@@ -103,6 +105,8 @@ export function useStartSprint(projectKey: string) {
   })
 }
 ```
+
+**No invalidation needed** — `useDeleteAccount` (`frontend/src/hooks/useAccount.ts`) is a mutation with no `onSuccess` cache invalidation, because deleting your own account ends the session (the caller clears `localStorage` tokens and navigates to `/login`); there is no cached data left to keep in sync.
 
 **Conditional enabling** — pass `enabled: !!param` to `useQuery` when a required parameter may be absent:
 

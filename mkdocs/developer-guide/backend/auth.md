@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Manages user identity: JWT issuance and validation, OAuth2 (GitHub + Google), SSO/OIDC via dynamic DB-backed client registration, API key authentication, refresh token rotation, and role-based access control.
+Manages user identity: JWT issuance and validation, OAuth2 (GitHub + Google), SSO/OIDC via dynamic DB-backed client registration, API key authentication, personal access tokens, refresh token rotation, role-based access control, and user lifecycle (deactivate/activate/soft-delete).
 
 ---
 
@@ -10,10 +10,13 @@ Manages user identity: JWT issuance and validation, OAuth2 (GitHub + Google), SS
 
 | Entity | Table | Key Fields |
 |---|---|---|
-| `User` | `users` | `email` (UNIQUE), `displayName`, `avatarUrl`, `passwordHash` (nullable), `oauthProvider`, `oauthSubject`, `systemRole: SystemRole`, `orgId: UUID?` |
+| `User` | `users` | `email` (UNIQUE), `displayName`, `avatarUrl`, `passwordHash` (nullable), `oauthProvider`, `oauthSubject`, `systemRole: SystemRole`, `orgId: UUID?`, `active: Boolean` (default `true`), `deletedAt: Instant?` |
 | `RefreshToken` | `refresh_tokens` | `tokenHash` (SHA-256 of the JWT string, UNIQUE), `userId` (FK→users), `expiresAt`, `revoked: Boolean` |
 | `ApiKey` | `api_keys` | `name`, `keyHash` (SHA-256 of `tw_…` plaintext, UNIQUE), `keyPrefix` (first 12 chars of plaintext), `projectId` (FK→projects, nullable), `createdBy` (FK→users), `lastUsedAt`, `expiresAt` |
+| `AccessToken` | `access_tokens` | `userId` (FK→users), `name`, `tokenHash` (SHA-256 of `twk_…` plaintext, UNIQUE), `tokenPrefix` (first 12 chars), `scope: TokenScope`, `lastUsedAt`, `expiresAt` (nullable = never), `revokedAt` (nullable) |
 | `SsoConfig` | `sso_configs` | `name`, `issuerUrl`, `clientId`, `clientSecretEnc` (AES-GCM encrypted), `enabled`, `autoProvision` |
+
+`TokenScope` is an enum with values `READ_ONLY` and `READ_WRITE`, mapped as `VARCHAR`.
 
 `SystemRole` is an enum with values `ADMIN` and `MEMBER`. The first user to register is automatically promoted to `ADMIN`.
 
@@ -39,6 +42,8 @@ CREATE TABLE users (
 ```
 
 Index: `idx_users_email` on `email`.
+
+`active` (V27, `BOOLEAN NOT NULL DEFAULT TRUE`) and `deleted_at` (V27, nullable `TIMESTAMPTZ`) were added by `V27__users_active.sql`. `active = false` blocks login (`AuthService.login`) and is re-checked on every JWT/access-token request. `deleted_at` is set by `UserAccountService.softDelete()`; the row itself is never removed.
 
 ### `refresh_tokens` (V6)
 
@@ -66,6 +71,22 @@ Index: `idx_refresh_tokens_user` on `user_id`.
 | `expires_at` | TIMESTAMPTZ | nullable |
 
 Indexes: `idx_api_keys_project`, `idx_api_keys_hash`.
+
+### `access_tokens` (V28)
+
+| Column | Type | Constraint |
+|---|---|---|
+| `id` | UUID | PK |
+| `user_id` | UUID | FK→users ON DELETE CASCADE |
+| `name` | VARCHAR(255) | NOT NULL |
+| `token_hash` | VARCHAR(64) | UNIQUE NOT NULL |
+| `token_prefix` | VARCHAR(16) | NOT NULL |
+| `scope` | VARCHAR(16) | NOT NULL (`READ_ONLY` \| `READ_WRITE`) |
+| `last_used_at` | TIMESTAMPTZ | nullable |
+| `expires_at` | TIMESTAMPTZ | nullable — `NULL` means never expires |
+| `revoked_at` | TIMESTAMPTZ | nullable — set on revoke, row is never deleted |
+
+Indexes: `idx_access_tokens_user`, `idx_access_tokens_hash`.
 
 ### `sso_configs` (V18)
 
@@ -102,6 +123,31 @@ Indexes: `idx_api_keys_project`, `idx_api_keys_hash`.
 | POST | `/api/v1/projects/{key}/api-keys` | USER | Generates a new API key; returns plaintext once |
 | DELETE | `/api/v1/projects/{key}/api-keys/{keyId}` | USER | Revokes (deletes) an API key; requires project admin |
 
+### `AccessTokenController` — `/api/v1/me/tokens`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/v1/me/tokens` | USER | Lists the authenticated user's tokens (no plaintext) |
+| POST | `/api/v1/me/tokens` | USER | Creates a `twk_`-prefixed personal access token; returns plaintext once |
+| DELETE | `/api/v1/me/tokens/{id}` | USER | Revokes (soft, sets `revokedAt`) a token owned by the caller |
+
+### `MeController` — `/api/v1/me`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| DELETE | `/api/v1/me` | USER | Soft-deletes and anonymizes the caller's own account (`UserAccountService.softDelete`) |
+
+### `AdminUserController` — `/api/v1/admin/users`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/v1/admin/users` | ADMIN | Lists all users (`AdminUserResponse`, includes `active`) |
+| POST | `/api/v1/admin/users/{id}/deactivate` | ADMIN | Deactivates a user; revokes their access tokens and refresh tokens |
+| POST | `/api/v1/admin/users/{id}/activate` | ADMIN | Reactivates a previously deactivated user |
+| DELETE | `/api/v1/admin/users/{id}` | ADMIN | Soft-deletes and anonymizes a user's account |
+
+`deactivate` and `DELETE` both reject the request with `409` (via `ConflictException`) if the target is the last active `ADMIN` (`UserAccountService.requireNotLastActiveAdmin`).
+
 ### `SsoController` — `/api/v1/admin/sso`
 
 | Method | Path | Auth | Description |
@@ -132,17 +178,22 @@ None. No `@EventListener` annotations exist in `auth/application/`.
 | `backend/src/main/kotlin/com/taskowolf/auth/domain/User.kt` | `@Entity` for `users`; extends `AuditableEntity` |
 | `backend/src/main/kotlin/com/taskowolf/auth/domain/RefreshToken.kt` | `@Entity` for `refresh_tokens`; stores SHA-256 hash, not plaintext |
 | `backend/src/main/kotlin/com/taskowolf/auth/domain/ApiKey.kt` | `@Entity` for `api_keys`; stores SHA-256 hash and `tw_`-prefixed 12-char prefix |
+| `backend/src/main/kotlin/com/taskowolf/auth/domain/AccessToken.kt` | `@Entity` for `access_tokens`; stores SHA-256 hash and `twk_`-prefixed 12-char prefix; `scope: TokenScope` |
+| `backend/src/main/kotlin/com/taskowolf/auth/domain/TokenScope.kt` | Enum `{ READ_ONLY, READ_WRITE }`; mapped as `VARCHAR` in DB |
 | `backend/src/main/kotlin/com/taskowolf/auth/domain/SsoConfig.kt` | `@Entity` for `sso_configs`; `clientSecretEnc` is AES-GCM encrypted |
 | `backend/src/main/kotlin/com/taskowolf/auth/domain/SystemRole.kt` | Enum `{ ADMIN, MEMBER }`; mapped as `VARCHAR` in DB |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/JwtService.kt` | Generates and validates HS256 JWTs; enforces `type` claim (`access`/`refresh`) to prevent token-type confusion; `@PostConstruct` validates secret is ≥ 32 bytes |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/AuthService.kt` | Register, login, refresh, logout; first user promoted to ADMIN; registration can be disabled via `taskowolf.auth.registration-enabled` |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/RefreshTokenService.kt` | Rotation: each consumed token is immediately revoked; stores SHA-256 hash of the JWT string |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/ApiKeyService.kt` | Generates `tw_`-prefixed tokens (24 random bytes, URL-safe base64); stores only SHA-256 hash; `authenticate()` is called per-request by `ApiKeyAuthFilter` |
+| `backend/src/main/kotlin/com/taskowolf/auth/application/AccessTokenService.kt` | Generates `twk_`-prefixed personal access tokens (32 random bytes, URL-safe base64); `create`/`list`/`revoke`/`revokeAllForUser`/`authenticate`; `authenticate()` re-checks `user.active` and expiry on every call and returns `AuthenticatedToken(user, scope)` |
+| `backend/src/main/kotlin/com/taskowolf/auth/application/UserAccountService.kt` | `deactivate`/`activate`/`softDelete`; guards the last active admin via `requireNotLastActiveAdmin`; `softDelete` anonymizes PII and never deletes the row; both `deactivate` and `softDelete` call `AccessTokenService.revokeAllForUser` and `RefreshTokenService.revokeAllForUser` |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/SsoService.kt` | AES-GCM encrypt/decrypt for OIDC client secrets; encryption key is SHA-256 of `TW_JWT_SECRET` |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/OidcUserProvisioningService.kt` | Creates `User` on first OIDC login when `autoProvision=true`; auto-assigns to `default` org |
 | `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/SecurityConfig.kt` | Spring Security filter chain; stateless JWT sessions; `@EnableMethodSecurity` for `@PreAuthorize`; routes `oauth2Login` through `DbClientRegistrationRepository` |
 | `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/JwtAuthFilter.kt` | Extracts `Bearer <token>` header, validates with `JwtService`, populates `SecurityContext` with `User` principal and `ROLE_<systemRole>` authority |
 | `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/ApiKeyAuthFilter.kt` | Runs before `JwtAuthFilter`; detects `Bearer tw_` prefix; delegates to `ApiKeyService.authenticate()` |
+| `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/AccessTokenAuthFilter.kt` | Runs before `JwtAuthFilter`; detects `Bearer twk_` prefix; delegates to `AccessTokenService.authenticate()`; returns `403` if the token's scope is `READ_ONLY` and the request method is not `GET`/`HEAD`/`OPTIONS` |
 | `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/AuthRateLimitFilter.kt` | IP-based sliding-window rate limiter applied to `/api/v1/auth/login` and `/api/v1/auth/register`; returns 429 on breach |
 | `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/JwtStompInterceptor.kt` | Validates JWT in STOMP `CONNECT` frame `Authorization` header; sets `StompHeaderAccessor.user` so WebSocket subscriptions are authenticated |
 | `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/DbClientRegistrationRepository.kt` | Implements `ClientRegistrationRepository` by reading live `sso_configs` rows; enables runtime OIDC provider registration without application restart |
@@ -183,8 +234,12 @@ override fun findByRegistrationId(registrationId: String): ClientRegistration? {
 ## Common Pitfalls
 
 - **DO NOT** store API key tokens unhashed. Only `keyHash` (SHA-256 of the `tw_…` plaintext) is persisted. The plaintext is returned once in `CreateApiKeyResponse.plaintext` and never stored.
+- **DO NOT** store personal access tokens unhashed. Only `tokenHash` (SHA-256 of the `twk_…` plaintext) is persisted. The plaintext is returned once in `CreateAccessTokenResponse.plaintext` and never stored.
+- **DO NOT** confuse `tw_` (project API keys) with `twk_` (personal access tokens) — they are separate entities, tables, and filters, even though both use the SHA-256-hash-only-storage pattern.
 - **DO NOT** inject `UserRepository` from outside the `auth` module. Other modules must use the `SecurityContext` principal (`@AuthenticationPrincipal User`) or an event/service boundary to access user data.
 - **DO NOT** add `permitAll()` entries to `SecurityConfig` without a security review. Each new public route increases the attack surface.
+- **DO NOT** hard-delete a `User` row when deactivating or deleting an account. `UserAccountService.softDelete()` anonymizes PII (`email`, `displayName`, `passwordHash`, `oauthProvider`, `oauthSubject`, `avatarUrl`) and sets `deletedAt`, but keeps the row for FK integrity with existing issues/comments/audit rows.
+- **DO NOT** deactivate or delete the last active `ADMIN`. `UserAccountService.requireNotLastActiveAdmin()` throws `ConflictException` (409) when `countBySystemRoleAndActiveTrue(ADMIN) <= 1`.
 - **Webhook secrets** (used for HMAC validation in the `integrations` module) are stored in plaintext intentionally — HMAC requires the raw value. Do not apply the API-key SHA-256 hashing pattern there.
 
 ---
@@ -228,6 +283,8 @@ The caller receives the full `plaintext` value once. All subsequent authenticati
 | `JwtServiceTest` | `@PostConstruct` validation rejects blank and short secrets with actionable error messages |
 | `RefreshTokenServiceTest` | Rotation: valid token is revoked on consume; unknown, revoked, and expired tokens are rejected |
 | `ApiKeyServiceTest` | `generate` stores SHA-256 hash not plaintext; `authenticate` resolves user for valid token, returns null for non-`tw_` tokens, expired keys, and unknown hashes |
+| `AccessTokenServiceTest` | `create` returns `twk_`-prefixed plaintext and stores hash only; `authenticate` resolves user + scope for a valid token, returns null for a non-`twk_` token, a revoked token, an expired token, and a token whose user is inactive |
+| `UserAccountServiceTest` | `softDelete` anonymizes the user and revokes their tokens; `deactivate` is blocked when the target is the last active admin, allowed when other admins exist |
 | `SsoServiceTest` | AES-GCM encrypt/decrypt round-trip; `createConfig` persists encrypted (not plaintext) secret |
 | `RateLimiterTest` | Sliding window: allows up to limit, rejects beyond limit, independent per IP, resets correctly |
 
@@ -237,3 +294,5 @@ The caller receives the full `plaintext` value once. All subsequent authenticati
 |---|---|
 | `AuthControllerIntegrationTest` | Full register → login flow; duplicate email returns 409 |
 | `ApiKeyControllerTest` | Create key returns `tw_`-prefixed plaintext once; list returns keys without plaintext; delete removes key; API key token authenticates subsequent requests |
+| `AccessTokenControllerTest` | Create/list/delete via `/api/v1/me/tokens`; a `READ_WRITE` token authenticates both GET and POST, a `READ_ONLY` token allows GET but is forbidden (403) on POST |
+| `AdminUserControllerTest` | Admin deactivates a user and their token immediately stops authenticating; non-admin is forbidden from `/api/v1/admin/users`; self-`DELETE /api/v1/me` anonymizes the account and blocks subsequent login |
