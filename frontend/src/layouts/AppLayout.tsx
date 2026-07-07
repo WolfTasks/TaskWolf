@@ -5,6 +5,7 @@ import { OrgSwitcher } from '@/components/OrgSwitcher'
 import { authApi } from '@/api/auth'
 import { serviceDeskApi } from '@/api/servicedesk'
 import { IssueDialogHost } from '@/components/issue/IssueDialogHost'
+import { VersionTag } from '@/components/VersionTag'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded text-sm ${isActive ? 'bg-gray-700 text-white font-semibold' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`
@@ -109,6 +110,7 @@ export function AppLayout() {
               Logout
             </button>
           </div>
+          <VersionTag className="px-3 pt-2" />
         </div>
       </aside>
       <main className="flex-1 overflow-auto p-8">
