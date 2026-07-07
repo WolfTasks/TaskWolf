@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter,
     private val apiKeyAuthFilter: ApiKeyAuthFilter,
+    private val accessTokenAuthFilter: AccessTokenAuthFilter,
     private val dbClientRegistrationRepository: DbClientRegistrationRepository,
     private val oidcUserProvisioningService: OidcUserProvisioningService
 ) {
@@ -61,6 +62,7 @@ class SecurityConfig(
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(apiKeyAuthFilter, JwtAuthFilter::class.java)
+            .addFilterBefore(accessTokenAuthFilter, JwtAuthFilter::class.java)
         return http.build()
     }
 
