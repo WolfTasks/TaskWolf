@@ -121,7 +121,7 @@ export function AppLayout() {
         </nav>
 
         <div className="flex flex-col gap-1 mt-auto">
-          <OrgSwitcher />{/* collapsed-Prop wird in Task 4 nachgerüstet */}
+          <OrgSwitcher collapsed={collapsed} />
           <div className={`flex items-center gap-2 ${collapsed ? 'flex-col' : ''}`}>
             <NotificationBell />
             <button
