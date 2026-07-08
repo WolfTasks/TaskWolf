@@ -1,6 +1,7 @@
 import {
   useAdminUsers, useActivateUser, useDeactivateUser, useDeleteUser,
 } from '@/hooks/useAdminUsers'
+import { DataTable, type Column } from '@/components/table/DataTable'
 
 export function AdminUsersPage() {
   const { data: users = [], isLoading } = useAdminUsers()
@@ -12,65 +13,70 @@ export function AdminUsersPage() {
     alert(e.response?.data?.message || 'Action failed')
   }
 
+  const columns: Column<(typeof users)[number]>[] = [
+    { key: 'email', header: 'Email', cell: u => u.email },
+    { key: 'name', header: 'Name', cell: u => u.displayName },
+    { key: 'role', header: 'Role', width: '120px', cell: u => <span className="text-gray-400">{u.systemRole}</span> },
+    {
+      key: 'status',
+      header: 'Status',
+      width: '120px',
+      cell: u => (
+        <span className={`px-2 py-0.5 rounded text-xs ${
+          u.active ? 'bg-green-900/50 text-green-300' : 'bg-gray-700 text-gray-400'
+        }`}>
+          {u.active ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      width: '200px',
+      align: 'right',
+      cell: u => (
+        <div className="flex gap-2 justify-end">
+          {u.active ? (
+            <button
+              onClick={() => deactivate.mutate(u.id, { onError })}
+              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs"
+            >
+              Deactivate
+            </button>
+          ) : (
+            <button
+              onClick={() => activate.mutate(u.id, { onError })}
+              className="px-3 py-1 bg-green-900/40 hover:bg-green-800 text-green-300 rounded text-xs"
+            >
+              Activate
+            </button>
+          )}
+          <button
+            onClick={() => {
+              if (confirm(`Delete ${u.email}? This anonymizes the account.`)) {
+                del.mutate(u.id, { onError })
+              }
+            }}
+            className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-300 rounded text-xs"
+          >
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   if (isLoading) return <div className="text-gray-400">Loading…</div>
 
   return (
-    <div className="max-w-3xl">
+    <div className="flex flex-col h-full min-h-0 max-w-3xl">
       <h1 className="text-2xl font-bold mb-6">Users</h1>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-400 border-b border-gray-700">
-            <th className="pb-2">Email</th>
-            <th className="pb-2">Name</th>
-            <th className="pb-2">Role</th>
-            <th className="pb-2">Status</th>
-            <th className="pb-2"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id} className="border-b border-gray-800">
-              <td className="py-3">{u.email}</td>
-              <td className="py-3">{u.displayName}</td>
-              <td className="py-3 text-gray-400">{u.systemRole}</td>
-              <td className="py-3">
-                <span className={`px-2 py-0.5 rounded text-xs ${
-                  u.active ? 'bg-green-900/50 text-green-300' : 'bg-gray-700 text-gray-400'
-                }`}>
-                  {u.active ? 'Active' : 'Inactive'}
-                </span>
-              </td>
-              <td className="py-3 text-right flex gap-2 justify-end">
-                {u.active ? (
-                  <button
-                    onClick={() => deactivate.mutate(u.id, { onError })}
-                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs"
-                  >
-                    Deactivate
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => activate.mutate(u.id, { onError })}
-                    className="px-3 py-1 bg-green-900/40 hover:bg-green-800 text-green-300 rounded text-xs"
-                  >
-                    Activate
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    if (confirm(`Delete ${u.email}? This anonymizes the account.`)) {
-                      del.mutate(u.id, { onError })
-                    }
-                  }}
-                  className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-300 rounded text-xs"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        columns={columns}
+        rows={users}
+        rowKey={u => u.id}
+        empty="No users"
+      />
     </div>
   )
 }
