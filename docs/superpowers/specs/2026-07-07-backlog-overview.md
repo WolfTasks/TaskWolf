@@ -7,12 +7,12 @@
 |---|----------|-----|--------|
 | 1 | App-Version anzeigen | UI | ✅ **AUSGELIEFERT** (PR #43, Release v1.0.07) |
 | 2 | Personal Access Tokens + User-Lebenszyklus | Full-Stack | ✅ **AUSGELIEFERT** (PR #44, Release v1.0.07) |
-| 3 | User-Profil-Seiten (gruppierte Einstellungen) | Feature | Backlog |
+| 3 | User-Profil-Seiten (gruppierte Einstellungen) | Feature | Design ✅ (`2026-07-08-profile-settings-design.md`) |
 | 4 | Branches aufräumen | Housekeeping | Backlog (kein Spec nötig) |
 | 5 | UI-Tests | Test-Infra | Backlog |
 | 6 | Test-Deploy bei Selfhoster mit eigener URL | Ops | Backlog |
-| 7 | Scrollbare Listen (z.B. Audit-Log) | UI | Backlog |
-| 8 | Linkes Menü zusammenklappbar | UI | Backlog |
+| 7 | Scrollbare Listen (z.B. Audit-Log) | UI | Design ✅ (`2026-07-08-scrollable-lists-design.md`) |
+| 8 | Linkes Menü zusammenklappbar | UI | Design ✅ (`2026-07-08-collapsible-sidebar-design.md`) |
 | 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Backlog |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | Backlog (klein) |
 
