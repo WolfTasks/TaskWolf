@@ -11,8 +11,8 @@
 | 4 | Branches aufräumen | Housekeeping | Backlog (kein Spec nötig) |
 | 5 | UI-Tests | Test-Infra | Backlog |
 | 6 | Test-Deploy bei Selfhoster mit eigener URL | Ops | Backlog |
-| 7 | Scrollbare Listen (z.B. Audit-Log) | UI | Design ✅ (`2026-07-08-scrollable-lists-design.md`) |
-| 8 | Linkes Menü zusammenklappbar | UI | Design ✅ (`2026-07-08-collapsible-sidebar-design.md`) |
+| 7 | Scrollbare Listen (z.B. Audit-Log) | UI | ✅ **AUSGELIEFERT** (PR #45, Release v1.0.08) |
+| 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
 | 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Backlog |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | Backlog (klein) |
 
