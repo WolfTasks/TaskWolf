@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useApiKeys, useCreateApiKey, useRevokeApiKey } from '@/hooks/useApiKeys'
 import type { CreateApiKeyResponse } from '@/hooks/useApiKeys'
+import { DataTable, type Column } from '@/components/table/DataTable'
 
 export function ApiKeysPage() {
   const { key } = useParams<{ key: string }>()
@@ -35,10 +36,33 @@ export function ApiKeysPage() {
     }
   }
 
+  const columns: Column<(typeof keys)[number]>[] = [
+    { key: 'prefix', header: 'Prefix', width: '140px', cell: k => <code className="text-green-400">{k.keyPrefix}…</code> },
+    { key: 'name', header: 'Name', cell: k => k.name },
+    { key: 'lastUsed', header: 'Last Used', width: '120px', cell: k => <span className="text-gray-400">{k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : 'Never'}</span> },
+    { key: 'expires', header: 'Expires', width: '120px', cell: k => <span className="text-gray-400">{k.expiresAt ? new Date(k.expiresAt).toLocaleDateString() : 'Never'}</span> },
+    {
+      key: 'actions',
+      header: '',
+      width: '100px',
+      align: 'right',
+      cell: k => (
+        <button
+          onClick={() => revokeKey.mutate(k.id, {
+            onError: (e: any) => alert(e.response?.data?.message || 'Failed to revoke key'),
+          })}
+          className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 hover:text-red-300 rounded text-xs"
+        >
+          Revoke
+        </button>
+      ),
+    },
+  ]
+
   if (isLoading) return <div className="text-gray-400">Loading…</div>
 
   return (
-    <div className="max-w-2xl">
+    <div className="flex flex-col h-full min-h-0 max-w-2xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">API Keys</h1>
         <button
@@ -102,47 +126,12 @@ export function ApiKeysPage() {
         </div>
       )}
 
-      {keys.length === 0 ? (
-        <p className="text-gray-400 text-sm">No API keys yet.</p>
-      ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-gray-400 border-b border-gray-700">
-              <th className="pb-2">Prefix</th>
-              <th className="pb-2">Name</th>
-              <th className="pb-2">Last Used</th>
-              <th className="pb-2">Expires</th>
-              <th className="pb-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {keys.map(k => (
-              <tr key={k.id} className="border-b border-gray-800">
-                <td className="py-3">
-                  <code className="text-green-400">{k.keyPrefix}…</code>
-                </td>
-                <td className="py-3">{k.name}</td>
-                <td className="py-3 text-gray-400">
-                  {k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : 'Never'}
-                </td>
-                <td className="py-3 text-gray-400">
-                  {k.expiresAt ? new Date(k.expiresAt).toLocaleDateString() : 'Never'}
-                </td>
-                <td className="py-3 text-right">
-                  <button
-                    onClick={() => revokeKey.mutate(k.id, {
-                      onError: (e: any) => alert(e.response?.data?.message || 'Failed to revoke key')
-                    })}
-                    className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 hover:text-red-300 rounded text-xs"
-                  >
-                    Revoke
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <DataTable
+        columns={columns}
+        rows={keys}
+        rowKey={k => k.id}
+        empty="No API keys yet."
+      />
     </div>
   )
 }
