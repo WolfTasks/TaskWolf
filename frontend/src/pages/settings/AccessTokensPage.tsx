@@ -3,6 +3,7 @@ import {
   useAccessTokens, useCreateAccessToken, useRevokeAccessToken,
 } from '@/hooks/useAccessTokens'
 import type { CreateAccessTokenResponse, TokenScope } from '@/hooks/useAccessTokens'
+import { DataTable, type Column } from '@/components/table/DataTable'
 
 function expiryFromDays(days: string): string | null {
   if (!days) return null
@@ -45,10 +46,45 @@ export function AccessTokensPage() {
     }
   }
 
+  const columns: Column<(typeof tokens)[number]>[] = [
+    { key: 'prefix', header: 'Prefix', width: '140px', cell: t => <code className="text-green-400">{t.tokenPrefix}…</code> },
+    { key: 'name', header: 'Name', cell: t => t.name },
+    {
+      key: 'scope',
+      header: 'Scope',
+      width: '140px',
+      cell: t => (
+        <span className={`px-2 py-0.5 rounded text-xs ${
+          t.scope === 'READ_ONLY' ? 'bg-gray-700 text-gray-300' : 'bg-indigo-900/50 text-indigo-300'
+        }`}>
+          {t.scope === 'READ_ONLY' ? 'Read-only' : 'Read & Write'}
+        </span>
+      ),
+    },
+    { key: 'lastUsed', header: 'Last Used', width: '120px', cell: t => <span className="text-gray-400">{t.lastUsedAt ? new Date(t.lastUsedAt).toLocaleDateString() : 'Never'}</span> },
+    { key: 'expires', header: 'Expires', width: '120px', cell: t => <span className="text-gray-400">{t.expiresAt ? new Date(t.expiresAt).toLocaleDateString() : 'Never'}</span> },
+    {
+      key: 'actions',
+      header: '',
+      width: '100px',
+      align: 'right',
+      cell: t => (
+        <button
+          onClick={() => revokeToken.mutate(t.id, {
+            onError: (e: any) => alert(e.response?.data?.message || 'Failed to revoke token'),
+          })}
+          className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 hover:text-red-300 rounded text-xs"
+        >
+          Revoke
+        </button>
+      ),
+    },
+  ]
+
   if (isLoading) return <div className="text-gray-400">Loading…</div>
 
   return (
-    <div className="max-w-2xl">
+    <div className="flex flex-col h-full min-h-0 max-w-2xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Personal Access Tokens</h1>
         <button
@@ -136,53 +172,12 @@ export function AccessTokensPage() {
         </div>
       )}
 
-      {tokens.length === 0 ? (
-        <p className="text-gray-400 text-sm">No tokens yet.</p>
-      ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-gray-400 border-b border-gray-700">
-              <th className="pb-2">Prefix</th>
-              <th className="pb-2">Name</th>
-              <th className="pb-2">Scope</th>
-              <th className="pb-2">Last Used</th>
-              <th className="pb-2">Expires</th>
-              <th className="pb-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {tokens.map(t => (
-              <tr key={t.id} className="border-b border-gray-800">
-                <td className="py-3"><code className="text-green-400">{t.tokenPrefix}…</code></td>
-                <td className="py-3">{t.name}</td>
-                <td className="py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs ${
-                    t.scope === 'READ_ONLY' ? 'bg-gray-700 text-gray-300' : 'bg-indigo-900/50 text-indigo-300'
-                  }`}>
-                    {t.scope === 'READ_ONLY' ? 'Read-only' : 'Read & Write'}
-                  </span>
-                </td>
-                <td className="py-3 text-gray-400">
-                  {t.lastUsedAt ? new Date(t.lastUsedAt).toLocaleDateString() : 'Never'}
-                </td>
-                <td className="py-3 text-gray-400">
-                  {t.expiresAt ? new Date(t.expiresAt).toLocaleDateString() : 'Never'}
-                </td>
-                <td className="py-3 text-right">
-                  <button
-                    onClick={() => revokeToken.mutate(t.id, {
-                      onError: (e: any) => alert(e.response?.data?.message || 'Failed to revoke token'),
-                    })}
-                    className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 hover:text-red-300 rounded text-xs"
-                  >
-                    Revoke
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <DataTable
+        columns={columns}
+        rows={tokens}
+        rowKey={t => t.id}
+        empty="No tokens yet."
+      />
     </div>
   )
 }
