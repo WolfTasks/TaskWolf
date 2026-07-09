@@ -7,7 +7,7 @@
 |---|----------|-----|--------|
 | 1 | App-Version anzeigen | UI | ✅ **AUSGELIEFERT** (PR #43, Release v1.0.07) |
 | 2 | Personal Access Tokens + User-Lebenszyklus | Full-Stack | ✅ **AUSGELIEFERT** (PR #44, Release v1.0.07) |
-| 3 | User-Profil-Seiten (gruppierte Einstellungen) | Feature | Design ✅ (`2026-07-08-profile-settings-design.md`) |
+| 3 | User-Profil-Seiten (gruppierte Einstellungen) | Feature | ✅ **AUSGELIEFERT** (PR #47, Release v1.0.09) |
 | 4 | Branches aufräumen | Housekeeping | Backlog (kein Spec nötig) |
 | 5 | UI-Tests | Test-Infra | Backlog |
 | 6 | Test-Deploy bei Selfhoster mit eigener URL | Ops | Backlog |
@@ -15,6 +15,8 @@
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
 | 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Backlog |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | Backlog (klein) |
+| H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | Backlog (klein) |
+| H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | Backlog (klein) |
 
 ## #3 — User-Profil-Seiten mit gruppierten Einstellungen
 Eigene Profil-/Einstellungsseiten pro Nutzer, gruppiert nach Themengebieten
@@ -79,3 +81,19 @@ Assets bleiben `immutable`/1 Jahr). Dann holt der Browser nach jedem Deploy
 garantiert das frische `index.html` mit den neuen Asset-Hashes — kein manueller
 Hard-Reload mehr nötig. Kleine, isolierte Änderung an der nginx-Config im
 Frontend-Image.
+
+## H2 — Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen (klein)
+Aus dem Final-Review von #3 (v1.0.09): `NotificationPreferenceController.update`
+ruft `NotificationType.valueOf(it.type)` — bei unbekanntem `type` wirft das
+`IllegalArgumentException`, vom `GlobalExceptionHandler` sauber auf **400**
+gemappt (nicht 500). Nicht-blockierend, aber die Response echot `ex.message` =
+`No enum constant com.taskowolf.notifications.domain.NotificationType.<X>` und
+leakt damit den voll qualifizierten Enum-Namen. Fix: unbekannte Typen im
+Controller ignorieren/validieren oder eine saubere Fehlermeldung zurückgeben.
+Trusted UI schickt heute nur gültige Typen → niedrige Prio.
+
+## H3 — `changePassword`: `newPassword` erlaubt reine Leerzeichen (klein)
+Aus dem Final-Review von #3 (v1.0.09): `ChangePasswordRequest.newPassword` hat
+`@Size(min = 8)`, aber kein `@NotBlank` — 8 Leerzeichen werden als Passwort
+akzeptiert. Frontend erzwingt zusätzlich die Länge, daher niedriges Risiko. Fix:
+`@NotBlank` ergänzen (ggf. konsistent mit der Registrierungs-Validierung).
