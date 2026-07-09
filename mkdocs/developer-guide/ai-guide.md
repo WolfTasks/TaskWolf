@@ -8,7 +8,7 @@ Complete every item before touching any file:
 
 1. Read [Conventions](conventions.md) — all cross-cutting rules apply to every module.
 2. Read the module page for the area you are modifying (e.g. `backend/issues.md`).
-3. Check the current Flyway version: **V28** (`V28__access_tokens.sql`; also see `V27__users_active.sql`). The next migration must be **V29**.
+3. Check the current Flyway version: **V29** (`V29__notification_preferences.sql`; also see `V28__access_tokens.sql`). The next migration must be **V30**.
 4. Run `cd backend && ./gradlew test` — establish a passing baseline before making any changes.
 5. Identify which pattern sections below apply to every layer you will touch.
 6. **Bevor du eine neue Dependency hinzufügst**, arbeite die Sektion
@@ -246,7 +246,7 @@ class LabelServiceTest {
 
 ### Backend: Flyway Migration
 
-File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V28** — the next file must be named **V29**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
+File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V29** — the next file must be named **V30**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
 
 ```sql
 -- backend/src/main/resources/db/migration/V23__labels.sql

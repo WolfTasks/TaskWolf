@@ -11,6 +11,7 @@ Delivers in-app, email, and WebSocket push notifications. Reacts to domain event
 | Entity | Table | Key Fields |
 |---|---|---|
 | `Notification` | `notifications` | `userId` UUID FK→users NOT NULL, `type: NotificationType` NOT NULL, `title` VARCHAR(255) NOT NULL, `body` TEXT?, `link` VARCHAR(500)?, `read` BOOLEAN NOT NULL DEFAULT false |
+| `NotificationPreference` | `notification_preferences` | `userId` UUID FK→users NOT NULL, `type: NotificationType` NOT NULL, `inAppEnabled` BOOLEAN NOT NULL DEFAULT true, `emailEnabled` BOOLEAN NOT NULL DEFAULT true; UNIQUE `(user_id, type)` |
 
 `NotificationType` enum values: `COMMENT_MENTION`, `ISSUE_ASSIGNED`, `AUTOMATION`, `SLA_BREACHED`.
 
@@ -38,6 +39,23 @@ CREATE TABLE notifications (
 
 Index: `idx_notifications_user` on `(user_id, read, created_at DESC)` — supports the common query pattern of fetching unread notifications for a user in reverse-chronological order.
 
+### `notification_preferences` (V29)
+
+```sql
+CREATE TABLE notification_preferences (
+    id             UUID        NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id        UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type           VARCHAR(30) NOT NULL,
+    in_app_enabled BOOLEAN     NOT NULL DEFAULT TRUE,
+    email_enabled  BOOLEAN     NOT NULL DEFAULT TRUE,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (user_id, type)
+);
+```
+
+Index: `idx_notification_preferences_user` on `user_id`.
+
 ---
 
 ## API Endpoints
@@ -47,8 +65,21 @@ Index: `idx_notifications_user` on `(user_id, read, created_at DESC)` — suppor
 | `GET` | `/api/v1/notifications` | USER | List notifications for the authenticated user; paged, default `page=0, size=20`, sorted by `createdAt DESC` |
 | `GET` | `/api/v1/notifications/unread-count` | USER | Returns `{ "count": <long> }` — count of unread notifications for the authenticated user |
 | `PATCH` | `/api/v1/notifications/{id}/read` | USER | Mark a single notification as read; returns updated `NotificationResponse` |
+| `GET` | `/api/v1/me/notification-preferences` | USER | Returns `NotificationPreferencesResponse` — one `{type, inApp, email}` item per `NotificationType`, synthesizing a default (both `true`) for any type with no row |
+| `PUT` | `/api/v1/me/notification-preferences` | USER | Upserts `{type, inApp, email}` items for the authenticated user; returns the updated matrix |
 
-There is no `POST` endpoint. Notifications are created exclusively by `@EventListener` methods in `NotificationService` reacting to domain events.
+There is no `POST` endpoint on `/api/v1/notifications`. Notifications are created exclusively by `@EventListener` methods in `NotificationService` reacting to domain events.
+
+### Notification preferences (opt-out model)
+
+`NotificationPreference` rows are per `(userId, type)`. A **missing row means the type is enabled** on both channels — `NotificationPreferenceService.isEnabled(userId, type, channel)` returns `true` when no row exists, so new notification types are enabled by default until a user explicitly opts out via `PUT /api/v1/me/notification-preferences`. `getMatrix()` follows the same convention: it always returns one item per `NotificationType`, filling in `inApp=true, email=true` defaults for types the user has never configured.
+
+`isEnabled()` gates both delivery paths:
+
+- **`NotificationService`** — checked before saving a `Notification` row, for all four types: `onMention` (`COMMENT_MENTION`), `onIssueFieldChanged` (`ISSUE_ASSIGNED`), and `createDirect` (used by `ActionExecutor` for `AUTOMATION` and by `SlaMonitorJob`/`IncidentService` for `SLA_BREACHED`).
+- **`EmailService`** — checked before sending mail, currently only for `onMention` (`COMMENT_MENTION`) and `onAssigned` (`ISSUE_ASSIGNED`); `AUTOMATION`/`SLA_BREACHED` have no email listener today.
+
+> **DO NOT** treat a missing `NotificationPreference` row as "disabled" — the opt-out model requires the opposite default. Always route the check through `NotificationPreferenceService.isEnabled()` rather than querying the repository directly.
 
 ---
 
@@ -82,11 +113,19 @@ Email delivery is entirely optional: `EmailService.enabled` is false when `sprin
 
 - `backend/src/main/kotlin/com/taskowolf/notifications/domain/Notification.kt`
 - `backend/src/main/kotlin/com/taskowolf/notifications/domain/NotificationType.kt`
+- `backend/src/main/kotlin/com/taskowolf/notifications/domain/NotificationChannel.kt`
+- `backend/src/main/kotlin/com/taskowolf/notifications/domain/NotificationPreference.kt`
 - `backend/src/main/kotlin/com/taskowolf/notifications/application/NotificationService.kt`
+- `backend/src/main/kotlin/com/taskowolf/notifications/application/NotificationPreferenceService.kt`
 - `backend/src/main/kotlin/com/taskowolf/notifications/application/EmailService.kt`
 - `backend/src/main/kotlin/com/taskowolf/notifications/api/NotificationController.kt`
+- `backend/src/main/kotlin/com/taskowolf/notifications/api/NotificationPreferenceController.kt`
 - `backend/src/main/kotlin/com/taskowolf/notifications/api/dto/NotificationResponse.kt`
+- `backend/src/main/kotlin/com/taskowolf/notifications/api/dto/NotificationPreferencesResponse.kt`
+- `backend/src/main/kotlin/com/taskowolf/notifications/api/dto/NotificationPreferencesRequest.kt`
+- `backend/src/main/kotlin/com/taskowolf/notifications/infrastructure/NotificationPreferenceRepository.kt`
 - `backend/src/main/resources/db/migration/V8__create_notifications.sql`
+- `backend/src/main/resources/db/migration/V29__notification_preferences.sql`
 
 ---
 
@@ -132,5 +171,8 @@ The `@EventListener` + `@Transactional` pair ensures the notification is saved i
 
 ## Test Patterns
 
-- **`NotificationServiceTest`** — pure unit test with MockK; mocks `NotificationRepository`. Verifies: `MentionEvent` saves a `COMMENT_MENTION` for `mentionedUser`; `IssueFieldChangedEvent(field="assignee")` saves an `ISSUE_ASSIGNED` for the assignee; `markRead` flips `read` and saves; `markRead` throws `NotFoundException` for an unknown notification id.
-- **`EmailServiceTest`** — pure unit test; constructs `EmailService` with a mock `JavaMailSender`. Verifies: mention email sent when SMTP host is set; mention email skipped when SMTP host is blank; assignment email sent on assignee change; assignment email skipped when field is not "assignee".
+- **`NotificationServiceTest`** — pure unit test with MockK; mocks `NotificationRepository` and `NotificationPreferenceService`. Verifies: `MentionEvent` saves a `COMMENT_MENTION` for `mentionedUser`; `IssueFieldChangedEvent(field="assignee")` saves an `ISSUE_ASSIGNED` for the assignee; `markRead` flips `read` and saves; `markRead` throws `NotFoundException` for an unknown notification id; a disabled preference (`isEnabled` returns `false`) suppresses the save.
+- **`EmailServiceTest`** — pure unit test; constructs `EmailService` with a mock `JavaMailSender` and a mock `NotificationPreferenceService`. Verifies: mention email sent when SMTP host is set; mention email skipped when SMTP host is blank; assignment email sent on assignee change; assignment email skipped when field is not "assignee"; email skipped when the preference is disabled even if SMTP is configured.
+- **`NotificationPreferenceServiceTest`** — pure unit test with MockK; mocks `NotificationPreferenceRepository`. Verifies: `isEnabled` returns `true` when no row exists (opt-out default); `isEnabled` reflects the stored `inAppEnabled`/`emailEnabled` flags per channel when a row exists; `getMatrix` returns one item per `NotificationType`, defaulting unconfigured types to enabled; `update` upserts rows for each type in the request map.
+- **`NotificationPreferenceControllerTest`** — pure unit test with MockK; mocks `NotificationPreferenceService`. Verifies `get()` maps the matrix to `NotificationPreferencesResponse`, and `update()` converts request items into the typed `Map<NotificationType, Pair<Boolean, Boolean>>` passed to `service.update()`.
+- **`NotificationPreferenceRepositoryIntegrationTest`** — extends `IntegrationTestBase` (real Postgres, not H2); persists a `NotificationPreference` against a real `users` FK and verifies `findByUserIdAndType`/`findByUserId` lookups.

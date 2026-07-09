@@ -135,6 +135,8 @@ Indexes: `idx_access_tokens_user`, `idx_access_tokens_hash`.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
+| PATCH | `/api/v1/me` | USER | Updates the caller's `displayName` (`UserAccountService.updateProfile`); logs `PROFILE_UPDATED` via `SecurityAuditListener` |
+| POST | `/api/v1/me/password` | USER | Changes the caller's password (`UserAccountService.changePassword`): verifies `currentPassword` against the stored hash, re-hashes `newPassword`, revokes all **refresh tokens** (forces re-login on other sessions) but leaves personal access tokens (`twk_`) untouched, and logs `PASSWORD_CHANGED` |
 | DELETE | `/api/v1/me` | USER | Soft-deletes and anonymizes the caller's own account (`UserAccountService.softDelete`) |
 
 ### `AdminUserController` — `/api/v1/admin/users`
@@ -187,7 +189,8 @@ None. No `@EventListener` annotations exist in `auth/application/`.
 | `backend/src/main/kotlin/com/taskowolf/auth/application/RefreshTokenService.kt` | Rotation: each consumed token is immediately revoked; stores SHA-256 hash of the JWT string |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/ApiKeyService.kt` | Generates `tw_`-prefixed tokens (24 random bytes, URL-safe base64); stores only SHA-256 hash; `authenticate()` is called per-request by `ApiKeyAuthFilter` |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/AccessTokenService.kt` | Generates `twk_`-prefixed personal access tokens (32 random bytes, URL-safe base64); `create`/`list`/`revoke`/`revokeAllForUser`/`authenticate`; `authenticate()` re-checks `user.active` and expiry on every call and returns `AuthenticatedToken(user, scope)` |
-| `backend/src/main/kotlin/com/taskowolf/auth/application/UserAccountService.kt` | `deactivate`/`activate`/`softDelete`; guards the last active admin via `requireNotLastActiveAdmin`; `softDelete` anonymizes PII and never deletes the row; both `deactivate` and `softDelete` call `AccessTokenService.revokeAllForUser` and `RefreshTokenService.revokeAllForUser` |
+| `backend/src/main/kotlin/com/taskowolf/auth/application/UserAccountService.kt` | `updateProfile`/`changePassword`/`deactivate`/`activate`/`softDelete`; guards the last active admin via `requireNotLastActiveAdmin`; `softDelete` anonymizes PII and never deletes the row; both `deactivate` and `softDelete` call `AccessTokenService.revokeAllForUser` and `RefreshTokenService.revokeAllForUser`; `changePassword` calls only `RefreshTokenService.revokeAllForUser` (access tokens are left active) |
+| `backend/src/main/kotlin/com/taskowolf/auth/api/MeController.kt` | `/api/v1/me` — `PATCH` (update display name), `POST /password` (change password), `DELETE` (self soft-delete) |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/SsoService.kt` | AES-GCM encrypt/decrypt for OIDC client secrets; encryption key is SHA-256 of `TW_JWT_SECRET` |
 | `backend/src/main/kotlin/com/taskowolf/auth/application/OidcUserProvisioningService.kt` | Creates `User` on first OIDC login when `autoProvision=true`; auto-assigns to `default` org |
 | `backend/src/main/kotlin/com/taskowolf/auth/infrastructure/SecurityConfig.kt` | Spring Security filter chain; stateless JWT sessions; `@EnableMethodSecurity` for `@PreAuthorize`; routes `oauth2Login` through `DbClientRegistrationRepository` |
@@ -284,7 +287,7 @@ The caller receives the full `plaintext` value once. All subsequent authenticati
 | `RefreshTokenServiceTest` | Rotation: valid token is revoked on consume; unknown, revoked, and expired tokens are rejected |
 | `ApiKeyServiceTest` | `generate` stores SHA-256 hash not plaintext; `authenticate` resolves user for valid token, returns null for non-`tw_` tokens, expired keys, and unknown hashes |
 | `AccessTokenServiceTest` | `create` returns `twk_`-prefixed plaintext and stores hash only; `authenticate` resolves user + scope for a valid token, returns null for a non-`twk_` token, a revoked token, an expired token, and a token whose user is inactive |
-| `UserAccountServiceTest` | `softDelete` anonymizes the user and revokes their tokens; `deactivate` is blocked when the target is the last active admin, allowed when other admins exist |
+| `UserAccountServiceTest` | `softDelete` anonymizes the user and revokes their tokens; `deactivate` is blocked when the target is the last active admin, allowed when other admins exist; `updateProfile` sets `displayName` and audits `PROFILE_UPDATED`; `changePassword` re-hashes the password, revokes refresh tokens, keeps PATs, and audits `PASSWORD_CHANGED`; `changePassword` rejects an incorrect current password |
 | `SsoServiceTest` | AES-GCM encrypt/decrypt round-trip; `createConfig` persists encrypted (not plaintext) secret |
 | `RateLimiterTest` | Sliding window: allows up to limit, rejects beyond limit, independent per IP, resets correctly |
 
