@@ -103,4 +103,35 @@ class UserAccountServiceTest {
         verify { userRepository.save(user) }
         verify { securityAuditListener.onProfileUpdated("u@x.com") }
     }
+
+    @Test
+    fun `changePassword rehashes, revokes refresh tokens, keeps PATs, audits`() {
+        val user = User(email = "u@x.com", displayName = "U", systemRole = SystemRole.MEMBER)
+        user.passwordHash = "OLD_HASH"
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { passwordEncoder.matches("current", "OLD_HASH") } returns true
+        every { passwordEncoder.encode("newpass12") } returns "NEW_HASH"
+        every { userRepository.save(any()) } returnsArgument 0
+
+        service.changePassword(user.id, "current", "newpass12")
+
+        assertEquals("NEW_HASH", user.passwordHash)
+        verify { refreshTokenService.revokeAllForUser(user.id) }
+        verify(exactly = 0) { accessTokenService.revokeAllForUser(user.id) }
+        verify { securityAuditListener.onPasswordChanged("u@x.com") }
+    }
+
+    @Test
+    fun `changePassword rejects wrong current password`() {
+        val user = User(email = "u@x.com", displayName = "U", systemRole = SystemRole.MEMBER)
+        user.passwordHash = "OLD_HASH"
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { passwordEncoder.matches("wrong", "OLD_HASH") } returns false
+
+        assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.changePassword(user.id, "wrong", "newpass12")
+        }
+        verify(exactly = 0) { userRepository.save(any()) }
+        verify(exactly = 0) { refreshTokenService.revokeAllForUser(any()) }
+    }
 }

@@ -6,6 +6,7 @@ import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
+import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.core.infrastructure.NotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -68,6 +69,20 @@ class UserAccountService(
         val saved = userRepository.save(user)
         securityAuditListener.onProfileUpdated(user.email)
         return saved
+    }
+
+    @Transactional
+    fun changePassword(userId: UUID, currentPassword: String, newPassword: String) {
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val hash = user.passwordHash
+            ?: throw ConflictException("This account has no password set")
+        if (!passwordEncoder.matches(currentPassword, hash)) {
+            throw ForbiddenException("Current password is incorrect")
+        }
+        user.passwordHash = passwordEncoder.encode(newPassword)
+        userRepository.save(user)
+        refreshTokenService.revokeAllForUser(userId)
+        securityAuditListener.onPasswordChanged(user.email)
     }
 
     private fun requireNotLastActiveAdmin(user: User) {
