@@ -28,7 +28,8 @@ import java.util.UUID
 class NotificationServiceTest {
 
     private val repository = mockk<NotificationRepository>()
-    private val service = NotificationService(repository)
+    private val preferences = mockk<com.taskowolf.notifications.application.NotificationPreferenceService>()
+    private val service = NotificationService(repository, preferences)
 
     private val user = User(email = "user@test.com", displayName = "User")
     private val actor = User(email = "actor@test.com", displayName = "Actor")
@@ -43,6 +44,7 @@ class NotificationServiceTest {
 
     @Test
     fun `onMention saves COMMENT_MENTION notification for mentioned user`() {
+        every { preferences.isEnabled(any(), any(), any()) } returns true
         every { repository.save(any()) } returnsArgument 0
         val comment = Comment(issueId = issue.id, authorId = actor.id, body = "Hey @User check this")
         val event = MentionEvent(mentionedUser = user, comment = comment, issue = issue)
@@ -57,6 +59,7 @@ class NotificationServiceTest {
 
     @Test
     fun `onIssueFieldChanged saves ISSUE_ASSIGNED notification when assignee changes`() {
+        every { preferences.isEnabled(any(), any(), any()) } returns true
         every { repository.save(any()) } returnsArgument 0
         val event = IssueFieldChangedEvent(issue = issue, actor = actor,
             field = "assignee", oldValue = null, newValue = user.displayName)
@@ -67,6 +70,28 @@ class NotificationServiceTest {
         verify { repository.save(capture(slot)) }
         assertEquals(user.id, slot.captured.userId)
         assertEquals(NotificationType.ISSUE_ASSIGNED, slot.captured.type)
+    }
+
+    @Test
+    fun `onMention skips save when in-app preference disabled`() {
+        every { preferences.isEnabled(user.id, NotificationType.COMMENT_MENTION,
+            com.taskowolf.notifications.domain.NotificationChannel.IN_APP) } returns false
+        val comment = Comment(issueId = issue.id, authorId = actor.id, body = "Hey @User")
+        val event = MentionEvent(mentionedUser = user, comment = comment, issue = issue)
+
+        service.onMention(event)
+
+        verify(exactly = 0) { repository.save(any()) }
+    }
+
+    @Test
+    fun `createDirect skips save when in-app preference disabled`() {
+        every { preferences.isEnabled(user.id, NotificationType.AUTOMATION,
+            com.taskowolf.notifications.domain.NotificationChannel.IN_APP) } returns false
+
+        service.createDirect(user.id, NotificationType.AUTOMATION, "t", "b", "/l")
+
+        verify(exactly = 0) { repository.save(any()) }
     }
 
     @Test
