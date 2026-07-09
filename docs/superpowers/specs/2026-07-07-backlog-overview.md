@@ -14,6 +14,9 @@
 | 7 | Scrollbare Listen (z.B. Audit-Log) | UI | ✅ **AUSGELIEFERT** (PR #45, Release v1.0.08) |
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
 | 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Backlog |
+| 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | Backlog |
+| 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | Backlog |
+| 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | Backlog |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | Backlog (klein) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | Backlog (klein) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | Backlog (klein) |
@@ -71,6 +74,46 @@ freizuschalten und ihnen Rollen zuzuweisen: **Read-only / Read & Write / Admin**
   Einladungs-/Freischaltungs-Flow, Member-Management-UI pro Projekt/Org,
   Berechtigungsprüfungen serverseitig.
 - Verwandt mit #3 (Profil-/Settings-Bereich) und der Admin-Users-Seite aus #2.
+
+## #10 — Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…)
+Aufbauend auf #8 (Sidebar als Ganzes einklappbar → Icon-Rail): Im **ausgeklappten**
+Zustand sollen die einzelnen Sektionsgruppen der linken Sidebar (`AppLayout.tsx`:
+**Admin**, **Project**, **Settings**, **Account**, ggf. auch die Top-Ebene) je einen
+eigenen Collapse-Toggle bekommen (Chevron am Sektions-Header via `sectionLabel`),
+um vertikal Platz zu sparen. Zustand pro Gruppe persistieren (localStorage, analog
+zum `useSidebarCollapsed`-Muster aus #8). Kleiner UI-Zyklus (Toggle je Gruppe,
+Persistenz, sinnvolles Default = alle offen; im eingeklappten Icon-Rail-Modus
+entfällt das Feature bzw. Gruppen bleiben immer sichtbar).
+
+## #11 — Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken
+**Problem:** Auditlog und ähnliche Seiten strecken den Inhalt so weit, dass die
+**ganze Seite** vertikal wächst und damit die linke Sidebar (`<aside>`) mitwächst —
+der Logout-Button rutscht unter den sichtbaren Bereich, man muss die gesamte Seite
+scrollen, um ihn zu erreichen. Ursache: In `AppLayout.tsx` ist die Shell
+`min-h-screen flex`; wenn `<main>` höher als der Viewport wird, wächst die
+Flex-Zeile und der `<aside>` (align-items: stretch) streckt sich mit.
+**Soll:** Die linke Sidebar bleibt **fixe Viewport-Höhe**, Logout ist immer
+erreichbar (unten gepinnt, `mt-auto` existiert bereits); der **rechte** Inhalt wird
+intern scrollbar statt die Seite zu verlängern. **Fix-Ansatz:** Shell auf
+`h-screen overflow-hidden` (statt `min-h-screen`), `<main>` behält `overflow-auto`
+→ Inhalt scrollt innerhalb `<main>`, `<aside>` kann sich nicht mehr strecken.
+Betrifft alle langen Seiten (auch die, die #7/DataTable noch nicht nutzen, z.B.
+lange Formulare). Verwandt mit #7 (DataTable-Scroll) und dem dortigen Hinweis
+„`overflow-hidden` auf `<main>`". Kleiner, aber sorgfältig zu testender UI-Fix
+(alle Seiten auf internes Scrollen prüfen, keine Doppel-Scrollbar).
+
+## #12 — Dependabot-Alerts beheben (5 offen, Stand 2026-07-09)
+GitHub meldet offene Dependabot-Alerts auf `WolfTasks/TaskWolf` (alle transitiv über
+`backend/settings.gradle.kts` / Spring-Boot-BOM). Abrufen immer mit
+`gh api --paginate /repos/WolfTasks/TaskWolf/dependabot/alerts?state=open`:
+- **#79 (low)** `ch.qos.logback:logback-core` < 1.5.35 → fixed **1.5.35** (Object Injection via HardenedObjectInputStream).
+- **#78 (medium)** `com.fasterxml.jackson.core:jackson-databind` ≥ 2.19.0, < 2.21.5 → **noch kein Patch verfügbar** (`first_patched_version: null`); case-insensitive Deserialisierung umgeht `@JsonIgnoreProperties`. → vorerst nur **beobachten/deferren**, bis Upstream-Fix im akzeptierten Range erscheint (vgl. früheres Jackson-Defer, Issue #33).
+- **#31 (medium)** `org.apache.commons:commons-lang3` < 3.18.0 → fixed **3.18.0** (Uncontrolled Recursion). Hinweis: für Code-Scanning wurde 3.18.0 schon per PR #32 adressiert — hier ggf. die tatsächliche Gradle-Version prüfen/anheben.
+- **#1 & #2 (medium)** `org.apache.commons:commons-compress` < 1.26.0 → fixed **1.26.0** (DoS: Infinite-Loop bei DUMP-Datei / OOM bei Pack200).
+**Ansatz:** Wo Fix verfügbar (logback, commons-lang3, commons-compress) via
+Gradle-Versions-Constraints/-Overrides oder passendem Spring-Boot-Patch-Bump
+anheben, Lockfile committen, CI-Security-Gates grün ziehen; jackson-databind
+deferren bis Patch verfügbar. Ops/Security-Zyklus.
 
 ## H1 — nginx `index.html` no-cache Härtung (Ops, klein)
 Aus dem Debugging vom 2026-07-07 (wkozian sah nach dem v1.0.07-Redeploy keine
