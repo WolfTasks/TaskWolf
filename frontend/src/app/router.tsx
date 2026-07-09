@@ -23,6 +23,10 @@ import { SsoSettingsPage } from '@/pages/admin/SsoSettingsPage'
 import { ApiKeysPage } from '@/pages/settings/ApiKeysPage'
 import { AccessTokensPage } from '@/pages/settings/AccessTokensPage'
 import { AccountSettingsPage } from '@/pages/settings/AccountSettingsPage'
+import { SettingsLayout } from '@/layouts/SettingsLayout'
+import { ProfilePage } from '@/pages/settings/ProfilePage'
+import { SecurityPage } from '@/pages/settings/SecurityPage'
+import { NotificationSettingsPage } from '@/pages/settings/NotificationSettingsPage'
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 import { WebhooksPage } from '@/pages/settings/WebhooksPage'
 import { IntegrationsPage } from '@/pages/settings/IntegrationsPage'
@@ -63,8 +67,18 @@ export const router = createBrowserRouter([
       { path: '/p/:key/sprints', element: <SprintsPage /> },
       { path: '/p/:key/reports', element: <ReportsPage /> },
       { path: '/notifications', element: <NotificationsPage /> },
-      { path: '/settings/tokens', element: <AccessTokensPage /> },
-      { path: '/settings/account', element: <AccountSettingsPage /> },
+      {
+        path: '/settings',
+        element: <SettingsLayout />,
+        children: [
+          { index: true, element: <Navigate to="/settings/profile" replace /> },
+          { path: 'profile', element: <ProfilePage /> },
+          { path: 'security', element: <SecurityPage /> },
+          { path: 'notifications', element: <NotificationSettingsPage /> },
+          { path: 'tokens', element: <AccessTokensPage /> },
+          { path: 'account', element: <AccountSettingsPage /> },
+        ],
+      },
       { path: '/admin/users', element: <AdminUsersPage /> },
       { path: '/p/:key/settings/workflow', element: <WorkflowEditorPage /> },
       { path: '/p/:key/automation', element: <AutomationPage /> },

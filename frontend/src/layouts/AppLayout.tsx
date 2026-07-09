@@ -2,9 +2,9 @@ import { Outlet, Link, useNavigate, useMatch } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   LayoutDashboard, FolderKanban, Building2, ScrollText, Zap, Users,
-  KeyRound, User, Kanban, ListChecks, CalendarRange, ListTodo, BarChart3,
+  Kanban, ListChecks, CalendarRange, ListTodo, BarChart3,
   LifeBuoy, AlertTriangle, KeySquare, Webhook, Plug, Tags, Milestone,
-  SlidersHorizontal, ChevronLeft, ChevronRight, LogOut,
+  SlidersHorizontal, ChevronLeft, ChevronRight, LogOut, Settings,
 } from 'lucide-react'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { OrgSwitcher } from '@/components/OrgSwitcher'
@@ -80,8 +80,7 @@ export function AppLayout() {
           <div className="mt-4">
             {sectionLabel('Account')}
             <div className="flex flex-col gap-1">
-              <NavItem to="/settings/tokens" label="Access Tokens" icon={KeyRound} collapsed={collapsed} variant="sub" />
-              <NavItem to="/settings/account" label="Account" icon={User} collapsed={collapsed} variant="sub" />
+              <NavItem to="/settings" label="Settings" icon={Settings} collapsed={collapsed} variant="sub" />
             </div>
           </div>
 
