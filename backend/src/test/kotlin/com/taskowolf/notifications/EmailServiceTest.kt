@@ -21,6 +21,7 @@ import org.springframework.mail.javamail.JavaMailSender
 class EmailServiceTest {
 
     private val mailSender = mockk<JavaMailSender>(relaxed = true)
+    private val preferences = mockk<com.taskowolf.notifications.application.NotificationPreferenceService>(relaxed = true)
 
     private val owner = User(email = "owner@test.com", displayName = "Owner")
     private val assignee = User(email = "assignee@test.com", displayName = "Assignee")
@@ -37,7 +38,8 @@ class EmailServiceTest {
 
     @Test
     fun `onMention sends email when SMTP host is configured`() {
-        val service = EmailService(mailSender, mailHost = "smtp.example.com", fromAddress = "noreply@example.com")
+        every { preferences.isEnabled(any(), any(), any()) } returns true
+        val service = EmailService(preferences, mailSender, mailHost = "smtp.example.com", fromAddress = "noreply@example.com")
         val comment = Comment(issueId = issue.id, authorId = actor.id, body = "Hey @Assignee look at this")
         val event = MentionEvent(mentionedUser = assignee, comment = comment, issue = issue)
 
@@ -48,7 +50,7 @@ class EmailServiceTest {
 
     @Test
     fun `onMention skips when SMTP host is blank`() {
-        val service = EmailService(mailSender, mailHost = "", fromAddress = "noreply@example.com")
+        val service = EmailService(preferences, mailSender, mailHost = "", fromAddress = "noreply@example.com")
         val comment = Comment(issueId = issue.id, authorId = actor.id, body = "Mention")
         val event = MentionEvent(mentionedUser = assignee, comment = comment, issue = issue)
 
@@ -59,7 +61,8 @@ class EmailServiceTest {
 
     @Test
     fun `onAssigned sends email when assignee changes`() {
-        val service = EmailService(mailSender, mailHost = "smtp.example.com", fromAddress = "noreply@example.com")
+        every { preferences.isEnabled(any(), any(), any()) } returns true
+        val service = EmailService(preferences, mailSender, mailHost = "smtp.example.com", fromAddress = "noreply@example.com")
         val event = IssueFieldChangedEvent(issue = issue, actor = actor,
             field = "assignee", oldValue = null, newValue = assignee.displayName)
 
@@ -70,11 +73,25 @@ class EmailServiceTest {
 
     @Test
     fun `onAssigned skips when field is not assignee`() {
-        val service = EmailService(mailSender, mailHost = "smtp.example.com", fromAddress = "noreply@example.com")
+        val service = EmailService(preferences, mailSender, mailHost = "smtp.example.com", fromAddress = "noreply@example.com")
         val event = IssueFieldChangedEvent(issue = issue, actor = actor,
             field = "title", oldValue = "Old", newValue = "New")
 
         service.onAssigned(event)
+
+        verify(exactly = 0) { mailSender.send(any<SimpleMailMessage>()) }
+    }
+
+    @Test
+    fun `onMention skips email when email preference disabled`() {
+        every { preferences.isEnabled(assignee.id,
+            com.taskowolf.notifications.domain.NotificationType.COMMENT_MENTION,
+            com.taskowolf.notifications.domain.NotificationChannel.EMAIL) } returns false
+        val service = EmailService(preferences, mailSender, mailHost = "smtp.example.com", fromAddress = "noreply@example.com")
+        val comment = Comment(issueId = issue.id, authorId = actor.id, body = "Hey @Assignee")
+        val event = MentionEvent(mentionedUser = assignee, comment = comment, issue = issue)
+
+        service.onMention(event)
 
         verify(exactly = 0) { mailSender.send(any<SimpleMailMessage>()) }
     }

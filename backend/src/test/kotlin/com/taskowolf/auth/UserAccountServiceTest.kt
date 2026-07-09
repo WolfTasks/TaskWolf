@@ -21,7 +21,11 @@ class UserAccountServiceTest {
     private val userRepository = mockk<UserRepository>()
     private val accessTokenService = mockk<AccessTokenService>(relaxed = true)
     private val refreshTokenService = mockk<RefreshTokenService>(relaxed = true)
-    private val service = UserAccountService(userRepository, accessTokenService, refreshTokenService)
+    private val passwordEncoder = mockk<org.springframework.security.crypto.password.PasswordEncoder>()
+    private val securityAuditListener = mockk<com.taskowolf.audit.application.SecurityAuditListener>(relaxed = true)
+    private val service = UserAccountService(
+        userRepository, accessTokenService, refreshTokenService, passwordEncoder, securityAuditListener
+    )
 
     @Test
     fun `softDelete anonymizes user and revokes tokens`() {
@@ -85,5 +89,49 @@ class UserAccountServiceTest {
         assertEquals(1, result.size)
         assertEquals(user.id, result[0].id)
         verify { userRepository.findByDeletedAtIsNull() }
+    }
+
+    @Test
+    fun `updateProfile sets displayName and audits`() {
+        val user = User(email = "u@x.com", displayName = "Old", systemRole = SystemRole.MEMBER)
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { userRepository.save(any()) } returnsArgument 0
+
+        val result = service.updateProfile(user.id, "New Name")
+
+        assertEquals("New Name", result.displayName)
+        verify { userRepository.save(user) }
+        verify { securityAuditListener.onProfileUpdated("u@x.com") }
+    }
+
+    @Test
+    fun `changePassword rehashes, revokes refresh tokens, keeps PATs, audits`() {
+        val user = User(email = "u@x.com", displayName = "U", systemRole = SystemRole.MEMBER)
+        user.passwordHash = "OLD_HASH"
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { passwordEncoder.matches("current", "OLD_HASH") } returns true
+        every { passwordEncoder.encode("newpass12") } returns "NEW_HASH"
+        every { userRepository.save(any()) } returnsArgument 0
+
+        service.changePassword(user.id, "current", "newpass12")
+
+        assertEquals("NEW_HASH", user.passwordHash)
+        verify { refreshTokenService.revokeAllForUser(user.id) }
+        verify(exactly = 0) { accessTokenService.revokeAllForUser(user.id) }
+        verify { securityAuditListener.onPasswordChanged("u@x.com") }
+    }
+
+    @Test
+    fun `changePassword rejects wrong current password`() {
+        val user = User(email = "u@x.com", displayName = "U", systemRole = SystemRole.MEMBER)
+        user.passwordHash = "OLD_HASH"
+        every { userRepository.findById(user.id) } returns Optional.of(user)
+        every { passwordEncoder.matches("wrong", "OLD_HASH") } returns false
+
+        assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.changePassword(user.id, "wrong", "newpass12")
+        }
+        verify(exactly = 0) { userRepository.save(any()) }
+        verify(exactly = 0) { refreshTokenService.revokeAllForUser(any()) }
     }
 }

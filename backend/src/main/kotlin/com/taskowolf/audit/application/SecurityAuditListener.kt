@@ -20,4 +20,10 @@ class SecurityAuditListener(private val auditService: AuditService) {
 
     fun onOAuthLogin(email: String) =
         auditService.log(AuditLevel.SECURITY, AuditAction.OAUTH_LOGIN, email)
+
+    fun onProfileUpdated(email: String) =
+        auditService.log(AuditLevel.SECURITY, AuditAction.PROFILE_UPDATED, email)
+
+    fun onPasswordChanged(email: String) =
+        auditService.log(AuditLevel.SECURITY, AuditAction.PASSWORD_CHANGED, email)
 }

@@ -1,11 +1,14 @@
 package com.taskowolf.auth.application
 
+import com.taskowolf.audit.application.SecurityAuditListener
 import com.taskowolf.auth.api.dto.AdminUserResponse
 import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
+import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.core.infrastructure.NotFoundException
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -15,7 +18,9 @@ import java.util.UUID
 class UserAccountService(
     private val userRepository: UserRepository,
     private val accessTokenService: AccessTokenService,
-    private val refreshTokenService: RefreshTokenService
+    private val refreshTokenService: RefreshTokenService,
+    private val passwordEncoder: PasswordEncoder,
+    private val securityAuditListener: SecurityAuditListener
 ) {
     @Transactional(readOnly = true)
     fun list(): List<AdminUserResponse> = userRepository.findByDeletedAtIsNull().map { AdminUserResponse.from(it) }
@@ -55,6 +60,29 @@ class UserAccountService(
         userRepository.save(user)
         accessTokenService.revokeAllForUser(userId)
         refreshTokenService.revokeAllForUser(userId)
+    }
+
+    @Transactional
+    fun updateProfile(userId: UUID, displayName: String): User {
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        user.displayName = displayName
+        val saved = userRepository.save(user)
+        securityAuditListener.onProfileUpdated(user.email)
+        return saved
+    }
+
+    @Transactional
+    fun changePassword(userId: UUID, currentPassword: String, newPassword: String) {
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val hash = user.passwordHash
+            ?: throw ConflictException("This account has no password set")
+        if (!passwordEncoder.matches(currentPassword, hash)) {
+            throw ForbiddenException("Current password is incorrect")
+        }
+        user.passwordHash = passwordEncoder.encode(newPassword)
+        userRepository.save(user)
+        refreshTokenService.revokeAllForUser(userId)
+        securityAuditListener.onPasswordChanged(user.email)
     }
 
     private fun requireNotLastActiveAdmin(user: User) {

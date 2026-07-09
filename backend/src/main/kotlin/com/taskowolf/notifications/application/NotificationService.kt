@@ -4,6 +4,7 @@ import com.taskowolf.comments.domain.events.MentionEvent
 import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.issues.domain.events.IssueFieldChangedEvent
 import com.taskowolf.notifications.domain.Notification
+import com.taskowolf.notifications.domain.NotificationChannel
 import com.taskowolf.notifications.domain.NotificationType
 import com.taskowolf.notifications.infrastructure.NotificationRepository
 import org.springframework.context.event.EventListener
@@ -14,11 +15,15 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
-class NotificationService(private val repository: NotificationRepository) {
+class NotificationService(
+    private val repository: NotificationRepository,
+    private val preferences: NotificationPreferenceService
+) {
 
     @EventListener
     @Transactional
     fun onMention(event: MentionEvent) {
+        if (!preferences.isEnabled(event.mentionedUser.id, NotificationType.COMMENT_MENTION, NotificationChannel.IN_APP)) return
         repository.save(
             Notification(
                 userId = event.mentionedUser.id,
@@ -35,6 +40,7 @@ class NotificationService(private val repository: NotificationRepository) {
     fun onIssueFieldChanged(event: IssueFieldChangedEvent) {
         if (event.field != "assignee") return
         val assignee = event.issue.assignee ?: return
+        if (!preferences.isEnabled(assignee.id, NotificationType.ISSUE_ASSIGNED, NotificationChannel.IN_APP)) return
         repository.save(
             Notification(
                 userId = assignee.id,
@@ -66,6 +72,7 @@ class NotificationService(private val repository: NotificationRepository) {
 
     @Transactional
     fun createDirect(userId: UUID, type: NotificationType, title: String, body: String, link: String) {
+        if (!preferences.isEnabled(userId, type, NotificationChannel.IN_APP)) return
         repository.save(Notification(userId = userId, type = type, title = title, body = body, link = link))
     }
 }
