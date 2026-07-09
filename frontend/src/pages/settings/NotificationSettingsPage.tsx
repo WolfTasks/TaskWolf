@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNotificationPreferences, useUpdateNotificationPreferences } from '@/hooks/useMe'
 import type { NotificationPreferenceItem } from '@/api/me'
 
@@ -15,8 +15,16 @@ export function NotificationSettingsPage() {
   const update = useUpdateNotificationPreferences()
   const [rows, setRows] = useState<NotificationPreferenceItem[]>([])
   const [saved, setSaved] = useState(false)
+  const seeded = useRef(false)
 
-  useEffect(() => { if (data) setRows(data) }, [data])
+  // Seed the matrix once from the first load; don't let a background refetch
+  // (e.g. on window focus) clobber unsaved toggles.
+  useEffect(() => {
+    if (data && !seeded.current) {
+      setRows(data)
+      seeded.current = true
+    }
+  }, [data])
 
   function toggle(type: string, channel: 'inApp' | 'email') {
     setRows(rows.map(r => (r.type === type ? { ...r, [channel]: !r[channel] } : r)))

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/api/auth'
 import { useUpdateProfile } from '@/hooks/useMe'
@@ -8,8 +8,16 @@ export function ProfilePage() {
   const update = useUpdateProfile()
   const [displayName, setDisplayName] = useState('')
   const [saved, setSaved] = useState(false)
+  const seeded = useRef(false)
 
-  useEffect(() => { if (me) setDisplayName(me.displayName) }, [me])
+  // Seed the form once from the first load; don't let a background refetch
+  // (e.g. on window focus) clobber unsaved edits.
+  useEffect(() => {
+    if (me && !seeded.current) {
+      setDisplayName(me.displayName)
+      seeded.current = true
+    }
+  }, [me])
 
   async function handleSave() {
     if (!displayName.trim()) return
