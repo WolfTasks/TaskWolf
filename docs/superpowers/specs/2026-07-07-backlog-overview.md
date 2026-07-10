@@ -15,8 +15,9 @@
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
 | 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Backlog |
 | 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | Backlog |
-| 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | Backlog |
-| 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | Backlog |
+| 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | 📝 Spec (`2026-07-10-layout-sidebar-stretch-fix-design.md`) |
+| 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | 📝 Spec (`2026-07-10-dependabot-alerts-remediation-design.md`) |
+| 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | Backlog (klein) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | Backlog (klein) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | Backlog (klein) |
@@ -114,6 +115,32 @@ GitHub meldet offene Dependabot-Alerts auf `WolfTasks/TaskWolf` (alle transitiv 
 Gradle-Versions-Constraints/-Overrides oder passendem Spring-Boot-Patch-Bump
 anheben, Lockfile committen, CI-Security-Gates grün ziehen; jackson-databind
 deferren bis Patch verfügbar. Ops/Security-Zyklus.
+
+## #13 — Internationalisierung (UI in mehreren Sprachen)
+Die Oberfläche soll in mehreren Sprachen nutzbar sein (mind. Deutsch + Englisch,
+erweiterbar). Aktuell sind UI-Texte **hart im Frontend verdrahtet** (gemischt
+DE/EN) und es gibt keine i18n-Infrastruktur.
+**Umfang / zu klärende Punkte:**
+- **i18n-Framework** im React-Frontend einführen (z.B. `react-i18next` /
+  `i18next`): Übersetzungs-Ressourcen (JSON pro Locale), `t()`-Aufrufe,
+  Namespaces/Struktur.
+- **Bestandsaufnahme + Extraktion:** hart kodierte Strings identifizieren und in
+  Ressourcen-Dateien überführen (schrittweise pro Seite/Feature möglich).
+- **Sprachumschalter** in der UI (z.B. im Profil/Settings-Bereich aus #3) plus
+  **Persistenz** der Sprachwahl (localStorage und/oder User-Preference im Backend
+  → Berührungspunkt zu #3/User-Profil).
+- **Locale-Erkennung** (Browser-`Accept-Language`) als sinnvoller Default.
+- **Formatierung** von Datum/Zeit/Zahlen locale-abhängig (`Intl`), inkl. der
+  bestehenden relativen Zeiten in Feeds/Activity.
+- **Backend-seitige Texte** prüfen: Validierungs-/Fehlermeldungen und
+  Notification-Texte sind heute serverseitig fix (meist EN) → entscheiden, ob
+  diese ebenfalls lokalisiert werden (Spring `MessageSource`) oder ob nur die
+  Client-Präsentation übersetzt wird.
+- **Pluralisierung** und Platzhalter/Interpolation berücksichtigen.
+Eigener Full-Stack/UI-Design-Zyklus: Framework-Wahl, Ressourcen-Struktur,
+Umschalter+Persistenz, Roll-out-Reihenfolge (welche Seiten zuerst). Verwandt mit
+#3 (Settings-Bereich für den Sprachumschalter) und #5 (UI-Tests sollten mit i18n
+umgehen können, statt auf feste Strings zu prüfen).
 
 ## H1 — nginx `index.html` no-cache Härtung (Ops, klein)
 Aus dem Debugging vom 2026-07-07 (wkozian sah nach dem v1.0.07-Redeploy keine
