@@ -45,7 +45,7 @@ export function AppLayout() {
     )
 
   return (
-    <div id="app-root" className="min-h-screen bg-gray-950 text-white flex">
+    <div id="app-root" className="h-screen overflow-hidden bg-gray-950 text-white flex">
       <aside className={`${collapsed ? 'w-16' : 'w-56'} bg-gray-900 border-r border-gray-800 flex flex-col p-4 transition-[width] duration-200`}>
         <div className={`flex items-center mb-8 ${collapsed ? 'justify-center' : 'justify-between'}`}>
           {!collapsed && <Link to="/" className="text-xl font-bold">🐺 TaskWolf</Link>}
