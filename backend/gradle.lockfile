@@ -2,8 +2,8 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 # To regenerate this file, run: ./gradlew :dependencies --write-locks
-ch.qos.logback:logback-classic:1.5.34=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-ch.qos.logback:logback-core:1.5.34=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+ch.qos.logback:logback-classic:1.5.35=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+ch.qos.logback:logback-core:1.5.35=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-annotations:2.21=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-core:2.21.4=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-databind:2.21.4=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
@@ -32,6 +32,7 @@ com.squareup.okio:okio:3.6.0=testCompileClasspath,testRuntimeClasspath
 com.sun.istack:istack-commons-runtime:4.1.2=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 com.vaadin.external.google:android-json:0.0.20131108.vaadin1=testCompileClasspath,testRuntimeClasspath
 com.zaxxer:HikariCP:6.3.3=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+commons-io:commons-io:2.15.1=testCompileClasspath,testRuntimeClasspath
 io.jsonwebtoken:jjwt-api:0.13.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 io.jsonwebtoken:jjwt-impl:0.13.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.jsonwebtoken:jjwt-jackson:0.13.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
@@ -67,7 +68,7 @@ net.java.dev.jna:jna:5.13.0=testCompileClasspath,testRuntimeClasspath
 net.minidev:accessors-smart:2.5.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 net.minidev:json-smart:2.5.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.antlr:antlr4-runtime:4.13.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-org.apache.commons:commons-compress:1.24.0=testCompileClasspath,testRuntimeClasspath
+org.apache.commons:commons-compress:1.26.0=testCompileClasspath,testRuntimeClasspath
 org.apache.commons:commons-lang3:3.18.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.apache.logging.log4j:log4j-api:2.24.3=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.apache.logging.log4j:log4j-to-slf4j:2.24.3=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
