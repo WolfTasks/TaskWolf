@@ -18,9 +18,9 @@
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **Gemergt** (PR #48; Release ausstehend) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **Gemergt** (PR #49; alle Alerts bereinigt; Release ausstehend) |
 | 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
-| H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | 📋 Spec + Plan fertig (2026-07-10), Umsetzung ausstehend |
-| H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | 📋 Spec + Plan fertig (2026-07-10), Umsetzung ausstehend |
-| H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | 📋 Spec + Plan fertig (2026-07-10), Umsetzung ausstehend |
+| H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **Gemergt** (PR #51; Release ausstehend) |
+| H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **Gemergt** (PR #50; Release ausstehend) |
+| H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **Gemergt** (PR #50; Release ausstehend) |
 
 ## #3 — User-Profil-Seiten mit gruppierten Einstellungen
 Eigene Profil-/Einstellungsseiten pro Nutzer, gruppiert nach Themengebieten
@@ -154,8 +154,9 @@ Umschalter+Persistenz, Roll-out-Reihenfolge (welche Seiten zuerst). Verwandt mit
 umgehen können, statt auf feste Strings zu prüfen).
 
 ## H1 — nginx `index.html` no-cache Härtung (Ops, klein)
-> 📋 **Spec:** `2026-07-10-h1-nginx-index-nocache-design.md` ·
-> **Plan:** `../plans/2026-07-10-h1-nginx-index-nocache.md` (Umsetzung ausstehend)
+> ✅ **Gemergt** (PR #51, 2026-07-10; Release ausstehend). Spec:
+> `2026-07-10-h1-nginx-index-nocache-design.md` ·
+> Plan: `../plans/2026-07-10-h1-nginx-index-nocache.md`
 
 Aus dem Debugging vom 2026-07-07 (wkozian sah nach dem v1.0.07-Redeploy keine
 Projekte → Ursache war client-seitiger Stale-State, behoben per Hard-Reload):
@@ -167,8 +168,9 @@ Hard-Reload mehr nötig. Kleine, isolierte Änderung an der nginx-Config im
 Frontend-Image.
 
 ## H2 — Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen (klein)
-> 📋 **Spec:** `2026-07-10-h2-notification-prefs-enum-leak-design.md` ·
-> **Plan:** `../plans/2026-07-10-h2-notification-prefs-enum-leak.md` (Umsetzung ausstehend)
+> ✅ **Gemergt** (PR #50, 2026-07-10; Release ausstehend). Spec:
+> `2026-07-10-h2-notification-prefs-enum-leak-design.md` ·
+> Plan: `../plans/2026-07-10-h2-notification-prefs-enum-leak.md`
 
 Aus dem Final-Review von #3 (v1.0.09): `NotificationPreferenceController.update`
 ruft `NotificationType.valueOf(it.type)` — bei unbekanntem `type` wirft das
@@ -180,8 +182,9 @@ Controller ignorieren/validieren oder eine saubere Fehlermeldung zurückgeben.
 Trusted UI schickt heute nur gültige Typen → niedrige Prio.
 
 ## H3 — `changePassword`: `newPassword` erlaubt reine Leerzeichen (klein)
-> 📋 **Spec:** `2026-07-10-h3-blank-password-validation-design.md` ·
-> **Plan:** `../plans/2026-07-10-h3-blank-password-validation.md` (Umsetzung ausstehend).
+> ✅ **Gemergt** (PR #50, 2026-07-10; Release ausstehend). Spec:
+> `2026-07-10-h3-blank-password-validation-design.md` ·
+> Plan: `../plans/2026-07-10-h3-blank-password-validation.md`.
 > Scope-Entscheid: fixt **auch** `RegisterRequest.password` (gleiche Lücke).
 
 Aus dem Final-Review von #3 (v1.0.09): `ChangePasswordRequest.newPassword` hat
