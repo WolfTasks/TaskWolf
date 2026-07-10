@@ -15,8 +15,8 @@
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
 | 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Backlog |
 | 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | Backlog |
-| 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | 📝 Spec (`2026-07-10-layout-sidebar-stretch-fix-design.md`) |
-| 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | 📝 Spec (`2026-07-10-dependabot-alerts-remediation-design.md`) |
+| 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **Gemergt** (PR #48; Release ausstehend) |
+| 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **Gemergt** (PR #49; alle Alerts bereinigt; Release ausstehend) |
 | 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | Backlog (klein) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | Backlog (klein) |
@@ -103,7 +103,17 @@ lange Formulare). Verwandt mit #7 (DataTable-Scroll) und dem dortigen Hinweis
 „`overflow-hidden` auf `<main>`". Kleiner, aber sorgfältig zu testender UI-Fix
 (alle Seiten auf internes Scrollen prüfen, keine Doppel-Scrollbar).
 
-## #12 — Dependabot-Alerts beheben (5 offen, Stand 2026-07-09)
+## #12 — Dependabot-Alerts beheben ✅ ERLEDIGT (PR #49, 2026-07-10)
+**Ergebnis (0 offene Alerts):** logback-core & commons-compress via BOM-Override/
+Constraint gebumpt (`backend/build.gradle.kts` + Lockfile) → **#79, #1, #2 nach
+Merge automatisch geschlossen**. **#31** (commons-lang3, war bereits 3.18.0 im
+Lockfile) als *inaccurate* dismissed. **#78** (jackson-databind, kein installierbarer
+Patch) als *tolerable_risk* dismissed (Defer bis Spring-Boot-BOM 2.21.5 trägt, vgl.
+Issue #33). Zusätzlich in PR #48 mitgelöst: Trivy-HIGH-Gate im Frontend-Image durch
+`c-ares`-Bump (CVE-2026-33630) im Dockerfile. Details siehe Spec/Plan `2026-07-10-*`.
+
+<details><summary>Ausgangslage (Stand 2026-07-09)</summary>
+
 GitHub meldet offene Dependabot-Alerts auf `WolfTasks/TaskWolf` (alle transitiv über
 `backend/settings.gradle.kts` / Spring-Boot-BOM). Abrufen immer mit
 `gh api --paginate /repos/WolfTasks/TaskWolf/dependabot/alerts?state=open`:
@@ -115,6 +125,7 @@ GitHub meldet offene Dependabot-Alerts auf `WolfTasks/TaskWolf` (alle transitiv 
 Gradle-Versions-Constraints/-Overrides oder passendem Spring-Boot-Patch-Bump
 anheben, Lockfile committen, CI-Security-Gates grün ziehen; jackson-databind
 deferren bis Patch verfügbar. Ops/Security-Zyklus.
+</details>
 
 ## #13 — Internationalisierung (UI in mehreren Sprachen)
 Die Oberfläche soll in mehreren Sprachen nutzbar sein (mind. Deutsch + Englisch,
