@@ -27,6 +27,8 @@ class ProjectController(
     ) = ProjectResponse.from(projectService.create(request, user))
 
     @GetMapping("/{key}")
-    fun get(@PathVariable key: String, @AuthenticationPrincipal user: User) =
-        ProjectResponse.from(projectService.requireMember(key, user.id))
+    fun get(@PathVariable key: String, @AuthenticationPrincipal user: User): ProjectResponse {
+        val project = projectService.requireMember(key, user.id)
+        return ProjectResponse.from(project, projectService.roleOf(project, user.id))
+    }
 }
