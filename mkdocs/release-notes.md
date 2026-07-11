@@ -4,6 +4,17 @@ Version history for TaskWolf. Docker images are published to Docker Hub as
 `kwolfgang/taskowolf-backend:<version>` and `kwolfgang/taskowolf-frontend:<version>`
 (e.g. `1.0.10`). See the [GitHub releases](https://github.com/WolfTasks/TaskWolf/releases) for downloads.
 
+## v1.0.11 — 2026-07-11
+
+#### Highlights
+
+- **#10 Collapsible sidebar groups** (PR #54): each left-sidebar section (Admin, Account, Project, Settings) now has its own chevron to collapse/expand just that group, with per-group state persisted in `localStorage` (default: all open). Icon-rail mode is unchanged.
+
+#### Fixes
+
+- **B3** (PR #54): the sidebar nav scrolls internally so the **Logout** button stays reachable even when the menu is taller than the viewport (no double scrollbar).
+- **B1** (PR #53): users can no longer change their **own** project role — a role change must come from another admin. Enforced server-side (403); the own-row role selector is disabled in the Members UI.
+
 ## v1.0.10 — 2026-07-11
 
 #### Highlights

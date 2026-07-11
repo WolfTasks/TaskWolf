@@ -14,16 +14,16 @@
 | 7 | Scrollbare Listen (z.B. Audit-Log) | UI | ✅ **AUSGELIEFERT** (PR #45, Release v1.0.08) |
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
 | 9 | User-Rechte-Verwaltung (Projekt-Freischaltung + Rollen) | Full-Stack | ✅ **AUSGELIEFERT** (PR #52, Release v1.0.10) |
-| 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | 📋 Geplant (`plans/2026-07-11-sidebar-groups-and-logout.md`) |
+| 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **AUSGELIEFERT** (PR #48, Release v1.0.10) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
 | 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
-| B1 | User können ihre eigene Rolle ändern | Bug | 🎨 Specced (`2026-07-11-project-permissions-fixes-design.md`) |
-| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | 🔎 Reproduziert → **Frontend-only** (Backend blockt bereits); eigener FE-Zyklus offen |
-| B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | 📋 Geplant (`plans/2026-07-11-sidebar-groups-and-logout.md`) |
+| B1 | User können ihre eigene Rolle ändern | Bug | ✅ **AUSGELIEFERT** (PR #53, Release v1.0.11) |
+| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | ⏸️ Zurückgestellt — bereits umgesetzt (client `useProjectRole`+server 403); nur Regressionstest offen |
+| B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
 
 ## #3 — User-Profil-Seiten mit gruppierten Einstellungen
 Eigene Profil-/Einstellungsseiten pro Nutzer, gruppiert nach Themengebieten
@@ -205,10 +205,12 @@ akzeptiert. Frontend erzwingt zusätzlich die Länge, daher niedriges Risiko. Fi
 `@NotBlank` ergänzen (ggf. konsistent mit der Registrierungs-Validierung).
 
 ## B1 — User können ihre eigene Rolle ändern 🐞
-> Gemeldet 2026-07-11. Status: **Specced** →
-> `2026-07-11-project-permissions-fixes-design.md` (gemeinsam mit B2). Ursache
-> bestätigt: `ProjectService.changeMemberRole` prüft `actorId == targetUserId`
-> nicht.
+> Gemeldet 2026-07-11. Status: ✅ **AUSGELIEFERT** (PR #53, Release v1.0.11).
+> `ProjectService.changeMemberRole` weist jetzt `actorId == targetUserId` mit 403
+> ab (nach `requireAdmin`, vor Owner-Guard) + Integrationstest; `MembersPage`
+> deaktiviert das eigene Rollen-`<select>`. Spec:
+> `2026-07-11-project-permissions-fixes-design.md` · Plan:
+> `plans/2026-07-11-b1-self-role-change.md`.
 
 Ein Nutzer kann seine **eigene** Rolle ändern (Selbst-Rechteausweitung möglich).
 Erwartetes Verhalten: die eigene Rolle darf nicht selbst geändert werden – eine
@@ -218,16 +220,21 @@ möglich sein. Berührungspunkt: Rollen-/Rechte-Verwaltung aus #9
 serverseitig unterbinden) **und** UI (eigene Rolle nicht editierbar anzeigen).
 
 ## B2 — Read-only greift nicht: User können Tickets trotz Read-only ändern 🐞
-> Gemeldet 2026-07-11. Status: **Reproduziert → Frontend-only.**
-> Reproduktion (Integrationstest): VIEWER `PATCH /issues/{id}` → **403**, Titel
-> unverändert → **Backend blockt Read-only bereits korrekt** (jeder Ticket-Write
-> ist via `@PreAuthorize canWrite` bzw. Service-`requireAdmin` geschützt). Die
-> ursprüngliche „6 ungeschützte Controller"-Analyse war ein Falsch-Positiv
-> (Audit-Grep sah nur `@PreAuthorize`, nicht die Service-`requireAdmin`-Guards).
-> **Echte Ursache:** Das Frontend gated Edit-Oberflächen nicht auf
-> `project.myRole` → VIEWER sieht volle Edit-UI. Fix = eigener Frontend-Zyklus
-> (canWrite aus myRole durch alle Edit-Surfaces) + Backend-Regressionstest für
-> `VIEWER→PATCH issue`. Details: `2026-07-11-project-permissions-fixes-design.md`.
+> Gemeldet 2026-07-11. Status: **⏸️ Zurückgestellt — bereits umgesetzt.**
+> Zwei Fehldiagnosen unterwegs korrigiert (beide durch fehlerhafte Greps): (1) das
+> Backend blockt Read-only bereits — Reproduktion VIEWER `PATCH /issues/{id}` →
+> **403**, Titel unverändert (jeder Ticket-Write via `@PreAuthorize canWrite` bzw.
+> Service-`requireAdmin`); (2) das **Frontend gated ebenfalls bereits**: Hook
+> `useProjectRole` liefert `canWrite = myRole !== 'VIEWER'`, verdrahtet über **alle**
+> Ticket-Oberflächen (`IssueDetailContent` inkl. Comments/Attachments `readOnly`,
+> `BoardPage`/`DraggableCard`, `BacklogPage`, `IssueListPage`) sowie Settings-CRUD
+> (`LabelsPage`/`VersionsPage`/`CustomFieldsPage`). B2-wie-gemeldet (Read-only
+> kann keine Tickets ändern) ist damit **client + server** erfüllt (vermutlich mit
+> #9 ausgeliefert). **Noch offen (klein, zurückgestellt):** (a) Backend-Regressionstest
+> `VIEWER→PATCH issue → 403` (heute ungetestet); (b) optionaler Polish: Admin-only
+> Config-Seiten (Workflow/Automation/Dashboard/API-Keys/Webhooks/Integrations)
+> clientseitig auf `isAdmin` gaten statt nur Server-403. Details:
+> `2026-07-11-project-permissions-fixes-design.md`.
 
 Trotz Read-only-Rolle können Nutzer Tickets ändern – die Read-only-Durchsetzung
 wirkt nicht. Erwartet: Read-only-Nutzer haben ausschließlich Lesezugriff, jegliche
@@ -237,9 +244,10 @@ Lücke vor. Eigener Bug-Zyklus: server-seitige Autorisierungsprüfung auf allen
 schreibenden Ticket-Endpunkten verifizieren/nachziehen (nicht nur UI ausblenden).
 
 ## B3 — Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist 🐞
-> Gemeldet 2026-07-11. Status: **Specced** →
-> `2026-07-11-sidebar-groups-and-logout-design.md` (gemeinsam mit #10). Fix =
-> `<nav>` intern scrollbar (`min-h-0 overflow-y-auto`), Footer bleibt gepinnt.
+> Gemeldet 2026-07-11. Status: ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11).
+> `<nav>` intern scrollbar (`min-h-0 overflow-y-auto`), Footer/Logout bleibt
+> gepinnt. Spec: `2026-07-11-sidebar-groups-and-logout-design.md` · Plan:
+> `plans/2026-07-11-sidebar-groups-and-logout.md`.
 
 Wird die linke Sidebar vertikal länger als der Bildschirm (viele Einträge/kleiner
 Viewport), rutscht der Logout-Button aus dem sichtbaren Bereich und ist nicht mehr
