@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useVersions, useCreateVersion, useUpdateVersion, useDeleteVersion } from '@/hooks/useVersions'
+import { useProjectRole } from '@/hooks/useProjectRole'
 import type { Version } from '@/types'
 
 function VersionForm({
@@ -50,6 +51,7 @@ function VersionForm({
 
 export function VersionsPage() {
   const { key } = useParams<{ key: string }>()
+  const { canWrite } = useProjectRole(key!)
   const { data: versions = [], isLoading } = useVersions(key!)
   const createVersion = useCreateVersion(key!)
   const updateVersion = useUpdateVersion(key!)
@@ -91,7 +93,7 @@ export function VersionsPage() {
     <div className="p-6 space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Versions</h1>
-        {!showCreate && (
+        {canWrite && !showCreate && (
           <button
             onClick={() => setShowCreate(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium"
@@ -119,20 +121,22 @@ export function VersionsPage() {
             ) : (
               <div className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg">
                 <span className="text-sm text-white font-mono">{version.name}</span>
-                <div className="ml-auto flex gap-2">
-                  <button
-                    onClick={() => setEditing(version)}
-                    className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(version.id)}
-                    className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {canWrite && (
+                  <div className="ml-auto flex gap-2">
+                    <button
+                      onClick={() => setEditing(version)}
+                      className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(version.id)}
+                      className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

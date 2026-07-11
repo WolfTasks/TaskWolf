@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useLabels, useCreateLabel, useUpdateLabel, useDeleteLabel } from '@/hooks/useLabels'
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { LabelChip } from '@/components/issue/LabelChip'
 import type { Label } from '@/types'
 
@@ -76,6 +77,7 @@ function LabelForm({
 
 export function LabelsPage() {
   const { key } = useParams<{ key: string }>()
+  const { canWrite } = useProjectRole(key!)
   const { data: labels = [], isLoading } = useLabels(key!)
   const createLabel = useCreateLabel(key!)
   const updateLabel = useUpdateLabel(key!)
@@ -117,7 +119,7 @@ export function LabelsPage() {
     <div className="p-6 space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Labels</h1>
-        {!showCreate && (
+        {canWrite && !showCreate && (
           <button
             onClick={() => setShowCreate(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium"
@@ -146,20 +148,22 @@ export function LabelsPage() {
               <div className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg">
                 <LabelChip label={label} />
                 <span className="text-xs text-gray-500 font-mono">{label.color}</span>
-                <div className="ml-auto flex gap-2">
-                  <button
-                    onClick={() => setEditing(label)}
-                    className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(label.id)}
-                    className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {canWrite && (
+                  <div className="ml-auto flex gap-2">
+                    <button
+                      onClick={() => setEditing(label)}
+                      className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(label.id)}
+                      className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
