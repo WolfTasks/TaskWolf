@@ -47,44 +47,69 @@ DB-Migration nötig** (Enum enthält bereits alle drei Werte, gespeichert als
 `ProjectService.isProjectAdmin`: Owner → `true`). Der Owner ist **nicht
 entfernbar und nicht degradierbar**. Damit hat jedes Projekt garantiert ≥1 Admin.
 
-## Autorisierung — neues Schreib-Gate
+## Autorisierung — Read-only-Durchsetzung
 
-Kern der Read-only-Durchsetzung. In `ProjectService` neu:
+Kern der Read-only-Durchsetzung. **Mechanismus:** deklarative Methoden-Security am
+Controller — analog zum bereits existierenden
+`@PreAuthorize("@projectSecurity.isProjectAdmin(#key, authentication)")`
+(AuditController, ServiceDeskController, IncidentController). Das minimiert die
+Änderungsfläche (keine Eingriffe in die 6 Schreib-Services und ihre Unit-Tests)
+und ist konsistent mit dem vorhandenen Muster.
+
+### Neue Logik in `ProjectService`
 
 ```kotlin
+// Rolle des Nutzers im Projekt: Owner → ADMIN; sonst Member-Rolle; Nicht-Mitglied → null
 @Transactional(readOnly = true)
-fun requireWriter(projectKey: String, userId: UUID): Project {
-    val project = requireMember(projectKey, userId)   // wirft 403 bei Nicht-Mitglied
-    if (project.owner.id == userId) return project     // Owner = immer Writer
-    val member = memberRepository.findByProjectIdAndUserId(project.id, userId)
-    if (member?.role == ProjectRole.VIEWER)
-        throw ForbiddenException("Read-only role: write access denied")
-    return project
+fun roleOf(project: Project, userId: UUID): ProjectRole? =
+    if (project.owner.id == userId) ProjectRole.ADMIN
+    else memberRepository.findByProjectIdAndUserId(project.id, userId)?.role
+
+// Darf schreiben = Mitglied/Owner UND nicht VIEWER
+@Transactional(readOnly = true)
+fun canWrite(projectKey: String, userId: UUID): Boolean {
+    val project = findByKey(projectKey)
+    val role = roleOf(project, userId) ?: return false   // Nicht-Mitglied
+    return role != ProjectRole.VIEWER
 }
 ```
 
-- Wirft `ForbiddenException` → 403. **Keine Interna in der Message** (vgl.
-  H2-Lektion: keine Enum-/Klassennamen leaken).
-- **Owner** immer Writer; `MEMBER`/`ADMIN` Writer; nur `VIEWER` blockiert.
+### Neuer `ProjectSecurity`-Check
 
-### Call-Site-Klassifikation (read vs. write)
+```kotlin
+fun canWrite(key: String, authentication: Authentication): Boolean {
+    val user = authentication.principal as? User ?: return false
+    return try { projectService.canWrite(key, user.id) } catch (_: Exception) { false }
+}
+```
 
-Jeder bestehende `requireMember`-Aufruf wird einzeln als **Read** (bleibt
-`requireMember`) oder **Write** (→ `requireWriter`) klassifiziert. Schreib-Services,
-die migriert werden (nicht-erschöpfend, im Plan final verifiziert):
+### Annotierte Schreib-Endpoints
 
-- `IssueService`: create / update / transition / assign / … → `requireWriter`;
-  reine Reads (get/list/search) → `requireMember`.
-- `CommentService`: create/update → `requireWriter` (Löschen fremder Kommentare
-  bleibt zusätzlich `isProjectAdmin`, wie heute).
-- `LabelService`, `SprintService`, `VersionService`, `CustomFieldService`
-  (Werte setzen / CRUD): Schreib-Ops → `requireWriter`; Lese-Ops → `requireMember`.
-- `BoardService`-Mutationen (Spalten/Karten verschieben) → `requireWriter`;
-  Board lesen → `requireMember`.
+`@PreAuthorize("@projectSecurity.canWrite(#key, authentication)")` auf allen
+mutierenden Endpoints (alle haben `@PathVariable key`). Fehlschlag →
+`AccessDeniedException` → **403** über den bestehenden `GlobalExceptionHandler`
+(generische Message, kein Enum-/Interna-Leak, H2-konform). Betroffen:
 
-**Unverändert:** `requireAdmin`-Call-Sites (Workflow-Editor, Webhooks,
-Integrationen, Service-Desk, API-Keys, Projekt-Dashboard-Config) bleiben Admin.
-`@projectSecurity.isProjectAdmin`-`@PreAuthorize`-Gates bleiben.
+- **IssueController:** `create` (POST), `update` (PATCH), `delete` (DELETE).
+- **CommentController:** `addComment` (POST). `editComment`/`deleteComment`
+  bleiben autor-/admin-gegated (ein VIEWER kann ohnehin keinen Kommentar verfasst
+  haben, da `addComment` blockiert).
+- **LabelController:** `create` / `update` / `delete`.
+- **SprintController:** `create` / `update` / `start` / `complete` /
+  `assignIssue` / `unassignIssue`.
+- **VersionController:** `create` / `update` / `delete`.
+- **CustomFieldController:** `create` / `update` / `reorder` / `delete` /
+  `createOption` / `updateOption` / `deleteOption`.
+
+**Reine Lese-Endpoints** bleiben ungegated bzw. bei `requireMember` (VIEWER darf
+lesen). **`BoardService`** hat nur Lesepfade (`getBoard`/`getBacklog`) — keine
+Board-Mutation; Board-Änderungen laufen über `IssueService.update` (Status) bzw.
+`SprintService.assignIssue` und sind darüber bereits abgedeckt.
+
+**Unverändert:** `requireAdmin`- und `isProjectAdmin`-Gates (Workflow-Editor,
+Webhooks, Integrationen, Service-Desk, API-Keys, Projekt-Dashboard-Config)
+bleiben Admin. Die Schreib-Services behalten ihr internes `requireMember`
+(harmlose Defense-in-Depth; kein Umbau nötig).
 
 **Member-Verwaltung** selbst erfordert `requireAdmin` (Admin/Owner/System-ADMIN).
 
@@ -165,7 +190,7 @@ erweitern: liefert jetzt Rollen; neue Mutations-Hooks für add/update/remove;
 ## Testing
 
 - **Backend (MockK, Unit):**
-  - `requireWriter`: VIEWER denied; MEMBER/ADMIN/Owner erlaubt; Nicht-Mitglied → 403.
+  - `roleOf` / `canWrite`: VIEWER → false; MEMBER/ADMIN/Owner → true; Nicht-Mitglied → false.
   - Member-CRUD-Autorisierung: Nicht-Admin → 403; Owner-Schutz (PATCH/DELETE); Doppel-Add → 409; unbekannter User → 404.
   - User-Suche: Berechtigung (nur Admin/System-ADMIN), Min-Länge, nur aktive Nutzer, keine sensiblen Felder.
   - `ProjectResponse.myRole` korrekt für Owner/Admin/Member/Viewer.
@@ -180,8 +205,9 @@ erweitern: liefert jetzt Rollen; neue Mutations-Hooks für add/update/remove;
 Großes, aber kohärentes Full-Stack-Feature. Passend zu „eine Phase pro Session"
 wird der Implementierungsplan in Teilphasen geschnitten:
 
-- **Phase A — Backend:** Rollen-CRUD-API + `requireWriter`-Enforcement
-  (Call-Site-Migration) + `myRole` im `ProjectResponse` + `users/search` + Tests.
+- **Phase A — Backend:** Rollen-CRUD-API + `canWrite`-Enforcement
+  (`@PreAuthorize` an Schreib-Endpoints) + `myRole` im `ProjectResponse` +
+  `users/search` + Tests.
 - **Phase B — Frontend MembersPage:** Verwaltungs-UI (Liste, Rollenwechsel,
   Add mit Autocomplete, Remove) + Route/Sidebar-Link.
 - **Phase C — Frontend Read-only-Gating:** `canWrite`-Ableitung + Disable/Hide
