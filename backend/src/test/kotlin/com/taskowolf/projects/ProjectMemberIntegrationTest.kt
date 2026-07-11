@@ -115,6 +115,44 @@ class ProjectMemberIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `a non-owner admin cannot change their own role but can change others`() {
+        val ownerToken = registerAndGetToken("self-owner@test.com")
+        val adminToken = registerAndGetToken("self-admin@test.com")
+        val otherToken = registerAndGetToken("self-other@test.com")
+        val adminId = myId(adminToken)
+        val otherId = myId(otherToken)
+        createProject(ownerToken, "SELF")
+
+        // owner promotes adminToken's user to ADMIN, and adds a third MEMBER
+        mockMvc.perform(
+            post("/api/v1/projects/SELF/members").header("Authorization", "Bearer $ownerToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"userId":"$adminId","role":"ADMIN"}""")
+        ).andExpect(status().isCreated)
+        mockMvc.perform(
+            post("/api/v1/projects/SELF/members").header("Authorization", "Bearer $ownerToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"userId":"$otherId","role":"MEMBER"}""")
+        ).andExpect(status().isCreated)
+
+        // the admin tries to change THEIR OWN role → 403
+        mockMvc.perform(
+            patch("/api/v1/projects/SELF/members/$adminId").header("Authorization", "Bearer $adminToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"role":"MEMBER"}""")
+        ).andExpect(status().isForbidden)
+
+        // positive control: the admin changes ANOTHER member's role → 200
+        mockMvc.perform(
+            patch("/api/v1/projects/SELF/members/$otherId").header("Authorization", "Bearer $adminToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"role":"ADMIN"}""")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.role").value("ADMIN"))
+    }
+
+    @Test
     fun `unknown role in body returns 400 not 500`() {
         val ownerToken = registerAndGetToken("m-owner4@test.com")
         val memberToken = registerAndGetToken("m-member4@test.com")

@@ -105,6 +105,7 @@ class ProjectService(
     @Transactional
     fun changeMemberRole(projectKey: String, actorId: UUID, targetUserId: UUID, role: ProjectRole): ProjectMember {
         val project = requireAdmin(projectKey, actorId)
+        if (actorId == targetUserId) throw ForbiddenException("You cannot change your own role")
         if (project.owner.id == targetUserId) throw ForbiddenException("Cannot change the project owner's role")
         val member = memberRepository.findByProjectIdAndUserId(project.id, targetUserId)
             ?: throw NotFoundException("Member not found")
