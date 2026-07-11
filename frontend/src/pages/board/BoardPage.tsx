@@ -50,7 +50,7 @@ export function BoardPage() {
 
   return (
     <div>
-      <SprintHeader sprint={board.sprint} onComplete={() => setShowComplete(true)} />
+      <SprintHeader sprint={board.sprint} onComplete={() => setShowComplete(true)} canWrite={canWrite} />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="flex gap-4 overflow-x-auto pb-4">
           {board.columns.map(col => (
@@ -65,6 +65,7 @@ export function BoardPage() {
           loading={completeSprint.isPending}
           onCancel={() => setShowComplete(false)}
           onConfirm={() => {
+            if (!canWrite) return
             completeSprint.mutate(board.sprint.id, {
               onSuccess: () => setShowComplete(false),
             })
