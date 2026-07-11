@@ -3,6 +3,7 @@ package com.taskowolf.core.infrastructure
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -40,6 +41,11 @@ class GlobalExceptionHandler {
     fun handleIllegalArgument(ex: IllegalArgumentException) =
         ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("BAD_REQUEST", ex.message ?: "Bad request"))
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleUnreadable(ex: HttpMessageNotReadableException) =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse("BAD_REQUEST", "Malformed or invalid request body"))
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
