@@ -20,6 +20,7 @@ class ProjectMemberController(
     private val projectMemberRepository: ProjectMemberRepository
 ) {
     @GetMapping
+    // Keeps the session open while ProjectMemberResponse.from() reads the lazy user association (OSIV is disabled).
     @Transactional(readOnly = true)
     fun list(@PathVariable key: String, @AuthenticationPrincipal user: User): List<ProjectMemberResponse> {
         val project = projectService.requireMember(key, user.id)
@@ -35,6 +36,7 @@ class ProjectMemberController(
     ) = ProjectMemberResponse.from(projectService.addMember(key, user.id, request.userId, request.role))
 
     @PatchMapping("/{userId}")
+    // Keeps the session open while ProjectMemberResponse.from() reads the lazy user association (OSIV is disabled).
     @Transactional
     fun changeRole(
         @PathVariable key: String,

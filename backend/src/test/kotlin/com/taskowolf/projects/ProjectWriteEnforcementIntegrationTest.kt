@@ -5,9 +5,11 @@ import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.util.UUID
 
 class ProjectWriteEnforcementIntegrationTest : IntegrationTestBase() {
 
@@ -116,5 +118,50 @@ class ProjectWriteEnforcementIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             delete("/api/v1/projects/DEM/issues/$issueKey/comments/$commentId").header("Authorization", "Bearer $ownerToken")
         ).andExpect(status().isNoContent)
+    }
+
+    @Test
+    fun `viewer is blocked from moving a card on the board`() {
+        val ownerToken = registerAndGetToken("brd-owner@test.com")
+        val viewerToken = registerAndGetToken("brd-viewer@test.com")
+        mockMvc.perform(
+            post("/api/v1/projects").header("Authorization", "Bearer $ownerToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"key":"BRD","name":"Brd"}""")
+        ).andExpect(status().isCreated)
+        addMember(ownerToken, "BRD", myId(viewerToken), "VIEWER")
+
+        // viewer: move a board card → 403 (canWrite denies before the body is resolved, so bogus ids are fine)
+        mockMvc.perform(
+            patch("/api/v1/projects/BRD/board/move").header("Authorization", "Bearer $viewerToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"issueId":"${UUID.randomUUID()}","newStatusId":"${UUID.randomUUID()}"}""")
+        ).andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `viewer is blocked from uploading an attachment`() {
+        val ownerToken = registerAndGetToken("att-owner@test.com")
+        val viewerToken = registerAndGetToken("att-viewer@test.com")
+        mockMvc.perform(
+            post("/api/v1/projects").header("Authorization", "Bearer $ownerToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"key":"ATT","name":"Att"}""")
+        ).andExpect(status().isCreated)
+        addMember(ownerToken, "ATT", myId(viewerToken), "VIEWER")
+
+        // owner creates an issue → capture its key
+        val issueResult = mockMvc.perform(
+            post("/api/v1/projects/ATT/issues").header("Authorization", "Bearer $ownerToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"title":"needs an attachment"}""")
+        ).andExpect(status().isCreated).andReturn()
+        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asText()
+
+        val file = MockMultipartFile("file", "x.txt", "text/plain", "hi".toByteArray())
+
+        // viewer: upload attachment → 403
+        mockMvc.perform(
+            multipart("/api/v1/projects/ATT/issues/$issueKey/attachments")
+                .file(file)
+                .header("Authorization", "Bearer $viewerToken")
+        ).andExpect(status().isForbidden)
     }
 }
