@@ -25,8 +25,12 @@ export function useSidebarSections(): {
 
   const toggle = useCallback((id: string) => {
     setCollapsed(prev => {
-      const next = { ...prev, [id]: !prev[id] }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      const next = { ...readStored(), [id]: !prev[id] }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      } catch {
+        // ignore — storage may be unavailable (private mode / quota)
+      }
       return next
     })
   }, [])
