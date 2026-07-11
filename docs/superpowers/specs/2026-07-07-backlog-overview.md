@@ -13,7 +13,7 @@
 | 6 | Test-Deploy bei Selfhoster mit eigener URL | Ops | Backlog |
 | 7 | Scrollbare Listen (z.B. Audit-Log) | UI | ✅ **AUSGELIEFERT** (PR #45, Release v1.0.08) |
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
-| 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Backlog |
+| 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Phase A (Backend) fertig — B/C (Frontend) offen |
 | 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | Backlog |
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **Gemergt** (PR #48; Release ausstehend) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **Gemergt** (PR #49; alle Alerts bereinigt; Release ausstehend) |
