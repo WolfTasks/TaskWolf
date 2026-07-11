@@ -13,7 +13,7 @@
 | 6 | Test-Deploy bei Selfhoster mit eigener URL | Ops | Backlog |
 | 7 | Scrollbare Listen (z.B. Audit-Log) | UI | ✅ **AUSGELIEFERT** (PR #45, Release v1.0.08) |
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
-| 9 | User-Rechte-Verwaltung (Projekt-Freischaltung + Rollen) | Full-Stack | ✅ **PR #52** (Backend + Frontend komplett; nicht gemergt) |
+| 9 | User-Rechte-Verwaltung (Projekt-Freischaltung + Rollen) | Full-Stack | ✅ **Gemergt** (PR #52; Release ausstehend) |
 | 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | Backlog |
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **Gemergt** (PR #48; Release ausstehend) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **Gemergt** (PR #49; alle Alerts bereinigt; Release ausstehend) |
@@ -61,8 +61,8 @@ Nutzer persistieren (z.B. `localStorage`). Kleiner UI-Zyklus (Collapse-Toggle,
 Icon-Only-Modus, responsive Verhalten).
 
 ## #9 — User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen)
-> ✅ **ERLEDIGT** (2026-07-11, PR #52 — Backend Phase A + Frontend Phase B/C, noch
-> nicht gemergt). **Scope-Entscheid: nur Projekte** (Orgs haben bereits
+> ✅ **ERLEDIGT & GEMERGT** (2026-07-11, PR #52 squash `73d510c` — Backend Phase A +
+> Frontend Phase B/C; Release ausstehend). **Scope-Entscheid: nur Projekte** (Orgs haben bereits
 > Member-Management → eigener Folge-Zyklus). Rollen `VIEWER/MEMBER/ADMIN` (bestehender
 > Enum, keine Migration); read-only server- **und** clientseitig durchgesetzt.
 > Spec: `2026-07-11-project-permissions-design.md` · Pläne:
