@@ -14,7 +14,7 @@
 | 7 | Scrollbare Listen (z.B. Audit-Log) | UI | ✅ **AUSGELIEFERT** (PR #45, Release v1.0.08) |
 | 8 | Linkes Menü zusammenklappbar | UI | ✅ **AUSGELIEFERT** (PR #46, Release v1.0.08) |
 | 9 | User-Rechte-Verwaltung (Projekt-Freischaltung + Rollen) | Full-Stack | ✅ **AUSGELIEFERT** (PR #52, Release v1.0.10) |
-| 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | 🎨 Specced (`2026-07-11-sidebar-groups-and-logout-design.md`) |
+| 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | 📋 Geplant (`plans/2026-07-11-sidebar-groups-and-logout.md`) |
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **AUSGELIEFERT** (PR #48, Release v1.0.10) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
 | 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
@@ -23,7 +23,7 @@
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | B1 | User können ihre eigene Rolle ändern | Bug | 🎨 Specced (`2026-07-11-project-permissions-fixes-design.md`) |
 | B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | 🔎 Reproduziert → **Frontend-only** (Backend blockt bereits); eigener FE-Zyklus offen |
-| B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | 🎨 Specced (`2026-07-11-sidebar-groups-and-logout-design.md`) |
+| B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | 📋 Geplant (`plans/2026-07-11-sidebar-groups-and-logout.md`) |
 
 ## #3 — User-Profil-Seiten mit gruppierten Einstellungen
 Eigene Profil-/Einstellungsseiten pro Nutzer, gruppiert nach Themengebieten
