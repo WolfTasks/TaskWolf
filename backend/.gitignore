@@ -3,3 +3,6 @@ build/
 *.class
 out/
 test_output.txt
+
+# Kotlin daemon working dir
+.kotlin/
