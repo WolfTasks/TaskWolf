@@ -75,4 +75,16 @@ class ProjectService(
         val member = memberRepository.findByProjectIdAndUserId(project.id, userId)
         return member?.role == ProjectRole.ADMIN
     }
+
+    @Transactional(readOnly = true)
+    fun roleOf(project: Project, userId: UUID): ProjectRole? =
+        if (project.owner.id == userId) ProjectRole.ADMIN
+        else memberRepository.findByProjectIdAndUserId(project.id, userId)?.role
+
+    @Transactional(readOnly = true)
+    fun canWrite(projectKey: String, userId: UUID): Boolean {
+        val project = findByKey(projectKey)
+        val role = roleOf(project, userId) ?: return false
+        return role != ProjectRole.VIEWER
+    }
 }
