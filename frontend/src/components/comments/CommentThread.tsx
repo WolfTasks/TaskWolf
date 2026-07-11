@@ -11,9 +11,10 @@ interface Props {
   projectKey: string
   issueKey: string
   currentUserId?: string
+  readOnly?: boolean
 }
 
-export function CommentThread({ projectKey, issueKey, currentUserId }: Props) {
+export function CommentThread({ projectKey, issueKey, currentUserId, readOnly }: Props) {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useComments(projectKey, issueKey)
   const addComment = useAddComment(projectKey, issueKey)
   const editComment = useEditComment(projectKey, issueKey)
@@ -128,22 +129,24 @@ export function CommentThread({ projectKey, issueKey, currentUserId }: Props) {
         )}
       </div>
 
-      <div className="mt-4 space-y-2">
-        <textarea
-          placeholder="Add a comment..."
-          className="w-full bg-gray-900 text-sm text-white rounded-lg p-3 resize-none min-h-20 border border-gray-800 focus:outline-none focus:border-indigo-500"
-          value={newBody}
-          onChange={e => setNewBody(e.target.value)}
-          rows={3}
-        />
-        <button
-          onClick={handleAdd}
-          disabled={!newBody.trim() || addComment.isPending}
-          className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded"
-        >
-          {addComment.isPending ? 'Posting...' : 'Post Comment'}
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="mt-4 space-y-2">
+          <textarea
+            placeholder="Add a comment..."
+            className="w-full bg-gray-900 text-sm text-white rounded-lg p-3 resize-none min-h-20 border border-gray-800 focus:outline-none focus:border-indigo-500"
+            value={newBody}
+            onChange={e => setNewBody(e.target.value)}
+            rows={3}
+          />
+          <button
+            onClick={handleAdd}
+            disabled={!newBody.trim() || addComment.isPending}
+            className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded"
+          >
+            {addComment.isPending ? 'Posting...' : 'Post Comment'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
