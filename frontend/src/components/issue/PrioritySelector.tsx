@@ -13,9 +13,10 @@ const colors: Record<Priority, string> = {
 interface Props {
   value: Priority
   onSave: (value: Priority) => void
+  disabled?: boolean
 }
 
-export function PrioritySelector({ value, onSave }: Props) {
+export function PrioritySelector({ value, onSave, disabled }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -30,8 +31,9 @@ export function PrioritySelector({ value, onSave }: Props) {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(o => !o)}
-        className={`text-sm font-medium ${colors[value]} cursor-pointer hover:underline`}
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
+        disabled={disabled}
+        className={`text-sm font-medium ${colors[value]} ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
         {value}
       </button>

@@ -3,9 +3,10 @@ import { useState, useRef, useEffect } from 'react'
 interface Props {
   value: string | null   // ISO date string "YYYY-MM-DD" or null
   onSave: (date: string | null) => void
+  disabled?: boolean
 }
 
-export function DueDatePicker({ value, onSave }: Props) {
+export function DueDatePicker({ value, onSave, disabled }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -22,8 +23,9 @@ export function DueDatePicker({ value, onSave }: Props) {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(o => !o)}
-        className="text-sm text-gray-300 cursor-pointer hover:underline"
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
+        disabled={disabled}
+        className={`text-sm text-gray-300 ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
         {display}
       </button>

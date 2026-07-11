@@ -3,9 +3,10 @@ import { useState, useRef, useEffect } from 'react'
 interface Props {
   value: string
   onSave: (value: string) => void
+  disabled?: boolean
 }
 
-export function InlineEditTitle({ value, onSave }: Props) {
+export function InlineEditTitle({ value, onSave, disabled }: Props) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -14,6 +15,7 @@ export function InlineEditTitle({ value, onSave }: Props) {
   useEffect(() => { setDraft(value) }, [value])
 
   function commit() {
+    if (disabled) { setEditing(false); return }
     const trimmed = draft.trim()
     if (trimmed && trimmed !== value) onSave(trimmed)
     setEditing(false)
@@ -37,8 +39,8 @@ export function InlineEditTitle({ value, onSave }: Props) {
 
   return (
     <h1
-      onClick={() => setEditing(true)}
-      className="text-2xl font-bold text-white mb-6 cursor-pointer hover:bg-gray-800 rounded px-1 -mx-1"
+      onClick={() => { if (!disabled) setEditing(true) }}
+      className={`text-2xl font-bold text-white mb-6 rounded px-1 -mx-1 ${disabled ? '' : 'cursor-pointer hover:bg-gray-800'}`}
     >
       {value}
     </h1>

@@ -15,9 +15,10 @@ interface Props {
   allLabels: Label[]      // all project labels
   onSave: (labelIds: string[]) => void
   onChipClick?: (label: Label) => void
+  disabled?: boolean
 }
 
-export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClick }: Props) {
+export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClick, disabled }: Props) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Label[]>(value)
@@ -68,8 +69,8 @@ export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClic
   return (
     <div ref={ref} className="relative">
       <div
-        className="flex flex-wrap gap-1 cursor-pointer min-h-[24px]"
-        onClick={() => setOpen(o => !o)}
+        className={`flex flex-wrap gap-1 min-h-[24px] ${disabled ? '' : 'cursor-pointer'}`}
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
       >
         {selected.length === 0
           ? <span className="text-sm text-gray-500 hover:text-gray-300">None</span>

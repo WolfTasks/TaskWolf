@@ -7,9 +7,10 @@ interface Props {
   allVersions: Version[]
   onSave: (versionIds: string[]) => void
   onChipClick?: (version: Version) => void
+  disabled?: boolean
 }
 
-export function VersionSelector({ value, allVersions, onSave, onChipClick }: Props) {
+export function VersionSelector({ value, allVersions, onSave, onChipClick, disabled }: Props) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<Version[]>(value)
   const ref = useRef<HTMLDivElement>(null)
@@ -40,8 +41,8 @@ export function VersionSelector({ value, allVersions, onSave, onChipClick }: Pro
   return (
     <div ref={ref} className="relative">
       <div
-        className="flex flex-wrap gap-1 cursor-pointer min-h-[24px]"
-        onClick={() => setOpen(o => !o)}
+        className={`flex flex-wrap gap-1 min-h-[24px] ${disabled ? '' : 'cursor-pointer'}`}
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
       >
         {selected.length === 0
           ? <span className="text-sm text-gray-500 hover:text-gray-300">None</span>

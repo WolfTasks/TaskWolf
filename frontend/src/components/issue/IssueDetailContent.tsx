@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useIssue, useUpdateIssue } from '@/hooks/useIssues'
 import { useMe } from '@/hooks/useAuth'
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { useSprints } from '@/hooks/useSprints'
 import { useProjectMembers } from '@/hooks/useProjectMembers'
 import { useLabels } from '@/hooks/useLabels'
@@ -36,6 +37,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
   const navigate = useNavigate()
   const { data: issue, isLoading } = useIssue(projectKey, issueKey)
   const { data: me } = useMe()
+  const { canWrite } = useProjectRole(projectKey)
   const updateIssue = useUpdateIssue(projectKey)
   const { data: members = [] } = useProjectMembers(projectKey)
   const { data: sprints = [] } = useSprints(projectKey)
@@ -47,6 +49,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
   if (!issue) return <div className="text-red-400">Issue not found</div>
 
   function patch(data: Record<string, unknown>) {
+    if (!canWrite) return
     updateIssue.mutate({ id: issue!.id, data })
   }
 
@@ -58,7 +61,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
         <StatusBadge name={issue.statusName} category={issue.statusCategory} />
       </div>
 
-      <InlineEditTitle value={issue.title} onSave={title => patch({ title })} />
+      <InlineEditTitle value={issue.title} onSave={title => patch({ title })} disabled={!canWrite} />
 
       {/* Two-column layout */}
       <div className="flex flex-col lg:flex-row gap-8">
@@ -69,11 +72,12 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
             <RichTextEditor
               value={issue.description}
               onSave={description => patch({ description })}
+              disabled={!canWrite}
             />
           </section>
 
           <section>
-            <CommentsActivityTabs projectKey={projectKey} issueKey={issueKey} currentUserId={me?.id} />
+            <CommentsActivityTabs projectKey={projectKey} issueKey={issueKey} currentUserId={me?.id} readOnly={!canWrite} />
           </section>
 
           {issue.refs && issue.refs.length > 0 && (
@@ -100,11 +104,11 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
         <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
           <section className="space-y-4">
             <SidebarField label="Priority">
-              <PrioritySelector value={issue.priority} onSave={priority => patch({ priority })} />
+              <PrioritySelector value={issue.priority} onSave={priority => patch({ priority })} disabled={!canWrite} />
             </SidebarField>
 
             <SidebarField label="Type">
-              <TypeSelector value={issue.type} onSave={type => patch({ type })} />
+              <TypeSelector value={issue.type} onSave={type => patch({ type })} disabled={!canWrite} />
             </SidebarField>
 
             <SidebarField label="Assignee">
@@ -113,6 +117,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
                 assigneeId={issue.assigneeId}
                 members={members.map(m => m.user)}
                 onSave={userId => userId ? patch({ assigneeId: userId }) : patch({ clearAssignee: true })}
+                disabled={!canWrite}
               />
             </SidebarField>
 
@@ -126,6 +131,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
                 sprintId={issue.sprintId}
                 sprints={sprints}
                 onSave={sprintId => sprintId ? patch({ sprintId }) : patch({ clearSprint: true })}
+                disabled={!canWrite}
               />
             </SidebarField>
 
@@ -133,6 +139,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               <DueDatePicker
                 value={issue.dueDate}
                 onSave={date => date ? patch({ dueDate: date }) : patch({ clearDueDate: true })}
+                disabled={!canWrite}
               />
             </SidebarField>
 
@@ -143,6 +150,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
                 allLabels={allLabels}
                 onSave={labelIds => patch({ labelIds })}
                 onChipClick={l => navigate(`/p/${projectKey}/issues?labelId=${l.id}`)}
+                disabled={!canWrite}
               />
             </SidebarField>
 
@@ -152,6 +160,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
                 allVersions={allVersions}
                 onSave={fixVersionIds => patch({ fixVersionIds })}
                 onChipClick={v => navigate(`/p/${projectKey}/issues?fixVersionId=${v.id}`)}
+                disabled={!canWrite}
               />
             </SidebarField>
 
@@ -161,6 +170,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
                 allVersions={allVersions}
                 onSave={affectsVersionIds => patch({ affectsVersionIds })}
                 onChipClick={v => navigate(`/p/${projectKey}/issues?affectsVersionId=${v.id}`)}
+                disabled={!canWrite}
               />
             </SidebarField>
 
@@ -172,6 +182,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
                     definition={def}
                     value={cfValue}
                     onChange={val => patch({ customFieldValues: [{ fieldId: def.id, value: val }] })}
+                    disabled={!canWrite}
                   />
                 </SidebarField>
               )
@@ -181,6 +192,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               <StoryPointsSelector
                 value={issue.storyPoints}
                 onSave={sp => sp != null ? patch({ storyPoints: sp }) : patch({ clearStoryPoints: true })}
+                disabled={!canWrite}
               />
             </SidebarField>
 
@@ -194,7 +206,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
           </section>
 
           <section>
-            <AttachmentPanel projectKey={projectKey} issueKey={issueKey} currentUserId={me?.id} />
+            <AttachmentPanel projectKey={projectKey} issueKey={issueKey} currentUserId={me?.id} readOnly={!canWrite} />
           </section>
         </div>
       </div>
