@@ -30,7 +30,7 @@ export function DraggableCard({ issue, canWrite }: Props) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform) }}
-      {...(canWrite ? attributes : {})}
+      {...attributes}
       {...(canWrite ? listeners : {})}
       onPointerDownCapture={() => { dragged.current = false }}
       onClick={() => {
