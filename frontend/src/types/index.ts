@@ -1,3 +1,5 @@
+export type ProjectRole = 'ADMIN' | 'MEMBER' | 'VIEWER'
+
 export interface User {
   id: string
   email: string
@@ -13,6 +15,18 @@ export interface Project {
   description: string | null
   ownerId: string
   archived: boolean
+  myRole?: ProjectRole
+}
+
+export interface ProjectMember {
+  user: User
+  role: ProjectRole
+}
+
+export interface UserSearchResult {
+  id: string
+  email: string
+  displayName: string
 }
 
 export interface Label {

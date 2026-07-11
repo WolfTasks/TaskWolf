@@ -111,7 +111,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               <AssigneeSelector
                 value={issue.assigneeName}
                 assigneeId={issue.assigneeId}
-                members={members}
+                members={members.map(m => m.user)}
                 onSave={userId => userId ? patch({ assigneeId: userId }) : patch({ clearAssignee: true })}
               />
             </SidebarField>
