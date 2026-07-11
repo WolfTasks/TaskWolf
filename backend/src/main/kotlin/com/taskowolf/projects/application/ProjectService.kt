@@ -1,5 +1,6 @@
 package com.taskowolf.projects.application
 
+import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
@@ -118,5 +119,12 @@ class ProjectService(
         val member = memberRepository.findByProjectIdAndUserId(project.id, targetUserId)
             ?: throw NotFoundException("Member not found")
         memberRepository.delete(member)
+    }
+
+    @Transactional(readOnly = true)
+    fun canManageAnyProjectMembers(user: User): Boolean {
+        if (user.systemRole == SystemRole.ADMIN) return true
+        return memberRepository.existsByUserIdAndRole(user.id, ProjectRole.ADMIN) ||
+            projectRepository.existsByOwnerId(user.id)
     }
 }
