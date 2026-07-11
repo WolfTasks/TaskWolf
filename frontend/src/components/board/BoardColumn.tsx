@@ -3,9 +3,9 @@ import { cn } from '@/lib/utils'
 import { DraggableCard } from './DraggableCard'
 import type { BoardColumn as BoardColumnType } from '@/types'
 
-interface Props { column: BoardColumnType }
+interface Props { column: BoardColumnType; canWrite: boolean }
 
-export function BoardColumn({ column }: Props) {
+export function BoardColumn({ column, canWrite }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: column.status.id })
 
   return (
@@ -25,7 +25,7 @@ export function BoardColumn({ column }: Props) {
       </div>
       <div className="flex flex-col gap-2 min-h-16">
         {column.issues.map(issue => (
-          <DraggableCard key={issue.id} issue={issue} />
+          <DraggableCard key={issue.id} issue={issue} canWrite={canWrite} />
         ))}
       </div>
     </div>

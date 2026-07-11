@@ -12,9 +12,9 @@ const priorityColor: Record<string, string> = {
   LOW: 'text-green-400',
 }
 
-interface Props { issue: Issue }
+interface Props { issue: Issue; canWrite: boolean }
 
-export function DraggableCard({ issue }: Props) {
+export function DraggableCard({ issue, canWrite }: Props) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: issue.id })
   const openIssue = useOpenIssue()
   // Tracks whether a real drag occurred during the current pointer gesture.
@@ -30,8 +30,8 @@ export function DraggableCard({ issue }: Props) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform) }}
-      {...attributes}
-      {...listeners}
+      {...(canWrite ? attributes : {})}
+      {...(canWrite ? listeners : {})}
       onPointerDownCapture={() => { dragged.current = false }}
       onClick={() => {
         if (!dragged.current) openIssue(issue.key)
@@ -44,7 +44,8 @@ export function DraggableCard({ issue }: Props) {
         }
       }}
       className={cn(
-        'bg-gray-900 border border-gray-800 rounded-lg p-3 cursor-grab active:cursor-grabbing select-none',
+        'bg-gray-900 border border-gray-800 rounded-lg p-3 select-none',
+        canWrite && 'cursor-grab active:cursor-grabbing',
         isDragging && 'opacity-50 border-blue-500 z-50'
       )}
     >
