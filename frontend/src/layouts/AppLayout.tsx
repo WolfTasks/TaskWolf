@@ -15,6 +15,7 @@ import { IssueDialogHost } from '@/components/issue/IssueDialogHost'
 import { VersionTag } from '@/components/VersionTag'
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed'
 import { NavItem } from '@/components/nav/NavItem'
+import { SidebarSection } from '@/components/nav/SidebarSection'
 
 export function AppLayout() {
   const navigate = useNavigate()
@@ -46,11 +47,6 @@ export function AppLayout() {
     navigate('/login')
   }
 
-  const sectionLabel = (text: string) =>
-    !collapsed && (
-      <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{text}</p>
-    )
-
   return (
     <div id="app-root" className="h-screen overflow-hidden bg-gray-950 text-white flex">
       <aside className={`${collapsed ? 'w-16' : 'w-56'} bg-gray-900 border-r border-gray-800 flex flex-col p-4 transition-[width] duration-200`}>
@@ -68,33 +64,30 @@ export function AppLayout() {
           )}
         </div>
 
-        <nav className="flex flex-col gap-1 flex-1">
+        <nav className="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto">
           <NavItem to="/" end label="Dashboard" icon={LayoutDashboard} collapsed={collapsed} />
           <NavItem to="/projects" end label="Projects" icon={FolderKanban} collapsed={collapsed} />
           <NavItem to="/orgs" end label="Organizations" icon={Building2} collapsed={collapsed} />
 
           <div className="mt-4">
-            {sectionLabel('Admin')}
-            <div className="flex flex-col gap-1">
+            <SidebarSection id="admin" label="Admin" railMode={collapsed}>
               <NavItem to="/admin/audit" label="Audit Log" icon={ScrollText} collapsed={collapsed} variant="sub" />
               <NavItem to="/admin/automation" label="Automation" icon={Zap} collapsed={collapsed} variant="sub" />
               {me?.role === 'ADMIN' && (
                 <NavItem to="/admin/users" label="Users" icon={Users} collapsed={collapsed} variant="sub" />
               )}
-            </div>
+            </SidebarSection>
           </div>
 
           <div className="mt-4">
-            {sectionLabel('Account')}
-            <div className="flex flex-col gap-1">
+            <SidebarSection id="account" label="Account" railMode={collapsed}>
               <NavItem to="/settings" label="Settings" icon={Settings} collapsed={collapsed} variant="sub" />
-            </div>
+            </SidebarSection>
           </div>
 
           {insideProject && projectKey && (
             <div className="mt-4">
-              {sectionLabel('Project')}
-              <div className="flex flex-col gap-1">
+              <SidebarSection id="project" label="Project" railMode={collapsed}>
                 <NavItem to={`/p/${projectKey}/dashboard`} label="Dashboard" icon={LayoutDashboard} collapsed={collapsed} variant="sub" />
                 <NavItem to={`/p/${projectKey}/board`} label="Board" icon={Kanban} collapsed={collapsed} variant="sub" />
                 <NavItem to={`/p/${projectKey}/backlog`} label="Backlog" icon={ListChecks} collapsed={collapsed} variant="sub" />
@@ -108,11 +101,10 @@ export function AppLayout() {
                     <NavItem to={`/p/${projectKey}/incidents`} label="Incidents" icon={AlertTriangle} collapsed={collapsed} variant="sub" />
                   </>
                 )}
-              </div>
+              </SidebarSection>
 
               <div className="mt-4">
-                {sectionLabel('Settings')}
-                <div className="flex flex-col gap-1">
+                <SidebarSection id="project-settings" label="Settings" railMode={collapsed}>
                   {currentProject?.myRole === 'ADMIN' && (
                     <NavItem to={`/p/${projectKey}/settings/members`} label="Members" icon={UserCog} collapsed={collapsed} variant="sub" />
                   )}
@@ -123,7 +115,7 @@ export function AppLayout() {
                   <NavItem to={`/p/${projectKey}/settings/labels`} label="Labels" icon={Tags} collapsed={collapsed} variant="sub" />
                   <NavItem to={`/p/${projectKey}/settings/versions`} label="Versions" icon={Milestone} collapsed={collapsed} variant="sub" />
                   <NavItem to={`/p/${projectKey}/settings/custom-fields`} label="Custom Fields" icon={SlidersHorizontal} collapsed={collapsed} variant="sub" />
-                </div>
+                </SidebarSection>
               </div>
             </div>
           )}
