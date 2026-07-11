@@ -6,6 +6,7 @@ import com.taskowolf.labels.api.dto.LabelResponse
 import com.taskowolf.labels.application.LabelService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -20,6 +21,7 @@ class LabelController(private val labelService: LabelService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun create(
         @PathVariable key: String,
         @Valid @RequestBody request: LabelRequest,
@@ -27,6 +29,7 @@ class LabelController(private val labelService: LabelService) {
     ) = LabelResponse.from(labelService.create(key, request, user))
 
     @PutMapping("/{id}")
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun update(
         @PathVariable key: String,
         @PathVariable id: UUID,
@@ -36,6 +39,7 @@ class LabelController(private val labelService: LabelService) {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun delete(
         @PathVariable key: String,
         @PathVariable id: UUID,

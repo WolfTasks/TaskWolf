@@ -9,6 +9,7 @@ import com.taskowolf.customfields.application.CustomFieldService
 import com.taskowolf.customfields.application.ReorderEntry
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -23,6 +24,7 @@ class CustomFieldController(private val service: CustomFieldService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun create(
         @PathVariable key: String,
         @Valid @RequestBody request: CustomFieldDefinitionRequest,
@@ -33,6 +35,7 @@ class CustomFieldController(private val service: CustomFieldService) {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun update(
         @PathVariable key: String,
         @PathVariable id: UUID,
@@ -45,6 +48,7 @@ class CustomFieldController(private val service: CustomFieldService) {
 
     @PutMapping("/reorder")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun reorder(
         @PathVariable key: String,
         @RequestBody reorders: List<ReorderEntry>,
@@ -53,6 +57,7 @@ class CustomFieldController(private val service: CustomFieldService) {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun delete(
         @PathVariable key: String,
         @PathVariable id: UUID,
@@ -61,6 +66,7 @@ class CustomFieldController(private val service: CustomFieldService) {
 
     @PostMapping("/{id}/options")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun createOption(
         @PathVariable key: String,
         @PathVariable id: UUID,
@@ -69,6 +75,7 @@ class CustomFieldController(private val service: CustomFieldService) {
     ) = CustomFieldOptionResponse.from(service.createOption(key, id, request, user))
 
     @PutMapping("/{id}/options/{optId}")
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun updateOption(
         @PathVariable key: String,
         @PathVariable id: UUID,
@@ -79,6 +86,7 @@ class CustomFieldController(private val service: CustomFieldService) {
 
     @DeleteMapping("/{id}/options/{optId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun deleteOption(
         @PathVariable key: String,
         @PathVariable id: UUID,
