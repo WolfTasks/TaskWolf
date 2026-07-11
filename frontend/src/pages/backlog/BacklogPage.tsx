@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useBacklog } from '@/hooks/useBoard'
 import { useStartSprint, useAssignIssue, useUnassignIssue } from '@/hooks/useSprints'
 import { useProjectSocket } from '@/hooks/useProjectSocket'
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { useOpenIssue } from '@/hooks/useOpenIssue'
 import { CreateSprintForm } from '@/components/sprint/CreateSprintForm'
 import { StatusBadge } from '@/components/issue/StatusBadge'
@@ -30,6 +31,7 @@ function IssueRow({ issue, action, onOpen }: { issue: Issue; action: React.React
 export function BacklogPage() {
   const { key } = useParams<{ key: string }>()
   useProjectSocket(key!)
+  const { canWrite } = useProjectRole(key!)
   const { data: backlog, isLoading } = useBacklog(key!)
   const startSprint = useStartSprint(key!)
   const assignIssue = useAssignIssue(key!)
@@ -47,7 +49,7 @@ export function BacklogPage() {
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Backlog</h1>
-        {!showCreateForm && (
+        {canWrite && !showCreateForm && (
           <button onClick={() => setShowCreateForm(true)}
             className="text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded border border-gray-700">
             + New Sprint
@@ -74,13 +76,15 @@ export function BacklogPage() {
             <span className="font-semibold text-white">{entry.sprint.name}</span>
             {entry.sprint.goal && <span className="text-xs text-gray-500">— {entry.sprint.goal}</span>}
             <span className="text-xs text-gray-500 ml-auto">{entry.issues.length} issues · {entry.totalPoints} pts</span>
-            <button
-              onClick={() => startSprint.mutate(entry.sprint.id)}
-              disabled={startSprint.isPending}
-              className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1 rounded"
-            >
-              Start Sprint
-            </button>
+            {canWrite && (
+              <button
+                onClick={() => startSprint.mutate(entry.sprint.id)}
+                disabled={startSprint.isPending}
+                className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1 rounded"
+              >
+                Start Sprint
+              </button>
+            )}
           </div>
           {!collapsed.has(entry.sprint.id) && (
             <div className="flex flex-col gap-1 ml-5">
@@ -90,12 +94,14 @@ export function BacklogPage() {
                   issue={issue}
                   onOpen={openIssue}
                   action={
-                    <button
-                      onClick={() => unassignIssue.mutate({ sprintId: entry.sprint.id, issueId: issue.id })}
-                      className="text-xs text-gray-500 hover:text-red-400 shrink-0"
-                    >
-                      ✕
-                    </button>
+                    canWrite ? (
+                      <button
+                        onClick={() => unassignIssue.mutate({ sprintId: entry.sprint.id, issueId: issue.id })}
+                        className="text-xs text-gray-500 hover:text-red-400 shrink-0"
+                      >
+                        ✕
+                      </button>
+                    ) : null
                   }
                 />
               ))}
@@ -119,7 +125,7 @@ export function BacklogPage() {
               issue={issue}
               onOpen={openIssue}
               action={
-                backlog.sprints.length > 0 ? (
+                canWrite && backlog.sprints.length > 0 ? (
                   <select
                     onChange={e => e.target.value && assignIssue.mutate({ sprintId: e.target.value, issueId: issue.id })}
                     defaultValue=""
