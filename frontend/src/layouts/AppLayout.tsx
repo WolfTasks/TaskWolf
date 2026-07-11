@@ -4,12 +4,13 @@ import {
   LayoutDashboard, FolderKanban, Building2, ScrollText, Zap, Users,
   Kanban, ListChecks, CalendarRange, ListTodo, BarChart3,
   LifeBuoy, AlertTriangle, KeySquare, Webhook, Plug, Tags, Milestone,
-  SlidersHorizontal, ChevronLeft, ChevronRight, LogOut, Settings,
+  SlidersHorizontal, ChevronLeft, ChevronRight, LogOut, Settings, UserCog,
 } from 'lucide-react'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { OrgSwitcher } from '@/components/OrgSwitcher'
 import { authApi } from '@/api/auth'
 import { serviceDeskApi } from '@/api/servicedesk'
+import { projectsApi } from '@/api/projects'
 import { IssueDialogHost } from '@/components/issue/IssueDialogHost'
 import { VersionTag } from '@/components/VersionTag'
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed'
@@ -29,6 +30,12 @@ export function AppLayout() {
   const { data: serviceDeskConfig } = useQuery({
     queryKey: ['service-desk-config', projectKey],
     queryFn: () => serviceDeskApi.get(projectKey!),
+    enabled: !!projectKey,
+  })
+
+  const { data: currentProject } = useQuery({
+    queryKey: ['projects', projectKey],
+    queryFn: () => projectsApi.get(projectKey!).then(r => r.data),
     enabled: !!projectKey,
   })
 
@@ -106,6 +113,9 @@ export function AppLayout() {
               <div className="mt-4">
                 {sectionLabel('Settings')}
                 <div className="flex flex-col gap-1">
+                  {currentProject?.myRole === 'ADMIN' && (
+                    <NavItem to={`/p/${projectKey}/settings/members`} label="Members" icon={UserCog} collapsed={collapsed} variant="sub" />
+                  )}
                   <NavItem to={`/p/${projectKey}/settings/api-keys`} label="API Keys" icon={KeySquare} collapsed={collapsed} variant="sub" />
                   <NavItem to={`/p/${projectKey}/settings/webhooks`} label="Webhooks" icon={Webhook} collapsed={collapsed} variant="sub" />
                   <NavItem to={`/p/${projectKey}/settings/integrations`} label="Integrations" icon={Plug} collapsed={collapsed} variant="sub" />
