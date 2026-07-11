@@ -1,6 +1,8 @@
 package com.taskowolf.projects.application
 
+import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
+import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
 import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.core.infrastructure.NotFoundException
@@ -19,7 +21,8 @@ import java.util.UUID
 class ProjectService(
     private val projectRepository: ProjectRepository,
     private val memberRepository: ProjectMemberRepository,
-    private val workflowService: WorkflowService
+    private val workflowService: WorkflowService,
+    private val userRepository: UserRepository
 ) {
     @Transactional
     fun create(request: CreateProjectRequest, owner: User): Project {
@@ -74,5 +77,54 @@ class ProjectService(
         if (project.owner.id == userId) return true
         val member = memberRepository.findByProjectIdAndUserId(project.id, userId)
         return member?.role == ProjectRole.ADMIN
+    }
+
+    @Transactional(readOnly = true)
+    fun roleOf(project: Project, userId: UUID): ProjectRole? =
+        if (project.owner.id == userId) ProjectRole.ADMIN
+        else memberRepository.findByProjectIdAndUserId(project.id, userId)?.role
+
+    @Transactional(readOnly = true)
+    fun canWrite(projectKey: String, userId: UUID): Boolean {
+        val project = findByKey(projectKey)
+        val role = roleOf(project, userId) ?: return false
+        return role != ProjectRole.VIEWER
+    }
+
+    @Transactional
+    fun addMember(projectKey: String, actorId: UUID, targetUserId: UUID, role: ProjectRole): ProjectMember {
+        val project = requireAdmin(projectKey, actorId)
+        if (project.owner.id == targetUserId || memberRepository.existsByProjectIdAndUserId(project.id, targetUserId)) {
+            throw ConflictException("User is already a member of this project")
+        }
+        val user = userRepository.findById(targetUserId)
+            .orElseThrow { NotFoundException("User not found") }
+        return memberRepository.save(ProjectMember(project = project, user = user, role = role))
+    }
+
+    @Transactional
+    fun changeMemberRole(projectKey: String, actorId: UUID, targetUserId: UUID, role: ProjectRole): ProjectMember {
+        val project = requireAdmin(projectKey, actorId)
+        if (project.owner.id == targetUserId) throw ForbiddenException("Cannot change the project owner's role")
+        val member = memberRepository.findByProjectIdAndUserId(project.id, targetUserId)
+            ?: throw NotFoundException("Member not found")
+        member.role = role
+        return memberRepository.save(member)
+    }
+
+    @Transactional
+    fun removeMember(projectKey: String, actorId: UUID, targetUserId: UUID) {
+        val project = requireAdmin(projectKey, actorId)
+        if (project.owner.id == targetUserId) throw ForbiddenException("Cannot remove the project owner")
+        val member = memberRepository.findByProjectIdAndUserId(project.id, targetUserId)
+            ?: throw NotFoundException("Member not found")
+        memberRepository.delete(member)
+    }
+
+    @Transactional(readOnly = true)
+    fun canManageAnyProjectMembers(user: User): Boolean {
+        if (user.systemRole == SystemRole.ADMIN) return true
+        return memberRepository.existsByUserIdAndRole(user.id, ProjectRole.ADMIN) ||
+            projectRepository.existsByOwnerId(user.id)
     }
 }

@@ -8,6 +8,7 @@ import java.util.UUID
 interface ProjectRepository : JpaRepository<Project, UUID> {
     fun findByKey(key: String): Project?
     fun existsByKey(key: String): Boolean
+    fun existsByOwnerId(ownerId: UUID): Boolean
 
     @Query("""
         SELECT DISTINCT p FROM Project p

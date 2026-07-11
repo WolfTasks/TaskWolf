@@ -6,9 +6,10 @@ type IssueType = typeof TYPES[number]
 interface Props {
   value: IssueType
   onSave: (value: IssueType) => void
+  disabled?: boolean
 }
 
-export function TypeSelector({ value, onSave }: Props) {
+export function TypeSelector({ value, onSave, disabled }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -23,8 +24,9 @@ export function TypeSelector({ value, onSave }: Props) {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(o => !o)}
-        className="text-sm text-gray-300 cursor-pointer hover:underline"
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
+        disabled={disabled}
+        className={`text-sm text-gray-300 ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
         {value}
       </button>

@@ -7,6 +7,7 @@ import com.taskowolf.versions.api.dto.VersionResponse
 import com.taskowolf.versions.application.VersionService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -21,6 +22,7 @@ class VersionController(private val versionService: VersionService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun create(
         @PathVariable key: String,
         @Valid @RequestBody request: VersionRequest,
@@ -28,6 +30,7 @@ class VersionController(private val versionService: VersionService) {
     ) = VersionResponse.from(versionService.create(key, request, user))
 
     @PutMapping("/{id}")
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun update(
         @PathVariable key: String,
         @PathVariable id: UUID,
@@ -37,6 +40,7 @@ class VersionController(private val versionService: VersionService) {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun delete(
         @PathVariable key: String,
         @PathVariable id: UUID,

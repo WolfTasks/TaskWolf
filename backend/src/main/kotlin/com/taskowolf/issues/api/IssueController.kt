@@ -13,6 +13,7 @@ import com.taskowolf.versions.api.dto.VersionResponse
 import com.taskowolf.versions.infrastructure.VersionRepository
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -57,6 +58,7 @@ class IssueController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun create(
         @PathVariable key: String,
         @Valid @RequestBody request: CreateIssueRequest,
@@ -85,6 +87,7 @@ class IssueController(
     // can read lazy associations after IssueService.update() returns (OSIV is disabled). A readOnly
     // tx here would put Hibernate in MANUAL-flush mode and silently drop the update.
     @Transactional
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun update(
         @PathVariable key: String,
         @PathVariable id: UUID,
@@ -94,6 +97,7 @@ class IssueController(
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun delete(
         @PathVariable key: String,
         @PathVariable id: UUID,

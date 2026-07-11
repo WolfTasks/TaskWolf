@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from 'react'
 interface Props {
   value: string | null
   onSave: (html: string) => void
+  disabled?: boolean
 }
 
 const EMPTY_DOC = '<p></p>'
@@ -21,7 +22,7 @@ function normalise(html: string): string {
   return html === EMPTY_DOC ? '' : html
 }
 
-export function RichTextEditor({ value, onSave }: Props) {
+export function RichTextEditor({ value, onSave, disabled }: Props) {
   const [editing, setEditing] = useState(false)
   // Tracks the last HTML string as TipTap understands it (after parsing),
   // so we can detect real changes rather than comparing raw value vs TipTap output.
@@ -45,7 +46,7 @@ export function RichTextEditor({ value, onSave }: Props) {
     },
     onBlur: ({ editor }) => {
       const html = normalise(editor.getHTML())
-      if (html !== committedHtmlRef.current) {
+      if (!disabled && html !== committedHtmlRef.current) {
         committedHtmlRef.current = html
         onSave(html)
       }
@@ -68,8 +69,12 @@ export function RichTextEditor({ value, onSave }: Props) {
   if (!editing) {
     return (
       <div
-        onClick={() => { setEditing(true); setTimeout(() => editor?.commands.focus('end'), 0) }}
-        className="bg-gray-900 rounded-lg p-4 text-sm text-gray-300 min-h-24 cursor-pointer hover:ring-1 hover:ring-gray-700"
+        onClick={() => {
+          if (disabled) return
+          setEditing(true)
+          setTimeout(() => editor?.commands.focus('end'), 0)
+        }}
+        className={`bg-gray-900 rounded-lg p-4 text-sm text-gray-300 min-h-24 ${disabled ? '' : 'cursor-pointer hover:ring-1 hover:ring-gray-700'}`}
       >
         {value
           ? <div dangerouslySetInnerHTML={{ __html: sanitize(value) }} />

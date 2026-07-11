@@ -6,6 +6,7 @@ import com.taskowolf.boards.application.BoardService
 import com.taskowolf.issues.api.dto.UpdateIssueRequest
 import com.taskowolf.issues.application.IssueService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
@@ -23,6 +24,7 @@ class BoardController(
     }
 
     @PatchMapping("/board/move")
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun move(
         @PathVariable key: String,
         @RequestBody request: BoardMoveRequest,

@@ -5,6 +5,7 @@ import { useLabels } from '@/hooks/useLabels'
 import { useVersions } from '@/hooks/useVersions'
 import { useCustomFields } from '@/hooks/useCustomFields'
 import { useOpenIssue } from '@/hooks/useOpenIssue'
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { StatusBadge } from '@/components/issue/StatusBadge'
 import { CustomFieldInput } from '@/components/issue/CustomFieldInput'
 
@@ -28,6 +29,7 @@ export function IssueListPage() {
   const openIssue = useOpenIssue()
   const { data: labels = [] } = useLabels(key!)
   const { data: versions = [] } = useVersions(key!)
+  const { canWrite } = useProjectRole(key!)
   const createIssue = useCreateIssue(key!)
   const [title, setTitle] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -102,10 +104,12 @@ export function IssueListPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">{key} — Issues</h1>
-        <button onClick={() => setShowForm(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
-          + Create Issue
-        </button>
+        {canWrite && (
+          <button onClick={() => setShowForm(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
+            + Create Issue
+          </button>
+        )}
       </div>
 
       {/* Toolbar filters */}
@@ -187,7 +191,7 @@ export function IssueListPage() {
         )}
       </div>
 
-      {showForm && (
+      {canWrite && showForm && (
         <form onSubmit={handleCreate} className="mb-4 flex flex-col gap-2">
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Issue title" autoFocus required
             className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />

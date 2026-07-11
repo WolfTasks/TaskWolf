@@ -5,9 +5,10 @@ const POINTS = [1, 2, 3, 5, 8, 13, 21] as const
 interface Props {
   value: number | null | undefined
   onSave: (value: number | null) => void
+  disabled?: boolean
 }
 
-export function StoryPointsSelector({ value, onSave }: Props) {
+export function StoryPointsSelector({ value, onSave, disabled }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -22,8 +23,9 @@ export function StoryPointsSelector({ value, onSave }: Props) {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(o => !o)}
-        className={`text-sm cursor-pointer hover:underline ${value != null ? 'text-white' : 'text-gray-500'}`}
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
+        disabled={disabled}
+        className={`text-sm ${disabled ? '' : 'cursor-pointer hover:underline'} ${value != null ? 'text-white' : 'text-gray-500'}`}
       >
         {value != null ? value : 'Set points'}
       </button>

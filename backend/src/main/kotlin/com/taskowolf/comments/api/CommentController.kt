@@ -11,6 +11,7 @@ import com.taskowolf.issues.application.IssueService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -24,6 +25,7 @@ class CommentController(
 ) {
     @PostMapping("/comments")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun addComment(
         @PathVariable key: String,
         @PathVariable issueKey: String,
@@ -41,6 +43,7 @@ class CommentController(
     ) = commentService.listComments(key, issueKey, user.id, page, size).map { CommentResponse.from(it) }
 
     @PutMapping("/comments/{commentId}")
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun editComment(
         @PathVariable key: String,
         @PathVariable issueKey: String,
@@ -51,6 +54,7 @@ class CommentController(
 
     @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@projectSecurity.canWrite(#key, authentication)")
     fun deleteComment(
         @PathVariable key: String,
         @PathVariable issueKey: String,

@@ -6,9 +6,10 @@ interface Props {
   sprintId: string | null
   sprints: Sprint[]
   onSave: (sprintId: string | null) => void
+  disabled?: boolean
 }
 
-export function SprintSelector({ value, sprintId, sprints, onSave }: Props) {
+export function SprintSelector({ value, sprintId, sprints, onSave, disabled }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -25,8 +26,9 @@ export function SprintSelector({ value, sprintId, sprints, onSave }: Props) {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(o => !o)}
-        className="text-sm text-gray-300 cursor-pointer hover:underline"
+        onClick={() => { if (!disabled) setOpen(o => !o) }}
+        disabled={disabled}
+        className={`text-sm text-gray-300 ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
         {value ?? 'No sprint'}
       </button>

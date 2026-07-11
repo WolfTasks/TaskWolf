@@ -12,9 +12,10 @@ interface Props {
   projectKey: string
   issueKey: string
   currentUserId?: string
+  readOnly?: boolean
 }
 
-export function AttachmentPanel({ projectKey, issueKey, currentUserId }: Props) {
+export function AttachmentPanel({ projectKey, issueKey, currentUserId, readOnly }: Props) {
   const { data: attachments = [], isLoading } = useAttachments(projectKey, issueKey)
   const upload = useUploadAttachment(projectKey, issueKey)
   const remove = useDeleteAttachment(projectKey, issueKey)
@@ -38,19 +39,23 @@ export function AttachmentPanel({ projectKey, issueKey, currentUserId }: Props) 
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Attachments</h3>
-        <button
-          onClick={() => fileRef.current?.click()}
-          disabled={upload.isPending}
-          className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded disabled:opacity-50"
-        >
-          {upload.isPending ? 'Uploading...' : '+ Upload'}
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+        {!readOnly && (
+          <>
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={upload.isPending}
+              className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded disabled:opacity-50"
+            >
+              {upload.isPending ? 'Uploading...' : '+ Upload'}
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </>
+        )}
       </div>
 
       {isLoading && <div className="text-gray-500 text-sm">Loading...</div>}
@@ -74,7 +79,7 @@ export function AttachmentPanel({ projectKey, issueKey, currentUserId }: Props) 
               {formatBytes(attachment.size)}
             </span>
           </div>
-          {(currentUserId === attachment.uploaderId) && (
+          {!readOnly && (currentUserId === attachment.uploaderId) && (
             <button
               onClick={() => handleDelete(attachment.id, attachment.filename)}
               className="text-xs text-gray-500 hover:text-red-400 ml-2 px-2 py-0.5 rounded flex-shrink-0"

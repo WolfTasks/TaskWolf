@@ -34,6 +34,7 @@ import ProjectAuditPage from '@/pages/projects/settings/ProjectAuditPage'
 import { LabelsPage } from '@/pages/projects/settings/LabelsPage'
 import { VersionsPage } from '@/pages/projects/settings/VersionsPage'
 import { CustomFieldsPage } from '@/pages/projects/settings/CustomFieldsPage'
+import { MembersPage } from '@/pages/projects/settings/MembersPage'
 import { OrgsPage } from '@/pages/orgs/OrgsPage'
 import { OrgSettingsPage } from '@/pages/orgs/OrgSettingsPage'
 import ServiceDeskPage from '@/pages/projects/servicedesk/ServiceDeskPage'
@@ -91,6 +92,7 @@ export const router = createBrowserRouter([
       { path: '/p/:key/settings/labels', element: <LabelsPage /> },
       { path: '/p/:key/settings/versions', element: <VersionsPage /> },
       { path: '/p/:key/settings/custom-fields', element: <CustomFieldsPage /> },
+      { path: '/p/:key/settings/members', element: <MembersPage /> },
       { path: '/admin/automation', element: <AdminAutomationPage /> },
       { path: '/admin/audit', element: <AuditLogPage /> },
       { path: '/admin/settings/sso', element: <SsoSettingsPage /> },

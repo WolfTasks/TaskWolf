@@ -4,6 +4,7 @@ import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '
 import { useBoard, useMoveIssue } from '@/hooks/useBoard'
 import { useCompleteSprint } from '@/hooks/useSprints'
 import { useProjectSocket } from '@/hooks/useProjectSocket'
+import { useProjectRole } from '@/hooks/useProjectRole'
 import { BoardColumn } from '@/components/board/BoardColumn'
 import { SprintHeader } from '@/components/sprint/SprintHeader'
 import { CompleteSprintDialog } from '@/components/sprint/CompleteSprintDialog'
@@ -12,12 +13,14 @@ export function BoardPage() {
   const { key } = useParams<{ key: string }>()
   useProjectSocket(key!)
   const { data: board, isLoading } = useBoard(key!)
+  const { canWrite } = useProjectRole(key!)
   const moveIssue = useMoveIssue(key!)
   const completeSprint = useCompleteSprint(key!)
   const [showComplete, setShowComplete] = useState(false)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (!canWrite) return
     const { active, over } = event
     if (!over) return
     const issueId = active.id as string
@@ -47,11 +50,11 @@ export function BoardPage() {
 
   return (
     <div>
-      <SprintHeader sprint={board.sprint} onComplete={() => setShowComplete(true)} />
+      <SprintHeader sprint={board.sprint} onComplete={() => setShowComplete(true)} canWrite={canWrite} />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="flex gap-4 overflow-x-auto pb-4">
           {board.columns.map(col => (
-            <BoardColumn key={col.status.id} column={col} />
+            <BoardColumn key={col.status.id} column={col} canWrite={canWrite} />
           ))}
         </div>
       </DndContext>
@@ -62,6 +65,7 @@ export function BoardPage() {
           loading={completeSprint.isPending}
           onCancel={() => setShowComplete(false)}
           onConfirm={() => {
+            if (!canWrite) return
             completeSprint.mutate(board.sprint.id, {
               onSuccess: () => setShowComplete(false),
             })

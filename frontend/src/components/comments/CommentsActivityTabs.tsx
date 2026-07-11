@@ -6,9 +6,10 @@ interface Props {
   projectKey: string
   issueKey: string
   currentUserId?: string
+  readOnly?: boolean
 }
 
-export function CommentsActivityTabs({ projectKey, issueKey, currentUserId }: Props) {
+export function CommentsActivityTabs({ projectKey, issueKey, currentUserId, readOnly }: Props) {
   const [tab, setTab] = useState<'comments' | 'activity'>('comments')
 
   return (
@@ -30,7 +31,7 @@ export function CommentsActivityTabs({ projectKey, issueKey, currentUserId }: Pr
       </div>
 
       {tab === 'comments' ? (
-        <CommentThread projectKey={projectKey} issueKey={issueKey} currentUserId={currentUserId} />
+        <CommentThread projectKey={projectKey} issueKey={issueKey} currentUserId={currentUserId} readOnly={readOnly} />
       ) : (
         <ActivityFeed projectKey={projectKey} issueKey={issueKey} />
       )}
