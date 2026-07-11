@@ -8,6 +8,7 @@ import {
   useRemoveMember,
 } from '@/hooks/useProjectMembers'
 import { useUserSearch } from '@/hooks/useUserSearch'
+import { useMe } from '@/hooks/useAuth'
 import type { ProjectRole, UserSearchResult } from '@/types'
 
 const ROLE_LABELS: Record<ProjectRole, string> = {
@@ -97,6 +98,7 @@ function AddMemberForm({ projectKey }: { projectKey: string }) {
 export function MembersPage() {
   const { key } = useParams<{ key: string }>()
   const { data: project } = useProject(key!)
+  const { data: me } = useMe()
   const { data: members = [], isLoading } = useProjectMembers(key!)
   const updateRole = useUpdateMemberRole(key!)
   const removeMember = useRemoveMember(key!)
@@ -121,6 +123,7 @@ export function MembersPage() {
       <div className="flex flex-col gap-2">
         {members.map(({ user, role }) => {
           const isOwner = user.id === project.ownerId
+          const isSelf = user.id === me?.id
           return (
             <div key={user.id} className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg">
               <div className="min-w-0">
@@ -130,10 +133,13 @@ export function MembersPage() {
               {isOwner && (
                 <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">Owner</span>
               )}
+              {isSelf && !isOwner && (
+                <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">You</span>
+              )}
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={role}
-                  disabled={isOwner || updateRole.isPending}
+                  disabled={isOwner || isSelf || updateRole.isPending}
                   onChange={e => updateRole.mutate({ userId: user.id, role: e.target.value as ProjectRole })}
                   className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm text-white disabled:opacity-50"
                 >
