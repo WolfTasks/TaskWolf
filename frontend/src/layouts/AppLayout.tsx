@@ -68,7 +68,7 @@ export function AppLayout() {
           )}
         </div>
 
-        <nav className="flex flex-col gap-1 flex-1">
+        <nav className="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto">
           <NavItem to="/" end label="Dashboard" icon={LayoutDashboard} collapsed={collapsed} />
           <NavItem to="/projects" end label="Projects" icon={FolderKanban} collapsed={collapsed} />
           <NavItem to="/orgs" end label="Organizations" icon={Building2} collapsed={collapsed} />
