@@ -108,6 +108,9 @@ export function AppLayout() {
                   {currentProject?.myRole === 'ADMIN' && (
                     <NavItem to={`/p/${projectKey}/settings/members`} label="Members" icon={UserCog} collapsed={collapsed} variant="sub" />
                   )}
+                  {currentProject?.myRole === 'ADMIN' && (
+                    <NavItem to={`/p/${projectKey}/settings/organization`} label="Organization" icon={Building2} collapsed={collapsed} variant="sub" />
+                  )}
                   <NavItem to={`/p/${projectKey}/settings/api-keys`} label="API Keys" icon={KeySquare} collapsed={collapsed} variant="sub" />
                   <NavItem to={`/p/${projectKey}/settings/webhooks`} label="Webhooks" icon={Webhook} collapsed={collapsed} variant="sub" />
                   <NavItem to={`/p/${projectKey}/settings/integrations`} label="Integrations" icon={Plug} collapsed={collapsed} variant="sub" />
