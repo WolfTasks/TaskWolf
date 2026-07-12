@@ -127,6 +127,21 @@ class ProjectService(
         memberRepository.delete(member)
     }
 
+    @Transactional
+    fun setOrganization(projectKey: String, actor: User, orgId: UUID?): Project {
+        val project = findByKey(projectKey)
+        val isSystemAdmin = actor.systemRole == SystemRole.ADMIN
+        if (!isSystemAdmin && roleOf(project, actor.id) != ProjectRole.ADMIN)
+            throw ForbiddenException("Project admin role required")
+        if (orgId != null && !isSystemAdmin) {
+            val orgRole = orgMembershipLookup.roleOf(orgId, actor.id)
+            if (orgRole != OrgRole.OWNER && orgRole != OrgRole.ADMIN)
+                throw ForbiddenException("Must be an admin of the target organization")
+        }
+        project.orgId = orgId
+        return projectRepository.save(project)
+    }
+
     @Transactional(readOnly = true)
     fun canManageAnyProjectMembers(user: User): Boolean {
         if (user.systemRole == SystemRole.ADMIN) return true
