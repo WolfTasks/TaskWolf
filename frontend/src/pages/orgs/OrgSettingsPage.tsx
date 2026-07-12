@@ -1,123 +1,193 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { organizationsApi, AddMemberRequest } from '@/api/organizations'
+import { useQuery } from '@tanstack/react-query'
+import { organizationsApi } from '@/api/organizations'
+import { useOrgMembers, useAddOrgMember, useChangeOrgMemberRole, useRemoveOrgMember } from '@/hooks/useOrganizations'
+import { useUserSearch } from '@/hooks/useUserSearch'
+import { useMe } from '@/hooks/useAuth'
+import type { OrgRole, UserSearchResult } from '@/types'
+
+const ROLE_LABELS: Record<OrgRole, string> = { MEMBER: 'Member', ADMIN: 'Admin', OWNER: 'Owner' }
+
+function memberActionErrorMessage(e: unknown): string {
+  const status = (e as { response?: { status?: number } }).response?.status
+  if (status === 403) return 'You don’t have permission to make that change.'
+  if (status === 409) return 'That change isn’t allowed — an organization must keep at least one owner.'
+  return 'Could not update the member.'
+}
+
+function AddOrgMemberForm({ orgId, canGrantOwner }: { orgId: string; canGrantOwner: boolean }) {
+  const [input, setInput] = useState('')
+  const [debounced, setDebounced] = useState('')
+  const [selected, setSelected] = useState<UserSearchResult | null>(null)
+  const [role, setRole] = useState<OrgRole>('MEMBER')
+  const [error, setError] = useState('')
+
+  const addMember = useAddOrgMember(orgId)
+  const { data: results = [] } = useUserSearch(debounced)
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(input), 300)
+    return () => clearTimeout(t)
+  }, [input])
+
+  const showDropdown = !selected && debounced.trim().length >= 2 && results.length > 0
+  const roleOptions: OrgRole[] = canGrantOwner ? ['MEMBER', 'ADMIN', 'OWNER'] : ['MEMBER', 'ADMIN']
+
+  async function handleAdd() {
+    if (!selected) return
+    try {
+      await addMember.mutateAsync({ userId: selected.id, role })
+      setInput(''); setDebounced(''); setSelected(null); setRole('MEMBER'); setError('')
+    } catch (e: unknown) {
+      const status = (e as { response?: { status?: number } }).response?.status
+      setError(status === 409 ? 'This user is already a member.' : 'Could not add member.')
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3 p-4 bg-gray-800 rounded-lg border border-gray-700">
+      <div className="relative">
+        <label className="block text-xs text-gray-400 mb-1">Add member</label>
+        <input
+          value={selected ? `${selected.displayName} (${selected.email})` : input}
+          onChange={e => { setSelected(null); setInput(e.target.value); setError('') }}
+          placeholder="Search by name or email…"
+          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500"
+        />
+        {showDropdown && (
+          <ul className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded shadow-lg max-h-56 overflow-auto">
+            {results.map(u => (
+              <li key={u.id}>
+                <button
+                  type="button"
+                  onClick={() => { setSelected(u); setInput('') }}
+                  className="w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700"
+                >
+                  <span className="font-medium">{u.displayName}</span>
+                  <span className="text-gray-400 ml-2">{u.email}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <select
+          value={role}
+          onChange={e => setRole(e.target.value as OrgRole)}
+          className="bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-white"
+        >
+          {roleOptions.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+        </select>
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!selected || addMember.isPending}
+          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm font-medium"
+        >
+          Add
+        </button>
+      </div>
+      {error && <p className="text-xs text-red-400">{error}</p>}
+    </div>
+  )
+}
 
 export function OrgSettingsPage() {
   const { orgId } = useParams<{ orgId: string }>()
-  const queryClient = useQueryClient()
-  const [userId, setUserId] = useState('')
-  const [role, setRole] = useState<'OWNER' | 'ADMIN' | 'MEMBER'>('MEMBER')
-  const [addError, setAddError] = useState('')
-
+  const { data: me } = useMe()
   const { data: org, isLoading: orgLoading } = useQuery({
     queryKey: ['org', orgId],
     queryFn: () => organizationsApi.getById(orgId!).then(r => r.data),
     enabled: !!orgId,
   })
+  const { data: members = [], isLoading: membersLoading } = useOrgMembers(orgId!)
+  const changeRole = useChangeOrgMemberRole(orgId!)
+  const removeMember = useRemoveOrgMember(orgId!)
+  const [actionError, setActionError] = useState('')
 
-  const { data: members = [], isLoading: membersLoading } = useQuery({
-    queryKey: ['org-members', orgId],
-    queryFn: () => organizationsApi.listMembers(orgId!).then(r => r.data),
-    enabled: !!orgId,
-  })
+  const isSystemAdmin = me?.role === 'ADMIN'
+  const myRole = members.find(m => m.user.id === me?.id)?.role
+  const canManage = isSystemAdmin || myRole === 'OWNER' || myRole === 'ADMIN'
+  const canGrantOwner = isSystemAdmin || myRole === 'OWNER'
+  const roleOptions: OrgRole[] = canGrantOwner ? ['MEMBER', 'ADMIN', 'OWNER'] : ['MEMBER', 'ADMIN']
 
-  const addMutation = useMutation({
-    mutationFn: (data: AddMemberRequest) =>
-      organizationsApi.addMember(orgId!, data).then(r => r.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['org-members', orgId] })
-      setUserId('')
-      setRole('MEMBER')
-      setAddError('')
-    },
-    onError: () => setAddError('Failed to add member.'),
-  })
-
-  const removeMutation = useMutation({
-    mutationFn: (uid: string) => organizationsApi.removeMember(orgId!, uid),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['org-members', orgId] }),
-  })
-
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault()
-    setAddError('')
-    if (!userId.trim()) {
-      setAddError('User ID is required.')
-      return
-    }
-    addMutation.mutate({ userId, role })
-  }
-
-  if (orgLoading) return <div className="p-6 text-gray-400">Loading...</div>
+  if (orgLoading) return <div className="p-6 text-gray-400">Loading…</div>
   if (!org) return <div className="p-6 text-red-400">Organization not found.</div>
 
+  async function handleRemove(userId: string, name: string) {
+    if (!confirm(`Remove ${name} from ${org!.name}?`)) return
+    try {
+      await removeMember.mutateAsync(userId)
+      setActionError('')
+    } catch (e: unknown) {
+      setActionError(memberActionErrorMessage(e))
+    }
+  }
+
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-8">
-      <h1 className="text-2xl font-semibold">{org.name} — Settings</h1>
-      <p className="text-gray-400 text-sm">Slug: {org.slug}</p>
+    <div className="p-6 max-w-2xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">{org.name} — Settings</h1>
+        <p className="text-gray-400 text-sm">Slug: {org.slug}</p>
+      </div>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Add Member</h2>
-        <form onSubmit={handleAdd} className="space-y-3">
-          {addError && <p className="text-red-400 text-sm">{addError}</p>}
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-400">User ID</label>
-            <input
-              type="text"
-              value={userId}
-              onChange={e => setUserId(e.target.value)}
-              placeholder="UUID of the user"
-              className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-400">Role</label>
-            <select
-              value={role}
-              onChange={e => setRole(e.target.value as 'OWNER' | 'ADMIN' | 'MEMBER')}
-              className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
-            >
-              <option value="MEMBER">Member</option>
-              <option value="ADMIN">Admin</option>
-              <option value="OWNER">Owner</option>
-            </select>
-          </div>
-          <button
-            type="submit"
-            disabled={addMutation.isPending}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded px-4 py-2 text-sm font-medium"
-          >
-            {addMutation.isPending ? 'Adding...' : 'Add Member'}
-          </button>
-        </form>
-      </section>
+      {canManage && <AddOrgMemberForm orgId={orgId!} canGrantOwner={canGrantOwner} />}
 
-      <section className="space-y-3">
+      <div className="flex flex-col gap-2">
         <h2 className="text-lg font-medium">Members</h2>
-        {membersLoading && <p className="text-gray-400 text-sm">Loading...</p>}
+        {actionError && <p className="text-xs text-red-400">{actionError}</p>}
+        {membersLoading && <p className="text-gray-400 text-sm">Loading…</p>}
         {!membersLoading && members.length === 0 && (
           <p className="text-gray-500 text-sm">No members found.</p>
         )}
-        {members.map(m => (
-          <div
-            key={m.userId}
-            className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex items-center justify-between"
-          >
-            <div>
-              <div className="font-medium text-sm font-mono">{m.userId}</div>
-              <div className="text-xs text-gray-400">{m.role}</div>
+        {members.map(({ user, role }) => {
+          const isSelf = user.id === me?.id
+          const isOwner = role === 'OWNER'
+          // Only system admins may touch OWNER rows; nobody may edit their own row.
+          const lockRole = isSelf || (isOwner && !isSystemAdmin) || !canManage
+          const lockRemove = isSelf || (isOwner && !isSystemAdmin) || !canManage
+          return (
+            <div key={user.id} className="flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg">
+              <div className="min-w-0">
+                <div className="text-sm text-white truncate">{user.displayName}</div>
+                <div className="text-xs text-gray-500 truncate">{user.email}</div>
+              </div>
+              {isOwner && <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">Owner</span>}
+              {isSelf && <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">You</span>}
+              <div className="ml-auto flex items-center gap-2">
+                <select
+                  value={role}
+                  disabled={lockRole || changeRole.isPending}
+                  onChange={e => changeRole.mutate(
+                    { userId: user.id, role: e.target.value as OrgRole },
+                    {
+                      onSuccess: () => setActionError(''),
+                      onError: (err: unknown) => setActionError(memberActionErrorMessage(err)),
+                    }
+                  )}
+                  className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm text-white disabled:opacity-50"
+                >
+                  {/* Ensure the current role renders even if outside the actor's grantable set. */}
+                  {(roleOptions.includes(role) ? roleOptions : [role, ...roleOptions]).map(r => (
+                    <option key={r} value={r}>{ROLE_LABELS[r]}</option>
+                  ))}
+                </select>
+                {canManage && (
+                  <button
+                    onClick={() => handleRemove(user.id, user.displayName)}
+                    disabled={lockRemove}
+                    className="text-xs text-red-400 hover:text-red-300 disabled:opacity-30 px-2 py-1 rounded hover:bg-gray-700"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
             </div>
-            <button
-              onClick={() => removeMutation.mutate(m.userId)}
-              disabled={removeMutation.isPending}
-              className="text-red-400 hover:text-red-300 text-sm disabled:opacity-50"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
-      </section>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 export type ProjectRole = 'ADMIN' | 'MEMBER' | 'VIEWER'
+export type OrgRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 
 export interface User {
   id: string
@@ -15,6 +16,7 @@ export interface Project {
   description: string | null
   ownerId: string
   archived: boolean
+  orgId: string | null
   myRole?: ProjectRole
 }
 

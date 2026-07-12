@@ -13,4 +13,6 @@ export const projectsApi = {
     apiClient.patch<ProjectMember>(`/projects/${key}/members/${userId}`, data),
   removeMember: (key: string, userId: string) =>
     apiClient.delete(`/projects/${key}/members/${userId}`),
+  setOrganization: (key: string, orgId: string | null) =>
+    apiClient.patch<Project>(`/projects/${key}/organization`, { orgId }),
 }

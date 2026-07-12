@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useProject } from '@/hooks/useProjects'
 import {
   useProjectMembers,
@@ -9,6 +10,7 @@ import {
 } from '@/hooks/useProjectMembers'
 import { useUserSearch } from '@/hooks/useUserSearch'
 import { useMe } from '@/hooks/useAuth'
+import { organizationsApi } from '@/api/organizations'
 import type { ProjectRole, UserSearchResult } from '@/types'
 
 const ROLE_LABELS: Record<ProjectRole, string> = {
@@ -102,6 +104,11 @@ export function MembersPage() {
   const { data: members = [], isLoading } = useProjectMembers(key!)
   const updateRole = useUpdateMemberRole(key!)
   const removeMember = useRemoveMember(key!)
+  const { data: org } = useQuery({
+    queryKey: ['org', project?.orgId],
+    queryFn: () => organizationsApi.getById(project!.orgId!).then(r => r.data),
+    enabled: !!project?.orgId,
+  })
 
   if (isLoading || !project) return <div className="text-gray-400 p-6">Loading…</div>
 
@@ -117,6 +124,14 @@ export function MembersPage() {
   return (
     <div className="p-6 space-y-6 max-w-2xl">
       <h1 className="text-2xl font-semibold">Members</h1>
+
+      {project.orgId && (
+        <div className="p-4 bg-blue-950/40 border border-blue-900 rounded-lg text-sm text-blue-200">
+          This project belongs to <span className="font-medium">{org?.name ?? 'an organization'}</span>.
+          Its owners and admins are admins here; its members are viewers. Those people have access
+          without appearing in the list below.
+        </div>
+      )}
 
       <AddMemberForm projectKey={key!} />
 
