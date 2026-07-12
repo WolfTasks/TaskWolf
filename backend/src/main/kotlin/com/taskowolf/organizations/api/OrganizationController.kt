@@ -7,6 +7,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -42,12 +43,13 @@ class OrganizationController(
     }
 
     @GetMapping("/{id}/members")
+    @Transactional(readOnly = true)
     fun listMembers(
         @PathVariable id: UUID,
         @AuthenticationPrincipal user: User
     ): List<OrganizationMemberResponse> {
         orgService.requireMembershipOrAdmin(id, user)
-        return orgService.listMembers(id).map { OrganizationMemberResponse.from(it) }
+        return orgService.listMembersWithUsers(id).map { OrganizationMemberResponse.from(it) }
     }
 
     @PostMapping("/{id}/members")

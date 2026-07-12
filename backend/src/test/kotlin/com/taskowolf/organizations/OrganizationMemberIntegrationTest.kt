@@ -70,4 +70,22 @@ class OrganizationMemberIntegrationTest : IntegrationTestBase() {
 
         addMember(memberToken, orgId, targetId, "MEMBER").andExpect(status().isForbidden)
     }
+
+    @Test
+    fun `member list returns user displayName and duplicate add is 409`() {
+        val sysToken = register("en-sys@test.com"); makeSystemAdmin("en-sys@test.com")
+        val targetToken = register("en-target@test.com")
+        val targetId = myId(targetToken)
+        val orgId = createOrg(sysToken, "en-org")
+        addMember(sysToken, orgId, targetId, "MEMBER").andExpect(status().isCreated)
+
+        // Liste enthält den User mit displayName (nicht nur eine rohe UUID)
+        mockMvc.perform(get("/api/v1/organizations/$orgId/members").header("Authorization", "Bearer $sysToken"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[?(@.user.id=='$targetId')].role").value("MEMBER"))
+            .andExpect(jsonPath("$[?(@.user.id=='$targetId')].user.displayName").value("U"))
+
+        // Doppeltes Hinzufügen → 409
+        addMember(sysToken, orgId, targetId, "MEMBER").andExpect(status().isConflict)
+    }
 }

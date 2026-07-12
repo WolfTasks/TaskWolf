@@ -13,7 +13,8 @@ class OrganizationServiceTest {
 
     private val orgRepo = mockk<OrganizationRepository>()
     private val memberRepo = mockk<OrganizationMemberRepository>()
-    private val service = OrganizationService(orgRepo, memberRepo)
+    private val userRepository = mockk<com.taskowolf.auth.infrastructure.UserRepository>()
+    private val service = OrganizationService(orgRepo, memberRepo, userRepository)
 
     @Test
     fun `create adds creator as OWNER`() {
@@ -58,14 +59,15 @@ class OrganizationServiceTest {
     }
 
     @Test
-    fun `addMember saves with correct role`() {
+    fun `addMember returns a view with the correct role`() {
         val orgId = UUID.randomUUID()
-        val userId = UUID.randomUUID()
+        val user = com.taskowolf.auth.domain.User(email = "a@test.com", displayName = "A")
+        every { memberRepo.findById(OrganizationMemberId(orgId, user.id)) } returns java.util.Optional.empty()
+        every { userRepository.findById(user.id) } returns java.util.Optional.of(user)
         every { memberRepo.save(any()) } returnsArgument 0
-        val result = service.addMember(orgId, userId, OrgRole.ADMIN)
+        val result = service.addMember(orgId, user.id, OrgRole.ADMIN)
         assertEquals(OrgRole.ADMIN, result.role)
-        assertEquals(orgId, result.id.orgId)
-        assertEquals(userId, result.id.userId)
+        assertEquals(user.id, result.user.id)
     }
 
     @Test

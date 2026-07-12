@@ -4,6 +4,9 @@ import com.taskowolf.organizations.domain.*
 import com.taskowolf.organizations.infrastructure.*
 import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
+import com.taskowolf.auth.infrastructure.UserRepository
+import com.taskowolf.core.infrastructure.ConflictException
+import com.taskowolf.core.infrastructure.NotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.security.access.AccessDeniedException
@@ -12,7 +15,8 @@ import java.util.UUID
 @Service
 class OrganizationService(
     private val orgRepo: OrganizationRepository,
-    private val memberRepo: OrganizationMemberRepository
+    private val memberRepo: OrganizationMemberRepository,
+    private val userRepository: UserRepository
 ) {
     @Transactional
     fun create(name: String, slug: String, creatorId: UUID): Organization {
@@ -31,11 +35,20 @@ class OrganizationService(
     fun listAll(): List<Organization> = orgRepo.findAll()
 
     @Transactional(readOnly = true)
-    fun listMembers(orgId: UUID) = memberRepo.findByIdOrgId(orgId)
+    fun listMembersWithUsers(orgId: UUID): List<OrgMemberView> {
+        val members = memberRepo.findByIdOrgId(orgId)
+        val users = userRepository.findAllById(members.map { it.id.userId }).associateBy { it.id }
+        return members.mapNotNull { m -> users[m.id.userId]?.let { OrgMemberView(it, m.role) } }
+    }
 
     @Transactional
-    fun addMember(orgId: UUID, userId: UUID, role: OrgRole) =
+    fun addMember(orgId: UUID, userId: UUID, role: OrgRole): OrgMemberView {
+        if (memberRepo.findById(OrganizationMemberId(orgId, userId)).isPresent)
+            throw ConflictException("User is already a member of this organization")
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
         memberRepo.save(OrganizationMember(OrganizationMemberId(orgId, userId), role))
+        return OrgMemberView(user, role)
+    }
 
     @Transactional
     fun removeMember(orgId: UUID, userId: UUID) =
