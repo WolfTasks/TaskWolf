@@ -18,6 +18,7 @@
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **AUSGELIEFERT** (PR #48, Release v1.0.10) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
 | 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
+| 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | 📐 **Spec fertig** (`2026-07-12-organizations-umbrella-design.md`) |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -164,6 +165,27 @@ Eigener Full-Stack/UI-Design-Zyklus: Framework-Wahl, Ressourcen-Struktur,
 Umschalter+Persistenz, Roll-out-Reihenfolge (welche Seiten zuerst). Verwandt mit
 #3 (Settings-Bereich für den Sprachumschalter) und #5 (UI-Tests sollten mit i18n
 umgehen können, statt auf feste Strings zu prüfen).
+
+## #14 — Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung)
+> 📐 **Spec fertig** (2026-07-12): `2026-07-12-organizations-umbrella-design.md`.
+> Nachfolge-Zyklus zu #9 (das bewusst „nur Projekte" scoped hatte).
+
+Organisationen werden **Oberkategorie** über Projekten und Nutzern: einer Org lassen
+sich **Projekte** und **Member** zuordnen, und Rechte werden von der Org auf ihre
+Projekte **vererbt** (Org-Admins → automatisch Projekt-Admins, andere Ebenen analog).
+**Entscheidungen:** (1) alle Ebenen vererben auf **alle** Org-Projekte als additives
+**Maximum** (explizite Projektrolle kann nur anheben); (2) Mapping `OrgOWNER/ADMIN →
+ADMIN`, `OrgMEMBER → VIEWER`; (3) Projekt↔Org-Zuordnung **optional**, `orgId=null`
+verhält sich wie heute → **keine Migration**; (4) OrgOWNER/ADMIN verwalten ihre eigene
+Org (Member/Rollen/Projekt-Zuordnung), System-ADMIN alles.
+**Mechanik (Ansatz A):** effektive Rolle zur Lesezeit in `ProjectService.roleOf`
+berechnen (Maximum aus Owner/expliziter Projektrolle/Org-Erbe) via schmalem
+`OrgMembershipLookup`-Port → gesamte #9-Durchsetzung erbt automatisch.
+**Phasing** wie #9: Phase A Backend (roleOf-Erbe, Projektliste-Union, Projekt↔Org-
+Endpoint, `OrgSecurity` + Org-Verwaltung inkl. Rollen-Ändern/Owner-/Self-Schutz),
+Phase B Frontend (Org-Admin-Zugang, Member-Verwaltung auf `MembersPage`-Niveau,
+Projekt↔Org-UI, geerbt-vs-explizit-Badge). **Nicht im Scope:** Multi-Tenant-
+Datenisolation & `switch-org`. Details siehe Spec.
 
 ## H1 — nginx `index.html` no-cache Härtung (Ops, klein)
 > ✅ **AUSGELIEFERT** (PR #51, 2026-07-10; Release v1.0.10). Spec:
