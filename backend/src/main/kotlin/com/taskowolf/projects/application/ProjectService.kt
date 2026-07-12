@@ -6,6 +6,8 @@ import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
 import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.core.infrastructure.NotFoundException
+import com.taskowolf.organizations.application.OrgMembershipLookup
+import com.taskowolf.organizations.domain.OrgRole
 import com.taskowolf.projects.api.dto.CreateProjectRequest
 import com.taskowolf.projects.domain.Project
 import com.taskowolf.projects.domain.ProjectMember
@@ -22,7 +24,8 @@ class ProjectService(
     private val projectRepository: ProjectRepository,
     private val memberRepository: ProjectMemberRepository,
     private val workflowService: WorkflowService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val orgMembershipLookup: OrgMembershipLookup
 ) {
     @Transactional
     fun create(request: CreateProjectRequest, owner: User): Project {
@@ -53,9 +56,7 @@ class ProjectService(
     @Transactional(readOnly = true)
     fun requireMember(projectKey: String, userId: UUID): Project {
         val project = findByKey(projectKey)
-        val isMember = memberRepository.existsByProjectIdAndUserId(project.id, userId)
-        val isOwner = project.owner.id == userId
-        if (!isMember && !isOwner) throw ForbiddenException("Not a member of project $projectKey")
+        if (roleOf(project, userId) == null) throw ForbiddenException("Not a member of project $projectKey")
         return project
     }
 
@@ -68,21 +69,20 @@ class ProjectService(
     }
 
     @Transactional(readOnly = true)
-    fun isMember(project: Project, userId: UUID): Boolean =
-        project.owner.id == userId || memberRepository.existsByProjectIdAndUserId(project.id, userId)
+    fun isMember(project: Project, userId: UUID): Boolean = roleOf(project, userId) != null
 
     @Transactional(readOnly = true)
     fun isProjectAdmin(projectKey: String, userId: UUID): Boolean {
         val project = findByKey(projectKey)
-        if (project.owner.id == userId) return true
-        val member = memberRepository.findByProjectIdAndUserId(project.id, userId)
-        return member?.role == ProjectRole.ADMIN
+        return roleOf(project, userId) == ProjectRole.ADMIN
     }
 
     @Transactional(readOnly = true)
-    fun roleOf(project: Project, userId: UUID): ProjectRole? =
-        if (project.owner.id == userId) ProjectRole.ADMIN
-        else memberRepository.findByProjectIdAndUserId(project.id, userId)?.role
+    fun roleOf(project: Project, userId: UUID): ProjectRole? {
+        val explicit = if (project.owner.id == userId) ProjectRole.ADMIN
+            else memberRepository.findByProjectIdAndUserId(project.id, userId)?.role
+        return maxRole(explicit, inheritedRole(project, userId))
+    }
 
     @Transactional(readOnly = true)
     fun canWrite(projectKey: String, userId: UUID): Boolean {
@@ -127,5 +127,29 @@ class ProjectService(
         if (user.systemRole == SystemRole.ADMIN) return true
         return memberRepository.existsByUserIdAndRole(user.id, ProjectRole.ADMIN) ||
             projectRepository.existsByOwnerId(user.id)
+    }
+
+    private fun rank(role: ProjectRole): Int = when (role) {
+        ProjectRole.VIEWER -> 0
+        ProjectRole.MEMBER -> 1
+        ProjectRole.ADMIN -> 2
+    }
+
+    private fun maxRole(a: ProjectRole?, b: ProjectRole?): ProjectRole? = when {
+        a == null -> b
+        b == null -> a
+        rank(a) >= rank(b) -> a
+        else -> b
+    }
+
+    private fun orgRoleToProjectRole(orgRole: OrgRole): ProjectRole = when (orgRole) {
+        OrgRole.OWNER, OrgRole.ADMIN -> ProjectRole.ADMIN
+        OrgRole.MEMBER -> ProjectRole.VIEWER
+    }
+
+    private fun inheritedRole(project: Project, userId: UUID): ProjectRole? {
+        val orgId = project.orgId ?: return null
+        val orgRole = orgMembershipLookup.roleOf(orgId, userId) ?: return null
+        return orgRoleToProjectRole(orgRole)
     }
 }
