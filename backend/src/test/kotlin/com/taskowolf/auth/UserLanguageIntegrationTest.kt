@@ -31,4 +31,24 @@ class UserLanguageIntegrationTest : IntegrationTestBase() {
             get("/api/v1/auth/me").header("Authorization", "Bearer $token")
         ).andExpect(jsonPath("$.language").value(null))
     }
+
+    @Test
+    fun `patch me language persists and 400s on unknown value`() {
+        val token = register("language-patch@test.com")
+
+        mockMvc.perform(
+            patch("/api/v1/me/language")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"language":"de"}""")
+        ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.language").value("de"))
+
+        mockMvc.perform(
+            patch("/api/v1/me/language")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"language":"fr"}""")
+        ).andExpect(status().isBadRequest)
+    }
 }

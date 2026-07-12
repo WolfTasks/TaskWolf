@@ -5,6 +5,7 @@ import com.taskowolf.auth.api.dto.AdminUserResponse
 import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.UserRepository
+import com.taskowolf.core.infrastructure.BadRequestException
 import com.taskowolf.core.infrastructure.ConflictException
 import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.core.infrastructure.NotFoundException
@@ -85,11 +86,25 @@ class UserAccountService(
         securityAuditListener.onPasswordChanged(user.email)
     }
 
+    @Transactional
+    fun updateLanguage(userId: UUID, language: String): User {
+        if (language !in SUPPORTED_LANGUAGES) {
+            throw BadRequestException("Unsupported language")
+        }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        user.language = language
+        return userRepository.save(user)
+    }
+
     private fun requireNotLastActiveAdmin(user: User) {
         if (user.systemRole == SystemRole.ADMIN && user.active) {
             if (userRepository.countBySystemRoleAndActiveTrue(SystemRole.ADMIN) <= 1) {
                 throw ConflictException("Cannot deactivate or delete the last active admin")
             }
         }
+    }
+
+    companion object {
+        private val SUPPORTED_LANGUAGES = setOf("en", "de")
     }
 }
