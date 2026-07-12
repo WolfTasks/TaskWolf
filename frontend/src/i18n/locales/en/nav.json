@@ -1,0 +1,37 @@
+{
+  "section": {
+    "admin": "Admin",
+    "account": "Account",
+    "project": "Project",
+    "settings": "Settings"
+  },
+  "item": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "organizations": "Organizations",
+    "organization": "Organization",
+    "audit": "Audit Log",
+    "automation": "Automation",
+    "users": "Users",
+    "settings": "Settings",
+    "board": "Board",
+    "backlog": "Backlog",
+    "sprints": "Sprints",
+    "issues": "Issues",
+    "reports": "Reports",
+    "serviceDesk": "Service Desk",
+    "incidents": "Incidents",
+    "members": "Members",
+    "apiKeys": "API Keys",
+    "webhooks": "Webhooks",
+    "integrations": "Integrations",
+    "labels": "Labels",
+    "versions": "Versions",
+    "customFields": "Custom Fields"
+  },
+  "logout": "Logout",
+  "sidebar": {
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
+  }
+}

@@ -1,6 +1,7 @@
 package com.taskowolf.auth.api
 
 import com.taskowolf.auth.api.dto.ChangePasswordRequest
+import com.taskowolf.auth.api.dto.UpdateLanguageRequest
 import com.taskowolf.auth.api.dto.UpdateProfileRequest
 import com.taskowolf.auth.api.dto.UserResponse
 import com.taskowolf.auth.application.UserAccountService
@@ -36,4 +37,10 @@ class MeController(private val userAccountService: UserAccountService) {
         @Valid @RequestBody request: ChangePasswordRequest,
         @AuthenticationPrincipal user: User
     ) = userAccountService.changePassword(user.id, request.currentPassword, request.newPassword)
+
+    @PatchMapping("/language")
+    fun updateLanguage(
+        @Valid @RequestBody request: UpdateLanguageRequest,
+        @AuthenticationPrincipal user: User
+    ) = UserResponse.from(userAccountService.updateLanguage(user.id, request.language))
 }

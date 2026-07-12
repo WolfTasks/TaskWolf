@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useChangePassword } from '@/hooks/useMe'
 
 export function SecurityPage() {
+  const { t } = useTranslation('settings')
   const change = useChangePassword()
   const navigate = useNavigate()
   const [current, setCurrent] = useState('')
@@ -12,15 +14,15 @@ export function SecurityPage() {
 
   async function handleSubmit() {
     setError('')
-    if (next.length < 8) { setError('New password must be at least 8 characters'); return }
-    if (next !== confirm) { setError('New passwords do not match'); return }
+    if (next.length < 8) { setError(t('security.passwordTooShort')); return }
+    if (next !== confirm) { setError(t('security.passwordMismatch')); return }
     try {
       await change.mutateAsync({ currentPassword: current, newPassword: next })
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
       navigate('/login')
     } catch (e: any) {
-      setError(e.response?.data?.message || 'Failed to change password')
+      setError(e.response?.data?.message || t('security.changeFailed'))
     }
   }
 
@@ -28,30 +30,30 @@ export function SecurityPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Security</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('security.title')}</h1>
       <div className="flex flex-col gap-4">
         <label className="text-sm text-gray-300">
-          Current password
+          {t('security.currentPassword')}
           <input type="password" value={current} onChange={e => setCurrent(e.target.value)} className={inputClass} />
         </label>
         <label className="text-sm text-gray-300">
-          New password
+          {t('security.newPassword')}
           <input type="password" value={next} onChange={e => setNext(e.target.value)} className={inputClass} />
         </label>
         <label className="text-sm text-gray-300">
-          Confirm new password
+          {t('security.confirmNewPassword')}
           <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} className={inputClass} />
         </label>
         {error && <p className="text-sm text-red-400">{error}</p>}
         <p className="text-xs text-gray-500">
-          Changing your password signs you out of all sessions. Personal access tokens keep working.
+          {t('security.signOutWarning')}
         </p>
         <button
           onClick={handleSubmit}
           disabled={change.isPending || !current || !next || !confirm}
           className="self-start px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded text-sm font-medium"
         >
-          {change.isPending ? 'Changing…' : 'Change password'}
+          {change.isPending ? t('security.changing') : t('security.changePassword')}
         </button>
       </div>
     </div>

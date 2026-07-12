@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/api/auth'
 import { useUpdateProfile } from '@/hooks/useMe'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 export function ProfilePage() {
+  const { t } = useTranslation('settings')
+  const { t: tc } = useTranslation('common')
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: () => authApi.me().then(r => r.data) })
   const update = useUpdateProfile()
   const [displayName, setDisplayName] = useState('')
@@ -26,16 +30,16 @@ export function ProfilePage() {
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch (e: any) {
-      alert(e.response?.data?.message || 'Failed to update profile')
+      alert(e.response?.data?.message || t('profile.updateFailed'))
     }
   }
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Profile</h1>
+      <h1 className="text-2xl font-bold mb-6">{t('profile.title')}</h1>
       <div className="flex flex-col gap-4">
         <label className="text-sm text-gray-300">
-          Email
+          {t('profile.email')}
           <input
             type="email"
             value={me?.email ?? ''}
@@ -44,7 +48,7 @@ export function ProfilePage() {
           />
         </label>
         <label className="text-sm text-gray-300">
-          Display name
+          {t('profile.displayName')}
           <input
             type="text"
             value={displayName}
@@ -52,15 +56,16 @@ export function ProfilePage() {
             className="w-full mt-1 px-3 py-2 bg-gray-900 rounded border border-gray-600 text-sm"
           />
         </label>
+        <LanguageSwitcher />
         <div className="flex items-center gap-3">
           <button
             onClick={handleSave}
             disabled={update.isPending || !displayName.trim()}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded text-sm font-medium"
           >
-            {update.isPending ? 'Saving…' : 'Save'}
+            {update.isPending ? tc('saving') : tc('save')}
           </button>
-          {saved && <span className="text-sm text-green-400">Saved</span>}
+          {saved && <span className="text-sm text-green-400">{tc('saved')}</span>}
         </div>
       </div>
     </div>

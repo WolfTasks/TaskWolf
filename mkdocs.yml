@@ -77,6 +77,7 @@ nav:
           - Components: developer-guide/frontend/components.md
           - Hooks: developer-guide/frontend/hooks.md
           - Pages: developer-guide/frontend/pages.md
+          - i18n: developer-guide/frontend/i18n.md
   - Development: development.md
 
 plugins:

@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { authApi } from '@/api/auth'
 
 export function RegisterPage() {
+  const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', displayName: '', password: '' })
   const [error, setError] = useState('')
@@ -17,7 +19,7 @@ export function RegisterPage() {
       navigate('/')
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } }
-      setError(axiosErr.response?.data?.message ?? 'Registration failed')
+      setError(axiosErr.response?.data?.message ?? t('register.error'))
     }
   }
 
@@ -26,20 +28,20 @@ export function RegisterPage() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold text-white">Create account</h2>
+      <h2 className="text-xl font-semibold text-white">{t('register.title')}</h2>
       {error && <p className="text-red-400 text-sm">{error}</p>}
-      <input type="email" value={form.email} onChange={set('email')} placeholder="Email" required
+      <input type="email" value={form.email} onChange={set('email')} placeholder={t('register.email')} required
         className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
-      <input type="text" value={form.displayName} onChange={set('displayName')} placeholder="Display name" required
+      <input type="text" value={form.displayName} onChange={set('displayName')} placeholder={t('register.displayName')} required
         className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
-      <input type="password" value={form.password} onChange={set('password')} placeholder="Password (min 8 chars)" required minLength={8}
+      <input type="password" value={form.password} onChange={set('password')} placeholder={t('register.password')} required minLength={8}
         className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
       <button type="submit"
         className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 text-sm font-medium">
-        Create account
+        {t('register.submit')}
       </button>
       <p className="text-sm text-gray-400 text-center">
-        Already have an account? <Link to="/login" className="text-blue-400 hover:underline">Sign in</Link>
+        {t('register.haveAccount')} <Link to="/login" className="text-blue-400 hover:underline">{t('register.loginLink')}</Link>
       </p>
     </form>
   )
