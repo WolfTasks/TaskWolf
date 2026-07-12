@@ -1,4 +1,5 @@
 import { apiClient } from './client'
+import type { User, OrgRole } from '@/types'
 
 export interface Organization {
   id: string
@@ -7,9 +8,8 @@ export interface Organization {
 }
 
 export interface OrganizationMember {
-  orgId: string
-  userId: string
-  role: 'OWNER' | 'ADMIN' | 'MEMBER'
+  user: User
+  role: OrgRole
 }
 
 export interface CreateOrganizationRequest {
@@ -19,7 +19,7 @@ export interface CreateOrganizationRequest {
 
 export interface AddMemberRequest {
   userId: string
-  role: 'OWNER' | 'ADMIN' | 'MEMBER'
+  role: OrgRole
 }
 
 export const organizationsApi = {
@@ -33,6 +33,8 @@ export const organizationsApi = {
     apiClient.get<OrganizationMember[]>(`/organizations/${orgId}/members`),
   addMember: (orgId: string, data: AddMemberRequest) =>
     apiClient.post<OrganizationMember>(`/organizations/${orgId}/members`, data),
+  changeMemberRole: (orgId: string, userId: string, role: OrgRole) =>
+    apiClient.patch<OrganizationMember>(`/organizations/${orgId}/members/${userId}`, { role }),
   removeMember: (orgId: string, userId: string) =>
     apiClient.delete(`/organizations/${orgId}/members/${userId}`),
 
