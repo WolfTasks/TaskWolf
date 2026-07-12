@@ -17,7 +17,7 @@
 | 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **AUSGELIEFERT** (PR #48, Release v1.0.10) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
-| 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
+| 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | 🔀 **PR #57 offen** (Fundament + Pilot-Slice, nicht gemergt) |
 | 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | ✅ **AUSGELIEFERT** (Backend PR #55, Frontend PR #56, Release v1.0.12) |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -141,6 +141,19 @@ deferren bis Patch verfügbar. Ops/Security-Zyklus.
 </details>
 
 ## #13 — Internationalisierung (UI in mehreren Sprachen)
+> 🔀 **PR #57 offen** (2026-07-12, Branch `worktree-worktree-i18n-foundation`, nicht
+> gemergt). Scope-Entscheid: **Fundament + Pilot-Slice** (nicht flächendeckend).
+> Framework `react-i18next`; Sprachen `en`/`de`, **Fallback `en`**; Persistenz
+> localStorage **+** Backend-User-Preference; **Backend-Texte nur Client-seitig**
+> übersetzt (Spring `MessageSource` = Folge-Zyklus); Pilot = Nav-Chrome + Auth +
+> Kern-Settings inkl. Sprachumschalter. Backend: Migration V30 (nullable
+> `users.language`), `PATCH /api/v1/me/language` (en/de-Validierung → 400 generisch).
+> SDD subagent-driven, finaler Whole-Branch-Review = merge-ready (keine Critical/
+> Important). Spec: `2026-07-12-i18n-foundation-design.md` · Plan:
+> `../plans/2026-07-12-i18n-foundation.md`. **Offen:** Wolfgangs manuelle
+> Browser-Verifikation; Merge/Release. **Folge-Zyklen:** restliche Seiten,
+> `MessageSource`, voller Intl-Zeit-Rollout (Feeds/Activity), weitere Sprachen.
+
 Die Oberfläche soll in mehreren Sprachen nutzbar sein (mind. Deutsch + Englisch,
 erweiterbar). Aktuell sind UI-Texte **hart im Frontend verdrahtet** (gemischt
 DE/EN) und es gibt keine i18n-Infrastruktur.
