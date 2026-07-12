@@ -15,8 +15,8 @@ export interface Project {
   name: string
   description: string | null
   ownerId: string
-  orgId: string | null
   archived: boolean
+  orgId: string | null
   myRole?: ProjectRole
 }
 
