@@ -33,5 +33,8 @@ class User(
     var active: Boolean = true,
 
     @Column(name = "deleted_at")
-    var deletedAt: Instant? = null
+    var deletedAt: Instant? = null,
+
+    @Column(name = "language")
+    var language: String? = null
 ) : AuditableEntity()
