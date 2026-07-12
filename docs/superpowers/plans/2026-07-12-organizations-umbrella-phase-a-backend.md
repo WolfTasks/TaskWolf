@@ -366,112 +366,47 @@ git commit -m "feat(projects): compute effective project role with org inheritan
 **Files:**
 - Modify: `backend/src/main/kotlin/com/taskowolf/projects/infrastructure/ProjectRepository.kt`
 - Modify: `backend/src/main/kotlin/com/taskowolf/projects/application/ProjectService.kt`
-- Test: `backend/src/test/kotlin/com/taskowolf/projects/ProjectOrgInheritanceIntegrationTest.kt` (Datei hier anlegen; Task 5 ergänzt weitere Tests darin)
+- Modify: `backend/src/test/kotlin/com/taskowolf/projects/ProjectOrgInheritanceTest.kt`
 
 **Interfaces:**
 - Consumes: `OrgMembershipLookup.orgIdsForUser(userId)` (Task 1), neue `ProjectRepository.findAllByOrgIdIn(orgIds)`.
 - Produces: `findAllForUser(userId): List<Project>` enthält jetzt Direkt- **und** Org-Projekte (dedupliziert).
 
-- [ ] **Step 1: Failing integration test schreiben**
+> Hinweis: Die End-to-End-Sichtbarkeit (Org-Member sieht geerbtes Projekt via HTTP) wird in **Task 5** getestet, weil sie den Assignment-Endpoint aus Task 4 braucht. Task 3 ist rein über den Unit-Test abgedeckt und eigenständig grün.
 
-`ProjectOrgInheritanceIntegrationTest.kt`:
+- [ ] **Step 1: Failing unit test schreiben**
+
+In `ProjectOrgInheritanceTest.kt` (aus Task 2) ergänzen:
 ```kotlin
-package com.taskowolf.projects
-
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.taskowolf.IntegrationTestBase
-import com.taskowolf.auth.domain.SystemRole
-import com.taskowolf.auth.infrastructure.UserRepository
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-
-class ProjectOrgInheritanceIntegrationTest : IntegrationTestBase() {
-
-    @Autowired private lateinit var mockMvc: MockMvc
-    @Autowired private lateinit var objectMapper: ObjectMapper
-    @Autowired private lateinit var userRepository: UserRepository
-
-    private fun register(email: String): String {
-        val res = mockMvc.perform(
-            post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
-                .content("""{"email":"$email","displayName":"U","password":"password123"}""")
-        ).andReturn()
-        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asText()
-    }
-
-    private fun makeSystemAdmin(email: String) {
-        val u = userRepository.findByEmail(email)!!; u.systemRole = SystemRole.ADMIN; userRepository.save(u)
-    }
-
-    private fun myId(token: String): String {
-        val res = mockMvc.perform(get("/api/v1/auth/me").header("Authorization", "Bearer $token")).andReturn()
-        return objectMapper.readTree(res.response.contentAsString).get("id").asText()
-    }
-
-    private fun createOrg(adminToken: String, slug: String): String {
-        val res = mockMvc.perform(
-            post("/api/v1/organizations").header("Authorization", "Bearer $adminToken")
-                .contentType(MediaType.APPLICATION_JSON).content("""{"name":"$slug","slug":"$slug"}""")
-        ).andExpect(status().isCreated).andReturn()
-        return objectMapper.readTree(res.response.contentAsString).get("id").asText()
-    }
-
-    private fun createProject(token: String, key: String) {
-        mockMvc.perform(
-            post("/api/v1/projects").header("Authorization", "Bearer $token")
-                .contentType(MediaType.APPLICATION_JSON).content("""{"key":"$key","name":"$key"}""")
-        ).andExpect(status().isCreated)
-    }
-
-    private fun assignProjectToOrg(adminToken: String, key: String, orgId: String) {
-        mockMvc.perform(
-            patch("/api/v1/projects/$key/organization").header("Authorization", "Bearer $adminToken")
-                .contentType(MediaType.APPLICATION_JSON).content("""{"orgId":"$orgId"}""")
-        ).andExpect(status().isOk)
-    }
-
-    private fun addOrgMember(adminToken: String, orgId: String, userId: String, role: String) {
-        mockMvc.perform(
-            post("/api/v1/organizations/$orgId/members").header("Authorization", "Bearer $adminToken")
-                .contentType(MediaType.APPLICATION_JSON).content("""{"userId":"$userId","role":"$role"}""")
-        ).andExpect(status().isCreated)
+    @Test
+    fun `findAllForUser unions direct and org projects without duplicates`() {
+        val userId = UUID.randomUUID()
+        val shared = orgProject() // gehört zu orgId
+        val direct = Project(key = "DIR", name = "Direct", description = null, owner = owner)
+        every { projectRepository.findAllByMemberOrOwner(userId) } returns listOf(direct, shared)
+        every { orgLookup.orgIdsForUser(userId) } returns listOf(orgId)
+        every { projectRepository.findAllByOrgIdIn(listOf(orgId)) } returns listOf(shared)
+        val result = service.findAllForUser(userId)
+        assertEquals(2, result.size) // shared nur einmal
     }
 
     @Test
-    fun `org member sees inherited org projects in their project list`() {
-        val adminToken = register("inh-admin@test.com"); makeSystemAdmin("inh-admin@test.com")
-        val ownerToken = register("inh-owner@test.com")
-        val memberToken = register("inh-member@test.com")
-        val memberId = myId(memberToken)
-
-        val orgId = createOrg(adminToken, "inh-org")
-        createProject(ownerToken, "INHL")
-        assignProjectToOrg(adminToken, "INHL", orgId)
-        addOrgMember(adminToken, orgId, memberId, "MEMBER")
-
-        // Der Org-Member war nie explizit im Projekt, sieht es aber via Org-Erbe in der Liste
-        // (GET /projects füllt myRole NICHT — nur der Detail-Endpoint tut das)
-        mockMvc.perform(get("/api/v1/projects").header("Authorization", "Bearer $memberToken"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$[?(@.key=='INHL')].key").value("INHL"))
-        // Detail-Endpoint zeigt die geerbte effektive Rolle
-        mockMvc.perform(get("/api/v1/projects/INHL").header("Authorization", "Bearer $memberToken"))
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.myRole").value("VIEWER"))
+    fun `findAllForUser skips org query when user has no orgs`() {
+        val userId = UUID.randomUUID()
+        val direct = Project(key = "DIR2", name = "Direct2", description = null, owner = owner)
+        every { projectRepository.findAllByMemberOrOwner(userId) } returns listOf(direct)
+        every { orgLookup.orgIdsForUser(userId) } returns emptyList()
+        // projectRepository.findAllByOrgIdIn NICHT gestubbt → Test beweist, dass es nicht aufgerufen wird
+        val result = service.findAllForUser(userId)
+        assertEquals(1, result.size)
     }
-}
 ```
+(Import `com.taskowolf.projects.domain.Project` ist bereits vorhanden.)
 
 - [ ] **Step 2: Test laufen lassen → FAIL**
 
-Run: `cd backend && ./gradlew test --tests "com.taskowolf.projects.ProjectOrgInheritanceIntegrationTest"`
-Expected: FAIL — der `PATCH /organization`-Endpoint (Task 4) und der Union-Query fehlen noch. (Dieser Test wird in Task 4 grün; hier zunächst nur den **Union-Query** bauen. Der Test bleibt bis Task 4 rot — das ist ok, weil er den Assignment-Endpoint mit-testet. Wer strikt pro Task grün sein will, kann diesen Test-Body erst in Task 5 aktivieren; hier reicht der Repository/Service-Unit-Beleg unten.)
-
-> Hinweis für den Executor: Damit **Task 3 eigenständig grün** ist, zusätzlich den folgenden fokussierten Service-Beleg als Zwischenschritt nutzen (der Integrationstest oben wird mit Task 4 grün):
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.projects.ProjectOrgInheritanceTest"`
+Expected: FAIL (`findAllByOrgIdIn` existiert nicht; neue `findAllForUser`-Logik fehlt).
 
 - [ ] **Step 3: Repository-Union implementieren**
 
@@ -491,36 +426,17 @@ In `ProjectService.kt` `findAllForUser` ersetzen:
     }
 ```
 
-- [ ] **Step 4: Fokussierten Unit-Test für die Union ergänzen**
-
-In `ProjectOrgInheritanceTest.kt` (aus Task 2) ergänzen:
-```kotlin
-    @Test
-    fun `findAllForUser unions direct and org projects without duplicates`() {
-        val userId = UUID.randomUUID()
-        val shared = orgProject() // gehört zu orgId
-        val direct = Project(key = "DIR", name = "Direct", description = null, owner = owner)
-        every { projectRepository.findAllByMemberOrOwner(userId) } returns listOf(direct, shared)
-        every { orgLookup.orgIdsForUser(userId) } returns listOf(orgId)
-        every { projectRepository.findAllByOrgIdIn(listOf(orgId)) } returns listOf(shared)
-        val result = service.findAllForUser(userId)
-        assertEquals(2, result.size) // shared nur einmal
-    }
-```
-(Import `com.taskowolf.projects.domain.Project` ist bereits vorhanden.)
-
-- [ ] **Step 5: Tests laufen lassen → PASS (Unit)**
+- [ ] **Step 4: Tests laufen lassen → PASS**
 
 Run: `cd backend && ./gradlew test --tests "com.taskowolf.projects.ProjectOrgInheritanceTest"`
-Expected: PASS. Der Integrationstest `ProjectOrgInheritanceIntegrationTest` wird mit Task 4 grün.
+Expected: PASS (Matrix aus Task 2 + beide Union-Tests).
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/kotlin/com/taskowolf/projects/infrastructure/ProjectRepository.kt \
         backend/src/main/kotlin/com/taskowolf/projects/application/ProjectService.kt \
-        backend/src/test/kotlin/com/taskowolf/projects/ProjectOrgInheritanceTest.kt \
-        backend/src/test/kotlin/com/taskowolf/projects/ProjectOrgInheritanceIntegrationTest.kt
+        backend/src/test/kotlin/com/taskowolf/projects/ProjectOrgInheritanceTest.kt
 git commit -m "feat(projects): include inherited org projects in findAllForUser"
 ```
 
@@ -727,10 +643,10 @@ data class ProjectResponse(
     }
 ```
 
-- [ ] **Step 4: Tests laufen lassen → PASS (inkl. Task-3-Integrationstest)**
+- [ ] **Step 4: Tests laufen lassen → PASS**
 
-Run: `cd backend && ./gradlew test --tests "com.taskowolf.projects.ProjectOrgAssignmentIntegrationTest" --tests "com.taskowolf.projects.ProjectOrgInheritanceIntegrationTest"`
-Expected: PASS (Assignment-Autorisierung + der Task-3-Listen-Test werden grün).
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.projects.ProjectOrgAssignmentIntegrationTest"`
+Expected: PASS (alle vier Autorisierungspfade der Assignment).
 
 - [ ] **Step 5: Commit**
 
@@ -745,19 +661,107 @@ git commit -m "feat(projects): add PATCH /projects/{key}/organization with dual-
 
 ---
 
-### Task 5: End-to-End-Vererbung — geerbter VIEWER liest, schreibt nicht; geerbter ADMIN verwaltet
+### Task 5: End-to-End-Vererbung — Listen-Sichtbarkeit, geerbter VIEWER liest/schreibt-nicht, geerbter ADMIN verwaltet
 
 **Files:**
-- Modify: `backend/src/test/kotlin/com/taskowolf/projects/ProjectOrgInheritanceIntegrationTest.kt`
+- Create: `backend/src/test/kotlin/com/taskowolf/projects/ProjectOrgInheritanceIntegrationTest.kt`
 
 **Interfaces:**
 - Consumes: alle Endpoints aus Tasks 2–4 plus `GET/POST /api/v1/projects/{key}/labels` (canWrite-gegatet) und `POST /api/v1/projects/{key}/members` (admin-gegatet).
-- Produces: keine Produktionsartefakte — beweist die komponierte Semantik.
+- Produces: keine Produktionsartefakte — beweist die komponierte Semantik end-to-end.
 
-- [ ] **Step 1: Failing E2E-Tests ergänzen**
+- [ ] **Step 1: Failing E2E-Test-Datei anlegen**
 
-In `ProjectOrgInheritanceIntegrationTest.kt` zwei Tests ergänzen (Helfer aus Task 3 sind vorhanden):
+`ProjectOrgInheritanceIntegrationTest.kt` (kompletter Datei-Inhalt: Header + Helfer + drei Tests):
 ```kotlin
+package com.taskowolf.projects
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.taskowolf.IntegrationTestBase
+import com.taskowolf.auth.domain.SystemRole
+import com.taskowolf.auth.infrastructure.UserRepository
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+
+class ProjectOrgInheritanceIntegrationTest : IntegrationTestBase() {
+
+    @Autowired private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var objectMapper: ObjectMapper
+    @Autowired private lateinit var userRepository: UserRepository
+
+    private fun register(email: String): String {
+        val res = mockMvc.perform(
+            post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+                .content("""{"email":"$email","displayName":"U","password":"password123"}""")
+        ).andReturn()
+        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asText()
+    }
+
+    private fun makeSystemAdmin(email: String) {
+        val u = userRepository.findByEmail(email)!!; u.systemRole = SystemRole.ADMIN; userRepository.save(u)
+    }
+
+    private fun myId(token: String): String {
+        val res = mockMvc.perform(get("/api/v1/auth/me").header("Authorization", "Bearer $token")).andReturn()
+        return objectMapper.readTree(res.response.contentAsString).get("id").asText()
+    }
+
+    private fun createOrg(adminToken: String, slug: String): String {
+        val res = mockMvc.perform(
+            post("/api/v1/organizations").header("Authorization", "Bearer $adminToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"name":"$slug","slug":"$slug"}""")
+        ).andExpect(status().isCreated).andReturn()
+        return objectMapper.readTree(res.response.contentAsString).get("id").asText()
+    }
+
+    private fun createProject(token: String, key: String) {
+        mockMvc.perform(
+            post("/api/v1/projects").header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"key":"$key","name":"$key"}""")
+        ).andExpect(status().isCreated)
+    }
+
+    private fun assignProjectToOrg(adminToken: String, key: String, orgId: String) {
+        mockMvc.perform(
+            patch("/api/v1/projects/$key/organization").header("Authorization", "Bearer $adminToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"orgId":"$orgId"}""")
+        ).andExpect(status().isOk)
+    }
+
+    private fun addOrgMember(adminToken: String, orgId: String, userId: String, role: String) {
+        mockMvc.perform(
+            post("/api/v1/organizations/$orgId/members").header("Authorization", "Bearer $adminToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"userId":"$userId","role":"$role"}""")
+        ).andExpect(status().isCreated)
+    }
+
+    @Test
+    fun `org member sees inherited org projects in their project list`() {
+        val adminToken = register("inh-admin@test.com"); makeSystemAdmin("inh-admin@test.com")
+        val ownerToken = register("inh-owner@test.com")
+        val memberToken = register("inh-member@test.com")
+        val memberId = myId(memberToken)
+
+        val orgId = createOrg(adminToken, "inh-org")
+        createProject(ownerToken, "INHL")
+        assignProjectToOrg(adminToken, "INHL", orgId)
+        addOrgMember(adminToken, orgId, memberId, "MEMBER")
+
+        // Der Org-Member war nie explizit im Projekt, sieht es aber via Org-Erbe in der Liste
+        // (GET /projects füllt myRole NICHT — nur der Detail-Endpoint tut das)
+        mockMvc.perform(get("/api/v1/projects").header("Authorization", "Bearer $memberToken"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[?(@.key=='INHL')].key").value("INHL"))
+        // Detail-Endpoint zeigt die geerbte effektive Rolle
+        mockMvc.perform(get("/api/v1/projects/INHL").header("Authorization", "Bearer $memberToken"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.myRole").value("VIEWER"))
+    }
+
     @Test
     fun `inherited VIEWER can read but not write`() {
         val adminToken = register("v-admin@test.com"); makeSystemAdmin("v-admin@test.com")
@@ -803,6 +807,7 @@ In `ProjectOrgInheritanceIntegrationTest.kt` zwei Tests ergänzen (Helfer aus Ta
                 .contentType(MediaType.APPLICATION_JSON).content("""{"userId":"$thirdId","role":"VIEWER"}""")
         ).andExpect(status().isCreated)
     }
+}
 ```
 
 - [ ] **Step 2: Tests laufen lassen → PASS**
