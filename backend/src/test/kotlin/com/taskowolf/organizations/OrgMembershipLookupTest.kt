@@ -8,7 +8,9 @@ import com.taskowolf.organizations.infrastructure.OrganizationMemberRepository
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.Optional
 import java.util.UUID
@@ -40,5 +42,24 @@ class OrgMembershipLookupTest {
             OrganizationMember(OrganizationMemberId(o2, userId), OrgRole.OWNER),
         )
         assertEquals(listOf(o1, o2), lookup.orgIdsForUser(userId))
+    }
+
+    @Test
+    fun `isOrgAdminOfAny is true when the user is OWNER or ADMIN somewhere`() {
+        val userId = UUID.randomUUID()
+        every { memberRepo.findByIdUserId(userId) } returns listOf(
+            OrganizationMember(OrganizationMemberId(UUID.randomUUID(), userId), OrgRole.MEMBER),
+            OrganizationMember(OrganizationMemberId(UUID.randomUUID(), userId), OrgRole.ADMIN),
+        )
+        assertTrue(lookup.isOrgAdminOfAny(userId))
+    }
+
+    @Test
+    fun `isOrgAdminOfAny is false when the user is only a MEMBER or has no memberships`() {
+        val userId = UUID.randomUUID()
+        every { memberRepo.findByIdUserId(userId) } returns listOf(
+            OrganizationMember(OrganizationMemberId(UUID.randomUUID(), userId), OrgRole.MEMBER),
+        )
+        assertFalse(lookup.isOrgAdminOfAny(userId))
     }
 }

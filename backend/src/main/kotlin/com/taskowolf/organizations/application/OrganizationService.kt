@@ -43,7 +43,9 @@ class OrganizationService(
     }
 
     @Transactional
-    fun addMember(orgId: UUID, userId: UUID, role: OrgRole): OrgMemberView {
+    fun addMember(orgId: UUID, actor: User, userId: UUID, role: OrgRole): OrgMemberView {
+        if (role == OrgRole.OWNER && !canSetOwner(orgId, actor))
+            throw ForbiddenException("Only an owner or system admin can grant the OWNER role")
         if (memberRepo.findById(OrganizationMemberId(orgId, userId)).isPresent)
             throw ConflictException("User is already a member of this organization")
         val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
@@ -85,6 +87,8 @@ class OrganizationService(
         if (actor.id == targetUserId) throw ForbiddenException("You cannot change your own role")
         val member = memberRepo.findById(OrganizationMemberId(orgId, targetUserId))
             .orElseThrow { NotFoundException("Member not found") }
+        if (newRole == OrgRole.OWNER && !canSetOwner(orgId, actor))
+            throw ForbiddenException("Only an owner or system admin can grant the OWNER role")
         val isSystemAdmin = actor.systemRole == SystemRole.ADMIN
         if (member.role == OrgRole.OWNER && !isSystemAdmin)
             throw ForbiddenException("Cannot change an owner's role")
@@ -98,4 +102,10 @@ class OrganizationService(
 
     private fun isLastOwner(orgId: UUID): Boolean =
         memberRepo.findByIdOrgId(orgId).count { it.role == OrgRole.OWNER } <= 1
+
+    private fun canSetOwner(orgId: UUID, actor: User): Boolean {
+        if (actor.systemRole == SystemRole.ADMIN) return true
+        val role = memberRepo.findById(OrganizationMemberId(orgId, actor.id)).map { it.role }.orElse(null)
+        return role == OrgRole.OWNER
+    }
 }

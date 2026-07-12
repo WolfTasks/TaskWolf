@@ -12,6 +12,9 @@ interface OrgMembershipLookup {
 
     /** Alle Org-Ids, in denen der User Mitglied ist. */
     fun orgIdsForUser(userId: UUID): List<UUID>
+
+    /** True if the user is OWNER or ADMIN of at least one organization. */
+    fun isOrgAdminOfAny(userId: UUID): Boolean
 }
 
 @Component
@@ -24,4 +27,7 @@ class OrgMembershipLookupImpl(
 
     override fun orgIdsForUser(userId: UUID): List<UUID> =
         memberRepo.findByIdUserId(userId).map { it.id.orgId }
+
+    override fun isOrgAdminOfAny(userId: UUID): Boolean =
+        memberRepo.findByIdUserId(userId).any { it.role == OrgRole.OWNER || it.role == OrgRole.ADMIN }
 }

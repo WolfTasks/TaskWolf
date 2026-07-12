@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -100,5 +101,14 @@ class ProjectOrgInheritanceTest {
         // projectRepository.findAllByOrgIdIn NICHT gestubbt → Test beweist, dass es nicht aufgerufen wird
         val result = service.findAllForUser(userId)
         assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `canManageAnyProjectMembers is true for a user who is only an org admin`() {
+        val u = User(email = "oa@test.com", displayName = "OA")
+        every { memberRepository.existsByUserIdAndRole(u.id, ProjectRole.ADMIN) } returns false
+        every { projectRepository.existsByOwnerId(u.id) } returns false
+        every { orgLookup.isOrgAdminOfAny(u.id) } returns true
+        assertTrue(service.canManageAnyProjectMembers(u))
     }
 }

@@ -57,8 +57,9 @@ class OrganizationController(
     @PreAuthorize("@orgSecurity.isOrgAdmin(#id, authentication)")
     fun addMember(
         @PathVariable id: UUID,
-        @RequestBody req: AddMemberRequest
-    ) = OrganizationMemberResponse.from(orgService.addMember(id, req.userId, req.role))
+        @RequestBody req: AddMemberRequest,
+        @AuthenticationPrincipal actor: User
+    ) = OrganizationMemberResponse.from(orgService.addMember(id, actor, req.userId, req.role))
 
     @DeleteMapping("/{id}/members/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

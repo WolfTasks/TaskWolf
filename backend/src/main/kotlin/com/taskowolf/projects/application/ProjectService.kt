@@ -146,7 +146,8 @@ class ProjectService(
     fun canManageAnyProjectMembers(user: User): Boolean {
         if (user.systemRole == SystemRole.ADMIN) return true
         return memberRepository.existsByUserIdAndRole(user.id, ProjectRole.ADMIN) ||
-            projectRepository.existsByOwnerId(user.id)
+            projectRepository.existsByOwnerId(user.id) ||
+            orgMembershipLookup.isOrgAdminOfAny(user.id)
     }
 
     private fun rank(role: ProjectRole): Int = when (role) {

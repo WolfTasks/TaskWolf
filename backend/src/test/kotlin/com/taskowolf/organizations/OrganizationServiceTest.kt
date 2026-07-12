@@ -61,13 +61,75 @@ class OrganizationServiceTest {
     @Test
     fun `addMember returns a view with the correct role`() {
         val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "act@test.com", displayName = "Act")
         val user = com.taskowolf.auth.domain.User(email = "a@test.com", displayName = "A")
         every { memberRepo.findById(OrganizationMemberId(orgId, user.id)) } returns java.util.Optional.empty()
         every { userRepository.findById(user.id) } returns java.util.Optional.of(user)
         every { memberRepo.save(any()) } returnsArgument 0
-        val result = service.addMember(orgId, user.id, OrgRole.ADMIN)
+        val result = service.addMember(orgId, actor, user.id, OrgRole.ADMIN)
         assertEquals(OrgRole.ADMIN, result.role)
         assertEquals(user.id, result.user.id)
+    }
+
+    @Test
+    fun `addMember forbids a non-owner admin from granting OWNER`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "adm@test.com", displayName = "Adm")
+        every { memberRepo.findById(OrganizationMemberId(orgId, actor.id)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, actor.id), OrgRole.ADMIN))
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.addMember(orgId, actor, UUID.randomUUID(), OrgRole.OWNER)
+        }
+    }
+
+    @Test
+    fun `changeMemberRole forbids a non-owner admin from promoting to OWNER`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "adm2@test.com", displayName = "Adm2")
+        val target = com.taskowolf.auth.domain.User(email = "t@test.com", displayName = "T")
+        every { memberRepo.findById(OrganizationMemberId(orgId, target.id)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, target.id), OrgRole.MEMBER))
+        every { memberRepo.findById(OrganizationMemberId(orgId, actor.id)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, actor.id), OrgRole.ADMIN))
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.changeMemberRole(orgId, actor, target.id, OrgRole.OWNER)
+        }
+    }
+
+    @Test
+    fun `changeMemberRole forbids a non-system-admin from changing an owner`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "na@test.com", displayName = "NA") // system MEMBER
+        val target = com.taskowolf.auth.domain.User(email = "own@test.com", displayName = "Own")
+        every { memberRepo.findById(OrganizationMemberId(orgId, target.id)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, target.id), OrgRole.OWNER))
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.changeMemberRole(orgId, actor, target.id, OrgRole.MEMBER)
+        }
+    }
+
+    @Test
+    fun `changeMemberRole throws NotFound when the member does not exist`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "na2@test.com", displayName = "NA2")
+            .apply { systemRole = com.taskowolf.auth.domain.SystemRole.ADMIN }
+        val targetId = UUID.randomUUID()
+        every { memberRepo.findById(OrganizationMemberId(orgId, targetId)) } returns java.util.Optional.empty()
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+            service.changeMemberRole(orgId, actor, targetId, OrgRole.ADMIN)
+        }
+    }
+
+    @Test
+    fun `removeMember forbids a non-system-admin from removing an owner`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "na3@test.com", displayName = "NA3") // system MEMBER
+        val targetId = UUID.randomUUID()
+        every { memberRepo.findById(OrganizationMemberId(orgId, targetId)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, targetId), OrgRole.OWNER))
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.removeMember(orgId, actor, targetId)
+        }
     }
 
     @Test
