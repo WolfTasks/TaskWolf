@@ -1,3 +1,44 @@
 {
-  "language": { "label": "Language" }
+  "language": { "label": "Language" },
+  "profile": {
+    "title": "Profile",
+    "email": "Email",
+    "displayName": "Display name",
+    "updateFailed": "Failed to update profile"
+  },
+  "security": {
+    "title": "Security",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "passwordTooShort": "New password must be at least 8 characters",
+    "passwordMismatch": "New passwords do not match",
+    "changeFailed": "Failed to change password",
+    "signOutWarning": "Changing your password signs you out of all sessions. Personal access tokens keep working.",
+    "changing": "Changing…",
+    "changePassword": "Change password"
+  },
+  "account": {
+    "title": "Account",
+    "deleteAccount": "Delete account",
+    "deleteWarning": "Your account will be deactivated and anonymized, and all your access tokens will be revoked. This cannot be undone.",
+    "deleting": "Deleting…",
+    "confirmDelete": "Yes, delete my account",
+    "deleteFailed": "Failed to delete account"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "columnType": "Type",
+    "columnInApp": "In-app",
+    "columnEmail": "Email",
+    "types": {
+      "mention": "Mentions",
+      "issueAssigned": "Issue assigned to me",
+      "automation": "Automation",
+      "slaBreached": "SLA breached"
+    },
+    "emailNotSupportedTooltip": "No email is sent for this type yet — saved for the future.",
+    "emailNotSupportedNote": "* No email is currently sent for these types; the preference is saved for future use.",
+    "saveFailed": "Failed to save preferences"
+  }
 }
