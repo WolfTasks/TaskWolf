@@ -52,8 +52,16 @@ class OrganizationService(
     }
 
     @Transactional
-    fun removeMember(orgId: UUID, userId: UUID) =
-        memberRepo.deleteById(OrganizationMemberId(orgId, userId))
+    fun removeMember(orgId: UUID, actor: User, targetUserId: UUID) {
+        val member = memberRepo.findById(OrganizationMemberId(orgId, targetUserId))
+            .orElseThrow { NotFoundException("Member not found") }
+        val isSystemAdmin = actor.systemRole == SystemRole.ADMIN
+        if (member.role == OrgRole.OWNER && !isSystemAdmin)
+            throw ForbiddenException("Cannot remove an owner")
+        if (member.role == OrgRole.OWNER && isLastOwner(orgId))
+            throw ForbiddenException("Cannot remove the last owner")
+        memberRepo.deleteById(OrganizationMemberId(orgId, targetUserId))
+    }
 
     @Transactional(readOnly = true)
     fun listOrgsForUser(userId: UUID) = memberRepo.findByIdUserId(userId).map { it.id.orgId }

@@ -63,8 +63,12 @@ class OrganizationController(
     @DeleteMapping("/{id}/members/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("@orgSecurity.isOrgAdmin(#id, authentication)")
-    fun removeMember(@PathVariable id: UUID, @PathVariable userId: UUID) {
-        orgService.removeMember(id, userId)
+    fun removeMember(
+        @PathVariable id: UUID,
+        @PathVariable userId: UUID,
+        @AuthenticationPrincipal actor: User
+    ) {
+        orgService.removeMember(id, actor, userId)
     }
 
     @PatchMapping("/{id}/members/{userId}")

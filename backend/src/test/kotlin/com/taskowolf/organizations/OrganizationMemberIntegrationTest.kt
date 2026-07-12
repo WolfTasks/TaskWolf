@@ -110,4 +110,33 @@ class OrganizationMemberIntegrationTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON).content("""{"role":"MEMBER"}""")
         ).andExpect(status().isForbidden)
     }
+
+    @Test
+    fun `org admin can remove a normal member`() {
+        val sysToken = register("rm-sys@test.com"); makeSystemAdmin("rm-sys@test.com")
+        val orgAdminToken = register("rm-admin@test.com"); val orgAdminId = myId(orgAdminToken)
+        val targetToken = register("rm-target@test.com"); val targetId = myId(targetToken)
+        val orgId = createOrg(sysToken, "rm-org")
+        addMember(sysToken, orgId, orgAdminId, "ADMIN").andExpect(status().isCreated)
+        addMember(sysToken, orgId, targetId, "MEMBER").andExpect(status().isCreated)
+
+        mockMvc.perform(delete("/api/v1/organizations/$orgId/members/$targetId").header("Authorization", "Bearer $orgAdminToken"))
+            .andExpect(status().isNoContent)
+    }
+
+    @Test
+    fun `removing the sole owner is forbidden`() {
+        val sysToken = register("so-sys@test.com"); makeSystemAdmin("so-sys@test.com")
+        val sysId = myId(sysToken)
+        val ownerToken = register("so-owner@test.com"); val ownerId = myId(ownerToken)
+        val orgId = createOrg(sysToken, "so-org")
+        // createOrg makes the creator (sysToken) an OWNER too, so add a second owner...
+        addMember(sysToken, orgId, ownerId, "OWNER").andExpect(status().isCreated)
+        // ...then remove the creator's own membership, leaving ownerId as the sole owner.
+        mockMvc.perform(delete("/api/v1/organizations/$orgId/members/$sysId").header("Authorization", "Bearer $sysToken"))
+            .andExpect(status().isNoContent)
+
+        mockMvc.perform(delete("/api/v1/organizations/$orgId/members/$ownerId").header("Authorization", "Bearer $sysToken"))
+            .andExpect(status().isForbidden)
+    }
 }

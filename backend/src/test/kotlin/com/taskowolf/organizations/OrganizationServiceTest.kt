@@ -71,12 +71,31 @@ class OrganizationServiceTest {
     }
 
     @Test
-    fun `removeMember calls deleteById`() {
+    fun `removeMember deletes a normal member`() {
         val orgId = UUID.randomUUID()
-        val userId = UUID.randomUUID()
-        every { memberRepo.deleteById(any()) } just Runs
-        service.removeMember(orgId, userId)
-        verify { memberRepo.deleteById(OrganizationMemberId(orgId, userId)) }
+        val actor = com.taskowolf.auth.domain.User(email = "act@test.com", displayName = "A")
+            .apply { systemRole = com.taskowolf.auth.domain.SystemRole.ADMIN }
+        val targetId = UUID.randomUUID()
+        every { memberRepo.findById(OrganizationMemberId(orgId, targetId)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, targetId), OrgRole.MEMBER))
+        every { memberRepo.deleteById(OrganizationMemberId(orgId, targetId)) } just Runs
+        service.removeMember(orgId, actor, targetId)
+        verify { memberRepo.deleteById(OrganizationMemberId(orgId, targetId)) }
+    }
+
+    @Test
+    fun `removeMember forbids removing the last owner`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "act2@test.com", displayName = "A")
+            .apply { systemRole = com.taskowolf.auth.domain.SystemRole.ADMIN }
+        val targetId = UUID.randomUUID()
+        every { memberRepo.findById(OrganizationMemberId(orgId, targetId)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, targetId), OrgRole.OWNER))
+        every { memberRepo.findByIdOrgId(orgId) } returns
+            listOf(OrganizationMember(OrganizationMemberId(orgId, targetId), OrgRole.OWNER))
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.removeMember(orgId, actor, targetId)
+        }
     }
 
     // --- requireMembershipOrAdmin ---
