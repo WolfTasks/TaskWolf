@@ -6,6 +6,7 @@ import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.UserRepository
 import com.taskowolf.core.infrastructure.ConflictException
+import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.core.infrastructure.NotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -70,4 +71,23 @@ class OrganizationService(
         val isMember = memberRepo.findByIdOrgId(orgId).any { it.id.userId == user.id }
         if (!isMember) throw AccessDeniedException("Not a member of organization $orgId")
     }
+
+    @Transactional
+    fun changeMemberRole(orgId: UUID, actor: User, targetUserId: UUID, newRole: OrgRole): OrgMemberView {
+        if (actor.id == targetUserId) throw ForbiddenException("You cannot change your own role")
+        val member = memberRepo.findById(OrganizationMemberId(orgId, targetUserId))
+            .orElseThrow { NotFoundException("Member not found") }
+        val isSystemAdmin = actor.systemRole == SystemRole.ADMIN
+        if (member.role == OrgRole.OWNER && !isSystemAdmin)
+            throw ForbiddenException("Cannot change an owner's role")
+        if (member.role == OrgRole.OWNER && newRole != OrgRole.OWNER && isLastOwner(orgId))
+            throw ForbiddenException("Cannot demote the last owner")
+        member.role = newRole
+        memberRepo.save(member)
+        val user = userRepository.findById(targetUserId).orElseThrow { NotFoundException("User not found") }
+        return OrgMemberView(user, newRole)
+    }
+
+    private fun isLastOwner(orgId: UUID): Boolean =
+        memberRepo.findByIdOrgId(orgId).count { it.role == OrgRole.OWNER } <= 1
 }

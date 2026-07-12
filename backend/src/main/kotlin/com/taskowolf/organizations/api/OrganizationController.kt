@@ -66,4 +66,14 @@ class OrganizationController(
     fun removeMember(@PathVariable id: UUID, @PathVariable userId: UUID) {
         orgService.removeMember(id, userId)
     }
+
+    @PatchMapping("/{id}/members/{userId}")
+    @PreAuthorize("@orgSecurity.isOrgAdmin(#id, authentication)")
+    @Transactional
+    fun changeMemberRole(
+        @PathVariable id: UUID,
+        @PathVariable userId: UUID,
+        @Valid @RequestBody req: UpdateOrgMemberRoleRequest,
+        @AuthenticationPrincipal actor: User
+    ) = OrganizationMemberResponse.from(orgService.changeMemberRole(id, actor, userId, req.role))
 }

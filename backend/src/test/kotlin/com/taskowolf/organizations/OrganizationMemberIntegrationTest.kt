@@ -88,4 +88,26 @@ class OrganizationMemberIntegrationTest : IntegrationTestBase() {
         // Doppeltes Hinzufügen → 409
         addMember(sysToken, orgId, targetId, "MEMBER").andExpect(status().isConflict)
     }
+
+    @Test
+    fun `org admin changes a member role but cannot change own role`() {
+        val sysToken = register("cr-sys@test.com"); makeSystemAdmin("cr-sys@test.com")
+        val orgAdminToken = register("cr-orgadmin@test.com"); val orgAdminId = myId(orgAdminToken)
+        val targetToken = register("cr-target@test.com"); val targetId = myId(targetToken)
+        val orgId = createOrg(sysToken, "cr-org")
+        addMember(sysToken, orgId, orgAdminId, "ADMIN").andExpect(status().isCreated)
+        addMember(sysToken, orgId, targetId, "MEMBER").andExpect(status().isCreated)
+
+        // Org-ADMIN hebt Ziel auf ADMIN → 200
+        mockMvc.perform(
+            patch("/api/v1/organizations/$orgId/members/$targetId").header("Authorization", "Bearer $orgAdminToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"role":"ADMIN"}""")
+        ).andExpect(status().isOk).andExpect(jsonPath("$.role").value("ADMIN"))
+
+        // eigene Rolle ändern → 403
+        mockMvc.perform(
+            patch("/api/v1/organizations/$orgId/members/$orgAdminId").header("Authorization", "Bearer $orgAdminToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"role":"MEMBER"}""")
+        ).andExpect(status().isForbidden)
+    }
 }

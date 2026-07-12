@@ -115,4 +115,44 @@ class OrganizationServiceTest {
             service.requireMembershipOrAdmin(orgId, user)
         }
     }
+
+    // --- changeMemberRole ---
+
+    @Test
+    fun `changeMemberRole forbids changing your own role`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "self@test.com", displayName = "S")
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.changeMemberRole(orgId, actor, actor.id, OrgRole.ADMIN)
+        }
+    }
+
+    @Test
+    fun `changeMemberRole forbids demoting the last owner`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "sys@test.com", displayName = "Sys")
+            .apply { systemRole = com.taskowolf.auth.domain.SystemRole.ADMIN }
+        val target = com.taskowolf.auth.domain.User(email = "owner@test.com", displayName = "O")
+        every { memberRepo.findById(OrganizationMemberId(orgId, target.id)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, target.id), OrgRole.OWNER))
+        every { memberRepo.findByIdOrgId(orgId) } returns
+            listOf(OrganizationMember(OrganizationMemberId(orgId, target.id), OrgRole.OWNER))
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
+            service.changeMemberRole(orgId, actor, target.id, OrgRole.MEMBER)
+        }
+    }
+
+    @Test
+    fun `changeMemberRole updates a normal member`() {
+        val orgId = UUID.randomUUID()
+        val actor = com.taskowolf.auth.domain.User(email = "sys2@test.com", displayName = "Sys")
+            .apply { systemRole = com.taskowolf.auth.domain.SystemRole.ADMIN }
+        val target = com.taskowolf.auth.domain.User(email = "m@test.com", displayName = "M")
+        every { memberRepo.findById(OrganizationMemberId(orgId, target.id)) } returns
+            java.util.Optional.of(OrganizationMember(OrganizationMemberId(orgId, target.id), OrgRole.MEMBER))
+        every { userRepository.findById(target.id) } returns java.util.Optional.of(target)
+        every { memberRepo.save(any()) } returnsArgument 0
+        val result = service.changeMemberRole(orgId, actor, target.id, OrgRole.ADMIN)
+        assertEquals(OrgRole.ADMIN, result.role)
+    }
 }
