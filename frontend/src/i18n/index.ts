@@ -4,6 +4,8 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 
 import enCommon from './locales/en/common.json'
 import deCommon from './locales/de/common.json'
+import enSettings from './locales/en/settings.json'
+import deSettings from './locales/de/settings.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'de'] as const
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]
@@ -13,14 +15,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { common: enCommon },
-      de: { common: deCommon },
+      en: { common: enCommon, settings: enSettings },
+      de: { common: deCommon, settings: deSettings },
     },
     fallbackLng: 'en',
     supportedLngs: [...SUPPORTED_LANGUAGES],
     nonExplicitSupportedLngs: true,
     defaultNS: 'common',
-    ns: ['common'],
+    ns: ['common', 'settings'],
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],

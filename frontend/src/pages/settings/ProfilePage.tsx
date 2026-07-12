@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { authApi } from '@/api/auth'
 import { useUpdateProfile } from '@/hooks/useMe'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 export function ProfilePage() {
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: () => authApi.me().then(r => r.data) })
@@ -52,6 +53,7 @@ export function ProfilePage() {
             className="w-full mt-1 px-3 py-2 bg-gray-900 rounded border border-gray-600 text-sm"
           />
         </label>
+        <LanguageSwitcher />
         <div className="flex items-center gap-3">
           <button
             onClick={handleSave}
