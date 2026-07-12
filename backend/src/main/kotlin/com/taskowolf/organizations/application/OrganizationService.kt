@@ -45,6 +45,13 @@ class OrganizationService(
     fun listOrgsForUser(userId: UUID) = memberRepo.findByIdUserId(userId).map { it.id.orgId }
         .let { ids -> if (ids.isEmpty()) emptyList() else orgRepo.findAllById(ids) }
 
+    @Transactional(readOnly = true)
+    fun isOrgAdmin(orgId: UUID, user: User): Boolean {
+        if (user.systemRole == SystemRole.ADMIN) return true
+        val role = memberRepo.findById(OrganizationMemberId(orgId, user.id)).map { it.role }.orElse(null)
+        return role == OrgRole.OWNER || role == OrgRole.ADMIN
+    }
+
     fun requireMembershipOrAdmin(orgId: UUID, user: User) {
         if (user.systemRole == SystemRole.ADMIN) return
         val isMember = memberRepo.findByIdOrgId(orgId).any { it.id.userId == user.id }
