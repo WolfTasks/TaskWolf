@@ -9,6 +9,13 @@ import type { OrgRole, UserSearchResult } from '@/types'
 
 const ROLE_LABELS: Record<OrgRole, string> = { MEMBER: 'Member', ADMIN: 'Admin', OWNER: 'Owner' }
 
+function memberActionErrorMessage(e: unknown): string {
+  const status = (e as { response?: { status?: number } }).response?.status
+  if (status === 403) return 'You don’t have permission to make that change.'
+  if (status === 409) return 'That change isn’t allowed — an organization must keep at least one owner.'
+  return 'Could not update the member.'
+}
+
 function AddOrgMemberForm({ orgId, canGrantOwner }: { orgId: string; canGrantOwner: boolean }) {
   const [input, setInput] = useState('')
   const [debounced, setDebounced] = useState('')
@@ -98,6 +105,7 @@ export function OrgSettingsPage() {
   const { data: members = [], isLoading: membersLoading } = useOrgMembers(orgId!)
   const changeRole = useChangeOrgMemberRole(orgId!)
   const removeMember = useRemoveOrgMember(orgId!)
+  const [actionError, setActionError] = useState('')
 
   const isSystemAdmin = me?.role === 'ADMIN'
   const myRole = members.find(m => m.user.id === me?.id)?.role
@@ -110,7 +118,12 @@ export function OrgSettingsPage() {
 
   async function handleRemove(userId: string, name: string) {
     if (!confirm(`Remove ${name} from ${org!.name}?`)) return
-    await removeMember.mutateAsync(userId)
+    try {
+      await removeMember.mutateAsync(userId)
+      setActionError('')
+    } catch (e: unknown) {
+      setActionError(memberActionErrorMessage(e))
+    }
   }
 
   return (
@@ -124,6 +137,7 @@ export function OrgSettingsPage() {
 
       <div className="flex flex-col gap-2">
         <h2 className="text-lg font-medium">Members</h2>
+        {actionError && <p className="text-xs text-red-400">{actionError}</p>}
         {membersLoading && <p className="text-gray-400 text-sm">Loading…</p>}
         {!membersLoading && members.length === 0 && (
           <p className="text-gray-500 text-sm">No members found.</p>
@@ -141,12 +155,18 @@ export function OrgSettingsPage() {
                 <div className="text-xs text-gray-500 truncate">{user.email}</div>
               </div>
               {isOwner && <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">Owner</span>}
-              {isSelf && !isOwner && <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">You</span>}
+              {isSelf && <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">You</span>}
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={role}
                   disabled={lockRole || changeRole.isPending}
-                  onChange={e => changeRole.mutate({ userId: user.id, role: e.target.value as OrgRole })}
+                  onChange={e => changeRole.mutate(
+                    { userId: user.id, role: e.target.value as OrgRole },
+                    {
+                      onSuccess: () => setActionError(''),
+                      onError: (err: unknown) => setActionError(memberActionErrorMessage(err)),
+                    }
+                  )}
                   className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm text-white disabled:opacity-50"
                 >
                   {/* Ensure the current role renders even if outside the actor's grantable set. */}

@@ -44,7 +44,6 @@ export function OrgsPage() {
     mutationFn: (data: CreateOrganizationRequest) => organizationsApi.create(data).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizations'] })
-      queryClient.invalidateQueries({ queryKey: ['organizations', 'mine'] })
       setForm(emptyForm); setFormError('')
     },
     onError: () => setFormError('Failed to create organization.'),
