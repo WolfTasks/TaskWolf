@@ -4,6 +4,14 @@ Version history for TaskWolf. Docker images are published to Docker Hub as
 `kwolfgang/taskowolf-backend:<version>` and `kwolfgang/taskowolf-frontend:<version>`
 (e.g. `1.0.10`). See the [GitHub releases](https://github.com/WolfTasks/TaskWolf/releases) for downloads.
 
+## v1.0.12 — 2026-07-12
+
+#### Highlights
+
+- **#14 Organizations umbrella** (PR #55 backend, PR #56 frontend): organizations become an umbrella over projects with **permission inheritance**. A project can optionally be assigned to an organization; org **Owners/Admins** then inherit project **Admin** and org **Members** inherit **Viewer** (read-only). Inheritance is additive — an explicit project role can only *raise* someone's effective role, never lower it. Projects without an organization are unchanged (no DB migration).
+- **Org self-service**: Organization **Owners/Admins** manage their own org (member add via user search, per-row role editor, owner/self guards, read-only for plain members) — no longer System-Admin-only. "My Organizations" is visible to every user; System Admins additionally see all orgs and the create form.
+- **Project ↔ organization assignment**: a new project **Settings → Organization** page (project admins) assigns or removes a project's organization. The project **Members** page shows a banner explaining who has inherited access and why.
+
 ## v1.0.11 — 2026-07-11
 
 #### Highlights
