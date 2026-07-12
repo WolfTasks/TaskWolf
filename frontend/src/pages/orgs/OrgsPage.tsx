@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { organizationsApi, CreateOrganizationRequest, Organization } from '@/api/organizations'
 import { useMe } from '@/hooks/useAuth'
@@ -15,7 +16,7 @@ function OrgList({ orgs, empty }: { orgs: Organization[]; empty: string }) {
             <div className="font-medium text-sm">{org.name}</div>
             <div className="text-xs text-gray-400">{org.slug}</div>
           </div>
-          <a href={`/orgs/${org.id}/settings`} className="text-blue-400 hover:text-blue-300 text-sm">Settings</a>
+          <Link to={`/orgs/${org.id}/settings`} className="text-blue-400 hover:text-blue-300 text-sm">Settings</Link>
         </div>
       ))}
     </>
