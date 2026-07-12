@@ -7,6 +7,7 @@ export interface User {
   displayName: string
   avatarUrl: string | null
   role: 'ADMIN' | 'MEMBER'
+  language: string | null
 }
 
 export interface Project {

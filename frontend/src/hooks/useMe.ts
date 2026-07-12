@@ -31,3 +31,11 @@ export function useUpdateNotificationPreferences() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notification-preferences'] }),
   })
 }
+
+export function useUpdateLanguage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (language: string) => meApi.updateLanguage(language).then(r => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['me'] }),
+  })
+}

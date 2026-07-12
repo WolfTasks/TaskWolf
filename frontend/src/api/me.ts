@@ -16,4 +16,6 @@ export const meApi = {
     apiClient.get<{ preferences: NotificationPreferenceItem[] }>('/me/notification-preferences'),
   updateNotificationPreferences: (preferences: NotificationPreferenceItem[]) =>
     apiClient.put<{ preferences: NotificationPreferenceItem[] }>('/me/notification-preferences', { preferences }),
+  updateLanguage: (language: string) =>
+    apiClient.patch<User>('/me/language', { language }),
 }
