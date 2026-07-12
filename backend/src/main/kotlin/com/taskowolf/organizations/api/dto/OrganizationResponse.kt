@@ -1,7 +1,8 @@
 package com.taskowolf.organizations.api.dto
 
+import com.taskowolf.auth.api.dto.UserResponse
+import com.taskowolf.organizations.application.OrgMemberView
 import com.taskowolf.organizations.domain.Organization
-import com.taskowolf.organizations.domain.OrganizationMember
 import com.taskowolf.organizations.domain.OrgRole
 import java.util.UUID
 
@@ -20,16 +21,11 @@ data class OrganizationResponse(
 }
 
 data class OrganizationMemberResponse(
-    val orgId: UUID,
-    val userId: UUID,
+    val user: UserResponse,
     val role: OrgRole
 ) {
     companion object {
-        fun from(m: OrganizationMember) = OrganizationMemberResponse(
-            orgId = m.id.orgId,
-            userId = m.id.userId,
-            role = m.role
-        )
+        fun from(view: OrgMemberView) = OrganizationMemberResponse(UserResponse.from(view.user), view.role)
     }
 }
 

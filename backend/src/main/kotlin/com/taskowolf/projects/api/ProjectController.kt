@@ -3,6 +3,7 @@ package com.taskowolf.projects.api
 import com.taskowolf.auth.domain.User
 import com.taskowolf.projects.api.dto.CreateProjectRequest
 import com.taskowolf.projects.api.dto.ProjectResponse
+import com.taskowolf.projects.api.dto.SetProjectOrganizationRequest
 import com.taskowolf.projects.application.ProjectService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -29,6 +30,16 @@ class ProjectController(
     @GetMapping("/{key}")
     fun get(@PathVariable key: String, @AuthenticationPrincipal user: User): ProjectResponse {
         val project = projectService.requireMember(key, user.id)
+        return ProjectResponse.from(project, projectService.roleOf(project, user.id))
+    }
+
+    @PatchMapping("/{key}/organization")
+    fun setOrganization(
+        @PathVariable key: String,
+        @RequestBody request: SetProjectOrganizationRequest,
+        @AuthenticationPrincipal user: User
+    ): ProjectResponse {
+        val project = projectService.setOrganization(key, user, request.orgId)
         return ProjectResponse.from(project, projectService.roleOf(project, user.id))
     }
 }

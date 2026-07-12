@@ -11,10 +11,11 @@ data class ProjectResponse(
     val description: String?,
     val ownerId: UUID,
     val archived: Boolean,
+    val orgId: UUID?,
     val myRole: ProjectRole? = null
 ) {
     companion object {
         fun from(p: Project, myRole: ProjectRole? = null) =
-            ProjectResponse(p.id, p.key, p.name, p.description, p.owner.id, p.archived, myRole)
+            ProjectResponse(p.id, p.key, p.name, p.description, p.owner.id, p.archived, p.orgId, myRole)
     }
 }

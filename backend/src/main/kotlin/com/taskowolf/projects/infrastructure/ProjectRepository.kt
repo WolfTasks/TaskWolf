@@ -16,4 +16,6 @@ interface ProjectRepository : JpaRepository<Project, UUID> {
         WHERE p.owner.id = :userId OR m.user.id = :userId
     """)
     fun findAllByMemberOrOwner(userId: UUID): List<Project>
+
+    fun findAllByOrgIdIn(orgIds: Collection<UUID>): List<Project>
 }

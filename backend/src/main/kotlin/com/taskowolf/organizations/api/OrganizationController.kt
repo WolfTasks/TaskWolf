@@ -7,6 +7,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
@@ -42,26 +43,42 @@ class OrganizationController(
     }
 
     @GetMapping("/{id}/members")
+    @Transactional(readOnly = true)
     fun listMembers(
         @PathVariable id: UUID,
         @AuthenticationPrincipal user: User
     ): List<OrganizationMemberResponse> {
         orgService.requireMembershipOrAdmin(id, user)
-        return orgService.listMembers(id).map { OrganizationMemberResponse.from(it) }
+        return orgService.listMembersWithUsers(id).map { OrganizationMemberResponse.from(it) }
     }
 
     @PostMapping("/{id}/members")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@orgSecurity.isOrgAdmin(#id, authentication)")
     fun addMember(
         @PathVariable id: UUID,
-        @RequestBody req: AddMemberRequest
-    ) = OrganizationMemberResponse.from(orgService.addMember(id, req.userId, req.role))
+        @RequestBody req: AddMemberRequest,
+        @AuthenticationPrincipal actor: User
+    ) = OrganizationMemberResponse.from(orgService.addMember(id, actor, req.userId, req.role))
 
     @DeleteMapping("/{id}/members/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ADMIN')")
-    fun removeMember(@PathVariable id: UUID, @PathVariable userId: UUID) {
-        orgService.removeMember(id, userId)
+    @PreAuthorize("@orgSecurity.isOrgAdmin(#id, authentication)")
+    fun removeMember(
+        @PathVariable id: UUID,
+        @PathVariable userId: UUID,
+        @AuthenticationPrincipal actor: User
+    ) {
+        orgService.removeMember(id, actor, userId)
     }
+
+    @PatchMapping("/{id}/members/{userId}")
+    @PreAuthorize("@orgSecurity.isOrgAdmin(#id, authentication)")
+    @Transactional
+    fun changeMemberRole(
+        @PathVariable id: UUID,
+        @PathVariable userId: UUID,
+        @Valid @RequestBody req: UpdateOrgMemberRoleRequest,
+        @AuthenticationPrincipal actor: User
+    ) = OrganizationMemberResponse.from(orgService.changeMemberRole(id, actor, userId, req.role))
 }

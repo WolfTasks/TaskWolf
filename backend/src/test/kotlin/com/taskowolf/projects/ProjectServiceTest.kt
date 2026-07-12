@@ -29,7 +29,8 @@ class ProjectServiceTest {
     private val memberRepository = mockk<ProjectMemberRepository>()
     private val workflowService = mockk<WorkflowService>()
     private val userRepository = mockk<com.taskowolf.auth.infrastructure.UserRepository>()
-    private val service = ProjectService(projectRepository, memberRepository, workflowService, userRepository)
+    private val orgLookup = mockk<com.taskowolf.organizations.application.OrgMembershipLookup>()
+    private val service = ProjectService(projectRepository, memberRepository, workflowService, userRepository, orgLookup)
     private val owner = User(email = "owner@test.com", displayName = "Owner")
 
     @Test
