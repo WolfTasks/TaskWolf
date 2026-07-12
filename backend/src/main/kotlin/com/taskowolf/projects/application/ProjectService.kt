@@ -43,7 +43,12 @@ class ProjectService(
     }
 
     @Transactional(readOnly = true)
-    fun findAllForUser(userId: UUID) = projectRepository.findAllByMemberOrOwner(userId)
+    fun findAllForUser(userId: UUID): List<Project> {
+        val direct = projectRepository.findAllByMemberOrOwner(userId)
+        val orgIds = orgMembershipLookup.orgIdsForUser(userId)
+        val viaOrg = if (orgIds.isEmpty()) emptyList() else projectRepository.findAllByOrgIdIn(orgIds)
+        return (direct + viaOrg).distinctBy { it.id }
+    }
 
     @Transactional(readOnly = true)
     fun findByKey(key: String) = projectRepository.findByKey(key)

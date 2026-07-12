@@ -78,4 +78,27 @@ class ProjectOrgInheritanceTest {
         // orgLookup NICHT gestubbt → würde bei Aufruf werfen; Test beweist Kurzschluss
         assertNull(service.roleOf(project, u))
     }
+
+    @Test
+    fun `findAllForUser unions direct and org projects without duplicates`() {
+        val userId = UUID.randomUUID()
+        val shared = orgProject() // gehört zu orgId
+        val direct = Project(key = "DIR", name = "Direct", description = null, owner = owner)
+        every { projectRepository.findAllByMemberOrOwner(userId) } returns listOf(direct, shared)
+        every { orgLookup.orgIdsForUser(userId) } returns listOf(orgId)
+        every { projectRepository.findAllByOrgIdIn(listOf(orgId)) } returns listOf(shared)
+        val result = service.findAllForUser(userId)
+        assertEquals(2, result.size) // shared nur einmal
+    }
+
+    @Test
+    fun `findAllForUser skips org query when user has no orgs`() {
+        val userId = UUID.randomUUID()
+        val direct = Project(key = "DIR2", name = "Direct2", description = null, owner = owner)
+        every { projectRepository.findAllByMemberOrOwner(userId) } returns listOf(direct)
+        every { orgLookup.orgIdsForUser(userId) } returns emptyList()
+        // projectRepository.findAllByOrgIdIn NICHT gestubbt → Test beweist, dass es nicht aufgerufen wird
+        val result = service.findAllForUser(userId)
+        assertEquals(1, result.size)
+    }
 }
