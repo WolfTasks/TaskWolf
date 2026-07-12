@@ -9,7 +9,7 @@ export function OrgSwitcher({ collapsed = false }: { collapsed?: boolean } = {})
   const [switchError, setSwitchError] = useState<string | null>(null)
 
   const { data: orgs = [] } = useQuery({
-    queryKey: ['orgs-mine'],
+    queryKey: ['organizations', 'mine'],
     queryFn: () => organizationsApi.listMine().then(r => r.data),
   })
 
