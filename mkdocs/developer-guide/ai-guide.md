@@ -431,6 +431,14 @@ Both the modal (`IssueDialog`) and the full page (`IssueDetailPage`) render the 
 
 ---
 
+### Frontend: Internationalisation (i18n)
+
+Every user-facing frontend string goes through `useTranslation()` from the start — do not add hardcoded English copy with the intent of translating it "later." The i18n module lives in `frontend/src/i18n/` (`index.ts` for setup, `format.ts` for locale-aware date/number formatting, `locales/{en,de}/<namespace>.json` for strings). See [Frontend: i18n](frontend/i18n.md) for the full conventions (namespaces, key naming, interpolation, the migration recipe for existing hardcoded pages).
+
+> **DO NOT** add a new page or component with hardcoded literal strings — call `useTranslation('<namespace>')` and add the key to both `locales/en/` and `locales/de/` up front.
+
+---
+
 ## Architecture Decisions
 
 | Decision | Rejected | Reason |
