@@ -18,7 +18,7 @@
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **AUSGELIEFERT** (PR #48, Release v1.0.10) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
 | 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | Backlog |
-| 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | 📐 **Spec fertig** (`2026-07-12-organizations-umbrella-design.md`) |
+| 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | ✅ **AUSGELIEFERT** (Backend PR #55, Frontend PR #56, Release v1.0.12) |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -167,8 +167,15 @@ Umschalter+Persistenz, Roll-out-Reihenfolge (welche Seiten zuerst). Verwandt mit
 umgehen können, statt auf feste Strings zu prüfen).
 
 ## #14 — Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung)
-> 📐 **Spec fertig** (2026-07-12): `2026-07-12-organizations-umbrella-design.md`.
-> Nachfolge-Zyklus zu #9 (das bewusst „nur Projekte" scoped hatte).
+> ✅ **AUSGELIEFERT** (2026-07-12, Release v1.0.12). Backend Phase A: PR #55; Frontend
+> Phase B: PR #56. Beide subagent-driven (SDD) + Whole-Branch-Reviews; §5-Autorisierungs-/
+> Vererbungs-Matrix end-to-end gegen das Backend verifiziert (38/38). Nachfolge-Zyklus zu
+> #9 (das bewusst „nur Projekte" scoped hatte). Spec:
+> `2026-07-12-organizations-umbrella-design.md` (+ `-phase-b-frontend.md`) · Pläne:
+> `../plans/2026-07-12-organizations-umbrella-phase-a-backend.md`,
+> `../plans/2026-07-12-organizations-umbrella-phase-b-frontend.md`.
+> **Hinweis:** nur UI-Visuelles (Banner/disabled-selects/inline-Fehler) blieb Wolfgangs
+> manuellem Browser-Pass überlassen.
 
 Organisationen werden **Oberkategorie** über Projekten und Nutzern: einer Org lassen
 sich **Projekte** und **Member** zuordnen, und Rechte werden von der Org auf ihre
