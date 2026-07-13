@@ -57,20 +57,23 @@ Abgewogene Ansätze:
 Zwei Prüfungen, als `npm`-Scripts und als CI-Schritt (im bestehenden Frontend-Job):
 
 1. **Hardcoded-String-Scanner.** Meldet nutzersichtbare, hart kodierte JSX-Strings
-   (Text-Kinder, `placeholder`, `title`, `aria-label`, `alt`, `label`-Props). Umsetzung
-   via `eslint-plugin-i18next` (Regel `i18next/no-literal-string`) — integriert sich in
-   die bestehende ESLint-Konfiguration, kein separater Runner nötig. Falls die Regel
-   zu viele strukturelle False-Positives erzeugt, Fallback = schmales eigenes Skript
-   auf Basis des i18next-AST-Ansatzes. **Konfiguration** schließt technische Nicht-UI-
-   Strings aus (Klassennamen/`className`, `data-*`, Test-IDs, Icon-Namen, Routen-Pfade,
-   `key`-Props) über die Options der Regel.
-2. **Baseline-Allowlist.** Alle heute noch unlokalisierten Dateien stehen in einer
-   Ignore-Liste (ESLint `overrides` mit `no-literal-string: off` **oder** eine
-   dedizierte `i18n-allowlist.json`, die ein Wrapper-Script konsumiert — je nachdem,
-   was der Scanner sauber unterstützt). Dadurch ist CI **ab Session 0 grün**, ohne dass
-   alle 87 Dateien sofort fehlschlagen. Jede Feature-Session **entfernt ihre Dateien
-   aus der Allowlist**; ab dann sind genau diese Dateien scanner-pflichtig, und neu
-   eingeschleuste harte Strings brechen den Build (Regressionsschutz).
+   (JSX-Text-Kinder mit Buchstaben sowie die String-Literal-Werte der Attribute
+   `placeholder`, `title`, `aria-label`, `alt`, `label`). **Umsetzung = schlankes
+   eigenes Node-Skript über die TypeScript-Compiler-API** (`typescript` ist bereits
+   Dependency) — **bewusst kein ESLint-Stack**: das Frontend hat heute *kein* ESLint,
+   und der strenge Supply-Chain-Posture des Repos (npm-audit-Gate, Trivy,
+   dependency-review) spricht gegen einen großen neuen Dep-Baum (eslint +
+   typescript-eslint + Plugin) für eine einzige Regel. Das Skript ignoriert Nicht-UI-
+   Strings strukturell (nur JSX-Text/-Attribute werden geprüft; `className`, `data-*`,
+   `key`, Routen-Pfade, Icon-Namen sind entweder keine geprüften Attribute oder als
+   reine Symbole/URLs von der Buchstaben-Heuristik ausgenommen). Einzelfälle über einen
+   `// i18n-ignore`-Zeilenkommentar entschärfbar (sparsam).
+2. **Baseline-Allowlist** (`frontend/scripts/i18n-allowlist.json`): Liste aller heute
+   noch unlokalisierten Dateien (repo-relative Pfade). Das Skript überspringt gelistete
+   Dateien. Dadurch ist CI **ab Session 0 grün**, ohne dass alle ~87 Dateien sofort
+   fehlschlagen. Jede Feature-Session **entfernt ihre Dateien aus der Allowlist**; ab
+   dann sind genau diese Dateien scanner-pflichtig, und neu eingeschleuste harte Strings
+   brechen den Build (Regressionsschutz). Leere Allowlist + Scanner grün = 100%.
 3. **en/de-Key-Paritäts-Check.** Kleines Node-Skript, das für jeden Namespace prüft,
    dass die Key-Mengen in `locales/en/<ns>.json` und `locales/de/<ns>.json` identisch
    sind (rekursiv). Fehlender Key in einer Sprache → Fehler. Läuft im selben CI-Schritt.
