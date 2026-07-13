@@ -192,6 +192,10 @@ Backend-`MessageSource` (#16); weitere Sprachen.
   Doppel-Keys zu vermeiden.
 - **Neue Features während des Rollouts** (parallele Zyklen) landen automatisch als
   scanner-pflichtige neue Dateien; Reihenfolge in der Matrix bleibt Leitfaden.
+- **Scanner-Scope ist auf `.tsx` begrenzt** — `.ts`-Dateien (API-Clients, Hooks,
+  Konstanten-Maps) werden nicht gewalkt; ein künftiges nutzersichtbares Label, das in
+  einer `.ts`-Konstante definiert wird, muss per Konvention lokalisiert werden (nicht
+  gate-erzwungen).
 
 ## Berührungspunkte
 

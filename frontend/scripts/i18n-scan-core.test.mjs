@@ -41,3 +41,46 @@ test('respects an i18n-ignore marker', () => {
   ].join('\n')
   assert.equal(findViolations(code).length, 0)
 })
+
+test('flags no-substitution template literal in checked attribute', () => {
+  const v = findViolations('const A = () => <input placeholder={`Search`} />')
+  assert.equal(v.length, 1)
+  assert.equal(v[0].kind, 'attr:placeholder')
+})
+
+test('flags template literal with substitution when static part has a letter', () => {
+  const v = findViolations('const A = () => <img alt={`Photo of ${x}`} />')
+  assert.equal(v.length, 1)
+  assert.equal(v[0].kind, 'attr:alt')
+})
+
+test('flags JSX expression child that is a string literal', () => {
+  const v = findViolations("const A = () => <span>{'Raw literal'}</span>")
+  assert.equal(v.length, 1)
+})
+
+test('flags JSX expression child that is a no-substitution template literal', () => {
+  const v = findViolations('const A = () => <span>{`Raw literal`}</span>')
+  assert.equal(v.length, 1)
+})
+
+test('flags JSX expression child template literal with substitution when static part has a letter', () => {
+  const v = findViolations('const A = () => <div>{`Page ${n}`}</div>')
+  assert.equal(v.length, 1)
+})
+
+test('ignores JSX expression child that is a plain identifier', () => {
+  const v = findViolations('const A = () => <div>{count}</div>')
+  assert.equal(v.length, 0)
+})
+
+test('ignores JSX expression child template literal with no letters in static parts', () => {
+  const v = findViolations('const A = () => <div>{`${count}`}</div>')
+  assert.equal(v.length, 0)
+})
+
+test('flags hardcoded aria-label attribute', () => {
+  const v = findViolations('const A = () => <button aria-label="Close dialog" />')
+  assert.equal(v.length, 1)
+  assert.equal(v[0].kind, 'attr:aria-label')
+})
