@@ -17,8 +17,10 @@
 | 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **AUSGELIEFERT** (PR #48, Release v1.0.10) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
-| 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | 🔀 **PR #57 offen** (Fundament + Pilot-Slice, nicht gemergt) |
+| 13 | Internationalisierung — Fundament + Pilot-Slice | Full-Stack/UI | ✅ **GEMERGT** (PR #57, squash `0b9b817`; noch nicht released) |
 | 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | ✅ **AUSGELIEFERT** (Backend PR #55, Frontend PR #56, Release v1.0.12) |
+| 15 | Internationalisierung — Full-Rollout (alle Komponenten, mehrere Sessions) | UI | 🔧 **IN ARBEIT** (Master-Spec `2026-07-13-i18n-full-rollout-design.md`; Session 0 = Tooling) |
+| 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ⬜ Backlog (bewusst separater Folge-Zyklus zu #15; Frontend-Scope endet an der Client-Präsentation) |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -141,8 +143,10 @@ deferren bis Patch verfügbar. Ops/Security-Zyklus.
 </details>
 
 ## #13 — Internationalisierung (UI in mehreren Sprachen)
-> 🔀 **PR #57 offen** (2026-07-12, Branch `worktree-worktree-i18n-foundation`, nicht
-> gemergt). Scope-Entscheid: **Fundament + Pilot-Slice** (nicht flächendeckend).
+> ✅ **Fundament + Pilot-Slice GEMERGT** (PR #57, squash `0b9b817`; noch nicht
+> released). Scope-Entscheid: **Fundament + Pilot-Slice** (nicht flächendeckend).
+> **Folge-Vorhaben #15** (Full-Rollout aller Komponenten, mehrere Sessions) ist
+> gestartet — Master-Spec `2026-07-13-i18n-full-rollout-design.md`.
 > Framework `react-i18next`; Sprachen `en`/`de`, **Fallback `en`**; Persistenz
 > localStorage **+** Backend-User-Preference; **Backend-Texte nur Client-seitig**
 > übersetzt (Spring `MessageSource` = Folge-Zyklus); Pilot = Nav-Chrome + Auth +

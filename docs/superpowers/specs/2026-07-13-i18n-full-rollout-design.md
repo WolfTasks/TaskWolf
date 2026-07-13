@@ -199,3 +199,25 @@ Backend-`MessageSource` (#16); weitere Sprachen.
 - **#16** (neu): Backend-`MessageSource` — separater Folge-Zyklus, hier nur verlinkt.
 - **#5** (UI-Tests): künftige UI-Tests gegen i18n-Keys/`data-*` statt feste Strings; der
   hier eingeführte Scanner ist Lint, kein Test-Runner (orthogonal).
+
+## Anhang — Migrations-Checkliste pro Folge-Session (Muster gelockt)
+
+Jede Feature-Session (S1…S18) folgt exakt diesen Schritten — kein neuer Brainstorm/Spec:
+
+1. Namespace `<ns>` festlegen (siehe Matrix). Neue Dateien anlegen:
+   `frontend/src/i18n/locales/en/<ns>.json` und `.../de/<ns>.json`.
+2. In `frontend/src/i18n/index.ts` den Namespace importieren, in `resources`
+   (en+de) und in die `ns`-Liste eintragen.
+3. In den Slice-Dateien jede nutzersichtbare Zeichenkette durch
+   `t('<ns>:hierarchischer.key')` ersetzen (`useTranslation('<ns>')`). **Keine**
+   String-Concat aus Fragmenten; Interpolation über Variablen; Plurale über
+   i18next-Plural-Keys. Datum/Zahl/relative Zeit über `frontend/src/i18n/format.ts`.
+4. Die Slice-Dateien aus `frontend/scripts/i18n-allowlist.json` entfernen.
+5. Grün ziehen: `npm run test:i18n && npm run lint:i18n && npm run build`
+   (Scanner 0 Verstöße in den nun geprüften Dateien, en/de-Parität, Build).
+6. Manuell im Browser DE/EN in diesem Bereich prüfen (kein Roh-Key, keine
+   Layout-Brüche durch längere DE-Strings).
+7. In der Coverage-Matrix (Abschnitt 4) die Zeile auf ✅ setzen. Commit.
+
+**Fertig-Kriterium des Gesamt-Vorhabens:** `i18n-allowlist.json` = `[]`, Scanner grün,
+Parität grün.
