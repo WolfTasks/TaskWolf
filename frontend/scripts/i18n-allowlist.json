@@ -21,7 +21,6 @@
   "src/components/issue/CustomFieldInput.tsx",
   "src/components/issue/DueDatePicker.tsx",
   "src/components/issue/IssueDetailContent.tsx",
-  "src/components/issue/IssueDialog.tsx",
   "src/components/issue/LabelSelector.tsx",
   "src/components/issue/RichTextEditor.tsx",
   "src/components/issue/SprintSelector.tsx",
