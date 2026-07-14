@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const TYPES = ['EPIC', 'STORY', 'BUG', 'TASK', 'SUBTASK'] as const
 type IssueType = typeof TYPES[number]
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function TypeSelector({ value, onSave, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -28,17 +30,17 @@ export function TypeSelector({ value, onSave, disabled }: Props) {
         disabled={disabled}
         className={`text-sm text-gray-300 ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
-        {value}
+        {t(`type.${value}`)}
       </button>
       {open && (
         <div className="absolute z-50 top-6 left-0 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-32">
-          {TYPES.map(t => (
+          {TYPES.map(ty => (
             <button
-              key={t}
-              onClick={() => { onSave(t); setOpen(false) }}
-              className={`w-full text-left px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700 ${t === value ? 'font-bold text-white' : ''}`}
+              key={ty}
+              onClick={() => { onSave(ty); setOpen(false) }}
+              className={`w-full text-left px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700 ${ty === value ? 'font-bold text-white' : ''}`}
             >
-              {t}
+              {t(`type.${ty}`)}
             </button>
           ))}
         </div>

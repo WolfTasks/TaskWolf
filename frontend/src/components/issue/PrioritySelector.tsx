@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const PRIORITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as const
 type Priority = typeof PRIORITIES[number]
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function PrioritySelector({ value, onSave, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -35,7 +37,7 @@ export function PrioritySelector({ value, onSave, disabled }: Props) {
         disabled={disabled}
         className={`text-sm font-medium ${colors[value]} ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
-        {value}
+        {t(`priority.${value}`)}
       </button>
       {open && (
         <div className="absolute z-50 top-6 left-0 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-32">
@@ -45,7 +47,7 @@ export function PrioritySelector({ value, onSave, disabled }: Props) {
               onClick={() => { onSave(p); setOpen(false) }}
               className={`w-full text-left px-3 py-1.5 text-sm ${colors[p]} hover:bg-gray-700 ${p === value ? 'font-bold' : ''}`}
             >
-              {p}
+              {t(`priority.${p}`)}
             </button>
           ))}
         </div>
