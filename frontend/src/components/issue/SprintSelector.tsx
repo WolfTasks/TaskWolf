@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Sprint } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   value: string | null        // sprintName
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function SprintSelector({ value, sprintId, sprints, onSave, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -30,7 +32,7 @@ export function SprintSelector({ value, sprintId, sprints, onSave, disabled }: P
         disabled={disabled}
         className={`text-sm text-gray-300 ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
-        {value ?? 'No sprint'}
+        {value ?? t('sprint.none')}
       </button>
       {open && (
         <div className="absolute z-50 top-6 left-0 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-40">
@@ -39,7 +41,7 @@ export function SprintSelector({ value, sprintId, sprints, onSave, disabled }: P
               onClick={() => { onSave(null); setOpen(false) }}
               className="w-full text-left px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-700"
             >
-              No sprint
+              {t('sprint.none')}
             </button>
           )}
           {activeSprints.map(s => (
@@ -52,7 +54,7 @@ export function SprintSelector({ value, sprintId, sprints, onSave, disabled }: P
             </button>
           ))}
           {activeSprints.length === 0 && (
-            <p className="px-3 py-2 text-xs text-gray-600">No active sprints</p>
+            <p className="px-3 py-2 text-xs text-gray-600">{t('sprint.empty')}</p>
           )}
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const POINTS = [1, 2, 3, 5, 8, 13, 21] as const
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function StoryPointsSelector({ value, onSave, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -27,7 +29,7 @@ export function StoryPointsSelector({ value, onSave, disabled }: Props) {
         disabled={disabled}
         className={`text-sm ${disabled ? '' : 'cursor-pointer hover:underline'} ${value != null ? 'text-white' : 'text-gray-500'}`}
       >
-        {value != null ? value : 'Set points'}
+        {value != null ? value : t('storyPoints.set')}
       </button>
       {open && (
         <div className="absolute z-50 top-6 left-0 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-32">
@@ -44,7 +46,7 @@ export function StoryPointsSelector({ value, onSave, disabled }: Props) {
             onClick={() => { onSave(null); setOpen(false) }}
             className="w-full text-left px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-700 border-t border-gray-700"
           >
-            — Clear
+            — {t('storyPoints.clear')}
           </button>
         </div>
       )}

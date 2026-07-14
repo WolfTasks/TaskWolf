@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { formatDate } from '@/i18n/format'
 
 interface Props {
   value: string | null   // ISO date string "YYYY-MM-DD" or null
@@ -7,6 +9,7 @@ interface Props {
 }
 
 export function DueDatePicker({ value, onSave, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -18,7 +21,7 @@ export function DueDatePicker({ value, onSave, disabled }: Props) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const display = value ? new Date(value).toLocaleDateString() : 'No due date'
+  const display = value ? formatDate(value) : t('dueDate.none')
 
   return (
     <div ref={ref} className="relative">
@@ -42,7 +45,7 @@ export function DueDatePicker({ value, onSave, disabled }: Props) {
               onClick={() => { onSave(null); setOpen(false) }}
               className="mt-2 text-xs text-gray-500 hover:text-red-400 w-full text-left"
             >
-              Clear due date
+              {t('dueDate.clear')}
             </button>
           )}
         </div>
