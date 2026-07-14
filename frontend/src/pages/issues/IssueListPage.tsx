@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useIssues, useCreateIssue } from '@/hooks/useIssues'
 import { useLabels } from '@/hooks/useLabels'
 import { useVersions } from '@/hooks/useVersions'
@@ -10,6 +11,7 @@ import { StatusBadge } from '@/components/issue/StatusBadge'
 import { CustomFieldInput } from '@/components/issue/CustomFieldInput'
 
 export function IssueListPage() {
+  const { t } = useTranslation('issues')
   const { key } = useParams<{ key: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const labelId = searchParams.get('labelId') ?? undefined
@@ -69,7 +71,7 @@ export function IssueListPage() {
       .filter(d => d.required && !cfValues[d.id])
       .map(d => d.name)
     if (missingRequired.length > 0) {
-      alert(`Required fields missing: ${missingRequired.join(', ')}`)
+      alert(t('list.requiredFieldsMissing', { fields: missingRequired.join(', ') }))
       return
     }
 
@@ -98,16 +100,16 @@ export function IssueListPage() {
     })
   }
 
-  if (isLoading) return <div className="text-gray-400">Loading...</div>
+  if (isLoading) return <div className="text-gray-400">{t('common:loading')}</div>
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">{key} — Issues</h1>
+        <h1 className="text-2xl font-bold">{t('list.heading', { key })}</h1>
         {canWrite && (
           <button onClick={() => setShowForm(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
-            + Create Issue
+            + {t('list.create')}
           </button>
         )}
       </div>
@@ -119,7 +121,7 @@ export function IssueListPage() {
           onChange={e => setParam('labelId', e.target.value || undefined)}
           className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
         >
-          <option value="">All Labels</option>
+          <option value="">{t('list.filter.allLabels')}</option>
           {labels.map(l => (
             <option key={l.id} value={l.id}>{l.name}</option>
           ))}
@@ -130,7 +132,7 @@ export function IssueListPage() {
           onChange={e => setParam('fixVersionId', e.target.value || undefined)}
           className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
         >
-          <option value="">All Fix Versions</option>
+          <option value="">{t('list.filter.allFixVersions')}</option>
           {versions.map(v => (
             <option key={v.id} value={v.id}>{v.name}</option>
           ))}
@@ -141,7 +143,7 @@ export function IssueListPage() {
           onChange={e => setParam('affectsVersionId', e.target.value || undefined)}
           className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
         >
-          <option value="">All Affects Versions</option>
+          <option value="">{t('list.filter.allAffectsVersions')}</option>
           {versions.map(v => (
             <option key={v.id} value={v.id}>{v.name}</option>
           ))}
@@ -156,7 +158,7 @@ export function IssueListPage() {
                 onChange={e => setCfParam(def.id, e.target.value || undefined)}
                 className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
               >
-                <option value="">All</option>
+                <option value="">{t('list.filter.all')}</option>
                 {def.options?.map(opt => <option key={opt.id} value={opt.id}>{opt.label}</option>)}
               </select>
             ) : def.type === 'CHECKBOX' ? (
@@ -165,16 +167,16 @@ export function IssueListPage() {
                 onChange={e => setCfParam(def.id, e.target.value || undefined)}
                 className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
               >
-                <option value="">All</option>
-                <option value="true">Yes</option>
-                <option value="false">No</option>
+                <option value="">{t('list.filter.all')}</option>
+                <option value="true">{t('common:yes')}</option>
+                <option value="false">{t('common:no')}</option>
               </select>
             ) : (
               <input
                 type={def.type === 'NUMBER' ? 'number' : def.type === 'DATE' ? 'date' : 'text'}
                 value={customFieldFilters[def.id] ?? ''}
                 onChange={e => setCfParam(def.id, e.target.value || undefined)}
-                placeholder={`Filter by ${def.name}`}
+                placeholder={t('list.filter.byField', { field: def.name })}
                 className="bg-gray-800 border border-gray-700 text-sm text-white rounded px-3 py-1.5 outline-none"
               />
             )}
@@ -186,18 +188,18 @@ export function IssueListPage() {
             onClick={() => setSearchParams({})}
             className="text-xs text-gray-400 hover:text-white"
           >
-            ✕ Clear filters
+            ✕ {t('list.clearFilters')}
           </button>
         )}
       </div>
 
       {canWrite && showForm && (
         <form onSubmit={handleCreate} className="mb-4 flex flex-col gap-2">
-          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Issue title" autoFocus required
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder={t('list.titlePlaceholder')} autoFocus required
             className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm" />
           {customFieldDefs.length > 0 && (
             <div className="flex flex-col gap-2 mt-2">
-              <span className="text-xs text-gray-500 uppercase tracking-wider">Custom Fields</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wider">{t('list.customFields')}</span>
               {customFieldDefs.map(def => (
                 <div key={def.id} className="flex flex-col gap-0.5">
                   <label className="text-xs text-gray-400">
@@ -213,8 +215,8 @@ export function IssueListPage() {
             </div>
           )}
           <div className="flex gap-2">
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Save</button>
-            <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white px-3 py-2 text-sm">Cancel</button>
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">{t('common:save')}</button>
+            <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white px-3 py-2 text-sm">{t('common:cancel')}</button>
           </div>
         </form>
       )}
@@ -234,7 +236,7 @@ export function IssueListPage() {
           </button>
         ))}
         {page?.content.length === 0 && (
-          <p className="text-gray-500 text-sm py-8 text-center">No issues yet. Create your first one!</p>
+          <p className="text-gray-500 text-sm py-8 text-center">{t('list.empty')}</p>
         )}
       </div>
     </div>

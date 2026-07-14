@@ -4,5 +4,8 @@
   "saving": "Saving…",
   "saved": "Saved",
   "loading": "Loading…",
-  "error": "Something went wrong"
+  "error": "Something went wrong",
+  "close": "Close",
+  "yes": "Yes",
+  "no": "No"
 }

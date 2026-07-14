@@ -4,5 +4,8 @@
   "saving": "Speichern…",
   "saved": "Gespeichert",
   "loading": "Lädt…",
-  "error": "Etwas ist schiefgelaufen"
+  "error": "Etwas ist schiefgelaufen",
+  "close": "Schließen",
+  "yes": "Ja",
+  "no": "Nein"
 }

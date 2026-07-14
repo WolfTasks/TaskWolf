@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { IssueDetailContent } from '@/components/issue/IssueDetailContent'
 
@@ -19,6 +20,7 @@ function getFocusable(panel: HTMLElement): HTMLElement[] {
 }
 
 export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
+  const { t } = useTranslation('issues')
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -105,11 +107,11 @@ export function IssueDialog({ projectKey, issueKey, onClose }: Props) {
             to={`/p/${projectKey}/issues/${issueKey}`}
             className="text-xs text-gray-400 hover:text-white"
           >
-            ⤢ Full view
+            ⤢ {t('dialog.fullView')}
           </Link>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t('common:close')}
             className="text-gray-400 hover:text-white text-lg leading-none"
           >
             ✕

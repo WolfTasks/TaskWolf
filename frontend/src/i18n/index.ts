@@ -10,6 +10,8 @@ import enNav from './locales/en/nav.json'
 import deNav from './locales/de/nav.json'
 import enAuth from './locales/en/auth.json'
 import deAuth from './locales/de/auth.json'
+import enIssues from './locales/en/issues.json'
+import deIssues from './locales/de/issues.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'de'] as const
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]
@@ -19,14 +21,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth },
-      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth },
+      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues },
+      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues },
     },
     fallbackLng: 'en',
     supportedLngs: [...SUPPORTED_LANGUAGES],
     nonExplicitSupportedLngs: true,
     defaultNS: 'common',
-    ns: ['common', 'settings', 'nav', 'auth'],
+    ns: ['common', 'settings', 'nav', 'auth', 'issues'],
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],
