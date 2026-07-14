@@ -102,7 +102,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 |----|-----------|--------|--------------|
 | S0 | **setup** | ⬜ | Scanner + Allowlist + Key-Parität + Master-Spec + Backlog |
 | — | *(Fundament/Pilot)* | ✅ | `common`,`nav`,`auth`,`settings`(Teil): AppLayout, Login/Register, Profile/Security/Account/Notification, LanguageSwitcher |
-| S1 | `issues` (Detail) | ⬜ | IssueDetailPage, IssueDetailContent, IssueDialog, IssueDialogHost, InlineEditTitle, IssueListPage |
+| S1 | `issues` (Detail) | ✅ | IssueDetailContent, IssueDialog, IssueListPage localized; IssueDetailPage/IssueDialogHost/InlineEditTitle already string-free |
 | S2 | `issues-fields` | ⬜ | StatusBadge, TypeSelector, PrioritySelector, AssigneeSelector, LabelSelector, LabelChip, VersionSelector, VersionChip, VersionTag, SprintSelector, StoryPointsSelector, DueDatePicker, CustomFieldInput, RichTextEditor, AttachmentPanel |
 | S3 | `comments` | ⬜ | CommentsActivityTabs, CommentThread, ActivityFeed **+ relative-Zeit-Rollout via `format.ts`** |
 | S4 | `board` | ⬜ | BoardPage, BoardColumn, DraggableCard |
