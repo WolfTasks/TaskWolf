@@ -42,7 +42,6 @@
   "src/pages/backlog/BacklogPage.tsx",
   "src/pages/board/BoardPage.tsx",
   "src/pages/dashboard/DashboardPage.tsx",
-  "src/pages/issues/IssueListPage.tsx",
   "src/pages/notifications/NotificationsPage.tsx",
   "src/pages/orgs/OrgSettingsPage.tsx",
   "src/pages/orgs/OrgsPage.tsx",
