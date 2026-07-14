@@ -1,0 +1,40 @@
+{
+  "detail": {
+    "notFound": "Vorgang nicht gefunden",
+    "description": "Beschreibung",
+    "references": "Verweise",
+    "field": {
+      "priority": "Priorität",
+      "type": "Typ",
+      "assignee": "Bearbeiter",
+      "reporter": "Melder",
+      "sprint": "Sprint",
+      "dueDate": "Fällig am",
+      "labels": "Labels",
+      "fixVersions": "Fix-Versionen",
+      "affectsVersions": "Betroffene Versionen",
+      "storyPoints": "Story Points",
+      "created": "Erstellt",
+      "updated": "Aktualisiert"
+    }
+  },
+  "dialog": {
+    "fullView": "Vollansicht"
+  },
+  "list": {
+    "heading": "{{key}} — Vorgänge",
+    "create": "Vorgang erstellen",
+    "titlePlaceholder": "Titel des Vorgangs",
+    "customFields": "Benutzerdefinierte Felder",
+    "empty": "Noch keine Vorgänge. Erstelle deinen ersten!",
+    "clearFilters": "Filter zurücksetzen",
+    "requiredFieldsMissing": "Pflichtfelder fehlen: {{fields}}",
+    "filter": {
+      "allLabels": "Alle Labels",
+      "allFixVersions": "Alle Fix-Versionen",
+      "allAffectsVersions": "Alle betroffenen Versionen",
+      "all": "Alle",
+      "byField": "Nach {{field}} filtern"
+    }
+  }
+}

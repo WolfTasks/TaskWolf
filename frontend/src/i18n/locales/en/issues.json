@@ -1,0 +1,40 @@
+{
+  "detail": {
+    "notFound": "Issue not found",
+    "description": "Description",
+    "references": "References",
+    "field": {
+      "priority": "Priority",
+      "type": "Type",
+      "assignee": "Assignee",
+      "reporter": "Reporter",
+      "sprint": "Sprint",
+      "dueDate": "Due Date",
+      "labels": "Labels",
+      "fixVersions": "Fix Versions",
+      "affectsVersions": "Affects Versions",
+      "storyPoints": "Story Points",
+      "created": "Created",
+      "updated": "Updated"
+    }
+  },
+  "dialog": {
+    "fullView": "Full view"
+  },
+  "list": {
+    "heading": "{{key}} — Issues",
+    "create": "Create Issue",
+    "titlePlaceholder": "Issue title",
+    "customFields": "Custom Fields",
+    "empty": "No issues yet. Create your first one!",
+    "clearFilters": "Clear filters",
+    "requiredFieldsMissing": "Required fields missing: {{fields}}",
+    "filter": {
+      "allLabels": "All Labels",
+      "allFixVersions": "All Fix Versions",
+      "allAffectsVersions": "All Affects Versions",
+      "all": "All",
+      "byField": "Filter by {{field}}"
+    }
+  }
+}
