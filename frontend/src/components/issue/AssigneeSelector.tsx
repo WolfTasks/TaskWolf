@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { User } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   value: string | null        // assigneeName
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function AssigneeSelector({ value, assigneeId, members, onSave, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef<HTMLDivElement>(null)
@@ -37,7 +39,7 @@ export function AssigneeSelector({ value, assigneeId, members, onSave, disabled 
         disabled={disabled}
         className={`text-sm text-gray-300 ${disabled ? '' : 'cursor-pointer hover:underline'}`}
       >
-        {value ?? 'Unassigned'}
+        {value ?? t('assignee.unassigned')}
       </button>
       {open && (
         <div className="absolute z-50 top-6 left-0 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-48">
@@ -46,7 +48,7 @@ export function AssigneeSelector({ value, assigneeId, members, onSave, disabled 
               ref={inputRef}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search members…"
+              placeholder={t('assignee.searchPlaceholder')}
               className="w-full bg-gray-700 text-sm text-white rounded px-2 py-1 outline-none"
             />
           </div>
@@ -55,7 +57,7 @@ export function AssigneeSelector({ value, assigneeId, members, onSave, disabled 
               onClick={() => { onSave(null); setOpen(false); setSearch('') }}
               className="w-full text-left px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-700"
             >
-              Unassign
+              {t('assignee.unassign')}
             </button>
           )}
           {filtered.map(m => (

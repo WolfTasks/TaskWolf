@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Version } from '@/types'
 import { VersionChip } from './VersionChip'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   value: Version[]
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function VersionSelector({ value, allVersions, onSave, onChipClick, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<Version[]>(value)
   const ref = useRef<HTMLDivElement>(null)
@@ -45,7 +47,7 @@ export function VersionSelector({ value, allVersions, onSave, onChipClick, disab
         onClick={() => { if (!disabled) setOpen(o => !o) }}
       >
         {selected.length === 0
-          ? <span className="text-sm text-gray-500 hover:text-gray-300">None</span>
+          ? <span className="text-sm text-gray-500 hover:text-gray-300">{t('none')}</span>
           : selected.map(v => (
             <VersionChip
               key={v.id}
@@ -58,7 +60,7 @@ export function VersionSelector({ value, allVersions, onSave, onChipClick, disab
       {open && (
         <div className="absolute z-50 top-7 left-0 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-52 max-h-64 overflow-y-auto">
           {allVersions.length === 0 && (
-            <p className="px-3 py-2 text-sm text-gray-500">No versions. Create them in project settings.</p>
+            <p className="px-3 py-2 text-sm text-gray-500">{t('version.empty')}</p>
           )}
           {allVersions.map(v => (
             <button

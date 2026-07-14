@@ -1,0 +1,58 @@
+{
+  "type": {
+    "EPIC": "Epic",
+    "STORY": "Story",
+    "BUG": "Bug",
+    "TASK": "Task",
+    "SUBTASK": "Subtask"
+  },
+  "priority": {
+    "CRITICAL": "Critical",
+    "HIGH": "High",
+    "MEDIUM": "Medium",
+    "LOW": "Low"
+  },
+  "none": "None",
+  "assignee": {
+    "unassigned": "Unassigned",
+    "unassign": "Unassign",
+    "searchPlaceholder": "Search members…"
+  },
+  "label": {
+    "searchPlaceholder": "Search labels…",
+    "create": "Create label \"{{name}}\""
+  },
+  "version": {
+    "empty": "No versions. Create them in project settings."
+  },
+  "sprint": {
+    "none": "No sprint",
+    "empty": "No active sprints"
+  },
+  "storyPoints": {
+    "set": "Set points",
+    "clear": "Clear"
+  },
+  "dueDate": {
+    "none": "No due date",
+    "clear": "Clear due date"
+  },
+  "customField": {
+    "none": "— None —"
+  },
+  "richText": {
+    "placeholder": "Add a description…",
+    "bold": "Bold",
+    "italic": "Italic",
+    "code": "Code",
+    "bulletList": "Bullet list",
+    "orderedList": "Ordered list"
+  },
+  "attachment": {
+    "heading": "Attachments",
+    "upload": "Upload",
+    "uploading": "Uploading…",
+    "empty": "No attachments",
+    "confirmDelete": "Delete \"{{filename}}\"?"
+  }
+}

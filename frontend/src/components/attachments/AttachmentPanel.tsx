@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useAttachments, useUploadAttachment, useDeleteAttachment } from '@/hooks/useAttachments'
 import { attachmentsApi } from '@/api/attachments'
+import { useTranslation } from 'react-i18next'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function AttachmentPanel({ projectKey, issueKey, currentUserId, readOnly }: Props) {
+  const { t } = useTranslation('issues-fields')
   const { data: attachments = [], isLoading } = useAttachments(projectKey, issueKey)
   const upload = useUploadAttachment(projectKey, issueKey)
   const remove = useDeleteAttachment(projectKey, issueKey)
@@ -30,7 +32,7 @@ export function AttachmentPanel({ projectKey, issueKey, currentUserId, readOnly 
   }
 
   const handleDelete = (id: string, filename: string) => {
-    if (confirm(`Delete "${filename}"?`)) {
+    if (confirm(t('attachment.confirmDelete', { filename }))) {
       remove.mutate(id)
     }
   }
@@ -38,7 +40,7 @@ export function AttachmentPanel({ projectKey, issueKey, currentUserId, readOnly 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Attachments</h3>
+        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">{t('attachment.heading')}</h3>
         {!readOnly && (
           <>
             <button
@@ -46,7 +48,7 @@ export function AttachmentPanel({ projectKey, issueKey, currentUserId, readOnly 
               disabled={upload.isPending}
               className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded disabled:opacity-50"
             >
-              {upload.isPending ? 'Uploading...' : '+ Upload'}
+              {upload.isPending ? t('attachment.uploading') : `+ ${t('attachment.upload')}`}
             </button>
             <input
               ref={fileRef}
@@ -58,10 +60,10 @@ export function AttachmentPanel({ projectKey, issueKey, currentUserId, readOnly 
         )}
       </div>
 
-      {isLoading && <div className="text-gray-500 text-sm">Loading...</div>}
+      {isLoading && <div className="text-gray-500 text-sm">{t('common:loading')}</div>}
 
       {!isLoading && attachments.length === 0 && (
-        <p className="text-gray-600 text-sm italic">No attachments</p>
+        <p className="text-gray-600 text-sm italic">{t('attachment.empty')}</p>
       )}
 
       {attachments.map(attachment => (

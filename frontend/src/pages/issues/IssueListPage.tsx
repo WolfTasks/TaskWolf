@@ -232,7 +232,7 @@ export function IssueListPage() {
               issue.priority === 'CRITICAL' ? 'text-red-400' :
               issue.priority === 'HIGH' ? 'text-orange-400' :
               issue.priority === 'MEDIUM' ? 'text-yellow-400' : 'text-green-400'
-            }`}>{issue.priority}</span>
+            }`}>{t(`issues-fields:priority.${issue.priority}`)}</span>
           </button>
         ))}
         {page?.content.length === 0 && (

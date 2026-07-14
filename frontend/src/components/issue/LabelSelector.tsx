@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import type { Label } from '@/types'
 import { LabelChip } from './LabelChip'
 import { useCreateLabel } from '@/hooks/useLabels'
+import { useTranslation } from 'react-i18next'
 
 const PALETTE = [
   '#e11d48','#f97316','#eab308','#22c55e',
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClick, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Label[]>(value)
@@ -73,7 +75,7 @@ export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClic
         onClick={() => { if (!disabled) setOpen(o => !o) }}
       >
         {selected.length === 0
-          ? <span className="text-sm text-gray-500 hover:text-gray-300">None</span>
+          ? <span className="text-sm text-gray-500 hover:text-gray-300">{t('none')}</span>
           : selected.map(l => (
             <LabelChip
               key={l.id}
@@ -90,7 +92,7 @@ export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClic
               ref={inputRef}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search labels…"
+              placeholder={t('label.searchPlaceholder')}
               className="w-full bg-gray-700 text-sm text-white rounded px-2 py-1 outline-none"
             />
           </div>
@@ -111,7 +113,7 @@ export function LabelSelector({ projectKey, value, allLabels, onSave, onChipClic
               disabled={createLabel.isPending}
               className="w-full text-left px-3 py-1.5 text-sm text-blue-400 hover:bg-gray-700"
             >
-              + Create label "{search.trim()}"
+              + {t('label.create', { name: search.trim() })}
             </button>
           )}
         </div>

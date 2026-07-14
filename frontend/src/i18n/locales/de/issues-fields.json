@@ -1,0 +1,58 @@
+{
+  "type": {
+    "EPIC": "Epic",
+    "STORY": "Story",
+    "BUG": "Bug",
+    "TASK": "Aufgabe",
+    "SUBTASK": "Teilaufgabe"
+  },
+  "priority": {
+    "CRITICAL": "Kritisch",
+    "HIGH": "Hoch",
+    "MEDIUM": "Mittel",
+    "LOW": "Niedrig"
+  },
+  "none": "Keine",
+  "assignee": {
+    "unassigned": "Nicht zugewiesen",
+    "unassign": "Zuweisung entfernen",
+    "searchPlaceholder": "Mitglieder suchen…"
+  },
+  "label": {
+    "searchPlaceholder": "Labels suchen…",
+    "create": "Label \"{{name}}\" erstellen"
+  },
+  "version": {
+    "empty": "Keine Versionen. Erstelle sie in den Projekteinstellungen."
+  },
+  "sprint": {
+    "none": "Kein Sprint",
+    "empty": "Keine aktiven Sprints"
+  },
+  "storyPoints": {
+    "set": "Punkte setzen",
+    "clear": "Löschen"
+  },
+  "dueDate": {
+    "none": "Kein Fälligkeitsdatum",
+    "clear": "Fälligkeitsdatum löschen"
+  },
+  "customField": {
+    "none": "— Keine —"
+  },
+  "richText": {
+    "placeholder": "Beschreibung hinzufügen…",
+    "bold": "Fett",
+    "italic": "Kursiv",
+    "code": "Code",
+    "bulletList": "Aufzählung",
+    "orderedList": "Nummerierte Liste"
+  },
+  "attachment": {
+    "heading": "Anhänge",
+    "upload": "Hochladen",
+    "uploading": "Wird hochgeladen…",
+    "empty": "Keine Anhänge",
+    "confirmDelete": "\"{{filename}}\" löschen?"
+  }
+}
