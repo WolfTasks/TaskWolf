@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useIssue, useUpdateIssue } from '@/hooks/useIssues'
 import { useMe } from '@/hooks/useAuth'
 import { useProjectRole } from '@/hooks/useProjectRole'
@@ -34,6 +35,7 @@ function SidebarField({ label, children }: { label: string; children: React.Reac
 interface Props { projectKey: string; issueKey: string }
 
 export function IssueDetailContent({ projectKey, issueKey }: Props) {
+  const { t } = useTranslation('issues')
   const navigate = useNavigate()
   const { data: issue, isLoading } = useIssue(projectKey, issueKey)
   const { data: me } = useMe()
@@ -45,8 +47,8 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
   const { data: allVersions = [] } = useVersions(projectKey)
   const { data: customFieldDefs = [] } = useCustomFields(projectKey)
 
-  if (isLoading) return <div className="text-gray-400">Loading...</div>
-  if (!issue) return <div className="text-red-400">Issue not found</div>
+  if (isLoading) return <div className="text-gray-400">{t('common:loading')}</div>
+  if (!issue) return <div className="text-red-400">{t('detail.notFound')}</div>
 
   function patch(data: Record<string, unknown>) {
     if (!canWrite) return
@@ -68,7 +70,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
         {/* Left: description + comments + activity */}
         <div className="flex-1 min-w-0 space-y-8">
           <section>
-            <h2 className="text-sm font-medium text-gray-400 mb-2">Description</h2>
+            <h2 className="text-sm font-medium text-gray-400 mb-2">{t('detail.description')}</h2>
             <RichTextEditor
               value={issue.description}
               onSave={description => patch({ description })}
@@ -82,7 +84,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
 
           {issue.refs && issue.refs.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">References</h3>
+              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{t('detail.references')}</h3>
               <div className="space-y-2">
                 {issue.refs.map((ref) => (
                   <a key={ref.id} href={ref.url} target="_blank" rel="noopener noreferrer"
@@ -103,15 +105,15 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
         {/* Right: metadata + attachments */}
         <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
           <section className="space-y-4">
-            <SidebarField label="Priority">
+            <SidebarField label={t('detail.field.priority')}>
               <PrioritySelector value={issue.priority} onSave={priority => patch({ priority })} disabled={!canWrite} />
             </SidebarField>
 
-            <SidebarField label="Type">
+            <SidebarField label={t('detail.field.type')}>
               <TypeSelector value={issue.type} onSave={type => patch({ type })} disabled={!canWrite} />
             </SidebarField>
 
-            <SidebarField label="Assignee">
+            <SidebarField label={t('detail.field.assignee')}>
               <AssigneeSelector
                 value={issue.assigneeName}
                 assigneeId={issue.assigneeId}
@@ -121,11 +123,11 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               />
             </SidebarField>
 
-            <SidebarField label="Reporter">
+            <SidebarField label={t('detail.field.reporter')}>
               <span className="text-sm text-gray-300">{issue.reporterName}</span>
             </SidebarField>
 
-            <SidebarField label="Sprint">
+            <SidebarField label={t('detail.field.sprint')}>
               <SprintSelector
                 value={issue.sprintName}
                 sprintId={issue.sprintId}
@@ -135,7 +137,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               />
             </SidebarField>
 
-            <SidebarField label="Due Date">
+            <SidebarField label={t('detail.field.dueDate')}>
               <DueDatePicker
                 value={issue.dueDate}
                 onSave={date => date ? patch({ dueDate: date }) : patch({ clearDueDate: true })}
@@ -143,7 +145,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               />
             </SidebarField>
 
-            <SidebarField label="Labels">
+            <SidebarField label={t('detail.field.labels')}>
               <LabelSelector
                 projectKey={projectKey}
                 value={issue.labels ?? []}
@@ -154,7 +156,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               />
             </SidebarField>
 
-            <SidebarField label="Fix Versions">
+            <SidebarField label={t('detail.field.fixVersions')}>
               <VersionSelector
                 value={issue.fixVersions ?? []}
                 allVersions={allVersions}
@@ -164,7 +166,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               />
             </SidebarField>
 
-            <SidebarField label="Affects Versions">
+            <SidebarField label={t('detail.field.affectsVersions')}>
               <VersionSelector
                 value={issue.affectsVersions ?? []}
                 allVersions={allVersions}
@@ -188,7 +190,7 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               )
             })}
 
-            <SidebarField label="Story Points">
+            <SidebarField label={t('detail.field.storyPoints')}>
               <StoryPointsSelector
                 value={issue.storyPoints}
                 onSave={sp => sp != null ? patch({ storyPoints: sp }) : patch({ clearStoryPoints: true })}
@@ -196,11 +198,11 @@ export function IssueDetailContent({ projectKey, issueKey }: Props) {
               />
             </SidebarField>
 
-            <SidebarField label="Created">
+            <SidebarField label={t('detail.field.created')}>
               <span className="text-xs text-gray-500">{new Date(issue.createdAt).toLocaleDateString()}</span>
             </SidebarField>
 
-            <SidebarField label="Updated">
+            <SidebarField label={t('detail.field.updated')}>
               <span className="text-xs text-gray-500">{new Date(issue.updatedAt).toLocaleDateString()}</span>
             </SidebarField>
           </section>
