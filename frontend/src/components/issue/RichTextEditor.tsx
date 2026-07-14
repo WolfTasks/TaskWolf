@@ -4,6 +4,7 @@ import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import DOMPurify from 'dompurify'
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   value: string | null
@@ -23,6 +24,7 @@ function normalise(html: string): string {
 }
 
 export function RichTextEditor({ value, onSave, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const [editing, setEditing] = useState(false)
   // Tracks the last HTML string as TipTap understands it (after parsing),
   // so we can detect real changes rather than comparing raw value vs TipTap output.
@@ -32,7 +34,7 @@ export function RichTextEditor({ value, onSave, disabled }: Props) {
     extensions: [
       StarterKit,
       Link.configure({ openOnClick: false }),
-      Placeholder.configure({ placeholder: 'Add a description…' }),
+      Placeholder.configure({ placeholder: t('richText.placeholder') }),
     ],
     content: sanitize(value),
     editorProps: {
@@ -78,7 +80,7 @@ export function RichTextEditor({ value, onSave, disabled }: Props) {
       >
         {value
           ? <div dangerouslySetInnerHTML={{ __html: sanitize(value) }} />
-          : <span className="text-gray-600 italic">Add a description…</span>}
+          : <span className="text-gray-600 italic">{t('richText.placeholder')}</span>}
       </div>
     )
   }
@@ -87,11 +89,11 @@ export function RichTextEditor({ value, onSave, disabled }: Props) {
     <div className="bg-gray-900 rounded-lg ring-1 ring-blue-500">
       <div className="flex gap-1 p-2 border-b border-gray-800">
         {[
-          { label: 'B', title: 'Bold', action: () => editor?.chain().focus().toggleBold().run(), active: () => editor?.isActive('bold') },
-          { label: 'I', title: 'Italic', action: () => editor?.chain().focus().toggleItalic().run(), active: () => editor?.isActive('italic') },
-          { label: '<>', title: 'Code', action: () => editor?.chain().focus().toggleCode().run(), active: () => editor?.isActive('code') },
-          { label: '• List', title: 'Bullet list', action: () => editor?.chain().focus().toggleBulletList().run(), active: () => editor?.isActive('bulletList') },
-          { label: '1. List', title: 'Ordered list', action: () => editor?.chain().focus().toggleOrderedList().run(), active: () => editor?.isActive('orderedList') },
+          { label: 'B', title: t('richText.bold'), action: () => editor?.chain().focus().toggleBold().run(), active: () => editor?.isActive('bold') },
+          { label: 'I', title: t('richText.italic'), action: () => editor?.chain().focus().toggleItalic().run(), active: () => editor?.isActive('italic') },
+          { label: '<>', title: t('richText.code'), action: () => editor?.chain().focus().toggleCode().run(), active: () => editor?.isActive('code') },
+          { label: '• List', title: t('richText.bulletList'), action: () => editor?.chain().focus().toggleBulletList().run(), active: () => editor?.isActive('bulletList') },
+          { label: '1. List', title: t('richText.orderedList'), action: () => editor?.chain().focus().toggleOrderedList().run(), active: () => editor?.isActive('orderedList') },
         ].map(btn => (
           <button
             key={btn.label}

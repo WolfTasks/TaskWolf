@@ -1,5 +1,6 @@
 // frontend/src/components/issue/CustomFieldInput.tsx
 import type { CustomFieldDefinition, CustomFieldValue } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   definition: CustomFieldDefinition
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function CustomFieldInput({ definition, value, onChange, disabled }: Props) {
+  const { t } = useTranslation('issues-fields')
   const label = definition.required ? `${definition.name} *` : definition.name
   const inputClass = "w-full bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500"
 
@@ -65,7 +67,7 @@ export function CustomFieldInput({ definition, value, onChange, disabled }: Prop
           disabled={disabled}
           onChange={e => onChange(e.target.value || null)}
         >
-          <option value="">— None —</option>
+          <option value="">{t('customField.none')}</option>
           {definition.options?.map(opt => (
             <option key={opt.id} value={opt.id}>{opt.label}</option>
           ))}

@@ -1,7 +1,6 @@
 [
   "src/components/OrgSwitcher.tsx",
   "src/components/VersionTag.tsx",
-  "src/components/attachments/AttachmentPanel.tsx",
   "src/components/automation/ActionList.tsx",
   "src/components/automation/ConditionGroupBuilder.tsx",
   "src/components/automation/ConditionRow.tsx",
@@ -17,8 +16,6 @@
   "src/components/dashboard/VelocityWidget.tsx",
   "src/components/dashboard/WidgetPalette.tsx",
   "src/components/dashboard/WidgetWrapper.tsx",
-  "src/components/issue/CustomFieldInput.tsx",
-  "src/components/issue/RichTextEditor.tsx",
   "src/components/notifications/NotificationBell.tsx",
   "src/components/sprint/CompleteSprintDialog.tsx",
   "src/components/sprint/CreateSprintForm.tsx",
