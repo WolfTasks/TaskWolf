@@ -6,7 +6,6 @@
   "src/components/automation/ConditionRow.tsx",
   "src/components/automation/RuleEditor.tsx",
   "src/components/automation/TriggerSelector.tsx",
-  "src/components/comments/ActivityFeed.tsx",
   "src/components/dashboard/BurndownWidget.tsx",
   "src/components/dashboard/CycleTimeWidget.tsx",
   "src/components/dashboard/IssueCountWidget.tsx",
