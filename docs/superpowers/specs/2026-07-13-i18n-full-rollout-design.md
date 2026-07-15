@@ -104,7 +104,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | — | *(Fundament/Pilot)* | ✅ | `common`,`nav`,`auth`,`settings`(Teil): AppLayout, Login/Register, Profile/Security/Account/Notification, LanguageSwitcher |
 | S1 | `issues` (Detail) | ✅ | IssueDetailContent, IssueDialog, IssueListPage localized; IssueDetailPage/IssueDialogHost/InlineEditTitle already string-free |
 | S2 | `issues-fields` | ✅ | type/priority enum labels + Assignee/Label/Version/Sprint/StoryPoints/DueDate/CustomField selectors, RichTextEditor, AttachmentPanel localized (+ IssueListPage priority retrofit); StatusBadge/LabelChip/VersionChip already string-free; **VersionTag deferred to S18** (app-version chrome, not an issue field) |
-| S3 | `comments` | ⬜ | CommentsActivityTabs, CommentThread, ActivityFeed **+ relative-Zeit-Rollout via `format.ts`** |
+| S3 | `comments` | ✅ | CommentsActivityTabs (scanner-blind tab labels), CommentThread, ActivityFeed localized; **`formatRelativeTime` rollout** replaced both hand-rolled `formatTime` helpers (comment/activity timestamps now relative, DE/EN via `Intl`) |
 | S4 | `board` | ⬜ | BoardPage, BoardColumn, DraggableCard |
 | S5 | `backlog` | ⬜ | BacklogPage |
 | S6 | `sprints` | ⬜ | SprintsPage, SprintCard, SprintHeader, CreateSprintForm, CompleteSprintDialog |

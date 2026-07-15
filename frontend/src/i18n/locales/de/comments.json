@@ -1,0 +1,39 @@
+{
+  "tabs": {
+    "comments": "Kommentare",
+    "activity": "Aktivität"
+  },
+  "thread": {
+    "loading": "Kommentare werden geladen…",
+    "loadOlder": "Ältere Kommentare laden",
+    "empty": "Noch keine Kommentare",
+    "deleted": "Kommentar gelöscht",
+    "edited": "(bearbeitet)",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Diesen Kommentar löschen?",
+    "placeholder": "Kommentar hinzufügen…",
+    "post": "Kommentar senden",
+    "posting": "Wird gesendet…"
+  },
+  "feed": {
+    "loading": "Aktivität wird geladen…",
+    "empty": "Noch keine Aktivität",
+    "loadMore": "Mehr laden"
+  },
+  "activity": {
+    "COMMENT": "hat kommentiert",
+    "STATUS_CHANGED": "hat den Status von \"{{from}}\" zu \"{{to}}\" geändert",
+    "ASSIGNED": "hat {{to}} zugewiesen",
+    "UNASSIGNED": "hat {{from}} entfernt",
+    "PRIORITY_CHANGED": "hat die Priorität von {{from}} zu {{to}} geändert",
+    "TITLE_CHANGED": "hat umbenannt zu \"{{to}}\"",
+    "DESCRIPTION_CHANGED": "hat die Beschreibung aktualisiert",
+    "STORY_POINTS_CHANGED": "hat die Story Points von {{from}} zu {{to}} geändert",
+    "DUE_DATE_CHANGED": "hat das Fälligkeitsdatum von {{from}} zu {{to}} geändert",
+    "SPRINT_CHANGED": "hat in Sprint {{to}} verschoben",
+    "ATTACHMENT_ADDED": "hat Anhang hinzugefügt: {{to}}",
+    "ATTACHMENT_REMOVED": "hat Anhang entfernt: {{from}}",
+    "backlog": "(Backlog)"
+  }
+}
