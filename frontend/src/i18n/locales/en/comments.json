@@ -1,0 +1,39 @@
+{
+  "tabs": {
+    "comments": "Comments",
+    "activity": "Activity"
+  },
+  "thread": {
+    "loading": "Loading comments…",
+    "loadOlder": "Load older comments",
+    "empty": "No comments yet",
+    "deleted": "Comment deleted",
+    "edited": "(edited)",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this comment?",
+    "placeholder": "Add a comment…",
+    "post": "Post Comment",
+    "posting": "Posting…"
+  },
+  "feed": {
+    "loading": "Loading activity…",
+    "empty": "No activity yet",
+    "loadMore": "Load more"
+  },
+  "activity": {
+    "COMMENT": "commented",
+    "STATUS_CHANGED": "changed status from \"{{from}}\" to \"{{to}}\"",
+    "ASSIGNED": "assigned to {{to}}",
+    "UNASSIGNED": "unassigned {{from}}",
+    "PRIORITY_CHANGED": "changed priority from {{from}} to {{to}}",
+    "TITLE_CHANGED": "renamed to \"{{to}}\"",
+    "DESCRIPTION_CHANGED": "updated description",
+    "STORY_POINTS_CHANGED": "changed story points from {{from}} to {{to}}",
+    "DUE_DATE_CHANGED": "changed due date from {{from}} to {{to}}",
+    "SPRINT_CHANGED": "moved to sprint {{to}}",
+    "ATTACHMENT_ADDED": "added attachment: {{to}}",
+    "ATTACHMENT_REMOVED": "removed attachment: {{from}}",
+    "backlog": "(backlog)"
+  }
+}

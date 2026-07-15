@@ -14,6 +14,8 @@ import enIssues from './locales/en/issues.json'
 import deIssues from './locales/de/issues.json'
 import enIssuesFields from './locales/en/issues-fields.json'
 import deIssuesFields from './locales/de/issues-fields.json'
+import enComments from './locales/en/comments.json'
+import deComments from './locales/de/comments.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'de'] as const
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]
@@ -23,14 +25,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields },
-      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields },
+      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields, comments: enComments },
+      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields, comments: deComments },
     },
     fallbackLng: 'en',
     supportedLngs: [...SUPPORTED_LANGUAGES],
     nonExplicitSupportedLngs: true,
     defaultNS: 'common',
-    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields'],
+    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields', 'comments'],
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],
