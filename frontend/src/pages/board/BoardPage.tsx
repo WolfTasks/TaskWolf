@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, Link } from 'react-router-dom'
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useBoard, useMoveIssue } from '@/hooks/useBoard'
@@ -10,6 +11,7 @@ import { SprintHeader } from '@/components/sprint/SprintHeader'
 import { CompleteSprintDialog } from '@/components/sprint/CompleteSprintDialog'
 
 export function BoardPage() {
+  const { t } = useTranslation('board')
   const { key } = useParams<{ key: string }>()
   useProjectSocket(key!)
   const { data: board, isLoading } = useBoard(key!)
@@ -35,14 +37,14 @@ export function BoardPage() {
     .filter(c => c.status.category !== 'DONE')
     .reduce((sum, c) => sum + c.issues.length, 0) ?? 0
 
-  if (isLoading) return <div className="text-gray-400">Loading...</div>
+  if (isLoading) return <div className="text-gray-400">{t('common:loading')}</div>
 
   if (!board) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <p className="text-gray-400 mb-4">No active sprint.</p>
+        <p className="text-gray-400 mb-4">{t('empty.title')}</p>
         <Link to={`/p/${key}/backlog`} className="text-blue-400 hover:underline text-sm">
-          Go to Backlog to start a sprint →
+          {t('empty.cta')} →
         </Link>
       </div>
     )

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useDraggable } from '@dnd-kit/core'
+import { useTranslation } from 'react-i18next'
 import { CSS } from '@dnd-kit/utilities'
 import { cn } from '@/lib/utils'
 import { useOpenIssue } from '@/hooks/useOpenIssue'
@@ -15,6 +16,7 @@ const priorityColor: Record<string, string> = {
 interface Props { issue: Issue; canWrite: boolean }
 
 export function DraggableCard({ issue, canWrite }: Props) {
+  const { t } = useTranslation('issues-fields')
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: issue.id })
   const openIssue = useOpenIssue()
   // Tracks whether a real drag occurred during the current pointer gesture.
@@ -53,7 +55,7 @@ export function DraggableCard({ issue, canWrite }: Props) {
       <div className="text-sm text-white mb-2 line-clamp-2">{issue.title}</div>
       <div className="flex items-center gap-2">
         <span className={cn('text-xs font-medium', priorityColor[issue.priority] ?? 'text-gray-400')}>
-          {issue.priority}
+          {t(`priority.${issue.priority}`)}
         </span>
         {issue.storyPoints != null && (
           <span className="ml-auto text-xs bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded font-mono">
