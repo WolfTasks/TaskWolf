@@ -29,7 +29,6 @@
   "src/pages/automation/AutomationPage.tsx",
   "src/pages/automation/AutomationRuleEditorPage.tsx",
   "src/pages/backlog/BacklogPage.tsx",
-  "src/pages/board/BoardPage.tsx",
   "src/pages/dashboard/DashboardPage.tsx",
   "src/pages/notifications/NotificationsPage.tsx",
   "src/pages/orgs/OrgSettingsPage.tsx",
