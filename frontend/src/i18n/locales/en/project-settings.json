@@ -7,14 +7,6 @@
     "nameRequired": "Name is required",
     "maxChars": "Max 50 characters"
   },
-  "layout": {
-    "title": "Settings",
-    "profile": "Profile",
-    "security": "Security",
-    "notifications": "Notifications",
-    "tokens": "Access Tokens",
-    "account": "Account"
-  },
   "members": {
     "title": "Members",
     "noPermission": "You don’t have permission to manage members for this project.",

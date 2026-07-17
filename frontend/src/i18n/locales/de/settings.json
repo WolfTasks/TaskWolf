@@ -18,6 +18,9 @@
     "changing": "Wird geändert…",
     "changePassword": "Passwort ändern"
   },
+  "tokens": {
+    "title": "Zugriffstokens"
+  },
   "account": {
     "title": "Konto",
     "deleteAccount": "Konto löschen",

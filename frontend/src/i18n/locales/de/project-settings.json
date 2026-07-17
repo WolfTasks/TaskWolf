@@ -7,14 +7,6 @@
     "nameRequired": "Name ist erforderlich",
     "maxChars": "Maximal 50 Zeichen"
   },
-  "layout": {
-    "title": "Einstellungen",
-    "profile": "Profil",
-    "security": "Sicherheit",
-    "notifications": "Benachrichtigungen",
-    "tokens": "Zugriffstokens",
-    "account": "Konto"
-  },
   "members": {
     "title": "Mitglieder",
     "noPermission": "Du hast keine Berechtigung, die Mitglieder dieses Projekts zu verwalten.",
