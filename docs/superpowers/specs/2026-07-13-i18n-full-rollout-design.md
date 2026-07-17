@@ -114,7 +114,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S10 | `projects` | ✅ | ProjectCreatePage localized (new `projects` ns); placeholders routed through `t()`; ProjectListPage already string-free (not allowlisted) |
 | S11 | `project-settings` | ✅ | All 7 files localized (new `project-settings` ns); scanner-blind ROLE_LABELS/FIELD_TYPES/audit column headers/settings-nav labels localized at render site; members org banner via `<Trans>`; audit timestamp via `formatDateTime`; CustomFields `t`-shadow (`ft`) handled |
 | S12 | `workflow` | ✅ | WorkflowEditorPage + TransitionGuardPanel localized (new `workflow` ns); scanner-blind guard type/field/role labels localized at render site; WorkflowCanvas/StatusNode/TransitionArrow already string-free |
-| S13 | `automation` | ⬜ | AutomationPage, AutomationRuleEditorPage, AdminAutomationPage, RuleEditor, ActionList, ActionRow, ConditionGroupBuilder, ConditionRow, TriggerSelector |
+| S13 | `automation` | ✅ | All automation files localized (new `automation` ns; de = former hard-coded German, en = translation); scanner-blind TRIGGERS/TYPES/ACTION_TYPES/OPERATORS labels + placeholders localized at render site; ActionRow localized (not allowlisted); three `t`-shadow renames (tr/ct/at) |
 | S14 | `admin` | ⬜ | AdminUsersPage, AuditLogPage, SsoSettingsPage |
 | S15 | `servicedesk` | ⬜ | ServiceDeskPage, IncidentDashboardPage |
 | S16 | `orgs` | ⬜ | OrgsPage, OrgSettingsPage, OrgSwitcher |
