@@ -2,6 +2,7 @@ import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { RuleAction } from '../../types'
 import { ActionRow } from './ActionRow'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   actions: RuleAction[]
@@ -13,6 +14,7 @@ const newAction = (position: number): RuleAction => ({
 })
 
 export function ActionList({ actions, onChange }: Props) {
+  const { t } = useTranslation('automation')
   function handleDragEnd(e: DragEndEvent) {
     const { active, over } = e
     if (!over || active.id === over.id) return
@@ -40,7 +42,7 @@ export function ActionList({ actions, onChange }: Props) {
         onClick={() => onChange([...actions, newAction(actions.length)])}
         className="text-sm text-zinc-400 hover:text-zinc-200 border border-dashed border-zinc-700 rounded-lg py-2 hover:border-zinc-500 transition-colors"
       >
-        + Action hinzufügen
+        + {t('editor.addAction')}
       </button>
     </div>
   )

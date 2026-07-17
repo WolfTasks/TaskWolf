@@ -1,0 +1,65 @@
+{
+  "title": "Automation",
+  "systemTitle": "Systemweite Automation",
+  "loading": "Regeln werden geladen…",
+  "loadingSystem": "Systemweite Regeln werden geladen…",
+  "newRule": "Neue Regel",
+  "newRuleTitle": "Neue Automation-Regel",
+  "empty": "Noch keine Automation-Regeln. Klicke auf \"+ Neue Regel\" um zu starten.",
+  "active": "Aktiv",
+  "inactive": "Inaktiv",
+  "trigger": {
+    "ISSUE_CREATED": "Issue erstellt",
+    "STATUS_CHANGED": "Status geändert",
+    "PRIORITY_CHANGED": "Priorität geändert",
+    "ASSIGNEE_CHANGED": "Assignee geändert",
+    "COMMENT_ADDED": "Kommentar hinzugefügt",
+    "SPRINT_STARTED": "Sprint gestartet",
+    "SPRINT_COMPLETED": "Sprint abgeschlossen"
+  },
+  "condition": {
+    "ISSUE_TYPE": "Issue-Typ",
+    "PRIORITY": "Priorität",
+    "ASSIGNEE": "Assignee",
+    "STATUS": "Status",
+    "STORY_POINTS": "Story Points",
+    "valuePlaceholder": "Wert"
+  },
+  "operator": {
+    "IS": "ist",
+    "IS_NOT": "ist nicht",
+    "CONTAINS": "enthält",
+    "GT": ">",
+    "LT": "<"
+  },
+  "action": {
+    "SET_STATUS": "Status setzen",
+    "SET_ASSIGNEE": "Assignee setzen",
+    "SET_PRIORITY": "Priorität setzen",
+    "SEND_NOTIFICATION": "Notification senden",
+    "CREATE_COMMENT": "Kommentar erstellen",
+    "CREATE_SUBTASK": "Subtask erstellen"
+  },
+  "actionPlaceholder": {
+    "SET_STATUS": "Status-ID",
+    "SET_ASSIGNEE": "User-ID",
+    "SET_PRIORITY": "CRITICAL | HIGH | MEDIUM | LOW",
+    "SEND_NOTIFICATION": "Nachricht",
+    "CREATE_COMMENT": "Kommentar-Text",
+    "CREATE_SUBTASK": "Subtask-Titel"
+  },
+  "editor": {
+    "nameLabel": "Regelname",
+    "namePlaceholder": "z. B. CRITICAL Issues auto-assign",
+    "when": "WENN",
+    "triggerLabel": "Trigger",
+    "if": "FALLS",
+    "conditions": "Bedingungen",
+    "then": "DANN",
+    "actionsLabel": "Actions (in Reihenfolge)",
+    "addCondition": "Bedingung",
+    "addGroup": "Gruppe",
+    "addAction": "Action hinzufügen",
+    "save": "Regel speichern"
+  }
+}

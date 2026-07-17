@@ -1,5 +1,6 @@
 import type { RuleConditionGroup, RuleCondition, GroupLogic } from '../../types'
 import { ConditionRow } from './ConditionRow'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   group: RuleConditionGroup
@@ -11,6 +12,7 @@ const emptyCondition = (): RuleCondition => ({ type: 'PRIORITY', operator: 'IS',
 const emptyGroup = (logic: GroupLogic = 'AND'): RuleConditionGroup => ({ logic, conditions: [], childGroups: [] })
 
 export function ConditionGroupBuilder({ group, onChange, depth = 0 }: Props) {
+  const { t } = useTranslation('automation')
   const setLogic = (logic: GroupLogic) => onChange({ ...group, logic })
 
   const addCondition = () => onChange({ ...group, conditions: [...group.conditions, emptyCondition()] })
@@ -35,9 +37,9 @@ export function ConditionGroupBuilder({ group, onChange, depth = 0 }: Props) {
           >{l}</button>
         ))}
         <div className="flex-1" />
-        <button onClick={addCondition} className="text-xs text-zinc-400 hover:text-zinc-200">+ Bedingung</button>
+        <button onClick={addCondition} className="text-xs text-zinc-400 hover:text-zinc-200">+ {t('editor.addCondition')}</button>
         {depth < 2 && (
-          <button onClick={addChildGroup} className="text-xs text-zinc-400 hover:text-zinc-200">+ Gruppe</button>
+          <button onClick={addChildGroup} className="text-xs text-zinc-400 hover:text-zinc-200">+ {t('editor.addGroup')}</button>
         )}
       </div>
       {group.conditions.map((c, i) => (

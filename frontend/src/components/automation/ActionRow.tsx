@@ -1,14 +1,15 @@
+import { useTranslation } from 'react-i18next'
 import type { RuleAction, ActionType } from '../../types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-const ACTION_TYPES: { value: ActionType; label: string; paramKey: string; placeholder: string }[] = [
-  { value: 'SET_STATUS', label: 'Status setzen', paramKey: 'statusId', placeholder: 'Status-ID' },
-  { value: 'SET_ASSIGNEE', label: 'Assignee setzen', paramKey: 'assigneeId', placeholder: 'User-ID' },
-  { value: 'SET_PRIORITY', label: 'Priorität setzen', paramKey: 'priority', placeholder: 'CRITICAL | HIGH | MEDIUM | LOW' },
-  { value: 'SEND_NOTIFICATION', label: 'Notification senden', paramKey: 'message', placeholder: 'Nachricht' },
-  { value: 'CREATE_COMMENT', label: 'Kommentar erstellen', paramKey: 'body', placeholder: 'Kommentar-Text' },
-  { value: 'CREATE_SUBTASK', label: 'Subtask erstellen', paramKey: 'title', placeholder: 'Subtask-Titel' },
+const ACTION_TYPES: { value: ActionType; paramKey: string }[] = [
+  { value: 'SET_STATUS', paramKey: 'statusId' },
+  { value: 'SET_ASSIGNEE', paramKey: 'assigneeId' },
+  { value: 'SET_PRIORITY', paramKey: 'priority' },
+  { value: 'SEND_NOTIFICATION', paramKey: 'message' },
+  { value: 'CREATE_COMMENT', paramKey: 'body' },
+  { value: 'CREATE_SUBTASK', paramKey: 'title' },
 ]
 
 interface Props {
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function ActionRow({ action, onChange, onRemove }: Props) {
+  const { t } = useTranslation('automation')
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: action.position })
   const style = { transform: CSS.Transform.toString(transform), transition }
   const meta = ACTION_TYPES.find(a => a.value === action.type) ?? ACTION_TYPES[0]
@@ -31,12 +33,12 @@ export function ActionRow({ action, onChange, onRemove }: Props) {
         onChange={e => onChange({ ...action, type: e.target.value as ActionType, params: {} })}
         className="flex-1 bg-zinc-700 border border-zinc-600 text-zinc-200 text-sm rounded px-2 py-1.5"
       >
-        {ACTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+        {ACTION_TYPES.map(at => <option key={at.value} value={at.value}>{t(`action.${at.value}`)}</option>)}
       </select>
       <input
         value={action.params[meta.paramKey] ?? ''}
         onChange={e => onChange({ ...action, params: { [meta.paramKey]: e.target.value } })}
-        placeholder={meta.placeholder}
+        placeholder={t(`actionPlaceholder.${action.type}`)}
         className="flex-1 bg-zinc-700 border border-zinc-600 text-zinc-200 text-sm rounded px-2 py-1.5"
       />
       <button onClick={onRemove} className="text-zinc-500 hover:text-red-400 px-1">✕</button>
