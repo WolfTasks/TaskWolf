@@ -8,7 +8,6 @@
   "src/components/automation/TriggerSelector.tsx",
   "src/components/workflow/TransitionGuardPanel.tsx",
   "src/layouts/AuthLayout.tsx",
-  "src/layouts/SettingsLayout.tsx",
   "src/pages/admin/AdminAutomationPage.tsx",
   "src/pages/admin/AdminUsersPage.tsx",
   "src/pages/admin/AuditLogPage.tsx",
