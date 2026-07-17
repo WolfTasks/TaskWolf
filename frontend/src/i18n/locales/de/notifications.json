@@ -1,0 +1,13 @@
+{
+  "title": "Benachrichtigungen",
+  "empty": "Noch keine Benachrichtigungen",
+  "bell": {
+    "aria": "Benachrichtigungen"
+  },
+  "type": {
+    "COMMENT_MENTION": "💬 Erwähnung",
+    "ISSUE_ASSIGNED": "📋 Zugewiesen",
+    "AUTOMATION": "🤖 Automatisierung",
+    "SLA_BREACHED": "⏰ SLA verletzt"
+  }
+}

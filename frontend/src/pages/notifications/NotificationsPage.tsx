@@ -1,32 +1,21 @@
+import { useTranslation } from 'react-i18next'
 import { useNotifications, useMarkRead } from '@/hooks/useNotifications'
-import type { Notification } from '@/types'
-
-function formatTime(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
-
-function typeLabel(type: Notification['type']): string {
-  switch (type) {
-    case 'COMMENT_MENTION': return '💬 Mention'
-    case 'ISSUE_ASSIGNED': return '📋 Assigned'
-    default: return type
-  }
-}
+import { formatRelativeTime } from '@/i18n/format'
 
 export function NotificationsPage() {
+  const { t } = useTranslation('notifications')
   const { data, isLoading } = useNotifications()
   const markRead = useMarkRead()
   const notifications = data?.content ?? []
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-white mb-6">Notifications</h1>
+      <h1 className="text-2xl font-bold text-white mb-6">{t('title')}</h1>
 
-      {isLoading && <div className="text-gray-500">Loading...</div>}
+      {isLoading && <div className="text-gray-500">{t('common:loading')}</div>}
 
       {!isLoading && notifications.length === 0 && (
-        <p className="text-gray-500 italic">No notifications yet</p>
+        <p className="text-gray-500 italic">{t('empty')}</p>
       )}
 
       <div className="space-y-2">
@@ -46,7 +35,7 @@ export function NotificationsPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs text-gray-500">{typeLabel(n.type)}</span>
+                  <span className="text-xs text-gray-500">{t(`type.${n.type}`, { defaultValue: n.type })}</span>
                   {!n.read && (
                     <span className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0" />
                   )}
@@ -54,7 +43,7 @@ export function NotificationsPage() {
                 <p className="text-sm font-medium truncate">{n.title}</p>
                 {n.body && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.body}</p>}
               </div>
-              <span className="text-xs text-gray-600 flex-shrink-0">{formatTime(n.createdAt)}</span>
+              <span className="text-xs text-gray-600 flex-shrink-0">{formatRelativeTime(n.createdAt)}</span>
             </div>
           </div>
         ))}

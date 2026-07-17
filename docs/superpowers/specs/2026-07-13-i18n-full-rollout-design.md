@@ -110,7 +110,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S6 | `sprints` | ✅ | SprintsPage/SprintCard/SprintHeader/CreateSprintForm/CompleteSprintDialog localized (new `sprints` ns; DE/EN cleanup, i18next plurals for days/issues, `<Trans>` for the bold-count warning, `format.ts` date range) |
 | S7 | `dashboard` | ✅ | DashboardPage + ProjectDashboardPage + WidgetWrapper/WidgetPalette + all six widgets localized (new `dashboard` ns); scanner-blind WIDGET_TITLES/WIDGET_OPTIONS/FILTER_LABELS/CATEGORY_LABEL localized at render site; recharts legend/axis/tooltip labels via `name`/`label`; DashboardCanvas already string-free |
 | S8 | `reports` | ✅ | ReportsPage localized (new `reports` ns); burndown + velocity section titles/empty-states + recharts legend series labels via `name` |
-| S9 | `notifications` | ⬜ | NotificationBell, NotificationsPage |
+| S9 | `notifications` | ✅ | NotificationBell (aria) + NotificationsPage localized (new `notifications` ns); scanner-blind `typeLabel` switch → keyed `t()`; hand-rolled `formatTime` → `formatRelativeTime` (relative-time rollout) |
 | S10 | `projects` | ⬜ | ProjectListPage, ProjectCreatePage |
 | S11 | `project-settings` | ⬜ | MembersPage, LabelsPage, VersionsPage, CustomFieldsPage, ProjectAuditPage, OrganizationSettingsPage, SettingsLayout (Rest) |
 | S12 | `workflow` | ⬜ | WorkflowEditorPage, WorkflowCanvas, StatusNode, TransitionArrow, TransitionGuardPanel |
