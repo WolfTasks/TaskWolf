@@ -6,6 +6,8 @@
   },
   "type": {
     "COMMENT_MENTION": "💬 Mention",
-    "ISSUE_ASSIGNED": "📋 Assigned"
+    "ISSUE_ASSIGNED": "📋 Assigned",
+    "AUTOMATION": "🤖 Automation",
+    "SLA_BREACHED": "⏰ SLA breached"
   }
 }

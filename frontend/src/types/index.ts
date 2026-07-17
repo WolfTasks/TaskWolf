@@ -233,7 +233,7 @@ export interface ActivityItem {
 
 export interface Notification {
   id: string
-  type: 'COMMENT_MENTION' | 'ISSUE_ASSIGNED' | 'AUTOMATION'
+  type: 'COMMENT_MENTION' | 'ISSUE_ASSIGNED' | 'AUTOMATION' | 'SLA_BREACHED'
   title: string
   body: string | null
   link: string | null

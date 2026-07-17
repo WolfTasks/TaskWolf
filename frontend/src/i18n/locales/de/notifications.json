@@ -6,6 +6,8 @@
   },
   "type": {
     "COMMENT_MENTION": "💬 Erwähnung",
-    "ISSUE_ASSIGNED": "📋 Zugewiesen"
+    "ISSUE_ASSIGNED": "📋 Zugewiesen",
+    "AUTOMATION": "🤖 Automatisierung",
+    "SLA_BREACHED": "⏰ SLA verletzt"
   }
 }
