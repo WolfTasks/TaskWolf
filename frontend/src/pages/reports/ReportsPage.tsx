@@ -5,8 +5,10 @@ import { useBurndown, useVelocity } from '@/hooks/useReports'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 export function ReportsPage() {
+  const { t } = useTranslation('reports')
   const { key } = useParams<{ key: string }>()
   const { data: sprints } = useSprints(key!)
   const closedSprints = sprints?.filter(s => s.status === 'CLOSED') ?? []
@@ -35,7 +37,7 @@ export function ReportsPage() {
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Reports</h1>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
         {selectableSprints.length > 0 && (
           <select
             value={sprintId ?? ''}
@@ -50,9 +52,9 @@ export function ReportsPage() {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-lg font-semibold text-white mb-4">Burndown Chart</h2>
+        <h2 className="text-lg font-semibold text-white mb-4">{t('burndown.title')}</h2>
         {burndownData.length === 0 ? (
-          <p className="text-gray-500 text-sm">No burndown data available. Sprint must have a start date and story points.</p>
+          <p className="text-gray-500 text-sm">{t('burndown.empty')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={burndownData}>
@@ -61,17 +63,17 @@ export function ReportsPage() {
               <YAxis stroke="#6b7280" tick={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px' }} />
               <Legend />
-              <Line type="monotone" dataKey="Ideal" stroke="#6b7280" strokeDasharray="5 5" dot={false} />
-              <Line type="monotone" dataKey="Actual" stroke="#3b82f6" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Ideal" name={t('burndown.ideal')} stroke="#6b7280" strokeDasharray="5 5" dot={false} />
+              <Line type="monotone" dataKey="Actual" name={t('burndown.actual')} stroke="#3b82f6" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         )}
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-white mb-4">Velocity</h2>
+        <h2 className="text-lg font-semibold text-white mb-4">{t('velocity.title')}</h2>
         {velocityData.length === 0 ? (
-          <p className="text-gray-500 text-sm">No completed sprints yet.</p>
+          <p className="text-gray-500 text-sm">{t('velocity.empty')}</p>
         ) : (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={velocityData}>
@@ -80,8 +82,8 @@ export function ReportsPage() {
               <YAxis stroke="#6b7280" tick={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px' }} />
               <Legend />
-              <Bar dataKey="Planned" fill="#374151" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="Completed" fill="#3b82f6" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Planned" name={t('velocity.planned')} fill="#374151" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Completed" name={t('velocity.completed')} fill="#3b82f6" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

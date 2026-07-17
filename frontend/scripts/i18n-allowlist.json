@@ -28,7 +28,6 @@
   "src/pages/projects/settings/OrganizationSettingsPage.tsx",
   "src/pages/projects/settings/ProjectAuditPage.tsx",
   "src/pages/projects/settings/VersionsPage.tsx",
-  "src/pages/reports/ReportsPage.tsx",
   "src/pages/settings/AccessTokensPage.tsx",
   "src/pages/settings/ApiKeysPage.tsx",
   "src/pages/settings/IntegrationsPage.tsx",
