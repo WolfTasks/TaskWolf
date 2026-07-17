@@ -4,6 +4,7 @@ import { useLabels, useCreateLabel, useUpdateLabel, useDeleteLabel } from '@/hoo
 import { useProjectRole } from '@/hooks/useProjectRole'
 import { LabelChip } from '@/components/issue/LabelChip'
 import type { Label } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 const PALETTE = [
   '#e11d48','#f97316','#eab308','#22c55e',
@@ -20,33 +21,34 @@ function LabelForm({
   onSubmit: (name: string, color: string) => void
   onCancel: () => void
 }) {
+  const { t } = useTranslation('project-settings')
   const [name, setName] = useState(initial?.name ?? '')
   const [color, setColor] = useState(initial?.color ?? PALETTE[0])
   const [error, setError] = useState('')
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) { setError('Name is required'); return }
-    if (name.trim().length > 50) { setError('Max 50 characters'); return }
+    if (!name.trim()) { setError(t('form.nameRequired')); return }
+    if (name.trim().length > 50) { setError(t('form.maxChars')); return }
     onSubmit(name.trim(), color)
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 bg-gray-800 rounded-lg border border-gray-700">
       <div>
-        <label className="block text-xs text-gray-400 mb-1">Name</label>
+        <label className="block text-xs text-gray-400 mb-1">{t('form.name')}</label>
         <input
           value={name}
           onChange={e => { setName(e.target.value); setError('') }}
           maxLength={50}
-          placeholder="Label name"
+          placeholder={t('labels.namePlaceholder')}
           autoFocus
           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500"
         />
         {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
       </div>
       <div>
-        <label className="block text-xs text-gray-400 mb-1">Color</label>
+        <label className="block text-xs text-gray-400 mb-1">{t('labels.color')}</label>
         <div className="flex flex-wrap gap-2">
           {PALETTE.map(c => (
             <button
@@ -60,15 +62,15 @@ function LabelForm({
         </div>
       </div>
       <div>
-        <label className="block text-xs text-gray-400 mb-1">Preview</label>
-        <LabelChip label={{ id: '', name: name || 'Preview', color }} />
+        <label className="block text-xs text-gray-400 mb-1">{t('labels.preview')}</label>
+        <LabelChip label={{ id: '', name: name || t('labels.previewName'), color }} />
       </div>
       <div className="flex gap-2">
         <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium">
-          {initial ? 'Save' : 'Create'}
+          {initial ? t('common:save') : t('form.create')}
         </button>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-white px-3 py-1.5 text-sm">
-          Cancel
+          {t('common:cancel')}
         </button>
       </div>
     </form>
@@ -76,6 +78,7 @@ function LabelForm({
 }
 
 export function LabelsPage() {
+  const { t } = useTranslation('project-settings')
   const { key } = useParams<{ key: string }>()
   const { canWrite } = useProjectRole(key!)
   const { data: labels = [], isLoading } = useLabels(key!)
@@ -93,7 +96,7 @@ export function LabelsPage() {
       setShowCreate(false)
       setApiError('')
     } catch {
-      setApiError('A label with that name already exists.')
+      setApiError(t('labels.duplicate'))
     }
   }
 
@@ -104,27 +107,27 @@ export function LabelsPage() {
       setEditing(null)
       setApiError('')
     } catch {
-      setApiError('A label with that name already exists.')
+      setApiError(t('labels.duplicate'))
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this label? It will be removed from all issues.')) return
+    if (!confirm(t('labels.deleteConfirm'))) return
     await deleteLabel.mutateAsync(id)
   }
 
-  if (isLoading) return <div className="text-gray-400 p-6">Loading…</div>
+  if (isLoading) return <div className="text-gray-400 p-6">{t('common:loading')}</div>
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Labels</h1>
+        <h1 className="text-2xl font-semibold">{t('labels.title')}</h1>
         {canWrite && !showCreate && (
           <button
             onClick={() => setShowCreate(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium"
           >
-            + New Label
+            + {t('labels.new')}
           </button>
         )}
       </div>
@@ -154,13 +157,13 @@ export function LabelsPage() {
                       onClick={() => setEditing(label)}
                       className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700"
                     >
-                      Edit
+                      {t('form.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(label.id)}
                       className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700"
                     >
-                      Delete
+                      {t('form.delete')}
                     </button>
                   </div>
                 )}
@@ -169,7 +172,7 @@ export function LabelsPage() {
           </div>
         ))}
         {labels.length === 0 && !showCreate && (
-          <p className="text-sm text-gray-500 py-8 text-center">No labels yet. Create your first one!</p>
+          <p className="text-sm text-gray-500 py-8 text-center">{t('labels.empty')}</p>
         )}
       </div>
     </div>

@@ -112,7 +112,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S8 | `reports` | ✅ | ReportsPage localized (new `reports` ns); burndown + velocity section titles/empty-states + recharts legend series labels via `name` |
 | S9 | `notifications` | ✅ | NotificationBell (aria) + NotificationsPage localized (new `notifications` ns); scanner-blind `typeLabel` switch → keyed `t()`; hand-rolled `formatTime` → `formatRelativeTime` (relative-time rollout) |
 | S10 | `projects` | ✅ | ProjectCreatePage localized (new `projects` ns); placeholders routed through `t()`; ProjectListPage already string-free (not allowlisted) |
-| S11 | `project-settings` | ⬜ | MembersPage, LabelsPage, VersionsPage, CustomFieldsPage, ProjectAuditPage, OrganizationSettingsPage, SettingsLayout (Rest) |
+| S11 | `project-settings` | ✅ | All 7 files localized (new `project-settings` ns); scanner-blind ROLE_LABELS/FIELD_TYPES/audit column headers/settings-nav labels localized at render site; members org banner via `<Trans>`; audit timestamp via `formatDateTime`; CustomFields `t`-shadow (`ft`) handled |
 | S12 | `workflow` | ⬜ | WorkflowEditorPage, WorkflowCanvas, StatusNode, TransitionArrow, TransitionGuardPanel |
 | S13 | `automation` | ⬜ | AutomationPage, AutomationRuleEditorPage, AdminAutomationPage, RuleEditor, ActionList, ActionRow, ConditionGroupBuilder, ConditionRow, TriggerSelector |
 | S14 | `admin` | ⬜ | AdminUsersPage, AuditLogPage, SsoSettingsPage |
