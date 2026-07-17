@@ -24,7 +24,6 @@
   "src/pages/admin/SsoSettingsPage.tsx",
   "src/pages/automation/AutomationPage.tsx",
   "src/pages/automation/AutomationRuleEditorPage.tsx",
-  "src/pages/dashboard/DashboardPage.tsx",
   "src/pages/notifications/NotificationsPage.tsx",
   "src/pages/orgs/OrgSettingsPage.tsx",
   "src/pages/orgs/OrgsPage.tsx",
