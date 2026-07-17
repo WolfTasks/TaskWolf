@@ -1,0 +1,107 @@
+{
+  "form": {
+    "name": "Name",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "nameRequired": "Name is required",
+    "maxChars": "Max 50 characters"
+  },
+  "layout": {
+    "title": "Settings",
+    "profile": "Profile",
+    "security": "Security",
+    "notifications": "Notifications",
+    "tokens": "Access Tokens",
+    "account": "Account"
+  },
+  "members": {
+    "title": "Members",
+    "noPermission": "You don’t have permission to manage members for this project.",
+    "orgBanner": "This project belongs to <b>{{org}}</b>. Its owners and admins are admins here; its members are viewers. Those people have access without appearing in the list below.",
+    "orgFallback": "an organization",
+    "add": "Add member",
+    "searchPlaceholder": "Search by name or email…",
+    "addButton": "Add",
+    "remove": "Remove",
+    "owner": "Owner",
+    "you": "You",
+    "removeConfirm": "Remove {{name}} from this project?",
+    "alreadyMember": "This user is already a member.",
+    "addFailed": "Could not add member.",
+    "role": {
+      "VIEWER": "Read-only",
+      "MEMBER": "Read & Write",
+      "ADMIN": "Admin"
+    }
+  },
+  "labels": {
+    "title": "Labels",
+    "new": "New Label",
+    "namePlaceholder": "Label name",
+    "color": "Color",
+    "preview": "Preview",
+    "previewName": "Preview",
+    "duplicate": "A label with that name already exists.",
+    "deleteConfirm": "Delete this label? It will be removed from all issues.",
+    "empty": "No labels yet. Create your first one!"
+  },
+  "versions": {
+    "title": "Versions",
+    "new": "New Version",
+    "namePlaceholder": "e.g. v1.0.0",
+    "duplicate": "A version with that name already exists.",
+    "deleteConfirm": "Delete this version? It will be removed from all issues.",
+    "empty": "No versions yet. Create your first one!"
+  },
+  "fields": {
+    "title": "Custom Fields",
+    "new": "New Field",
+    "namePlaceholder": "Field name",
+    "requiredLabel": "Required",
+    "requiredBadge": "required",
+    "duplicate": "A field with that name already exists.",
+    "deleteConfirm": "Delete this field? All values will be lost.",
+    "empty": "No custom fields yet.",
+    "showOptions": "Options",
+    "hideOptions": "Hide options",
+    "optionPlaceholder": "New option label",
+    "add": "Add",
+    "type": {
+      "TEXT": "Text",
+      "NUMBER": "Number",
+      "DATE": "Date",
+      "DROPDOWN": "Dropdown",
+      "CHECKBOX": "Checkbox"
+    }
+  },
+  "audit": {
+    "title": "Audit Log",
+    "filterPlaceholder": "Filter action…",
+    "empty": "No audit events",
+    "col": {
+      "time": "Time",
+      "user": "User",
+      "action": "Action",
+      "level": "Level",
+      "resource": "Resource"
+    },
+    "level": {
+      "SECURITY": "Security",
+      "WRITE": "Write",
+      "ALL": "All"
+    }
+  },
+  "org": {
+    "title": "Organization",
+    "noPermission": "You don't have permission to manage this project's organization.",
+    "current": "Current organization",
+    "notAssigned": "Not assigned",
+    "assignLabel": "Assign to organization",
+    "selectPlaceholder": "Select an organization…",
+    "assign": "Assign",
+    "removeFromOrg": "Remove from organization",
+    "forbidden": "You must be an owner or admin of the target organization to assign this project to it.",
+    "updateFailed": "Could not update the organization."
+  }
+}

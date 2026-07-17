@@ -1,0 +1,107 @@
+{
+  "form": {
+    "name": "Name",
+    "create": "Erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "nameRequired": "Name ist erforderlich",
+    "maxChars": "Maximal 50 Zeichen"
+  },
+  "layout": {
+    "title": "Einstellungen",
+    "profile": "Profil",
+    "security": "Sicherheit",
+    "notifications": "Benachrichtigungen",
+    "tokens": "Zugriffstokens",
+    "account": "Konto"
+  },
+  "members": {
+    "title": "Mitglieder",
+    "noPermission": "Du hast keine Berechtigung, die Mitglieder dieses Projekts zu verwalten.",
+    "orgBanner": "Dieses Projekt gehört zu <b>{{org}}</b>. Deren Eigentümer und Admins sind hier Admins; deren Mitglieder sind Betrachter. Diese Personen haben Zugriff, ohne in der Liste unten aufzutauchen.",
+    "orgFallback": "einer Organisation",
+    "add": "Mitglied hinzufügen",
+    "searchPlaceholder": "Nach Name oder E-Mail suchen…",
+    "addButton": "Hinzufügen",
+    "remove": "Entfernen",
+    "owner": "Eigentümer",
+    "you": "Du",
+    "removeConfirm": "{{name}} aus diesem Projekt entfernen?",
+    "alreadyMember": "Dieser Benutzer ist bereits Mitglied.",
+    "addFailed": "Mitglied konnte nicht hinzugefügt werden.",
+    "role": {
+      "VIEWER": "Nur Lesen",
+      "MEMBER": "Lesen & Schreiben",
+      "ADMIN": "Admin"
+    }
+  },
+  "labels": {
+    "title": "Labels",
+    "new": "Neues Label",
+    "namePlaceholder": "Label-Name",
+    "color": "Farbe",
+    "preview": "Vorschau",
+    "previewName": "Vorschau",
+    "duplicate": "Ein Label mit diesem Namen existiert bereits.",
+    "deleteConfirm": "Dieses Label löschen? Es wird von allen Vorgängen entfernt.",
+    "empty": "Noch keine Labels. Erstelle dein erstes!"
+  },
+  "versions": {
+    "title": "Versionen",
+    "new": "Neue Version",
+    "namePlaceholder": "z. B. v1.0.0",
+    "duplicate": "Eine Version mit diesem Namen existiert bereits.",
+    "deleteConfirm": "Diese Version löschen? Sie wird von allen Vorgängen entfernt.",
+    "empty": "Noch keine Versionen. Erstelle deine erste!"
+  },
+  "fields": {
+    "title": "Benutzerdefinierte Felder",
+    "new": "Neues Feld",
+    "namePlaceholder": "Feldname",
+    "requiredLabel": "Pflichtfeld",
+    "requiredBadge": "Pflicht",
+    "duplicate": "Ein Feld mit diesem Namen existiert bereits.",
+    "deleteConfirm": "Dieses Feld löschen? Alle Werte gehen verloren.",
+    "empty": "Noch keine benutzerdefinierten Felder.",
+    "showOptions": "Optionen",
+    "hideOptions": "Optionen ausblenden",
+    "optionPlaceholder": "Neue Options-Bezeichnung",
+    "add": "Hinzufügen",
+    "type": {
+      "TEXT": "Text",
+      "NUMBER": "Zahl",
+      "DATE": "Datum",
+      "DROPDOWN": "Auswahlliste",
+      "CHECKBOX": "Kontrollkästchen"
+    }
+  },
+  "audit": {
+    "title": "Audit-Protokoll",
+    "filterPlaceholder": "Aktion filtern…",
+    "empty": "Keine Audit-Ereignisse",
+    "col": {
+      "time": "Zeit",
+      "user": "Benutzer",
+      "action": "Aktion",
+      "level": "Stufe",
+      "resource": "Ressource"
+    },
+    "level": {
+      "SECURITY": "Sicherheit",
+      "WRITE": "Schreiben",
+      "ALL": "Alle"
+    }
+  },
+  "org": {
+    "title": "Organisation",
+    "noPermission": "Du hast keine Berechtigung, die Organisation dieses Projekts zu verwalten.",
+    "current": "Aktuelle Organisation",
+    "notAssigned": "Nicht zugewiesen",
+    "assignLabel": "Einer Organisation zuweisen",
+    "selectPlaceholder": "Organisation auswählen…",
+    "assign": "Zuweisen",
+    "removeFromOrg": "Aus Organisation entfernen",
+    "forbidden": "Du musst Eigentümer oder Admin der Zielorganisation sein, um dieses Projekt zuzuweisen.",
+    "updateFailed": "Organisation konnte nicht aktualisiert werden."
+  }
+}
