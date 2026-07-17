@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useVersions, useCreateVersion, useUpdateVersion, useDeleteVersion } from '@/hooks/useVersions'
 import { useProjectRole } from '@/hooks/useProjectRole'
 import type { Version } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 function VersionForm({
   initial,
@@ -13,25 +14,26 @@ function VersionForm({
   onSubmit: (name: string) => void
   onCancel: () => void
 }) {
+  const { t } = useTranslation('project-settings')
   const [name, setName] = useState(initial?.name ?? '')
   const [error, setError] = useState('')
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) { setError('Name is required'); return }
-    if (name.trim().length > 50) { setError('Max 50 characters'); return }
+    if (!name.trim()) { setError(t('form.nameRequired')); return }
+    if (name.trim().length > 50) { setError(t('form.maxChars')); return }
     onSubmit(name.trim())
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 bg-gray-800 rounded-lg border border-gray-700">
       <div>
-        <label className="block text-xs text-gray-400 mb-1">Name</label>
+        <label className="block text-xs text-gray-400 mb-1">{t('form.name')}</label>
         <input
           value={name}
           onChange={e => { setName(e.target.value); setError('') }}
           maxLength={50}
-          placeholder="e.g. v1.0.0"
+          placeholder={t('versions.namePlaceholder')}
           autoFocus
           className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500"
         />
@@ -39,10 +41,10 @@ function VersionForm({
       </div>
       <div className="flex gap-2">
         <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium">
-          {initial ? 'Save' : 'Create'}
+          {initial ? t('common:save') : t('form.create')}
         </button>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-white px-3 py-1.5 text-sm">
-          Cancel
+          {t('common:cancel')}
         </button>
       </div>
     </form>
@@ -50,6 +52,7 @@ function VersionForm({
 }
 
 export function VersionsPage() {
+  const { t } = useTranslation('project-settings')
   const { key } = useParams<{ key: string }>()
   const { canWrite } = useProjectRole(key!)
   const { data: versions = [], isLoading } = useVersions(key!)
@@ -67,7 +70,7 @@ export function VersionsPage() {
       setShowCreate(false)
       setApiError('')
     } catch {
-      setApiError('A version with that name already exists.')
+      setApiError(t('versions.duplicate'))
     }
   }
 
@@ -78,27 +81,27 @@ export function VersionsPage() {
       setEditing(null)
       setApiError('')
     } catch {
-      setApiError('A version with that name already exists.')
+      setApiError(t('versions.duplicate'))
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this version? It will be removed from all issues.')) return
+    if (!confirm(t('versions.deleteConfirm'))) return
     await deleteVersion.mutateAsync(id)
   }
 
-  if (isLoading) return <div className="text-gray-400 p-6">Loading…</div>
+  if (isLoading) return <div className="text-gray-400 p-6">{t('common:loading')}</div>
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Versions</h1>
+        <h1 className="text-2xl font-semibold">{t('versions.title')}</h1>
         {canWrite && !showCreate && (
           <button
             onClick={() => setShowCreate(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium"
           >
-            + New Version
+            + {t('versions.new')}
           </button>
         )}
       </div>
@@ -127,13 +130,13 @@ export function VersionsPage() {
                       onClick={() => setEditing(version)}
                       className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700"
                     >
-                      Edit
+                      {t('form.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(version.id)}
                       className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700"
                     >
-                      Delete
+                      {t('form.delete')}
                     </button>
                   </div>
                 )}
@@ -142,7 +145,7 @@ export function VersionsPage() {
           </div>
         ))}
         {versions.length === 0 && !showCreate && (
-          <p className="text-sm text-gray-500 py-8 text-center">No versions yet. Create your first one!</p>
+          <p className="text-sm text-gray-500 py-8 text-center">{t('versions.empty')}</p>
         )}
       </div>
     </div>
