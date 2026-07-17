@@ -1,7 +1,6 @@
 [
   "src/components/OrgSwitcher.tsx",
   "src/components/VersionTag.tsx",
-  "src/components/automation/ActionList.tsx",
   "src/layouts/AuthLayout.tsx",
   "src/pages/admin/AdminUsersPage.tsx",
   "src/pages/admin/AuditLogPage.tsx",
