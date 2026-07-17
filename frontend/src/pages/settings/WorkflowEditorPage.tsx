@@ -2,8 +2,10 @@ import { useParams } from 'react-router-dom'
 import { useWorkflowEditor, useCreateStatus, useCreateTransition, useUpdateGuards, useDeleteTransition, useSaveLayout } from '../../hooks/useWorkflowEditor'
 import { WorkflowCanvas } from '../../components/workflow/WorkflowCanvas'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export function WorkflowEditorPage() {
+  const { t } = useTranslation('workflow')
   const { key } = useParams<{ key: string }>()
   const { data, isLoading } = useWorkflowEditor(key!)
   const createStatus = useCreateStatus(key!)
@@ -13,17 +15,17 @@ export function WorkflowEditorPage() {
   const saveLayout = useSaveLayout(key!)
   const [newStatusName, setNewStatusName] = useState('')
 
-  if (isLoading || !data) return <div className="p-6 text-zinc-400">Loading workflow...</div>
+  if (isLoading || !data) return <div className="p-6 text-zinc-400">{t('loading')}</div>
 
   return (
     <div className="p-6 max-w-5xl mx-auto flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-zinc-100">Workflow Editor</h1>
+        <h1 className="text-xl font-semibold text-zinc-100">{t('title')}</h1>
         <div className="flex gap-2">
           <input
             value={newStatusName}
             onChange={e => setNewStatusName(e.target.value)}
-            placeholder="New status name"
+            placeholder={t('newStatusPlaceholder')}
             className="bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm rounded px-3 py-1.5"
           />
           <button
@@ -31,7 +33,7 @@ export function WorkflowEditorPage() {
             disabled={!newStatusName.trim()}
             className="bg-indigo-600 text-white text-sm rounded px-3 py-1.5 hover:bg-indigo-500 disabled:opacity-40"
           >
-            + Status
+            + {t('addStatus')}
           </button>
         </div>
       </div>
@@ -42,7 +44,7 @@ export function WorkflowEditorPage() {
         onDeleteTransition={tid => deleteTransition.mutate(tid)}
       />
       <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
-        <p className="text-sm text-zinc-400 mb-3">Add Transition</p>
+        <p className="text-sm text-zinc-400 mb-3">{t('addTransition')}</p>
         <div className="flex gap-2 flex-wrap">
           {data.statuses.map(from => (
             data.statuses.filter(to => to.id !== from.id).map(to => (
