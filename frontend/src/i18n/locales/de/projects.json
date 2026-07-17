@@ -1,0 +1,15 @@
+{
+  "create": {
+    "title": "Projekt erstellen",
+    "submit": "Projekt erstellen",
+    "submitting": "Wird erstellt…",
+    "error": "Projekt konnte nicht erstellt werden",
+    "keyLabel": "Projekt-Schlüssel",
+    "keyHint": "(2–10 Großbuchstaben)",
+    "keyPlaceholder": "WOLF",
+    "nameLabel": "Name",
+    "namePlaceholder": "TaskWolf",
+    "descLabel": "Beschreibung",
+    "optional": "(optional)"
+  }
+}

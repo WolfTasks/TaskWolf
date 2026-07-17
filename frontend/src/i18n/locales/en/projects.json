@@ -1,0 +1,15 @@
+{
+  "create": {
+    "title": "Create Project",
+    "submit": "Create Project",
+    "submitting": "Creating…",
+    "error": "Failed to create project",
+    "keyLabel": "Project Key",
+    "keyHint": "(2-10 uppercase letters)",
+    "keyPlaceholder": "WOLF",
+    "nameLabel": "Name",
+    "namePlaceholder": "TaskWolf",
+    "descLabel": "Description",
+    "optional": "(optional)"
+  }
+}

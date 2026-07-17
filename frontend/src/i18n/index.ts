@@ -28,6 +28,8 @@ import enReports from './locales/en/reports.json'
 import deReports from './locales/de/reports.json'
 import enNotifications from './locales/en/notifications.json'
 import deNotifications from './locales/de/notifications.json'
+import enProjects from './locales/en/projects.json'
+import deProjects from './locales/de/projects.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'de'] as const
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]
@@ -37,14 +39,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields, comments: enComments, board: enBoard, backlog: enBacklog, sprints: enSprints, dashboard: enDashboard, reports: enReports, notifications: enNotifications },
-      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields, comments: deComments, board: deBoard, backlog: deBacklog, sprints: deSprints, dashboard: deDashboard, reports: deReports, notifications: deNotifications },
+      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields, comments: enComments, board: enBoard, backlog: enBacklog, sprints: enSprints, dashboard: enDashboard, reports: enReports, notifications: enNotifications, projects: enProjects },
+      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields, comments: deComments, board: deBoard, backlog: deBacklog, sprints: deSprints, dashboard: deDashboard, reports: deReports, notifications: deNotifications, projects: deProjects },
     },
     fallbackLng: 'en',
     supportedLngs: [...SUPPORTED_LANGUAGES],
     nonExplicitSupportedLngs: true,
     defaultNS: 'common',
-    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields', 'comments', 'board', 'backlog', 'sprints', 'dashboard', 'reports', 'notifications'],
+    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields', 'comments', 'board', 'backlog', 'sprints', 'dashboard', 'reports', 'notifications', 'projects'],
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],
