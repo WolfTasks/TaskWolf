@@ -3,7 +3,6 @@
   "src/components/VersionTag.tsx",
   "src/layouts/AuthLayout.tsx",
   "src/pages/orgs/OrgSettingsPage.tsx",
-  "src/pages/orgs/OrgsPage.tsx",
   "src/pages/settings/AccessTokensPage.tsx",
   "src/pages/settings/ApiKeysPage.tsx",
   "src/pages/settings/IntegrationsPage.tsx",
