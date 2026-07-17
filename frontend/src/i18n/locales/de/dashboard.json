@@ -1,0 +1,73 @@
+{
+  "projects": {
+    "title": "Projekte",
+    "new": "Neues Projekt"
+  },
+  "title": "Dashboard",
+  "loading": "Dashboard wird geladen…",
+  "empty": {
+    "text": "Noch keine Widgets.",
+    "cta": "Erstes Widget hinzufügen"
+  },
+  "actions": {
+    "edit": "Bearbeiten",
+    "addWidget": "Widget hinzufügen"
+  },
+  "error": {
+    "adminRequired": "Admin-Rolle erforderlich, um das Dashboard zu ändern.",
+    "widgetFailed": "Widget konnte nicht geladen werden"
+  },
+  "widget": {
+    "unknown": "Unbekannter Widget-Typ: {{type}}",
+    "removeAria": "{{title}} entfernen",
+    "title": {
+      "BURNDOWN": "Burndown",
+      "VELOCITY": "Velocity",
+      "CYCLE_TIME": "Durchlaufzeit",
+      "ISSUE_COUNT": "Offene Vorgänge",
+      "ISSUES_BY_STATUS": "Vorgänge nach Status",
+      "ISSUE_LIST": "Vorgangsliste"
+    },
+    "burndown": {
+      "empty": "Keine Burndown-Daten.",
+      "ideal": "Ideal",
+      "actual": "Ist"
+    },
+    "velocity": {
+      "empty": "Noch keine abgeschlossenen Sprints.",
+      "planned": "Geplant",
+      "completed": "Abgeschlossen"
+    },
+    "cycleTime": {
+      "empty": "Noch keine Durchlaufzeit-Daten.",
+      "axisHours": "Stunden",
+      "tooltipLabel": "Ø Durchlaufzeit"
+    },
+    "issueList": {
+      "empty": "Keine Vorgänge."
+    }
+  },
+  "palette": {
+    "title": "Widget hinzufügen",
+    "options": {
+      "BURNDOWN": "Burndown-Diagramm",
+      "VELOCITY": "Velocity-Diagramm",
+      "CYCLE_TIME": "Durchlaufzeit-Diagramm",
+      "ISSUE_COUNT": "Anzahl offener Vorgänge",
+      "ISSUES_BY_STATUS": "Vorgänge nach Status",
+      "ISSUE_LIST": "Vorgangsliste"
+    },
+    "filters": {
+      "MY_OPEN": "Meine offenen Vorgänge",
+      "RECENTLY_UPDATED": "Kürzlich aktualisiert",
+      "OVERDUE": "Überfällig"
+    }
+  },
+  "byStatus": {
+    "TODO": "Zu erledigen",
+    "IN_PROGRESS": "In Arbeit",
+    "DONE": "Erledigt",
+    "OTHER": "Sonstige",
+    "showing": "Zeige erste {{loaded}} von {{total}}"
+  }
+}

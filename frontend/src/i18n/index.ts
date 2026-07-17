@@ -22,6 +22,8 @@ import enBacklog from './locales/en/backlog.json'
 import deBacklog from './locales/de/backlog.json'
 import enSprints from './locales/en/sprints.json'
 import deSprints from './locales/de/sprints.json'
+import enDashboard from './locales/en/dashboard.json'
+import deDashboard from './locales/de/dashboard.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'de'] as const
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]
@@ -31,14 +33,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields, comments: enComments, board: enBoard, backlog: enBacklog, sprints: enSprints },
-      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields, comments: deComments, board: deBoard, backlog: deBacklog, sprints: deSprints },
+      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields, comments: enComments, board: enBoard, backlog: enBacklog, sprints: enSprints, dashboard: enDashboard },
+      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields, comments: deComments, board: deBoard, backlog: deBacklog, sprints: deSprints, dashboard: deDashboard },
     },
     fallbackLng: 'en',
     supportedLngs: [...SUPPORTED_LANGUAGES],
     nonExplicitSupportedLngs: true,
     defaultNS: 'common',
-    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields', 'comments', 'board', 'backlog', 'sprints'],
+    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields', 'comments', 'board', 'backlog', 'sprints', 'dashboard'],
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],
