@@ -108,7 +108,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S4 | `board` | ✅ | BoardPage localized (new `board` ns); DraggableCard priority label localized via `issues-fields:priority.*` (S2-deferred carry-over); BoardColumn already string-free |
 | S5 | `backlog` | ✅ | BacklogPage localized (new `backlog` ns, i18next plural keys for issue counts; IssueRow helper string-free) |
 | S6 | `sprints` | ✅ | SprintsPage/SprintCard/SprintHeader/CreateSprintForm/CompleteSprintDialog localized (new `sprints` ns; DE/EN cleanup, i18next plurals for days/issues, `<Trans>` for the bold-count warning, `format.ts` date range) |
-| S7 | `dashboard` | ⬜ | DashboardPage, ProjectDashboardPage, DashboardCanvas, WidgetPalette, WidgetWrapper, Burndown/IssueCount/IssueList/IssuesByStatus/Velocity/CycleTime-Widget |
+| S7 | `dashboard` | ✅ | DashboardPage + ProjectDashboardPage + WidgetWrapper/WidgetPalette + all six widgets localized (new `dashboard` ns); scanner-blind WIDGET_TITLES/WIDGET_OPTIONS/FILTER_LABELS/CATEGORY_LABEL localized at render site; recharts legend/axis/tooltip labels via `name`/`label`; DashboardCanvas already string-free |
 | S8 | `reports` | ⬜ | ReportsPage |
 | S9 | `notifications` | ⬜ | NotificationBell, NotificationsPage |
 | S10 | `projects` | ⬜ | ProjectListPage, ProjectCreatePage |
