@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { organizationsApi, CreateOrganizationRequest, Organization } from '@/api/organizations'
 import { useMe } from '@/hooks/useAuth'
+import { useTranslation } from 'react-i18next'
 
 const emptyForm: CreateOrganizationRequest = { name: '', slug: '' }
 
 function OrgList({ orgs, empty }: { orgs: Organization[]; empty: string }) {
+  const { t } = useTranslation('orgs')
   if (orgs.length === 0) return <p className="text-gray-500 text-sm">{empty}</p>
   return (
     <>
@@ -16,7 +18,7 @@ function OrgList({ orgs, empty }: { orgs: Organization[]; empty: string }) {
             <div className="font-medium text-sm">{org.name}</div>
             <div className="text-xs text-gray-400">{org.slug}</div>
           </div>
-          <Link to={`/orgs/${org.id}/settings`} className="text-blue-400 hover:text-blue-300 text-sm">Settings</Link>
+          <Link to={`/orgs/${org.id}/settings`} className="text-blue-400 hover:text-blue-300 text-sm">{t('list.settings')}</Link>
         </div>
       ))}
     </>
@@ -24,6 +26,7 @@ function OrgList({ orgs, empty }: { orgs: Organization[]; empty: string }) {
 }
 
 export function OrgsPage() {
+  const { t } = useTranslation('orgs')
   const queryClient = useQueryClient()
   const [form, setForm] = useState<CreateOrganizationRequest>(emptyForm)
   const [formError, setFormError] = useState('')
@@ -47,49 +50,49 @@ export function OrgsPage() {
       queryClient.invalidateQueries({ queryKey: ['organizations'] })
       setForm(emptyForm); setFormError('')
     },
-    onError: () => setFormError('Failed to create organization.'),
+    onError: () => setFormError(t('create.error')),
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setFormError('')
-    if (!form.name || !form.slug) { setFormError('Name and slug are required.'); return }
+    if (!form.name || !form.slug) { setFormError(t('create.required')); return }
     createMutation.mutate(form)
   }
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-8">
-      <h1 className="text-2xl font-semibold">Organizations</h1>
+      <h1 className="text-2xl font-semibold">{t('title')}</h1>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-medium">My Organizations</h2>
-        {mineLoading && <p className="text-gray-400 text-sm">Loading…</p>}
-        {!mineLoading && <OrgList orgs={myOrgs} empty="You are not a member of any organization yet." />}
+        <h2 className="text-lg font-medium">{t('myOrgs')}</h2>
+        {mineLoading && <p className="text-gray-400 text-sm">{t('common:loading')}</p>}
+        {!mineLoading && <OrgList orgs={myOrgs} empty={t('emptyMine')} />}
       </section>
 
       {isAdmin && (
         <>
           <section className="space-y-4">
-            <h2 className="text-lg font-medium">Create Organization</h2>
+            <h2 className="text-lg font-medium">{t('create.title')}</h2>
             <form onSubmit={handleSubmit} className="space-y-3">
               {formError && <p className="text-red-400 text-sm">{formError}</p>}
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-400">Name</label>
+                <label className="text-sm text-gray-400">{t('create.nameLabel')}</label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g. Acme Corp"
+                  placeholder={t('create.namePlaceholder')}
                   className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-400">Slug</label>
+                <label className="text-sm text-gray-400">{t('create.slugLabel')}</label>
                 <input
                   type="text"
                   value={form.slug}
                   onChange={e => setForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))}
-                  placeholder="e.g. acme-corp"
+                  placeholder={t('create.slugPlaceholder')}
                   className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
                 />
               </div>
@@ -98,15 +101,15 @@ export function OrgsPage() {
                 disabled={createMutation.isPending}
                 className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded px-4 py-2 text-sm font-medium"
               >
-                {createMutation.isPending ? 'Creating…' : 'Create Organization'}
+                {createMutation.isPending ? t('create.submitting') : t('create.title')}
               </button>
             </form>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-medium">All Organizations</h2>
-            {allLoading && <p className="text-gray-400 text-sm">Loading…</p>}
-            {!allLoading && <OrgList orgs={allOrgs} empty="No organizations yet." />}
+            <h2 className="text-lg font-medium">{t('allOrgs')}</h2>
+            {allLoading && <p className="text-gray-400 text-sm">{t('common:loading')}</p>}
+            {!allLoading && <OrgList orgs={allOrgs} empty={t('emptyAll')} />}
           </section>
         </>
       )}

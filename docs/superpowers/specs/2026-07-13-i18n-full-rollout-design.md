@@ -117,7 +117,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S13 | `automation` | ✅ | All automation files localized (new `automation` ns; de = former hard-coded German, en = translation); scanner-blind TRIGGERS/TYPES/ACTION_TYPES/OPERATORS labels + placeholders localized at render site; ActionRow localized (not allowlisted); three `t`-shadow renames (tr/ct/at) |
 | S14 | `admin` | ✅ | All 3 files localized (new `admin` ns); DataTable column headers + `empty` + level badge + `alert()`/`confirm()` localized; audit timestamp via `formatDateTime`; AuditLogPage columns moved into component |
 | S15 | `servicedesk` | ✅ | Both files localized (new `servicedesk` ns); scanner-blind SLA status localized (`'N/A'`→`'NA'` sentinel); resolved timestamp via `formatDateTime`; `t`-shadow (ticket) handled; P1–P4 severity + status left as data |
-| S16 | `orgs` | ⬜ | OrgsPage, OrgSettingsPage, OrgSwitcher |
+| S16 | `orgs` | ✅ | All 3 files localized (new `orgs` ns); scanner-blind ROLE_LABELS localized at render site; `memberActionErrorMessage` takes `t`; `settingsTitle`/`removeConfirm` interpolation; timeout-var `t`-shadow renamed to `handle` |
 | S17 | `settings` (Rest) | ⬜ | AccessTokensPage, ApiKeysPage, IntegrationsPage, WebhooksPage (erweitert bestehenden `settings`-NS) |
 | S18 | `shared`/Cleanup | ⬜ | DataTable, Table-Komponenten, NavItem, SidebarSection, VersionTag/StatusBadge falls geteilt, Rest-`common`; **finaler Scanner-auf-Null-Sweep** (Allowlist muss danach leer sein) |
 
