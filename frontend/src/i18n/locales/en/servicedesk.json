@@ -1,0 +1,23 @@
+{
+  "desk": {
+    "title": "Service Desk",
+    "empty": "No tickets found."
+  },
+  "sla": {
+    "NA": "N/A",
+    "OK": "OK",
+    "WARNING": "Warning",
+    "BREACHED": "Breached"
+  },
+  "incidents": {
+    "title": "Incidents",
+    "empty": "No incidents found.",
+    "issueLabel": "Issue",
+    "resolvedLabel": "Resolved",
+    "postmortemLabel": "Postmortem",
+    "postmortemPlaceholder": "Postmortem notes (optional)...",
+    "resolve": "Resolve",
+    "resolving": "Resolving…",
+    "confirmResolve": "Confirm Resolve"
+  }
+}
