@@ -1,14 +1,16 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSprints } from '@/hooks/useSprints'
+import { useTranslation } from 'react-i18next'
 import { SprintCard } from '@/components/sprint/SprintCard'
 import type { Sprint } from '@/types'
 
 export function SprintsPage() {
+  const { t } = useTranslation('sprints')
   const { key } = useParams<{ key: string }>()
   const navigate = useNavigate()
   const { data: sprints, isLoading } = useSprints(key!)
 
-  if (isLoading) return <div className="text-gray-400">Loading...</div>
+  if (isLoading) return <div className="text-gray-400">{t('common:loading')}</div>
 
   const all = sprints ?? []
   const active = all.filter(s => s.status === 'ACTIVE')
@@ -36,10 +38,10 @@ export function SprintsPage() {
 
   return (
     <div className="max-w-4xl">
-      <h1 className="text-2xl font-bold mb-6">Sprints</h1>
-      {renderSection('Laufend', active, 'board', 'Kein laufender Sprint.')}
-      {renderSection('Geplant', planned, 'backlog', 'Keine geplanten Sprints.')}
-      {renderSection('Abgeschlossen', closed, 'reports', 'Noch keine abgeschlossenen Sprints.')}
+      <h1 className="text-2xl font-bold mb-6">{t('title')}</h1>
+      {renderSection(t('section.active'), active, 'board', t('empty.active'))}
+      {renderSection(t('section.planned'), planned, 'backlog', t('empty.planned'))}
+      {renderSection(t('section.closed'), closed, 'reports', t('empty.closed'))}
     </div>
   )
 }

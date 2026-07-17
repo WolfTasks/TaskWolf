@@ -47,6 +47,5 @@
   "src/pages/settings/ApiKeysPage.tsx",
   "src/pages/settings/IntegrationsPage.tsx",
   "src/pages/settings/WebhooksPage.tsx",
-  "src/pages/settings/WorkflowEditorPage.tsx",
-  "src/pages/sprints/SprintsPage.tsx"
+  "src/pages/settings/WorkflowEditorPage.tsx"
 ]
