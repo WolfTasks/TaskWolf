@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { serviceDeskApi } from '@/api/servicedesk'
+import { useTranslation } from 'react-i18next'
 
 const SLA_COLOR = (status: string) =>
   status === 'BREACHED'
@@ -13,7 +14,7 @@ function computeSlaStatus(
   slaStartTime: string | null | undefined,
   slaPolicy: { resolutionMinutes: number } | null | undefined
 ): string {
-  if (!slaStartTime || !slaPolicy) return 'N/A'
+  if (!slaStartTime || !slaPolicy) return 'NA'
   const start = new Date(slaStartTime).getTime()
   const now = Date.now()
   const elapsedMinutes = (now - start) / 60_000
@@ -24,6 +25,7 @@ function computeSlaStatus(
 }
 
 export default function ServiceDeskPage() {
+  const { t } = useTranslation('servicedesk')
   const { key } = useParams<{ key: string }>()
   const projectKey = key!
 
@@ -37,33 +39,33 @@ export default function ServiceDeskPage() {
     queryFn: () => serviceDeskApi.listSlaPolicies(projectKey),
   })
 
-  if (ticketsLoading) return <div className="p-6 text-gray-400">Loading...</div>
+  if (ticketsLoading) return <div className="p-6 text-gray-400">{t('common:loading')}</div>
 
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Service Desk</h1>
+      <h1 className="text-2xl font-semibold">{t('desk.title')}</h1>
 
       {tickets.length === 0 ? (
-        <p className="text-gray-500 text-sm">No tickets found.</p>
+        <p className="text-gray-500 text-sm">{t('desk.empty')}</p>
       ) : (
         <div className="space-y-2">
-          {tickets.map((t: any) => {
+          {tickets.map((ticket: any) => {
             const matchedPolicy = slaPolicies.find(
-              (p: any) => p.priority === t.priority
+              (p: any) => p.priority === ticket.priority
             ) ?? null
-            const slaStatus = computeSlaStatus(t.slaStartTime, matchedPolicy)
+            const slaStatus = computeSlaStatus(ticket.slaStartTime, matchedPolicy)
             return (
               <div
-                key={t.id}
+                key={ticket.id}
                 className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-lg p-3"
               >
-                <span className="font-mono text-sm text-gray-400">{t.key}</span>
-                <span className="flex-1 text-sm">{t.title}</span>
-                <span className="text-xs text-gray-500">{t.status}</span>
+                <span className="font-mono text-sm text-gray-400">{ticket.key}</span>
+                <span className="flex-1 text-sm">{ticket.title}</span>
+                <span className="text-xs text-gray-500">{ticket.status}</span>
                 <span
                   className={`text-xs px-2 py-0.5 rounded font-medium ${SLA_COLOR(slaStatus)}`}
                 >
-                  {slaStatus}
+                  {t(`sla.${slaStatus}`)}
                 </span>
               </div>
             )

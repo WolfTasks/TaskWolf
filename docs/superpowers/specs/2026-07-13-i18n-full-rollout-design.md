@@ -116,7 +116,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S12 | `workflow` | ✅ | WorkflowEditorPage + TransitionGuardPanel localized (new `workflow` ns); scanner-blind guard type/field/role labels localized at render site; WorkflowCanvas/StatusNode/TransitionArrow already string-free |
 | S13 | `automation` | ✅ | All automation files localized (new `automation` ns; de = former hard-coded German, en = translation); scanner-blind TRIGGERS/TYPES/ACTION_TYPES/OPERATORS labels + placeholders localized at render site; ActionRow localized (not allowlisted); three `t`-shadow renames (tr/ct/at) |
 | S14 | `admin` | ✅ | All 3 files localized (new `admin` ns); DataTable column headers + `empty` + level badge + `alert()`/`confirm()` localized; audit timestamp via `formatDateTime`; AuditLogPage columns moved into component |
-| S15 | `servicedesk` | ⬜ | ServiceDeskPage, IncidentDashboardPage |
+| S15 | `servicedesk` | ✅ | Both files localized (new `servicedesk` ns); scanner-blind SLA status localized (`'N/A'`→`'NA'` sentinel); resolved timestamp via `formatDateTime`; `t`-shadow (ticket) handled; P1–P4 severity + status left as data |
 | S16 | `orgs` | ⬜ | OrgsPage, OrgSettingsPage, OrgSwitcher |
 | S17 | `settings` (Rest) | ⬜ | AccessTokensPage, ApiKeysPage, IntegrationsPage, WebhooksPage (erweitert bestehenden `settings`-NS) |
 | S18 | `shared`/Cleanup | ⬜ | DataTable, Table-Komponenten, NavItem, SidebarSection, VersionTag/StatusBadge falls geteilt, Rest-`common`; **finaler Scanner-auf-Null-Sweep** (Allowlist muss danach leer sein) |
