@@ -1,0 +1,52 @@
+{
+  "title": "Organizations",
+  "myOrgs": "My Organizations",
+  "allOrgs": "All Organizations",
+  "emptyMine": "You are not a member of any organization yet.",
+  "emptyAll": "No organizations yet.",
+  "notFound": "Organization not found.",
+  "settingsTitle": "{{name}} — Settings",
+  "slugLabel": "Slug",
+  "membersTitle": "Members",
+  "noMembers": "No members found.",
+  "list": {
+    "settings": "Settings"
+  },
+  "create": {
+    "title": "Create Organization",
+    "submitting": "Creating…",
+    "error": "Failed to create organization.",
+    "required": "Name and slug are required.",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Acme Corp",
+    "slugLabel": "Slug",
+    "slugPlaceholder": "e.g. acme-corp"
+  },
+  "role": {
+    "MEMBER": "Member",
+    "ADMIN": "Admin",
+    "OWNER": "Owner"
+  },
+  "member": {
+    "add": "Add member",
+    "searchPlaceholder": "Search by name or email…",
+    "addButton": "Add",
+    "remove": "Remove",
+    "owner": "Owner",
+    "you": "You",
+    "removeConfirm": "Remove {{name}} from {{org}}?",
+    "alreadyMember": "This user is already a member.",
+    "addFailed": "Could not add member."
+  },
+  "err": {
+    "forbidden": "You don’t have permission to make that change.",
+    "lastOwner": "That change isn’t allowed — an organization must keep at least one owner.",
+    "updateFailed": "Could not update the member."
+  },
+  "switch": {
+    "label": "Switch Org",
+    "title": "Switch Org",
+    "switching": "Switching…",
+    "error": "Failed to switch organization"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Organisationen",
+  "myOrgs": "Meine Organisationen",
+  "allOrgs": "Alle Organisationen",
+  "emptyMine": "Du bist noch in keiner Organisation Mitglied.",
+  "emptyAll": "Noch keine Organisationen.",
+  "notFound": "Organisation nicht gefunden.",
+  "settingsTitle": "{{name}} — Einstellungen",
+  "slugLabel": "Slug",
+  "membersTitle": "Mitglieder",
+  "noMembers": "Keine Mitglieder gefunden.",
+  "list": {
+    "settings": "Einstellungen"
+  },
+  "create": {
+    "title": "Organisation erstellen",
+    "submitting": "Wird erstellt…",
+    "error": "Organisation konnte nicht erstellt werden.",
+    "required": "Name und Slug sind erforderlich.",
+    "nameLabel": "Name",
+    "namePlaceholder": "z. B. Acme Corp",
+    "slugLabel": "Slug",
+    "slugPlaceholder": "z. B. acme-corp"
+  },
+  "role": {
+    "MEMBER": "Mitglied",
+    "ADMIN": "Admin",
+    "OWNER": "Eigentümer"
+  },
+  "member": {
+    "add": "Mitglied hinzufügen",
+    "searchPlaceholder": "Nach Name oder E-Mail suchen…",
+    "addButton": "Hinzufügen",
+    "remove": "Entfernen",
+    "owner": "Eigentümer",
+    "you": "Du",
+    "removeConfirm": "{{name}} aus {{org}} entfernen?",
+    "alreadyMember": "Dieser Benutzer ist bereits Mitglied.",
+    "addFailed": "Mitglied konnte nicht hinzugefügt werden."
+  },
+  "err": {
+    "forbidden": "Du hast keine Berechtigung für diese Änderung.",
+    "lastOwner": "Diese Änderung ist nicht erlaubt — eine Organisation muss mindestens einen Eigentümer behalten.",
+    "updateFailed": "Mitglied konnte nicht aktualisiert werden."
+  },
+  "switch": {
+    "label": "Org wechseln",
+    "title": "Org wechseln",
+    "switching": "Wird gewechselt…",
+    "error": "Organisation konnte nicht gewechselt werden"
+  }
+}
