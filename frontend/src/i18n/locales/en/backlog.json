@@ -1,0 +1,12 @@
+{
+  "title": "Backlog",
+  "newSprint": "New Sprint",
+  "startSprint": "Start Sprint",
+  "addToSprint": "Add to sprint",
+  "emptySprint": "No issues in sprint yet",
+  "emptyBacklog": "No issues in backlog",
+  "sprintMeta_one": "{{count}} issue · {{points}} pts",
+  "sprintMeta_other": "{{count}} issues · {{points}} pts",
+  "issueCount_one": "{{count}} issue",
+  "issueCount_other": "{{count}} issues"
+}
