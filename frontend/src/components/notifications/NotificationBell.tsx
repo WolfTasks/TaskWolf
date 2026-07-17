@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { useUnreadCount } from '@/hooks/useNotifications'
+import { useTranslation } from 'react-i18next'
 
 export function NotificationBell() {
+  const { t } = useTranslation('notifications')
   const navigate = useNavigate()
   const count = useUnreadCount().data ?? 0
 
@@ -9,7 +11,7 @@ export function NotificationBell() {
     <button
       onClick={() => navigate('/notifications')}
       className="relative p-1.5 text-gray-400 hover:text-white rounded"
-      aria-label="Notifications"
+      aria-label={t('bell.aria')}
     >
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round"
