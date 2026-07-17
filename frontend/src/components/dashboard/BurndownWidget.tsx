@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useSprints } from '@/hooks/useSprints'
 import { useBurndown } from '@/hooks/useReports'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 interface Props { projectKey: string; config: string | null }
 
 export function BurndownWidget({ projectKey, config }: Props) {
+  const { t } = useTranslation('dashboard')
   const { data: sprints } = useSprints(projectKey)
   let parsed: { sprintId?: string } = {}
   try {
@@ -39,7 +41,7 @@ export function BurndownWidget({ projectKey, config }: Props) {
         </select>
       )}
       {chartData.length === 0
-        ? <p className="text-gray-500 text-xs">No burndown data.</p>
+        ? <p className="text-gray-500 text-xs">{t('widget.burndown.empty')}</p>
         : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
@@ -48,8 +50,8 @@ export function BurndownWidget({ projectKey, config }: Props) {
               <YAxis stroke="#6b7280" tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px' }} />
               <Legend />
-              <Line type="monotone" dataKey="Ideal" stroke="#6b7280" strokeDasharray="5 5" dot={false} />
-              <Line type="monotone" dataKey="Actual" stroke="#3b82f6" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Ideal" name={t('widget.burndown.ideal')} stroke="#6b7280" strokeDasharray="5 5" dot={false} />
+              <Line type="monotone" dataKey="Actual" name={t('widget.burndown.actual')} stroke="#3b82f6" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         )}

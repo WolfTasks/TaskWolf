@@ -1,13 +1,8 @@
 import { useIssues } from '@/hooks/useIssues'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   projectKey: string
-}
-
-const CATEGORY_LABEL: Record<string, string> = {
-  TODO: 'To Do',
-  IN_PROGRESS: 'In Progress',
-  DONE: 'Done',
 }
 
 const CATEGORY_COLOR: Record<string, string> = {
@@ -17,6 +12,7 @@ const CATEGORY_COLOR: Record<string, string> = {
 }
 
 export function IssuesByStatusWidget({ projectKey }: Props) {
+  const { t } = useTranslation('dashboard')
   const { data } = useIssues(projectKey)
   const issues = data?.content ?? []
 
@@ -36,18 +32,18 @@ export function IssuesByStatusWidget({ projectKey }: Props) {
         {(['TODO', 'IN_PROGRESS', 'DONE'] as const).map(cat => (
           <div key={cat} className="flex flex-col items-center gap-1">
             <span className={`text-3xl font-bold ${CATEGORY_COLOR[cat]}`}>{counts[cat] ?? 0}</span>
-            <span className="text-xs text-gray-500">{CATEGORY_LABEL[cat]}</span>
+            <span className="text-xs text-gray-500">{t(`byStatus.${cat}`)}</span>
           </div>
         ))}
         {(counts['OTHER'] ?? 0) > 0 && (
           <div className="flex flex-col items-center gap-1">
             <span className="text-3xl font-bold text-gray-600">{counts['OTHER']}</span>
-            <span className="text-xs text-gray-500">Other</span>
+            <span className="text-xs text-gray-500">{t('byStatus.OTHER')}</span>
           </div>
         )}
       </div>
       {truncated && (
-        <p className="text-xs text-gray-600 text-center mt-2">Showing first {loaded} of {total}</p>
+        <p className="text-xs text-gray-600 text-center mt-2">{t('byStatus.showing', { loaded, total })}</p>
       )}
     </div>
   )

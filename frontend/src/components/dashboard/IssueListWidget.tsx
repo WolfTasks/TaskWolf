@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/api/client'
 import { Link } from 'react-router-dom'
 import type { Issue, Page } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   projectKey: string
@@ -9,12 +10,6 @@ interface Props {
 }
 
 type FilterMode = 'MY_OPEN' | 'RECENTLY_UPDATED' | 'OVERDUE'
-
-const FILTER_LABELS: Record<FilterMode, string> = {
-  MY_OPEN: 'My Open Issues',
-  RECENTLY_UPDATED: 'Recently Updated',
-  OVERDUE: 'Overdue',
-}
 
 function buildParams(filter: FilterMode): Record<string, string | boolean | number> {
   switch (filter) {
@@ -28,6 +23,7 @@ function buildParams(filter: FilterMode): Record<string, string | boolean | numb
 }
 
 export function IssueListWidget({ projectKey, config }: Props) {
+  const { t } = useTranslation('dashboard')
   let parsed: { filter?: FilterMode } = {}
   try {
     parsed = config ? JSON.parse(config) : {}
@@ -48,9 +44,9 @@ export function IssueListWidget({ projectKey, config }: Props) {
 
   return (
     <div className="flex flex-col gap-1 overflow-y-auto h-full">
-      <p className="text-xs font-semibold text-gray-400 mb-1">{FILTER_LABELS[filter]}</p>
-      {isLoading && <p className="text-gray-500 text-xs">Loading...</p>}
-      {!isLoading && issues.length === 0 && <p className="text-gray-500 text-xs">No issues.</p>}
+      <p className="text-xs font-semibold text-gray-400 mb-1">{t(`palette.filters.${filter}`)}</p>
+      {isLoading && <p className="text-gray-500 text-xs">{t('common:loading')}</p>}
+      {!isLoading && issues.length === 0 && <p className="text-gray-500 text-xs">{t('widget.issueList.empty')}</p>}
       {issues.map(issue => (
         <Link
           key={issue.id}
