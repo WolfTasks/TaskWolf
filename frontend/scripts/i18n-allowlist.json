@@ -6,7 +6,6 @@
   "src/components/automation/ConditionRow.tsx",
   "src/components/automation/RuleEditor.tsx",
   "src/components/automation/TriggerSelector.tsx",
-  "src/components/workflow/TransitionGuardPanel.tsx",
   "src/layouts/AuthLayout.tsx",
   "src/pages/admin/AdminAutomationPage.tsx",
   "src/pages/admin/AdminUsersPage.tsx",
@@ -21,6 +20,5 @@
   "src/pages/settings/AccessTokensPage.tsx",
   "src/pages/settings/ApiKeysPage.tsx",
   "src/pages/settings/IntegrationsPage.tsx",
-  "src/pages/settings/WebhooksPage.tsx",
-  "src/pages/settings/WorkflowEditorPage.tsx"
+  "src/pages/settings/WebhooksPage.tsx"
 ]

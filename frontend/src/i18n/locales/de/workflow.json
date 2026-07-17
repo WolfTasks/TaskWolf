@@ -1,0 +1,29 @@
+{
+  "loading": "Workflow wird geladen…",
+  "title": "Workflow-Editor",
+  "newStatusPlaceholder": "Neuer Statusname",
+  "addStatus": "Status",
+  "addTransition": "Übergang hinzufügen",
+  "guards": {
+    "title": "Übergangs-Bedingungen",
+    "save": "Bedingungen speichern",
+    "delete": "Löschen",
+    "addRequiredField": "Pflichtfeld",
+    "addRoleRestriction": "Rollen-Einschränkung",
+    "type": {
+      "REQUIRED_FIELD": "Pflichtfeld",
+      "ROLE_RESTRICTION": "Rollen-Einschränkung"
+    },
+    "field": {
+      "title": "Titel",
+      "description": "Beschreibung",
+      "assigneeId": "Bearbeiter",
+      "storyPoints": "Story Points",
+      "dueDate": "Fälligkeitsdatum"
+    },
+    "role": {
+      "ADMIN": "Admin",
+      "MEMBER": "Mitglied"
+    }
+  }
+}

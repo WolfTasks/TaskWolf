@@ -1,0 +1,29 @@
+{
+  "loading": "Loading workflow…",
+  "title": "Workflow Editor",
+  "newStatusPlaceholder": "New status name",
+  "addStatus": "Status",
+  "addTransition": "Add Transition",
+  "guards": {
+    "title": "Transition Guards",
+    "save": "Save Guards",
+    "delete": "Delete",
+    "addRequiredField": "Required Field",
+    "addRoleRestriction": "Role Restriction",
+    "type": {
+      "REQUIRED_FIELD": "Required Field",
+      "ROLE_RESTRICTION": "Role Restriction"
+    },
+    "field": {
+      "title": "Title",
+      "description": "Description",
+      "assigneeId": "Assignee",
+      "storyPoints": "Story Points",
+      "dueDate": "Due Date"
+    },
+    "role": {
+      "ADMIN": "Admin",
+      "MEMBER": "Member"
+    }
+  }
+}
