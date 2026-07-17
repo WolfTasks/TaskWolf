@@ -1,17 +1,19 @@
 import { Link } from 'react-router-dom'
 import { useProjects } from '@/hooks/useProjects'
+import { useTranslation } from 'react-i18next'
 
 export function DashboardPage() {
   const { data: projects, isLoading } = useProjects()
-  if (isLoading) return <div className="text-gray-400">Loading...</div>
+  const { t } = useTranslation('dashboard')
+  if (isLoading) return <div className="text-gray-400">{t('common:loading')}</div>
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Projects</h1>
+        <h1 className="text-2xl font-bold">{t('projects.title')}</h1>
         <Link to="/projects/new"
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
-          New Project
+          {t('projects.new')}
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

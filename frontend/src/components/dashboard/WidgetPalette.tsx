@@ -1,19 +1,16 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const WIDGET_OPTIONS = [
-  { type: 'BURNDOWN',         label: 'Burndown Chart',    defaultW: 6, defaultH: 5 },
-  { type: 'VELOCITY',         label: 'Velocity Chart',    defaultW: 6, defaultH: 5 },
-  { type: 'CYCLE_TIME',       label: 'Cycle Time Chart',  defaultW: 6, defaultH: 5 },
-  { type: 'ISSUE_COUNT',      label: 'Open Issue Count',  defaultW: 3, defaultH: 3 },
-  { type: 'ISSUES_BY_STATUS', label: 'Issues by Status',  defaultW: 6, defaultH: 3 },
-  { type: 'ISSUE_LIST',       label: 'Issue List',        defaultW: 4, defaultH: 6 },
+  { type: 'BURNDOWN',         defaultW: 6, defaultH: 5 },
+  { type: 'VELOCITY',         defaultW: 6, defaultH: 5 },
+  { type: 'CYCLE_TIME',       defaultW: 6, defaultH: 5 },
+  { type: 'ISSUE_COUNT',      defaultW: 3, defaultH: 3 },
+  { type: 'ISSUES_BY_STATUS', defaultW: 6, defaultH: 3 },
+  { type: 'ISSUE_LIST',       defaultW: 4, defaultH: 6 },
 ]
 
-const ISSUE_LIST_FILTERS = [
-  { value: 'MY_OPEN',           label: 'My Open Issues' },
-  { value: 'RECENTLY_UPDATED',  label: 'Recently Updated' },
-  { value: 'OVERDUE',           label: 'Overdue' },
-]
+const ISSUE_LIST_FILTERS = ['MY_OPEN', 'RECENTLY_UPDATED', 'OVERDUE']
 
 interface Props {
   onAdd: (type: string, config: string | undefined, w: number, h: number) => void
@@ -21,6 +18,7 @@ interface Props {
 }
 
 export function WidgetPalette({ onAdd, onClose }: Props) {
+  const { t } = useTranslation('dashboard')
   const [issueFilter, setIssueFilter] = useState('MY_OPEN')
 
   return (
@@ -30,8 +28,8 @@ export function WidgetPalette({ onAdd, onClose }: Props) {
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Add Widget</h2>
-          <button onClick={onClose} aria-label="Close" className="text-gray-500 hover:text-white">✕</button>
+          <h2 className="text-lg font-semibold">{t('palette.title')}</h2>
+          <button onClick={onClose} aria-label={t('common:close')} className="text-gray-500 hover:text-white">✕</button>
         </div>
         <div className="flex flex-col gap-2">
           {WIDGET_OPTIONS.map(opt => (
@@ -43,7 +41,7 @@ export function WidgetPalette({ onAdd, onClose }: Props) {
                   className="bg-gray-800 border border-gray-700 text-xs text-white rounded px-2 py-1"
                 >
                   {ISSUE_LIST_FILTERS.map(f => (
-                    <option key={f.value} value={f.value}>{f.label}</option>
+                    <option key={f} value={f}>{t(`palette.filters.${f}`)}</option>
                   ))}
                 </select>
               )}
@@ -57,7 +55,7 @@ export function WidgetPalette({ onAdd, onClose }: Props) {
                 }}
                 className="w-full text-left px-4 py-2 rounded bg-gray-800 hover:bg-gray-700 text-sm text-white"
               >
-                {opt.label}
+                {t(`palette.options.${opt.type}`)}
               </button>
             </div>
           ))}

@@ -1,0 +1,73 @@
+{
+  "projects": {
+    "title": "Projects",
+    "new": "New Project"
+  },
+  "title": "Dashboard",
+  "loading": "Loading dashboard…",
+  "empty": {
+    "text": "No widgets yet.",
+    "cta": "Add your first widget"
+  },
+  "actions": {
+    "edit": "Edit",
+    "addWidget": "Add Widget"
+  },
+  "error": {
+    "adminRequired": "Admin role required to modify the dashboard.",
+    "widgetFailed": "Failed to load widget"
+  },
+  "widget": {
+    "unknown": "Unknown widget type: {{type}}",
+    "removeAria": "Remove {{title}}",
+    "title": {
+      "BURNDOWN": "Burndown",
+      "VELOCITY": "Velocity",
+      "CYCLE_TIME": "Cycle Time",
+      "ISSUE_COUNT": "Open Issues",
+      "ISSUES_BY_STATUS": "Issues by Status",
+      "ISSUE_LIST": "Issue List"
+    },
+    "burndown": {
+      "empty": "No burndown data.",
+      "ideal": "Ideal",
+      "actual": "Actual"
+    },
+    "velocity": {
+      "empty": "No completed sprints yet.",
+      "planned": "Planned",
+      "completed": "Completed"
+    },
+    "cycleTime": {
+      "empty": "No cycle time data yet.",
+      "axisHours": "Hours",
+      "tooltipLabel": "Avg Cycle Time"
+    },
+    "issueList": {
+      "empty": "No issues."
+    }
+  },
+  "palette": {
+    "title": "Add Widget",
+    "options": {
+      "BURNDOWN": "Burndown Chart",
+      "VELOCITY": "Velocity Chart",
+      "CYCLE_TIME": "Cycle Time Chart",
+      "ISSUE_COUNT": "Open Issue Count",
+      "ISSUES_BY_STATUS": "Issues by Status",
+      "ISSUE_LIST": "Issue List"
+    },
+    "filters": {
+      "MY_OPEN": "My Open Issues",
+      "RECENTLY_UPDATED": "Recently Updated",
+      "OVERDUE": "Overdue"
+    }
+  },
+  "byStatus": {
+    "TODO": "To Do",
+    "IN_PROGRESS": "In Progress",
+    "DONE": "Done",
+    "OTHER": "Other",
+    "showing": "Showing first {{loaded}} of {{total}}"
+  }
+}

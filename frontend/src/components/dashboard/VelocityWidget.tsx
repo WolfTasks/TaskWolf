@@ -1,9 +1,11 @@
 import { useVelocity } from '@/hooks/useReports'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 interface Props { projectKey: string }
 
 export function VelocityWidget({ projectKey }: Props) {
+  const { t } = useTranslation('dashboard')
   const { data: velocity } = useVelocity(projectKey)
 
   const chartData = velocity?.entries.map(e => ({
@@ -12,7 +14,7 @@ export function VelocityWidget({ projectKey }: Props) {
     Completed: e.completedPoints,
   })) ?? []
 
-  if (chartData.length === 0) return <p className="text-gray-500 text-xs">No completed sprints yet.</p>
+  if (chartData.length === 0) return <p className="text-gray-500 text-xs">{t('widget.velocity.empty')}</p>
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -22,8 +24,8 @@ export function VelocityWidget({ projectKey }: Props) {
         <YAxis stroke="#6b7280" tick={{ fontSize: 10 }} />
         <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px' }} />
         <Legend />
-        <Bar dataKey="Planned" fill="#374151" radius={[3, 3, 0, 0]} />
-        <Bar dataKey="Completed" fill="#3b82f6" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="Planned" name={t('widget.velocity.planned')} fill="#374151" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="Completed" name={t('widget.velocity.completed')} fill="#3b82f6" radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )
