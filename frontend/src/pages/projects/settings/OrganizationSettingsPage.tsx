@@ -4,8 +4,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useProject } from '@/hooks/useProjects'
 import { organizationsApi } from '@/api/organizations'
 import { projectsApi } from '@/api/projects'
+import { useTranslation } from 'react-i18next'
 
 export function OrganizationSettingsPage() {
+  const { t } = useTranslation('project-settings')
   const { key } = useParams<{ key: string }>()
   const qc = useQueryClient()
   const { data: project, isLoading } = useProject(key!)
@@ -32,39 +34,37 @@ export function OrganizationSettingsPage() {
     },
     onError: (e: unknown) => {
       const status = (e as { response?: { status?: number } }).response?.status
-      setError(status === 403
-        ? 'You must be an owner or admin of the target organization to assign this project to it.'
-        : 'Could not update the organization.')
+      setError(status === 403 ? t('org.forbidden') : t('org.updateFailed'))
     },
   })
 
-  if (isLoading || !project) return <div className="p-6 text-gray-400">Loading…</div>
+  if (isLoading || !project) return <div className="p-6 text-gray-400">{t('common:loading')}</div>
   if (project.myRole !== 'ADMIN') {
-    return <div className="p-6 text-gray-400">You don't have permission to manage this project's organization.</div>
+    return <div className="p-6 text-gray-400">{t('org.noPermission')}</div>
   }
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
-      <h1 className="text-2xl font-semibold">Organization</h1>
+      <h1 className="text-2xl font-semibold">{t('org.title')}</h1>
 
       <div className="p-4 bg-gray-900 border border-gray-800 rounded-lg space-y-1">
-        <div className="text-xs text-gray-400">Current organization</div>
+        <div className="text-xs text-gray-400">{t('org.current')}</div>
         <div className="text-sm text-white">
-          {project.orgId ? (currentOrg?.name ?? '…') : 'Not assigned'}
+          {project.orgId ? (currentOrg?.name ?? '…') : t('org.notAssigned')}
         </div>
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       <div className="flex flex-col gap-3 p-4 bg-gray-800 rounded-lg border border-gray-700">
-        <label className="block text-xs text-gray-400">Assign to organization</label>
+        <label className="block text-xs text-gray-400">{t('org.assignLabel')}</label>
         <div className="flex items-center gap-2">
           <select
             value={selected}
             onChange={e => { setSelected(e.target.value); setError('') }}
             className="bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-white flex-1"
           >
-            <option value="">Select an organization…</option>
+            <option value="">{t('org.selectPlaceholder')}</option>
             {myOrgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
           </select>
           <button
@@ -73,7 +73,7 @@ export function OrganizationSettingsPage() {
             disabled={!selected || setOrg.isPending}
             className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-1.5 rounded text-sm font-medium"
           >
-            Assign
+            {t('org.assign')}
           </button>
         </div>
         {project.orgId && (
@@ -83,7 +83,7 @@ export function OrganizationSettingsPage() {
             disabled={setOrg.isPending}
             className="self-start text-xs text-red-400 hover:text-red-300 disabled:opacity-50"
           >
-            Remove from organization
+            {t('org.removeFromOrg')}
           </button>
         )}
       </div>
