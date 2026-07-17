@@ -18,7 +18,6 @@
   "src/pages/orgs/OrgsPage.tsx",
   "src/pages/projects/servicedesk/IncidentDashboardPage.tsx",
   "src/pages/projects/servicedesk/ServiceDeskPage.tsx",
-  "src/pages/projects/settings/CustomFieldsPage.tsx",
   "src/pages/projects/settings/OrganizationSettingsPage.tsx",
   "src/pages/projects/settings/ProjectAuditPage.tsx",
   "src/pages/settings/AccessTokensPage.tsx",

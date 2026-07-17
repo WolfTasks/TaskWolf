@@ -11,6 +11,7 @@ import {
 } from '@/hooks/useCustomFields'
 import { useProjectRole } from '@/hooks/useProjectRole'
 import type { CustomFieldDefinition } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 const FIELD_TYPES = ['TEXT', 'NUMBER', 'DATE', 'DROPDOWN', 'CHECKBOX'] as const
 
@@ -25,6 +26,7 @@ function SortableField({
   onEdit: () => void
   onDelete: () => void
 }) {
+  const { t } = useTranslation('project-settings')
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id })
   const style = { transform: CSS.Transform.toString(transform), transition }
 
@@ -35,12 +37,12 @@ function SortableField({
         <span {...attributes} {...listeners} className="cursor-grab text-gray-500 select-none">⠿</span>
       )}
       <span className="text-sm text-white font-medium flex-1">{field.name}</span>
-      <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{field.type}</span>
-      {field.required && <span className="text-xs text-red-400">required</span>}
+      <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{t(`fields.type.${field.type}`)}</span>
+      {field.required && <span className="text-xs text-red-400">{t('fields.requiredBadge')}</span>}
       {canWrite && (
         <>
-          <button onClick={onEdit} className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700">Edit</button>
-          <button onClick={onDelete} className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700">Delete</button>
+          <button onClick={onEdit} className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-gray-700">{t('form.edit')}</button>
+          <button onClick={onDelete} className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-gray-700">{t('form.delete')}</button>
         </>
       )}
     </div>
@@ -48,6 +50,7 @@ function SortableField({
 }
 
 export function CustomFieldsPage() {
+  const { t } = useTranslation('project-settings')
   const { key } = useParams<{ key: string }>()
   const { canWrite } = useProjectRole(key!)
   const { data: fields = [], isLoading } = useCustomFields(key!)
@@ -76,7 +79,7 @@ export function CustomFieldsPage() {
       setNewRequired(false)
       setApiError('')
     } catch {
-      setApiError('A field with that name already exists.')
+      setApiError(t('fields.duplicate'))
     }
   }
 
@@ -88,12 +91,12 @@ export function CustomFieldsPage() {
       setEditingField(null)
       setApiError('')
     } catch {
-      setApiError('A field with that name already exists.')
+      setApiError(t('fields.duplicate'))
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this field? All values will be lost.')) return
+    if (!confirm(t('fields.deleteConfirm'))) return
     await deleteField.mutateAsync(id)
   }
 
@@ -113,16 +116,16 @@ export function CustomFieldsPage() {
     setApiError('')
   }
 
-  if (isLoading) return <div className="text-gray-400 p-6">Loading…</div>
+  if (isLoading) return <div className="text-gray-400 p-6">{t('common:loading')}</div>
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Custom Fields</h1>
+        <h1 className="text-2xl font-semibold">{t('fields.title')}</h1>
         {canWrite && !showCreate && !editingField && (
           <button onClick={() => { setShowCreate(true); setApiError('') }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
-            + New Field
+            + {t('fields.new')}
           </button>
         )}
       </div>
@@ -132,20 +135,20 @@ export function CustomFieldsPage() {
       {showCreate && (
         <form onSubmit={handleCreate} className="flex flex-col gap-3 p-4 bg-gray-800 rounded-lg border border-gray-700">
           <div className="flex gap-2">
-            <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Field name" autoFocus
+            <input value={newName} onChange={e => setNewName(e.target.value)} placeholder={t('fields.namePlaceholder')} autoFocus
               className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500" />
             <select value={newType} onChange={e => setNewType(e.target.value)}
               className="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none">
-              {FIELD_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              {FIELD_TYPES.map(ft => <option key={ft} value={ft}>{t(`fields.type.${ft}`)}</option>)}
             </select>
           </div>
           <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
             <input type="checkbox" checked={newRequired} onChange={e => setNewRequired(e.target.checked)} />
-            Required
+            {t('fields.requiredLabel')}
           </label>
           <div className="flex gap-2">
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium">Create</button>
-            <button type="button" onClick={() => { setShowCreate(false); setApiError('') }} className="text-gray-400 hover:text-white px-3 py-1.5 text-sm">Cancel</button>
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium">{t('form.create')}</button>
+            <button type="button" onClick={() => { setShowCreate(false); setApiError('') }} className="text-gray-400 hover:text-white px-3 py-1.5 text-sm">{t('common:cancel')}</button>
           </div>
         </form>
       )}
@@ -161,11 +164,11 @@ export function CustomFieldsPage() {
                       className="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500" />
                     <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                       <input type="checkbox" checked={newRequired} onChange={e => setNewRequired(e.target.checked)} />
-                      Required
+                      {t('fields.requiredLabel')}
                     </label>
                     <div className="flex gap-2">
-                      <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium">Save</button>
-                      <button type="button" onClick={() => { setEditingField(null); setApiError('') }} className="text-gray-400 hover:text-white px-3 py-1.5 text-sm">Cancel</button>
+                      <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium">{t('common:save')}</button>
+                      <button type="button" onClick={() => { setEditingField(null); setApiError('') }} className="text-gray-400 hover:text-white px-3 py-1.5 text-sm">{t('common:cancel')}</button>
                     </div>
                   </form>
                 ) : (
@@ -187,7 +190,7 @@ export function CustomFieldsPage() {
               </div>
             ))}
             {fields.length === 0 && !showCreate && (
-              <p className="text-sm text-gray-500 py-8 text-center">No custom fields yet.</p>
+              <p className="text-sm text-gray-500 py-8 text-center">{t('fields.empty')}</p>
             )}
           </div>
         </SortableContext>
@@ -207,6 +210,7 @@ function DropdownOptionsPanel({
   newOptionLabel: string
   onNewOptionLabelChange: (label: string) => void
 }) {
+  const { t } = useTranslation('project-settings')
   const createOption = useCreateOption(projectKey, field.id)
   const deleteOption = useDeleteOption(projectKey, field.id)
 
@@ -220,7 +224,7 @@ function DropdownOptionsPanel({
   return (
     <div className="ml-6 border-l border-gray-700 pl-3">
       <button onClick={onToggle} className="text-xs text-gray-400 hover:text-white py-1">
-        {expanded ? '▾ Hide options' : '▸ Options'} ({field.options?.length ?? 0})
+        {expanded ? '▾' : '▸'} {t(expanded ? 'fields.hideOptions' : 'fields.showOptions')} ({field.options?.length ?? 0})
       </button>
       {expanded && (
         <div className="flex flex-col gap-1 mt-1">
@@ -235,8 +239,8 @@ function DropdownOptionsPanel({
           {canWrite && (
             <form onSubmit={handleAddOption} className="flex gap-2 mt-1">
               <input value={newOptionLabel} onChange={e => onNewOptionLabelChange(e.target.value)}
-                placeholder="New option label" className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-white outline-none focus:border-blue-500" />
-              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">Add</button>
+                placeholder={t('fields.optionPlaceholder')} className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-white outline-none focus:border-blue-500" />
+              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">{t('fields.add')}</button>
             </form>
           )}
         </div>
