@@ -1,4 +1,5 @@
 import type { BoardSprintSummary } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   sprint: BoardSprintSummary
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function SprintHeader({ sprint, onComplete, canWrite }: Props) {
+  const { t } = useTranslation('sprints')
   const pct = sprint.totalPoints && sprint.totalPoints > 0
     ? Math.round((sprint.completedPoints / sprint.totalPoints) * 100)
     : 0
@@ -23,16 +25,16 @@ export function SprintHeader({ sprint, onComplete, canWrite }: Props) {
             onClick={onComplete}
             className="text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded border border-gray-700"
           >
-            Complete Sprint
+            {t('completeSprint')}
           </button>
         )}
       </div>
       <div className="flex items-center gap-4 text-sm text-gray-500">
         {sprint.daysRemaining != null && (
-          <span>{sprint.daysRemaining} day{sprint.daysRemaining !== 1 ? 's' : ''} remaining</span>
+          <span>{t('daysRemaining', { count: sprint.daysRemaining })}</span>
         )}
         {sprint.totalPoints != null && (
-          <span>{sprint.completedPoints} / {sprint.totalPoints} pts</span>
+          <span>{t('pointsProgress', { completed: sprint.completedPoints, planned: sprint.totalPoints })}</span>
         )}
       </div>
       {sprint.totalPoints != null && sprint.totalPoints > 0 && (

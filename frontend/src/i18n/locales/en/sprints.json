@@ -1,0 +1,29 @@
+{
+  "title": "Sprints",
+  "section": {
+    "active": "Active",
+    "planned": "Planned",
+    "closed": "Closed"
+  },
+  "empty": {
+    "active": "No active sprint.",
+    "planned": "No planned sprints.",
+    "closed": "No closed sprints yet."
+  },
+  "pointsProgress": "{{completed}} / {{planned}} pts",
+  "completeSprint": "Complete Sprint",
+  "daysRemaining_one": "{{count}} day remaining",
+  "daysRemaining_other": "{{count}} days remaining",
+  "form": {
+    "name": "Sprint Name",
+    "goal": "Goal (optional)",
+    "create": "Create"
+  },
+  "complete": {
+    "title": "Complete \"{{name}}\"?",
+    "warning_one": "<0>{{count}} issue</0> is not done and will be moved back to the backlog.",
+    "warning_other": "<0>{{count}} issues</0> are not done and will be moved back to the backlog.",
+    "allDone": "All issues are done. Great sprint!",
+    "completing": "Completing…"
+  }
+}

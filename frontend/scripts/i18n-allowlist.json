@@ -15,10 +15,6 @@
   "src/components/dashboard/WidgetPalette.tsx",
   "src/components/dashboard/WidgetWrapper.tsx",
   "src/components/notifications/NotificationBell.tsx",
-  "src/components/sprint/CompleteSprintDialog.tsx",
-  "src/components/sprint/CreateSprintForm.tsx",
-  "src/components/sprint/SprintCard.tsx",
-  "src/components/sprint/SprintHeader.tsx",
   "src/components/workflow/TransitionGuardPanel.tsx",
   "src/layouts/AuthLayout.tsx",
   "src/layouts/SettingsLayout.tsx",
@@ -47,6 +43,5 @@
   "src/pages/settings/ApiKeysPage.tsx",
   "src/pages/settings/IntegrationsPage.tsx",
   "src/pages/settings/WebhooksPage.tsx",
-  "src/pages/settings/WorkflowEditorPage.tsx",
-  "src/pages/sprints/SprintsPage.tsx"
+  "src/pages/settings/WorkflowEditorPage.tsx"
 ]

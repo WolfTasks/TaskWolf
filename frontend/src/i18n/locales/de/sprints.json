@@ -1,0 +1,29 @@
+{
+  "title": "Sprints",
+  "section": {
+    "active": "Laufend",
+    "planned": "Geplant",
+    "closed": "Abgeschlossen"
+  },
+  "empty": {
+    "active": "Kein laufender Sprint.",
+    "planned": "Keine geplanten Sprints.",
+    "closed": "Noch keine abgeschlossenen Sprints."
+  },
+  "pointsProgress": "{{completed}} / {{planned}} Pkt.",
+  "completeSprint": "Sprint abschließen",
+  "daysRemaining_one": "Noch {{count}} Tag",
+  "daysRemaining_other": "Noch {{count}} Tage",
+  "form": {
+    "name": "Sprint-Name",
+    "goal": "Ziel (optional)",
+    "create": "Erstellen"
+  },
+  "complete": {
+    "title": "„{{name}}“ abschließen?",
+    "warning_one": "<0>{{count}} Vorgang</0> ist nicht erledigt und wird zurück ins Backlog verschoben.",
+    "warning_other": "<0>{{count}} Vorgänge</0> sind nicht erledigt und werden zurück ins Backlog verschoben.",
+    "allDone": "Alle Vorgänge sind erledigt. Super Sprint!",
+    "completing": "Wird abgeschlossen…"
+  }
+}

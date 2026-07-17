@@ -1,5 +1,7 @@
 import type { Sprint } from '@/types'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
+import { formatDate } from '@/i18n/format'
 
 interface Props {
   sprint: Sprint
@@ -8,9 +10,8 @@ interface Props {
 
 function formatRange(start: string | null, end: string | null): string | null {
   if (!start && !end) return null
-  const fmt = (iso: string) => new Date(iso).toLocaleDateString()
-  if (start && end) return `${fmt(start)} – ${fmt(end)}`
-  return fmt((start ?? end)!)
+  if (start && end) return `${formatDate(start)} – ${formatDate(end)}`
+  return formatDate((start ?? end)!)
 }
 
 const statusStyle: Record<Sprint['status'], string> = {
@@ -20,6 +21,7 @@ const statusStyle: Record<Sprint['status'], string> = {
 }
 
 export function SprintCard({ sprint, onClick }: Props) {
+  const { t } = useTranslation('sprints')
   const range = formatRange(sprint.startDate, sprint.endDate)
   const planned = sprint.plannedPoints ?? 0
   const completed = sprint.completedPoints ?? 0
@@ -39,7 +41,7 @@ export function SprintCard({ sprint, onClick }: Props) {
           {sprint.goal && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{sprint.goal}</p>}
         </div>
         <span className="text-xs text-gray-500 whitespace-nowrap shrink-0">
-          {completed} / {planned} pts
+          {t('pointsProgress', { completed, planned })}
         </span>
       </div>
       {range && <p className="text-xs text-gray-500 mt-2">{range}</p>}
