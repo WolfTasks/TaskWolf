@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { serviceDeskApi } from '@/api/servicedesk'
+import { useTranslation } from 'react-i18next'
+import { formatDateTime } from '@/i18n/format'
 
 const SEVERITY_COLOR: Record<string, string> = {
   P1: 'bg-red-600 text-white',
@@ -11,6 +13,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 }
 
 export default function IncidentDashboardPage() {
+  const { t } = useTranslation('servicedesk')
   const { key } = useParams<{ key: string }>()
   const projectKey = key!
   const queryClient = useQueryClient()
@@ -33,14 +36,14 @@ export default function IncidentDashboardPage() {
     },
   })
 
-  if (isLoading) return <div className="p-6 text-gray-400">Loading...</div>
+  if (isLoading) return <div className="p-6 text-gray-400">{t('common:loading')}</div>
 
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Incidents</h1>
+      <h1 className="text-2xl font-semibold">{t('incidents.title')}</h1>
 
       {incidents.length === 0 ? (
-        <p className="text-gray-500 text-sm">No incidents found.</p>
+        <p className="text-gray-500 text-sm">{t('incidents.empty')}</p>
       ) : (
         <div className="grid grid-cols-1 gap-3">
           {incidents.map((inc: any) => (
@@ -54,15 +57,15 @@ export default function IncidentDashboardPage() {
                 {inc.severity}
               </span>
               <div className="flex-1 space-y-1">
-                <p className="font-medium text-sm">Issue: {inc.issueId}</p>
+                <p className="font-medium text-sm">{t('incidents.issueLabel')}: {inc.issueId}</p>
                 {inc.resolvedAt && (
                   <p className="text-xs text-gray-400">
-                    Resolved: {new Date(inc.resolvedAt).toLocaleString()}
+                    {t('incidents.resolvedLabel')}: {formatDateTime(inc.resolvedAt)}
                   </p>
                 )}
                 {inc.postmortemBody && (
                   <p className="text-xs text-gray-500">
-                    Postmortem: {inc.postmortemBody}
+                    {t('incidents.postmortemLabel')}: {inc.postmortemBody}
                   </p>
                 )}
                 {!inc.resolvedAt && resolving === inc.id && (
@@ -70,7 +73,7 @@ export default function IncidentDashboardPage() {
                     <textarea
                       className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-white"
                       rows={4}
-                      placeholder="Postmortem notes (optional)..."
+                      placeholder={t('incidents.postmortemPlaceholder')}
                       value={postmortem}
                       onChange={e => setPostmortem(e.target.value)}
                     />
@@ -80,13 +83,13 @@ export default function IncidentDashboardPage() {
                         disabled={resolveMutation.isPending}
                         className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded px-3 py-1.5 text-sm font-medium"
                       >
-                        {resolveMutation.isPending ? 'Resolving...' : 'Confirm Resolve'}
+                        {resolveMutation.isPending ? t('incidents.resolving') : t('incidents.confirmResolve')}
                       </button>
                       <button
                         onClick={() => { setResolving(null); setPostmortem('') }}
                         className="bg-gray-700 hover:bg-gray-600 text-white rounded px-3 py-1.5 text-sm"
                       >
-                        Cancel
+                        {t('common:cancel')}
                       </button>
                     </div>
                   </div>
@@ -97,7 +100,7 @@ export default function IncidentDashboardPage() {
                   onClick={() => setResolving(inc.id)}
                   className="shrink-0 border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white rounded px-3 py-1.5 text-sm"
                 >
-                  Resolve
+                  {t('incidents.resolve')}
                 </button>
               )}
             </div>
