@@ -1,0 +1,15 @@
+{
+  "title": "Berichte",
+  "burndown": {
+    "title": "Burndown-Diagramm",
+    "empty": "Keine Burndown-Daten verfügbar. Der Sprint braucht ein Startdatum und Story Points.",
+    "ideal": "Ideal",
+    "actual": "Ist"
+  },
+  "velocity": {
+    "title": "Velocity",
+    "empty": "Noch keine abgeschlossenen Sprints.",
+    "planned": "Geplant",
+    "completed": "Abgeschlossen"
+  }
+}

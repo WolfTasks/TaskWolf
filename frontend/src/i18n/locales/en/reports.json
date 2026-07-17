@@ -1,0 +1,15 @@
+{
+  "title": "Reports",
+  "burndown": {
+    "title": "Burndown Chart",
+    "empty": "No burndown data available. Sprint must have a start date and story points.",
+    "ideal": "Ideal",
+    "actual": "Actual"
+  },
+  "velocity": {
+    "title": "Velocity",
+    "empty": "No completed sprints yet.",
+    "planned": "Planned",
+    "completed": "Completed"
+  }
+}
