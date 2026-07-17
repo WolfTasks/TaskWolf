@@ -107,7 +107,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S3 | `comments` | ✅ | CommentsActivityTabs (scanner-blind tab labels), CommentThread, ActivityFeed localized; **`formatRelativeTime` rollout** replaced both hand-rolled `formatTime` helpers (comment/activity timestamps now relative, DE/EN via `Intl`) |
 | S4 | `board` | ✅ | BoardPage localized (new `board` ns); DraggableCard priority label localized via `issues-fields:priority.*` (S2-deferred carry-over); BoardColumn already string-free |
 | S5 | `backlog` | ✅ | BacklogPage localized (new `backlog` ns, i18next plural keys for issue counts; IssueRow helper string-free) |
-| S6 | `sprints` | ⬜ | SprintsPage, SprintCard, SprintHeader, CreateSprintForm, CompleteSprintDialog |
+| S6 | `sprints` | ✅ | SprintsPage/SprintCard/SprintHeader/CreateSprintForm/CompleteSprintDialog localized (new `sprints` ns; DE/EN cleanup, i18next plurals for days/issues, `<Trans>` for the bold-count warning, `format.ts` date range) |
 | S7 | `dashboard` | ⬜ | DashboardPage, ProjectDashboardPage, DashboardCanvas, WidgetPalette, WidgetWrapper, Burndown/IssueCount/IssueList/IssuesByStatus/Velocity/CycleTime-Widget |
 | S8 | `reports` | ⬜ | ReportsPage |
 | S9 | `notifications` | ⬜ | NotificationBell, NotificationsPage |
