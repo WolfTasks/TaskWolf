@@ -48,7 +48,7 @@ export function ProjectCreatePage() {
         </div>
         <button type="submit" disabled={createProject.isPending}
           className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded px-4 py-2 text-sm font-medium">
-          {createProject.isPending ? t('create.submitting') : t('create.title')}
+          {createProject.isPending ? t('create.submitting') : t('create.submit')}
         </button>
       </form>
     </div>

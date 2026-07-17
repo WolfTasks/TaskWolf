@@ -1,6 +1,7 @@
 {
   "create": {
     "title": "Create Project",
+    "submit": "Create Project",
     "submitting": "Creating…",
     "error": "Failed to create project",
     "keyLabel": "Project Key",
