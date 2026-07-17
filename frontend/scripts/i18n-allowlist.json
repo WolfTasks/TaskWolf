@@ -4,8 +4,6 @@
   "src/components/automation/ActionList.tsx",
   "src/components/automation/ConditionGroupBuilder.tsx",
   "src/components/automation/ConditionRow.tsx",
-  "src/components/automation/RuleEditor.tsx",
-  "src/components/automation/TriggerSelector.tsx",
   "src/layouts/AuthLayout.tsx",
   "src/pages/admin/AdminUsersPage.tsx",
   "src/pages/admin/AuditLogPage.tsx",
