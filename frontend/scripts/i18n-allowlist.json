@@ -5,7 +5,6 @@
   "src/pages/orgs/OrgSettingsPage.tsx",
   "src/pages/orgs/OrgsPage.tsx",
   "src/pages/projects/servicedesk/IncidentDashboardPage.tsx",
-  "src/pages/projects/servicedesk/ServiceDeskPage.tsx",
   "src/pages/settings/AccessTokensPage.tsx",
   "src/pages/settings/ApiKeysPage.tsx",
   "src/pages/settings/IntegrationsPage.tsx",
