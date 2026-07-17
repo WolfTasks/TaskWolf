@@ -1,0 +1,65 @@
+{
+  "title": "Automation",
+  "systemTitle": "System-wide Automation",
+  "loading": "Loading rules…",
+  "loadingSystem": "Loading system-wide rules…",
+  "newRule": "New Rule",
+  "newRuleTitle": "New Automation Rule",
+  "empty": "No automation rules yet. Click \"+ New Rule\" to get started.",
+  "active": "Active",
+  "inactive": "Inactive",
+  "trigger": {
+    "ISSUE_CREATED": "Issue created",
+    "STATUS_CHANGED": "Status changed",
+    "PRIORITY_CHANGED": "Priority changed",
+    "ASSIGNEE_CHANGED": "Assignee changed",
+    "COMMENT_ADDED": "Comment added",
+    "SPRINT_STARTED": "Sprint started",
+    "SPRINT_COMPLETED": "Sprint completed"
+  },
+  "condition": {
+    "ISSUE_TYPE": "Issue type",
+    "PRIORITY": "Priority",
+    "ASSIGNEE": "Assignee",
+    "STATUS": "Status",
+    "STORY_POINTS": "Story Points",
+    "valuePlaceholder": "Value"
+  },
+  "operator": {
+    "IS": "is",
+    "IS_NOT": "is not",
+    "CONTAINS": "contains",
+    "GT": ">",
+    "LT": "<"
+  },
+  "action": {
+    "SET_STATUS": "Set status",
+    "SET_ASSIGNEE": "Set assignee",
+    "SET_PRIORITY": "Set priority",
+    "SEND_NOTIFICATION": "Send notification",
+    "CREATE_COMMENT": "Create comment",
+    "CREATE_SUBTASK": "Create subtask"
+  },
+  "actionPlaceholder": {
+    "SET_STATUS": "Status ID",
+    "SET_ASSIGNEE": "User ID",
+    "SET_PRIORITY": "CRITICAL | HIGH | MEDIUM | LOW",
+    "SEND_NOTIFICATION": "Message",
+    "CREATE_COMMENT": "Comment text",
+    "CREATE_SUBTASK": "Subtask title"
+  },
+  "editor": {
+    "nameLabel": "Rule name",
+    "namePlaceholder": "e.g. auto-assign CRITICAL issues",
+    "when": "WHEN",
+    "triggerLabel": "Trigger",
+    "if": "IF",
+    "conditions": "Conditions",
+    "then": "THEN",
+    "actionsLabel": "Actions (in order)",
+    "addCondition": "Condition",
+    "addGroup": "Group",
+    "addAction": "Add action",
+    "save": "Save Rule"
+  }
+}

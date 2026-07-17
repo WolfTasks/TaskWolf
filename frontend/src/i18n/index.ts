@@ -34,6 +34,8 @@ import enProjectSettings from './locales/en/project-settings.json'
 import deProjectSettings from './locales/de/project-settings.json'
 import enWorkflow from './locales/en/workflow.json'
 import deWorkflow from './locales/de/workflow.json'
+import enAutomation from './locales/en/automation.json'
+import deAutomation from './locales/de/automation.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'de'] as const
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]
@@ -43,14 +45,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields, comments: enComments, board: enBoard, backlog: enBacklog, sprints: enSprints, dashboard: enDashboard, reports: enReports, notifications: enNotifications, projects: enProjects, 'project-settings': enProjectSettings, workflow: enWorkflow },
-      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields, comments: deComments, board: deBoard, backlog: deBacklog, sprints: deSprints, dashboard: deDashboard, reports: deReports, notifications: deNotifications, projects: deProjects, 'project-settings': deProjectSettings, workflow: deWorkflow },
+      en: { common: enCommon, settings: enSettings, nav: enNav, auth: enAuth, issues: enIssues, 'issues-fields': enIssuesFields, comments: enComments, board: enBoard, backlog: enBacklog, sprints: enSprints, dashboard: enDashboard, reports: enReports, notifications: enNotifications, projects: enProjects, 'project-settings': enProjectSettings, workflow: enWorkflow, automation: enAutomation },
+      de: { common: deCommon, settings: deSettings, nav: deNav, auth: deAuth, issues: deIssues, 'issues-fields': deIssuesFields, comments: deComments, board: deBoard, backlog: deBacklog, sprints: deSprints, dashboard: deDashboard, reports: deReports, notifications: deNotifications, projects: deProjects, 'project-settings': deProjectSettings, workflow: deWorkflow, automation: deAutomation },
     },
     fallbackLng: 'en',
     supportedLngs: [...SUPPORTED_LANGUAGES],
     nonExplicitSupportedLngs: true,
     defaultNS: 'common',
-    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields', 'comments', 'board', 'backlog', 'sprints', 'dashboard', 'reports', 'notifications', 'projects', 'project-settings', 'workflow'],
+    ns: ['common', 'settings', 'nav', 'auth', 'issues', 'issues-fields', 'comments', 'board', 'backlog', 'sprints', 'dashboard', 'reports', 'notifications', 'projects', 'project-settings', 'workflow', 'automation'],
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator'],
