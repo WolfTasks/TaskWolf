@@ -20,7 +20,6 @@
   "src/pages/projects/servicedesk/ServiceDeskPage.tsx",
   "src/pages/projects/settings/CustomFieldsPage.tsx",
   "src/pages/projects/settings/LabelsPage.tsx",
-  "src/pages/projects/settings/MembersPage.tsx",
   "src/pages/projects/settings/OrganizationSettingsPage.tsx",
   "src/pages/projects/settings/ProjectAuditPage.tsx",
   "src/pages/projects/settings/VersionsPage.tsx",
