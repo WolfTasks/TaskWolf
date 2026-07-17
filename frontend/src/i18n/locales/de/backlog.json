@@ -1,0 +1,12 @@
+{
+  "title": "Backlog",
+  "newSprint": "Neuer Sprint",
+  "startSprint": "Sprint starten",
+  "addToSprint": "Zu Sprint hinzufügen",
+  "emptySprint": "Noch keine Vorgänge im Sprint",
+  "emptyBacklog": "Keine Vorgänge im Backlog",
+  "sprintMeta_one": "{{count}} Vorgang · {{points}} Pkt.",
+  "sprintMeta_other": "{{count}} Vorgänge · {{points}} Pkt.",
+  "issueCount_one": "{{count}} Vorgang",
+  "issueCount_other": "{{count}} Vorgänge"
+}
