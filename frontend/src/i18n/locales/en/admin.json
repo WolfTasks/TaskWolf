@@ -1,0 +1,61 @@
+{
+  "delete": "Delete",
+  "users": {
+    "title": "Users",
+    "empty": "No users",
+    "actionFailed": "Action failed",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "deleteConfirm": "Delete {{email}}? This anonymizes the account.",
+    "col": {
+      "email": "Email",
+      "name": "Name",
+      "role": "Role",
+      "status": "Status"
+    }
+  },
+  "audit": {
+    "title": "Audit Log",
+    "empty": "No audit events",
+    "exportCsv": "Export CSV",
+    "exportJson": "Export JSON",
+    "filterPlaceholder": "Filter action…",
+    "allLevels": "All levels",
+    "col": {
+      "time": "Time",
+      "user": "User",
+      "action": "Action",
+      "level": "Level",
+      "resource": "Resource"
+    },
+    "level": {
+      "SECURITY": "Security",
+      "WRITE": "Write",
+      "ALL": "All"
+    }
+  },
+  "sso": {
+    "title": "SSO Settings",
+    "addProvider": "Add SSO Provider",
+    "addProviderButton": "Add Provider",
+    "adding": "Adding…",
+    "createFailed": "Failed to create SSO configuration.",
+    "allRequired": "All fields are required.",
+    "name": "Name",
+    "namePlaceholder": "e.g. Company Okta",
+    "issuerUrl": "Issuer URL",
+    "issuerPlaceholder": "https://accounts.example.com",
+    "clientId": "Client ID",
+    "clientIdPlaceholder": "client-id",
+    "clientSecret": "Client Secret",
+    "clientSecretPlaceholder": "client-secret",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "autoProvisionUsers": "Auto-provision users",
+    "autoProvisionBadge": "Auto-provision",
+    "configuredProviders": "Configured Providers",
+    "noProviders": "No SSO providers configured."
+  }
+}
