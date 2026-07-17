@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCreateSprint } from '@/hooks/useSprints'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   projectKey: string
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function CreateSprintForm({ projectKey, onCreated, onCancel }: Props) {
+  const { t } = useTranslation('sprints')
   const createSprint = useCreateSprint(projectKey)
   const [name, setName] = useState(`Sprint ${Date.now()}`.slice(0, 20))
   const [goal, setGoal] = useState('')
@@ -21,14 +23,14 @@ export function CreateSprintForm({ projectKey, onCreated, onCancel }: Props) {
   return (
     <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex gap-3 items-end">
       <div className="flex-1">
-        <label className="text-xs text-gray-400 block mb-1">Sprint Name</label>
+        <label className="text-xs text-gray-400 block mb-1">{t('form.name')}</label>
         <input
           value={name} onChange={e => setName(e.target.value)} required
           className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white"
         />
       </div>
       <div className="flex-1">
-        <label className="text-xs text-gray-400 block mb-1">Goal (optional)</label>
+        <label className="text-xs text-gray-400 block mb-1">{t('form.goal')}</label>
         <input
           value={goal} onChange={e => setGoal(e.target.value)}
           className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white"
@@ -36,10 +38,10 @@ export function CreateSprintForm({ projectKey, onCreated, onCancel }: Props) {
       </div>
       <button type="submit" disabled={createSprint.isPending}
         className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm px-4 py-1.5 rounded">
-        Create
+        {t('form.create')}
       </button>
       <button type="button" onClick={onCancel} className="text-gray-400 hover:text-white text-sm px-3 py-1.5">
-        Cancel
+        {t('common:cancel')}
       </button>
     </form>
   )
