@@ -1,0 +1,61 @@
+{
+  "delete": "Löschen",
+  "users": {
+    "title": "Benutzer",
+    "empty": "Keine Benutzer",
+    "actionFailed": "Aktion fehlgeschlagen",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren",
+    "deleteConfirm": "{{email}} löschen? Dies anonymisiert das Konto.",
+    "col": {
+      "email": "E-Mail",
+      "name": "Name",
+      "role": "Rolle",
+      "status": "Status"
+    }
+  },
+  "audit": {
+    "title": "Audit-Protokoll",
+    "empty": "Keine Audit-Ereignisse",
+    "exportCsv": "CSV exportieren",
+    "exportJson": "JSON exportieren",
+    "filterPlaceholder": "Aktion filtern…",
+    "allLevels": "Alle Stufen",
+    "col": {
+      "time": "Zeit",
+      "user": "Benutzer",
+      "action": "Aktion",
+      "level": "Stufe",
+      "resource": "Ressource"
+    },
+    "level": {
+      "SECURITY": "Sicherheit",
+      "WRITE": "Schreiben",
+      "ALL": "Alle"
+    }
+  },
+  "sso": {
+    "title": "SSO-Einstellungen",
+    "addProvider": "SSO-Anbieter hinzufügen",
+    "addProviderButton": "Anbieter hinzufügen",
+    "adding": "Wird hinzugefügt…",
+    "createFailed": "SSO-Konfiguration konnte nicht erstellt werden.",
+    "allRequired": "Alle Felder sind erforderlich.",
+    "name": "Name",
+    "namePlaceholder": "z. B. Company Okta",
+    "issuerUrl": "Issuer-URL",
+    "issuerPlaceholder": "https://accounts.example.com",
+    "clientId": "Client-ID",
+    "clientIdPlaceholder": "client-id",
+    "clientSecret": "Client-Secret",
+    "clientSecretPlaceholder": "client-secret",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "autoProvisionUsers": "Benutzer automatisch bereitstellen",
+    "autoProvisionBadge": "Auto-Provisioning",
+    "configuredProviders": "Konfigurierte Anbieter",
+    "noProviders": "Keine SSO-Anbieter konfiguriert."
+  }
+}
