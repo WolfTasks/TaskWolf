@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Building2 } from 'lucide-react'
 import { organizationsApi } from '@/api/organizations'
+import { useTranslation } from 'react-i18next'
 
 export function OrgSwitcher({ collapsed = false }: { collapsed?: boolean } = {}) {
+  const { t } = useTranslation('orgs')
   const [switching, setSwitching] = useState(false)
   const [open, setOpen] = useState(false)
   const [switchError, setSwitchError] = useState<string | null>(null)
@@ -23,7 +25,7 @@ export function OrgSwitcher({ collapsed = false }: { collapsed?: boolean } = {})
       window.location.reload()
     } catch (err) {
       console.error('Failed to switch organization', err)
-      setSwitchError('Failed to switch organization')
+      setSwitchError(t('switch.error'))
       setSwitching(false)
     }
   }
@@ -39,7 +41,7 @@ export function OrgSwitcher({ collapsed = false }: { collapsed?: boolean } = {})
         <button
           onClick={() => setOpen(o => !o)}
           disabled={switching}
-          title="Switch Org"
+          title={t('switch.title')}
           className="px-3 py-2 flex justify-center text-gray-300 hover:text-white hover:bg-gray-800 rounded w-full disabled:opacity-50"
         >
           <Building2 size={18} />
@@ -50,7 +52,7 @@ export function OrgSwitcher({ collapsed = false }: { collapsed?: boolean } = {})
           disabled={switching}
           className="px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded w-full text-left disabled:opacity-50"
         >
-          {switching ? 'Switching...' : 'Switch Org'}
+          {switching ? t('switch.switching') : t('switch.label')}
         </button>
       )}
       {open && (

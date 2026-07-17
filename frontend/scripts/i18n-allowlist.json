@@ -1,5 +1,4 @@
 [
-  "src/components/OrgSwitcher.tsx",
   "src/components/VersionTag.tsx",
   "src/layouts/AuthLayout.tsx",
   "src/pages/settings/AccessTokensPage.tsx",
