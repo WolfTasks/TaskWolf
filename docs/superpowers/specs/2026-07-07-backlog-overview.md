@@ -17,16 +17,35 @@
 | 10 | Sidebar-Gruppen einzeln zusammenklappbar (Admin/Project/…) | UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
 | 11 | Layout-Fix: linkes Menü darf sich nicht mit Seiteninhalt strecken | UI/Bug | ✅ **AUSGELIEFERT** (PR #48, Release v1.0.10) |
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
-| 13 | Internationalisierung — Fundament + Pilot-Slice | Full-Stack/UI | ✅ **GEMERGT** (PR #57, squash `0b9b817`; noch nicht released) |
+| 13 | Internationalisierung — Fundament + Pilot-Slice | Full-Stack/UI | ✅ **AUSGELIEFERT** (PR #57, squash `0b9b817`; Release v1.0.13) |
 | 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | ✅ **AUSGELIEFERT** (Backend PR #55, Frontend PR #56, Release v1.0.12) |
-| 15 | Internationalisierung — Full-Rollout (alle Komponenten, mehrere Sessions) | UI | ✅ **KOMPLETT / GEMERGT** (S0–S18 alle gemergt, zuletzt S17 PR #79 + S18 PR #80, main `683a891`; Allowlist `[]`, Scanner 0, en/de-Parität grün — Frontend-UI 100% lokalisiert; noch nicht released, Wolfgangs manueller DE/EN-Browser-Check S9–S18 offen) |
+| 15 | Internationalisierung — Full-Rollout (alle Komponenten, mehrere Sessions) | UI | ✅ **AUSGELIEFERT** (S0–S18 alle gemergt, zuletzt S17 PR #79 + S18 PR #80; Allowlist `[]`, Scanner 0, en/de-Parität grün — Frontend-UI 100% lokalisiert; Release v1.0.13; Wolfgangs manueller DE/EN-Browser-Check S9–S18 noch offen) |
 | 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ⬜ Backlog (bewusst separater Folge-Zyklus zu #15; Frontend-Scope endet an der Client-Präsentation) |
+| M1 | Dependency-/Base-Image-Wartung (Dependabot-Bündel) | Ops/Maintenance | ✅ **AUSGELIEFERT** (PRs #81/#62/#60/#59/#82, Release v1.0.14) |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | B1 | User können ihre eigene Rolle ändern | Bug | ✅ **AUSGELIEFERT** (PR #53, Release v1.0.11) |
 | B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | ⏸️ Zurückgestellt — bereits umgesetzt (client `useProjectRole`+server 403); nur Regressionstest offen |
 | B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
+
+## M1 — Dependency-/Base-Image-Wartung (Dependabot-Bündel)
+> ✅ **AUSGELIEFERT** (2026-07-18, Release **v1.0.14**). Reines Wartungsrelease,
+> keine funktionalen Änderungen. Bündelt fünf gemergte Dependabot-PRs:
+> - **#81** Frontend-Libs (TipTap 3.27.3, lucide-react 1.24.0, Recharts 3.9.2,
+>   Vite 8.1.4 u.a.). **TypeScript bewusst auf 6.x gehalten** — der 7.0-Native-
+>   Rewrite verschiebt die Compiler-API in `typescript/unstable/*` und bricht den
+>   i18n-Scanner + `tsc`-Typecheck; als dedizierte Migration zurückgestellt,
+>   Dependabot ignoriert den TS-Major jetzt (`.github/dependabot.yml`).
+> - **#82 / #59** nginx- & node-Base-Image-Digests (nginx bringt libexpat/c-ares/
+>   curl-CVE-Fixes).
+> - **#60** `commons-compress` 1.26.0 → 1.28.0.
+> - **#62** CI-Actions (harden-runner 2.20.0, setup-java 5.5.0, setup-node 7.0.0,
+>   codeql-action 4.37.0).
+>
+> docker-publish grün, Images `kwolfgang/taskowolf-{backend,frontend}:1.0.14`.
+> Lokales Docker-Deploy stichprobenartig verifiziert (Images = 1.0.14, Stack
+> startet sauber).
 
 ## #3 — User-Profil-Seiten mit gruppierten Einstellungen
 Eigene Profil-/Einstellungsseiten pro Nutzer, gruppiert nach Themengebieten
@@ -143,14 +162,15 @@ deferren bis Patch verfügbar. Ops/Security-Zyklus.
 </details>
 
 ## #13 — Internationalisierung (UI in mehreren Sprachen)
-> ✅ **Fundament + Pilot-Slice GEMERGT** (PR #57, squash `0b9b817`; noch nicht
-> released). Scope-Entscheid: **Fundament + Pilot-Slice** (nicht flächendeckend).
+> ✅ **Fundament + Pilot-Slice AUSGELIEFERT** (PR #57, squash `0b9b817`;
+> Release v1.0.13). Scope-Entscheid: **Fundament + Pilot-Slice** (nicht flächendeckend).
 > **Folge-Vorhaben #15** (Full-Rollout aller Komponenten, mehrere Sessions) ist
 > **KOMPLETT** — alle Sessions S0–S18 gemergt (zuletzt S17 PR #79 + S18 PR #80,
 > main `683a891`); Allowlist `[]`, Scanner 0, en/de-Parität grün → Frontend-UI
 > 100% lokalisiert. Master-Spec `2026-07-13-i18n-full-rollout-design.md`
-> (lebende Coverage-Matrix, alle Zeilen ✅). Noch nicht released; Wolfgangs
-> manueller DE/EN-Browser-Check S9–S18 offen.
+> (lebende Coverage-Matrix, alle Zeilen ✅). **#13 + #15 zusammen ausgeliefert in
+> Release v1.0.13** (2026-07-18); Wolfgangs manueller DE/EN-Browser-Check
+> S9–S18 noch offen.
 > Framework `react-i18next`; Sprachen `en`/`de`, **Fallback `en`**; Persistenz
 > localStorage **+** Backend-User-Preference; **Backend-Texte nur Client-seitig**
 > übersetzt (Spring `MessageSource` = Folge-Zyklus); Pilot = Nav-Chrome + Auth +
@@ -158,8 +178,8 @@ deferren bis Patch verfügbar. Ops/Security-Zyklus.
 > `users.language`), `PATCH /api/v1/me/language` (en/de-Validierung → 400 generisch).
 > SDD subagent-driven, finaler Whole-Branch-Review = merge-ready (keine Critical/
 > Important). Spec: `2026-07-12-i18n-foundation-design.md` · Plan:
-> `../plans/2026-07-12-i18n-foundation.md`. **Offen:** Wolfgangs manuelle
-> Browser-Verifikation; Merge/Release. **Folge-Zyklen:** restliche Seiten,
+> `../plans/2026-07-12-i18n-foundation.md`. Merge + Release erledigt (v1.0.13).
+> **Offen:** Wolfgangs manuelle Browser-Verifikation. **Folge-Zyklen:** restliche Seiten,
 > `MessageSource`, voller Intl-Zeit-Rollout (Feeds/Activity), weitere Sprachen.
 
 Die Oberfläche soll in mehreren Sprachen nutzbar sein (mind. Deutsch + Englisch,
