@@ -19,7 +19,21 @@
     "changePassword": "Change password"
   },
   "tokens": {
-    "title": "Access Tokens"
+    "title": "Personal Access Tokens",
+    "create": "Create Token",
+    "newTitle": "New Token",
+    "namePlaceholder": "Token name (e.g. My CLI)",
+    "scopeLabel": "Scope",
+    "expiresLabel": "Expires",
+    "empty": "No tokens yet.",
+    "copyWarning": "Copy your token now — it will not be shown again.",
+    "createFailed": "Failed to create token",
+    "revokeFailed": "Failed to revoke token",
+    "col": { "scope": "Scope" },
+    "scope": {
+      "READ_ONLY": "Read-only",
+      "READ_WRITE": "Read & Write"
+    }
   },
   "account": {
     "title": "Account",
@@ -43,5 +57,62 @@
     "emailNotSupportedTooltip": "No email is sent for this type yet — saved for the future.",
     "emailNotSupportedNote": "* No email is currently sent for these types; the preference is saved for future use.",
     "saveFailed": "Failed to save preferences"
+  },
+  "shared": {
+    "never": "Never",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "dismiss": "Dismiss",
+    "create": "Create",
+    "creating": "Creating…",
+    "revoke": "Revoke",
+    "days": "{{count}} days",
+    "col": {
+      "prefix": "Prefix",
+      "name": "Name",
+      "lastUsed": "Last Used",
+      "expires": "Expires"
+    }
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "create": "Create API Key",
+    "newTitle": "New API Key",
+    "namePlaceholder": "Key name (e.g. CI Pipeline)",
+    "empty": "No API keys yet.",
+    "copyWarning": "Copy your key now — it will not be shown again.",
+    "createFailed": "Failed to create API key",
+    "revokeFailed": "Failed to revoke key"
+  },
+  "integrations": {
+    "title": "Integrations",
+    "saveWarning": "Save these values now — the secret will not be shown again.",
+    "webhookUrlLabel": "Webhook URL (paste into {{provider}}):",
+    "webhookSecretLabel": "Webhook Secret:",
+    "active": "Active",
+    "remove": "Remove",
+    "connect": "Connect",
+    "repoUrlLabel": "Repository URL (optional, for display only):",
+    "repoUrlPlaceholder": "https://github.com/org/repo",
+    "connecting": "Connecting…",
+    "generateUrl": "Generate Webhook URL",
+    "connectFailed": "Failed to connect integration"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "add": "Add Webhook",
+    "newTitle": "New Webhook",
+    "urlPlaceholder": "https://hooks.example.com/payload",
+    "eventsLabel": "Events:",
+    "empty": "No webhooks configured.",
+    "copyWarning": "Copy your webhook secret now — it will not be shown again.",
+    "createFailed": "Failed to create webhook",
+    "ping": "Ping",
+    "log": "Log",
+    "hideLog": "Hide Log",
+    "delete": "Delete",
+    "deliveryLog": "Delivery Log",
+    "noDeliveries": "No deliveries yet.",
+    "attempt": "attempt {{count}}"
   }
 }
