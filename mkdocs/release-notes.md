@@ -4,6 +4,16 @@ Version history for TaskWolf. Docker images are published to Docker Hub as
 `kwolfgang/taskowolf-backend:<version>` and `kwolfgang/taskowolf-frontend:<version>`
 (e.g. `1.0.10`). See the [GitHub releases](https://github.com/WolfTasks/TaskWolf/releases) for downloads.
 
+## v1.0.13 — 2026-07-18
+
+#### Highlights
+
+- **#13 + #15 Internationalization — full rollout**: the entire React frontend is now localized in **German and English**. Every user-facing string runs through `react-i18next` (`t()`); switch languages via **Settings → Profile**. The preference persists **per user** (backend `PATCH /me/language`, migration V30) and in the browser, with **English as the fallback**. Dates and times are locale-aware via `Intl`, including **relative times** ("2 hours ago" / "vor 2 Stunden") in comments and activity feeds.
+- **Complete coverage, enforced**: rolled out across all app areas over sessions S0–S18 — issues, board, backlog, sprints, dashboards & charts, reports, notifications, projects, project & user settings, workflow, automation, admin, service desk, and organizations. Coverage is guaranteed by a dependency-free hardcoded-string scanner + en/de key-parity check wired as a CI gate; the string allowlist is now **empty**.
+- Brand chrome (`🐺 TaskWolf`) and technical identifiers (enum codes, event types) stay untranslated by design.
+
+> Note: backend-generated text (Spring `MessageSource`) is intentionally out of scope and tracked separately as backlog #16.
+
 ## v1.0.12 — 2026-07-12
 
 #### Highlights
