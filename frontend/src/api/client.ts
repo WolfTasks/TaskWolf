@@ -1,10 +1,12 @@
 import axios from 'axios'
+import i18n from '@/i18n'
 
 export const apiClient = axios.create({ baseURL: '/api/v1' })
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken')
   if (token) config.headers.Authorization = `Bearer ${token}`
+  if (i18n.language) config.headers['Accept-Language'] = i18n.language
   return config
 })
 
