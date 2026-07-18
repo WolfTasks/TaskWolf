@@ -54,7 +54,7 @@ dependencies {
     // commons-compress 1.24.0 -> 1.26.0 fixes DoS (infinite loop on DUMP file / OOM on Pack200,
     // Dependabot #1/#2). Test-scope only (transitive via Testcontainers).
     constraints {
-        testImplementation("org.apache.commons:commons-compress:1.26.0")
+        testImplementation("org.apache.commons:commons-compress:1.28.0")
     }
 }
 
