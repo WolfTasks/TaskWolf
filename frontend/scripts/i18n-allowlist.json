@@ -1,7 +1,6 @@
 [
   "src/components/VersionTag.tsx",
   "src/layouts/AuthLayout.tsx",
-  "src/pages/settings/ApiKeysPage.tsx",
   "src/pages/settings/IntegrationsPage.tsx",
   "src/pages/settings/WebhooksPage.tsx"
 ]
