@@ -19,7 +19,21 @@
     "changePassword": "Passwort ändern"
   },
   "tokens": {
-    "title": "Zugriffstokens"
+    "title": "Persönliche Zugriffstokens",
+    "create": "Token erstellen",
+    "newTitle": "Neues Token",
+    "namePlaceholder": "Token-Name (z. B. My CLI)",
+    "scopeLabel": "Bereich",
+    "expiresLabel": "Läuft ab",
+    "empty": "Noch keine Tokens.",
+    "copyWarning": "Kopiere dein Token jetzt — es wird nicht erneut angezeigt.",
+    "createFailed": "Token konnte nicht erstellt werden",
+    "revokeFailed": "Token konnte nicht widerrufen werden",
+    "col": { "scope": "Bereich" },
+    "scope": {
+      "READ_ONLY": "Nur Lesen",
+      "READ_WRITE": "Lesen & Schreiben"
+    }
   },
   "account": {
     "title": "Konto",
@@ -43,5 +57,62 @@
     "emailNotSupportedTooltip": "Für diesen Typ wird noch keine E-Mail gesendet — wird für später gespeichert.",
     "emailNotSupportedNote": "* Für diese Typen wird derzeit keine E-Mail gesendet; die Einstellung wird für die zukünftige Nutzung gespeichert.",
     "saveFailed": "Speichern der Einstellungen fehlgeschlagen"
+  },
+  "shared": {
+    "never": "Nie",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "dismiss": "Schließen",
+    "create": "Erstellen",
+    "creating": "Wird erstellt…",
+    "revoke": "Widerrufen",
+    "days": "{{count}} Tage",
+    "col": {
+      "prefix": "Präfix",
+      "name": "Name",
+      "lastUsed": "Zuletzt verwendet",
+      "expires": "Läuft ab"
+    }
+  },
+  "apiKeys": {
+    "title": "API-Schlüssel",
+    "create": "API-Schlüssel erstellen",
+    "newTitle": "Neuer API-Schlüssel",
+    "namePlaceholder": "Schlüsselname (z. B. CI Pipeline)",
+    "empty": "Noch keine API-Schlüssel.",
+    "copyWarning": "Kopiere deinen Schlüssel jetzt — er wird nicht erneut angezeigt.",
+    "createFailed": "API-Schlüssel konnte nicht erstellt werden",
+    "revokeFailed": "Schlüssel konnte nicht widerrufen werden"
+  },
+  "integrations": {
+    "title": "Integrationen",
+    "saveWarning": "Speichere diese Werte jetzt — das Secret wird nicht erneut angezeigt.",
+    "webhookUrlLabel": "Webhook-URL (in {{provider}} einfügen):",
+    "webhookSecretLabel": "Webhook-Secret:",
+    "active": "Aktiv",
+    "remove": "Entfernen",
+    "connect": "Verbinden",
+    "repoUrlLabel": "Repository-URL (optional, nur zur Anzeige):",
+    "repoUrlPlaceholder": "https://github.com/org/repo",
+    "connecting": "Wird verbunden…",
+    "generateUrl": "Webhook-URL generieren",
+    "connectFailed": "Integration konnte nicht verbunden werden"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "add": "Webhook hinzufügen",
+    "newTitle": "Neuer Webhook",
+    "urlPlaceholder": "https://hooks.example.com/payload",
+    "eventsLabel": "Ereignisse:",
+    "empty": "Keine Webhooks konfiguriert.",
+    "copyWarning": "Kopiere dein Webhook-Secret jetzt — es wird nicht erneut angezeigt.",
+    "createFailed": "Webhook konnte nicht erstellt werden",
+    "ping": "Ping",
+    "log": "Log",
+    "hideLog": "Log ausblenden",
+    "delete": "Löschen",
+    "deliveryLog": "Zustellungs-Log",
+    "noDeliveries": "Noch keine Zustellungen.",
+    "attempt": "Versuch {{count}}"
   }
 }

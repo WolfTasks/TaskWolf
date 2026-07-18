@@ -5,8 +5,11 @@ import {
   useWebhookDeliveries, useTestPing, ALL_WEBHOOK_EVENTS,
 } from '@/hooks/useWebhooks'
 import type { CreateWebhookResult } from '@/hooks/useWebhooks'
+import { useTranslation } from 'react-i18next'
+import { formatDateTime } from '@/i18n/format'
 
 export function WebhooksPage() {
+  const { t } = useTranslation('settings')
   const { key } = useParams<{ key: string }>()
   const projectKey = key!
   const { data: webhooks = [], isLoading } = useWebhooks(projectKey)
@@ -34,26 +37,26 @@ export function WebhooksPage() {
       setNewSecret(result)
       setUrl(''); setSelectedEvents([]); setShowCreate(false)
     } catch (e: any) {
-      alert(e.response?.data?.message || 'Failed to create webhook')
+      alert(e.response?.data?.message || t('webhooks.createFailed'))
     }
   }
 
-  if (isLoading) return <div className="text-gray-400">Loading…</div>
+  if (isLoading) return <div className="text-gray-400">{t('common:loading')}</div>
 
   return (
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Webhooks</h1>
+        <h1 className="text-2xl font-bold">{t('webhooks.title')}</h1>
         <button onClick={() => setShowCreate(true)}
           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-sm font-medium">
-          Add Webhook
+          {t('webhooks.add')}
         </button>
       </div>
 
       {newSecret && (
         <div className="mb-6 p-4 bg-yellow-900/30 border border-yellow-600 rounded">
           <p className="text-yellow-400 text-sm font-semibold mb-2">
-            ⚠ Copy your webhook secret now — it will not be shown again.
+            ⚠ {t('webhooks.copyWarning')}
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 bg-gray-900 px-3 py-2 rounded text-sm text-green-400 break-all">
@@ -61,20 +64,20 @@ export function WebhooksPage() {
             </code>
             <button onClick={() => { navigator.clipboard.writeText(newSecret.plaintextSecret); setCopiedSecret(true); setTimeout(() => setCopiedSecret(false), 2000) }}
               className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm">
-              {copiedSecret ? 'Copied!' : 'Copy'}
+              {copiedSecret ? t('shared.copied') : t('shared.copy')}
             </button>
           </div>
-          <button onClick={() => setNewSecret(null)} className="mt-2 text-xs text-gray-400 hover:text-white">Dismiss</button>
+          <button onClick={() => setNewSecret(null)} className="mt-2 text-xs text-gray-400 hover:text-white">{t('shared.dismiss')}</button>
         </div>
       )}
 
       {showCreate && (
         <div className="mb-6 p-4 bg-gray-800 rounded border border-gray-700">
-          <h2 className="text-sm font-semibold mb-3">New Webhook</h2>
-          <input type="text" placeholder="https://hooks.example.com/payload"
+          <h2 className="text-sm font-semibold mb-3">{t('webhooks.newTitle')}</h2>
+          <input type="text" placeholder={t('webhooks.urlPlaceholder')}
             value={url} onChange={e => setUrl(e.target.value)}
             className="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 text-sm mb-3" />
-          <p className="text-xs text-gray-400 mb-2">Events:</p>
+          <p className="text-xs text-gray-400 mb-2">{t('webhooks.eventsLabel')}</p>
           <div className="grid grid-cols-3 gap-1 mb-3">
             {ALL_WEBHOOK_EVENTS.map(ev => (
               <label key={ev} className="flex items-center gap-2 text-xs cursor-pointer">
@@ -86,10 +89,10 @@ export function WebhooksPage() {
           <div className="flex gap-2">
             <button onClick={handleCreate} disabled={createWebhook.isPending}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-sm">
-              {createWebhook.isPending ? 'Creating…' : 'Create'}
+              {createWebhook.isPending ? t('shared.creating') : t('shared.create')}
             </button>
             <button onClick={() => setShowCreate(false)}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm">Cancel</button>
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm">{t('common:cancel')}</button>
           </div>
         </div>
       )}
@@ -108,21 +111,21 @@ export function WebhooksPage() {
               </div>
               <div className="flex gap-2 ml-4 shrink-0">
                 <button onClick={() => testPing.mutate(wh.id)}
-                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs">Ping</button>
+                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs">{t('webhooks.ping')}</button>
                 <button onClick={() => setSelectedWebhookId(selectedWebhookId === wh.id ? null : wh.id)}
                   className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs">
-                  {selectedWebhookId === wh.id ? 'Hide Log' : 'Log'}
+                  {selectedWebhookId === wh.id ? t('webhooks.hideLog') : t('webhooks.log')}
                 </button>
                 <button onClick={() => deleteWebhook.mutate(wh.id)}
-                  className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 rounded text-xs">Delete</button>
+                  className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 rounded text-xs">{t('webhooks.delete')}</button>
               </div>
             </div>
 
             {selectedWebhookId === wh.id && (
               <div className="mt-3 border-t border-gray-700 pt-3">
-                <p className="text-xs text-gray-400 mb-2">Delivery Log</p>
+                <p className="text-xs text-gray-400 mb-2">{t('webhooks.deliveryLog')}</p>
                 {deliveries.length === 0 ? (
-                  <p className="text-xs text-gray-500">No deliveries yet.</p>
+                  <p className="text-xs text-gray-500">{t('webhooks.noDeliveries')}</p>
                 ) : (
                   <div className="space-y-1">
                     {deliveries.map(d => (
@@ -132,9 +135,9 @@ export function WebhooksPage() {
                         </span>
                         <span className="text-gray-400">{d.eventType}</span>
                         <span className="text-gray-500">
-                          {d.createdAt ? new Date(d.createdAt).toLocaleString() : ''}
+                          {d.createdAt ? formatDateTime(d.createdAt) : ''}
                         </span>
-                        <span className="text-gray-500">attempt {d.attemptCount}</span>
+                        <span className="text-gray-500">{t('webhooks.attempt', { count: d.attemptCount })}</span>
                       </div>
                     ))}
                   </div>
@@ -143,7 +146,7 @@ export function WebhooksPage() {
             )}
           </div>
         ))}
-        {webhooks.length === 0 && <p className="text-gray-400 text-sm">No webhooks configured.</p>}
+        {webhooks.length === 0 && <p className="text-gray-400 text-sm">{t('webhooks.empty')}</p>}
       </div>
     </div>
   )

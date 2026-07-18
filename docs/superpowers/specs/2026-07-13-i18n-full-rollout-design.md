@@ -118,7 +118,7 @@ grün, en/de gepflegt, Build grün, Browser-Check ok).
 | S14 | `admin` | ✅ | All 3 files localized (new `admin` ns); DataTable column headers + `empty` + level badge + `alert()`/`confirm()` localized; audit timestamp via `formatDateTime`; AuditLogPage columns moved into component |
 | S15 | `servicedesk` | ✅ | Both files localized (new `servicedesk` ns); scanner-blind SLA status localized (`'N/A'`→`'NA'` sentinel); resolved timestamp via `formatDateTime`; `t`-shadow (ticket) handled; P1–P4 severity + status left as data |
 | S16 | `orgs` | ✅ | All 3 files localized (new `orgs` ns); scanner-blind ROLE_LABELS localized at render site; `memberActionErrorMessage` takes `t`; `settingsTitle`/`removeConfirm` interpolation; timeout-var `t`-shadow renamed to `handle` |
-| S17 | `settings` (Rest) | ⬜ | AccessTokensPage, ApiKeysPage, IntegrationsPage, WebhooksPage (erweitert bestehenden `settings`-NS) |
+| S17 | `settings` (Rest) | ✅ | All 4 files localized by extending the existing `settings` ns (shared/tokens/apiKeys/integrations/webhooks groups; no new ns); DataTable headers + secret-reveal blocks + `{{provider}}`/`{{count}}` interpolation localized; dates via `formatDate`/`formatDateTime`; AccessTokens `cell: t`→`tok` shadow handled; event codes left as data |
 | S18 | `shared`/Cleanup | ⬜ | DataTable, Table-Komponenten, NavItem, SidebarSection, VersionTag/StatusBadge falls geteilt, Rest-`common`; **finaler Scanner-auf-Null-Sweep** (Allowlist muss danach leer sein) |
 
 > Hinweis: Diese Liste basiert auf dem Datei-Bestand vom 2026-07-13. Kommen bis zum
