@@ -43,7 +43,7 @@ class IssueService(
     @Transactional
     fun create(projectKey: String, request: CreateIssueRequest, reporter: User): Issue {
         val project = projectService.requireMember(projectKey, reporter.id)
-        val workflow = project.workflow ?: throw NotFoundException("Project has no workflow")
+        val workflow = project.workflow ?: throw NotFoundException("project.noWorkflow")
         val status = workflowService.getDefaultStatus(workflow.id)
         val nextNumber = issueRepository.maxKeyNumberByProject(project.id) + 1
 
@@ -290,7 +290,7 @@ class IssueService(
     fun findByKey(projectKey: String, issueKey: String, userId: UUID): Issue {
         val project = projectService.requireMember(projectKey, userId)
         return issueRepository.findByKeyAndProjectId(issueKey, project.id)
-            ?: throw NotFoundException("Issue not found: $issueKey")
+            ?: throw NotFoundException("issue.notFound", issueKey)
     }
 
     @Transactional
@@ -392,7 +392,7 @@ class IssueService(
         val assignee = userRepository.findById(assigneeId)
             .orElseThrow { NotFoundException("Assignee not found: $assigneeId") }
         if (!projectService.isMember(project, assignee.id)) {
-            throw NotFoundException("Assignee not found: $assigneeId")
+            throw NotFoundException("issue.assigneeNotFound", assigneeId)
         }
         return assignee
     }
