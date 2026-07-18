@@ -4,6 +4,17 @@ Version history for TaskWolf. Docker images are published to Docker Hub as
 `kwolfgang/taskowolf-backend:<version>` and `kwolfgang/taskowolf-frontend:<version>`
 (e.g. `1.0.10`). See the [GitHub releases](https://github.com/WolfTasks/TaskWolf/releases) for downloads.
 
+## v1.0.14 — 2026-07-18
+
+#### Maintenance
+
+Dependency and base-image maintenance release — no functional changes. Batches the merged Dependabot updates:
+
+- **Frontend libraries** (#81): TipTap 3.27.3, lucide-react 1.24.0, Recharts 3.9.2, Vite 8.1.4, plus axios/i18next/other minor & patch bumps. TypeScript is intentionally held at 6.x — the 7.0 native rewrite moves the compiler API to unstable entrypoints and breaks our i18n scanner + typecheck, so it is deferred to a dedicated migration (Dependabot now ignores the TypeScript major).
+- **Base-image security** (#59, #82): frontend `node` build image and `nginx:alpine` runtime image bumped to current digests; the nginx digest picks up `libexpat`, `c-ares` and `curl`/`libcurl` CVE fixes.
+- **Backend** (#60): `commons-compress` 1.26.0 → 1.28.0.
+- **CI actions** (#62): harden-runner 2.20.0, setup-java 5.5.0, setup-node 7.0.0, codeql-action 4.37.0.
+
 ## v1.0.13 — 2026-07-18
 
 #### Highlights
