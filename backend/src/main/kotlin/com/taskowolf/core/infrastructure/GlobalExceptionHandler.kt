@@ -19,28 +19,40 @@ class NotFoundException : RuntimeException, LocalizedException {
     override val messageKey: String?
     override val args: Array<out Any?>
     constructor(message: String) : super(message) { messageKey = null; args = emptyArray() }
-    constructor(messageKey: String, vararg args: Any?) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    constructor(messageKey: String, args: Array<out Any?>) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    companion object {
+        fun keyed(key: String, vararg args: Any?): NotFoundException = NotFoundException(key, args)
+    }
 }
 
 class ForbiddenException : RuntimeException, LocalizedException {
     override val messageKey: String?
     override val args: Array<out Any?>
     constructor(message: String) : super(message) { messageKey = null; args = emptyArray() }
-    constructor(messageKey: String, vararg args: Any?) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    constructor(messageKey: String, args: Array<out Any?>) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    companion object {
+        fun keyed(key: String, vararg args: Any?): ForbiddenException = ForbiddenException(key, args)
+    }
 }
 
 class ConflictException : RuntimeException, LocalizedException {
     override val messageKey: String?
     override val args: Array<out Any?>
     constructor(message: String) : super(message) { messageKey = null; args = emptyArray() }
-    constructor(messageKey: String, vararg args: Any?) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    constructor(messageKey: String, args: Array<out Any?>) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    companion object {
+        fun keyed(key: String, vararg args: Any?): ConflictException = ConflictException(key, args)
+    }
 }
 
 class BadRequestException : RuntimeException, LocalizedException {
     override val messageKey: String?
     override val args: Array<out Any?>
     constructor(message: String) : super(message) { messageKey = null; args = emptyArray() }
-    constructor(messageKey: String, vararg args: Any?) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    constructor(messageKey: String, args: Array<out Any?>) : super(messageKey) { this.messageKey = messageKey; this.args = args }
+    companion object {
+        fun keyed(key: String, vararg args: Any?): BadRequestException = BadRequestException(key, args)
+    }
 }
 
 @RestControllerAdvice

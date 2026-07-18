@@ -23,7 +23,7 @@ class GlobalExceptionHandlerLocalizationTest {
     @Test
     fun `keyed NotFound resolves to german under german locale`() {
         LocaleContextHolder.setLocale(Locale.GERMAN)
-        val body = handler.handleNotFound(NotFoundException("issue.notFound", "PROJ-1")).body!!
+        val body = handler.handleNotFound(NotFoundException.keyed("issue.notFound", "PROJ-1")).body!!
         assertEquals("NOT_FOUND", body.code)
         assertEquals("Vorgang PROJ-1 nicht gefunden", body.message)
     }
@@ -33,5 +33,13 @@ class GlobalExceptionHandlerLocalizationTest {
         LocaleContextHolder.setLocale(Locale.GERMAN)
         val body = handler.handleNotFound(NotFoundException("Some literal message")).body!!
         assertEquals("Some literal message", body.message)
+    }
+
+    @Test
+    fun `arg-less keyed NotFound resolves to german`() {
+        LocaleContextHolder.setLocale(Locale.GERMAN)
+        val body = handler.handleNotFound(NotFoundException.keyed("project.noWorkflow")).body!!
+        assertEquals("NOT_FOUND", body.code)
+        assertEquals("Projekt hat keinen Workflow", body.message)
     }
 }
