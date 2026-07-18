@@ -19,7 +19,7 @@
 | 12 | Dependabot-Alerts beheben (5 offen) | Ops/Security | ✅ **AUSGELIEFERT** (PR #49, alle Alerts bereinigt, Release v1.0.10) |
 | 13 | Internationalisierung — Fundament + Pilot-Slice | Full-Stack/UI | ✅ **GEMERGT** (PR #57, squash `0b9b817`; noch nicht released) |
 | 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | ✅ **AUSGELIEFERT** (Backend PR #55, Frontend PR #56, Release v1.0.12) |
-| 15 | Internationalisierung — Full-Rollout (alle Komponenten, mehrere Sessions) | UI | 🔧 **IN ARBEIT** (Master-Spec `2026-07-13-i18n-full-rollout-design.md`; Session 0 = Tooling) |
+| 15 | Internationalisierung — Full-Rollout (alle Komponenten, mehrere Sessions) | UI | ✅ **KOMPLETT / GEMERGT** (S0–S18 alle gemergt, zuletzt S17 PR #79 + S18 PR #80, main `683a891`; Allowlist `[]`, Scanner 0, en/de-Parität grün — Frontend-UI 100% lokalisiert; noch nicht released, Wolfgangs manueller DE/EN-Browser-Check S9–S18 offen) |
 | 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ⬜ Backlog (bewusst separater Folge-Zyklus zu #15; Frontend-Scope endet an der Client-Präsentation) |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -146,7 +146,11 @@ deferren bis Patch verfügbar. Ops/Security-Zyklus.
 > ✅ **Fundament + Pilot-Slice GEMERGT** (PR #57, squash `0b9b817`; noch nicht
 > released). Scope-Entscheid: **Fundament + Pilot-Slice** (nicht flächendeckend).
 > **Folge-Vorhaben #15** (Full-Rollout aller Komponenten, mehrere Sessions) ist
-> gestartet — Master-Spec `2026-07-13-i18n-full-rollout-design.md`.
+> **KOMPLETT** — alle Sessions S0–S18 gemergt (zuletzt S17 PR #79 + S18 PR #80,
+> main `683a891`); Allowlist `[]`, Scanner 0, en/de-Parität grün → Frontend-UI
+> 100% lokalisiert. Master-Spec `2026-07-13-i18n-full-rollout-design.md`
+> (lebende Coverage-Matrix, alle Zeilen ✅). Noch nicht released; Wolfgangs
+> manueller DE/EN-Browser-Check S9–S18 offen.
 > Framework `react-i18next`; Sprachen `en`/`de`, **Fallback `en`**; Persistenz
 > localStorage **+** Backend-User-Preference; **Backend-Texte nur Client-seitig**
 > übersetzt (Spring `MessageSource` = Folge-Zyklus); Pilot = Nav-Chrome + Auth +
