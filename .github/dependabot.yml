@@ -32,6 +32,16 @@ updates:
     groups:
       frontend-deps:
         patterns: ["*"]
+    ignore:
+      # Never auto-apply the TypeScript *major* bump. TS 7.x is the native
+      # ("corsa") rewrite: its default import no longer exposes the compiler
+      # API (ScriptTarget, createSourceFile, ...) — that now lives under the
+      # explicitly-unstable `typescript/unstable/*` entrypoints. The grouped
+      # bump to 7.0.2 in PR #81 broke the i18n scanner (scripts/i18n-scan-core.mjs)
+      # and the whole `tsc` typecheck. Adopting TS 7 is a dedicated, hand-driven
+      # migration, not a batched Dependabot PR. Drop this when doing that upgrade.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
