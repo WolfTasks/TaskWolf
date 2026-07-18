@@ -1,5 +1,4 @@
 [
   "src/components/VersionTag.tsx",
-  "src/layouts/AuthLayout.tsx",
-  "src/pages/settings/WebhooksPage.tsx"
+  "src/layouts/AuthLayout.tsx"
 ]
