@@ -88,21 +88,25 @@ Recommended key per site — **[reuse]** = key already defined in the current pl
 - SSO `clientSecret required`, `OIDC user has no email` — internal invariants.
 - `log.error(...)` in `EmailIngestionService:47` — logging, not an exception.
 
-## Recommended revised slice structure
+## Revised slice structure — APPROVED (Wolfgang, 2026-07-19)
 
-Keep the 7 existing slices; **extend each** with its construct-2/3/5 sites (mostly key reuse), and **add two new slices**:
+Deliver by **extending the existing plan doc in place** (`2026-07-19-backend-i18n-phase2-api-error-sweep.md`): Tasks 2–7 keep their construct-1 `throw`-keyword swaps + en/de catalog blocks; add to each an "orElseThrow / error / AccessDenied sites" subsection (extra keys + swaps); update header counts (81 → ~122); append two new tasks. This doc is the authoritative site index the plan references.
 
 - **Task 8 — `issues` slice** (5 orElseThrow sites; mostly reuse P1 keys + `issue.notFoundGeneric`, `issue.parentNotFound`).
 - **Task 9 — `servicedesk` slice** (9 error() + 2 ResponseStatusException; new `serviceDesk.*` + `incident.*` keys; **fixes 6× 500→404**). Needs its own localization integration test — check existing servicedesk tests for setup (`ServiceDeskServiceTest`, `IncidentServiceTest`, `SlaMonitorJobTest`).
 
-Revised session grouping (∼3–4 sessions remain): S2 = Tasks 2–3 (projects+boards, workflow — now incl. orElseThrow), S3 = Task 4 + Task 8 (agile-reports + issues), S4 = Tasks 5–7 (integrations, orgs incl. error/AccessDenied, content), S5 = Task 9 (servicedesk, incl. the 500-bug fixes + status-change tests).
+**Approved session grouping (4 sessions remain):**
+- **S2** = Task 2 (projects+boards) + Task 3 (workflow) — incl. orElseThrow.
+- **S3** = Task 4 (agile-reports) + Task 8 (issues).
+- **S4** = Task 5 (integrations) + Task 6 (orgs — incl. `error()` `org.notFound`, `AccessDeniedException`, `org.memberNotFound`, and the AuthController:55 `ResponseStatusException` "Not a member of this organization" auth follow-up) + Task 7 (content — incl. attachment/comment/customField/label/version `.notFound`).
+- **S5** = Task 9 (servicedesk) — the 500→404 fixes + status-change tests.
 
-## Open decisions for the revision (surface to Wolfgang)
+## Resolved decisions — APPROVED (Wolfgang, 2026-07-19)
 
-1. **`sprint.notFound` id:** drop the id at `IssueService:170` (reuse no-arg key) or add `sprint.notFoundWithId`?
-2. **`auth.autoProvisionDisabled`** (SSO `check`): include (403) or skip as internal?
-3. **Status-change tests:** the construct-3/4 conversions change HTTP status (500→404, ResponseStatusException→keyed). Add explicit tests asserting the NEW status, and grep existing tests for any that assert the old 500/ResponseStatusException behavior.
-4. **New handler:** none needed IF all `error()`/`check()` user-facing sites are converted; any left un-converted stay 500. Confirm the sweep leaves no user-facing `IllegalStateException`.
+1. **Sprint-not-found:** unify to ONE key `sprint.notFound = "Sprint not found: {0}"` and pass the in-scope `sprintId` at all 4 sites (ReportsService:32,72; SprintService:115; IssueService:170). Matches the codebase's `*.notFound` id-in-message convention. No `sprint.notFoundWithId`.
+2. **`auth.autoProvisionDisabled`:** INCLUDE as keyed `ForbiddenException` (403) for `OidcUserProvisioningService:31` `check`. Still SKIP the two internal invariants (`SsoController:35` `clientSecret required`, `OidcUserProvisioningService:28` `OIDC user has no email`) and the webhook `SecurityException`s.
+3. **Status-change tests:** every construct-3/4 conversion that changes status (6× 500→404 in servicedesk; the RSE→400s) gets a test asserting the NEW status + localized body; grep existing tests for any asserting the old 500/RSE behavior and update them.
+4. **No new handler needed** provided every user-facing `error()`/`check()` site is converted to a keyed exception; the sweep must leave no user-facing `IllegalStateException` (final-verification check).
 
 ## Gates already in place (from Session 1 / Task 0)
 
