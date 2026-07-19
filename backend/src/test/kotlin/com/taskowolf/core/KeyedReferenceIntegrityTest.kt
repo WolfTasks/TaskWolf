@@ -30,21 +30,32 @@ class KeyedReferenceIntegrityTest {
 
     @Test
     fun `all keyed and validation message keys exist in the catalog`() {
+        val root = sourceRoot()
+        assertTrue(root.isDirectory) {
+            "sourceRoot() did not resolve to a directory: ${root.absolutePath}"
+        }
+
         val keys = catalogKeys()
         val keyedRef = Regex("""\.keyed\(\s*"([^"]+)"""")
         val validationRef = Regex("""message\s*=\s*"\{([^}]+)}"""")
 
         val missing = sortedSetOf<String>()
-        sourceRoot().walkTopDown()
+        var referencesScanned = 0
+        root.walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .forEach { file ->
                 val text = file.readText()
                 (keyedRef.findAll(text) + validationRef.findAll(text)).forEach { m ->
+                    referencesScanned++
                     val key = m.groupValues[1]
                     if (key !in keys) missing.add("$key  (${file.name})")
                 }
             }
 
+        assertTrue(referencesScanned > 0) {
+            "No .keyed(...) or message=\"{...}\" references were found under ${root.absolutePath} — " +
+                "the gate is not actually scanning anything"
+        }
         assertTrue(missing.isEmpty()) { "Referenced message keys missing from messages.properties: $missing" }
     }
 }

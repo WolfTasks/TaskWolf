@@ -28,7 +28,7 @@ class UserAccountService(
 
     @Transactional
     fun deactivate(userId: UUID) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         requireNotLastActiveAdmin(user)
         user.active = false
         userRepository.save(user)
@@ -38,7 +38,7 @@ class UserAccountService(
 
     @Transactional
     fun activate(userId: UUID) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         if (user.deletedAt != null) {
             throw ConflictException.keyed("auth.cannotReactivateDeleted")
         }
@@ -48,7 +48,7 @@ class UserAccountService(
 
     @Transactional
     fun softDelete(userId: UUID) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         requireNotLastActiveAdmin(user)
         user.active = false
         user.deletedAt = Instant.now()
@@ -65,7 +65,7 @@ class UserAccountService(
 
     @Transactional
     fun updateProfile(userId: UUID, displayName: String): User {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         user.displayName = displayName
         val saved = userRepository.save(user)
         securityAuditListener.onProfileUpdated(user.email)
@@ -74,7 +74,7 @@ class UserAccountService(
 
     @Transactional
     fun changePassword(userId: UUID, currentPassword: String, newPassword: String) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         val hash = user.passwordHash
             ?: throw ConflictException.keyed("auth.noPasswordSet")
         if (!passwordEncoder.matches(currentPassword, hash)) {
@@ -91,7 +91,7 @@ class UserAccountService(
         if (language !in SUPPORTED_LANGUAGES) {
             throw BadRequestException.keyed("auth.unsupportedLanguage")
         }
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         user.language = language
         return userRepository.save(user)
     }

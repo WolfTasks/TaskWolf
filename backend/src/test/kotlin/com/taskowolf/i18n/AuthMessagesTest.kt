@@ -21,5 +21,7 @@ class AuthMessagesTest {
         assertEquals("Nicht unterstützte Sprache", de("auth.unsupportedLanguage"))
         assertEquals("API key not found: 7", en("auth.apiKeyNotFound", 7))
         assertEquals("API-Schlüssel nicht gefunden: 7", de("auth.apiKeyNotFound", 7))
+        assertEquals("User not found", en("user.notFound"))
+        assertEquals("Benutzer nicht gefunden", de("user.notFound"))
     }
 }

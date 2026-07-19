@@ -78,7 +78,7 @@ class AuthService(
 
     @Transactional(readOnly = true)
     fun me(userId: UUID) = userRepository.findById(userId)
-        .orElseThrow { NotFoundException("User not found") }
+        .orElseThrow { NotFoundException.keyed("user.notFound") }
 
     private fun tokenPair(userId: UUID): AuthResponse {
         val refreshToken = jwtService.generateRefreshToken(userId)
