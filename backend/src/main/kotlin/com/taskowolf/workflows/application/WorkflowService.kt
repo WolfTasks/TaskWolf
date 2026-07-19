@@ -43,22 +43,22 @@ class WorkflowService(
 
     @Transactional(readOnly = true)
     fun findStatusById(statusId: UUID) = statusRepository.findById(statusId)
-        .orElseThrow { NotFoundException("Status not found: $statusId") }
+        .orElseThrow { NotFoundException.keyed("workflow.statusNotFound", statusId) }
 
     @Transactional(readOnly = true)
     fun getDefaultStatus(workflowId: UUID): WorkflowStatus {
         val workflow = workflowRepository.findById(workflowId)
-            .orElseThrow { NotFoundException("Workflow not found: $workflowId") }
+            .orElseThrow { NotFoundException.keyed("workflow.notFound", workflowId) }
         return workflow.statuses
             .filter { it.category == StatusCategory.TODO }
             .minByOrNull { it.position }
-            ?: throw NotFoundException("No TODO status in workflow $workflowId")
+            ?: throw NotFoundException.keyed("workflow.noTodoStatus", workflowId)
     }
 
     @Transactional(readOnly = true)
     fun findWorkflowByProjectId(projectId: UUID): Workflow =
         workflowRepository.findByProjectId(projectId).firstOrNull()
-            ?: throw NotFoundException("No workflow for project $projectId")
+            ?: throw NotFoundException.keyed("workflow.noneForProject", projectId)
 
     @Transactional(readOnly = true)
     fun findWorkflowForEditor(projectId: UUID): WorkflowEditorData {
@@ -79,7 +79,7 @@ class WorkflowService(
         if (!transitionRepository.existsByWorkflowId(workflowId)) return
         val transition = transitionRepository.findByWorkflowIdAndFromStatusIdAndToStatusId(
             workflowId, issue.status.id, toStatusId
-        ) ?: throw BadRequestException("Transition from '${issue.status.name}' to status $toStatusId is not allowed")
+        ) ?: throw BadRequestException.keyed("workflow.transitionNotAllowed", issue.status.name, toStatusId)
 
         val guards: List<TransitionGuard> = transition.guards
             ?.let { mapper.readValue(it) } ?: emptyList()
@@ -97,13 +97,13 @@ class WorkflowService(
                 is RequiredFieldGuard -> {
                     val value = issueMap[guard.field]
                     if (value.isNullOrBlank())
-                        throw BadRequestException("Transition blocked: field '${guard.field}' is required")
+                        throw BadRequestException.keyed("workflow.transitionFieldRequired", guard.field)
                 }
                 is RoleRestrictionGuard -> {
                     val member = projectMemberRepository.findByProjectIdAndUserId(issue.project.id, actor.id)
                     val userRole = member?.role?.name ?: "NONE"
                     if (userRole !in guard.roles)
-                        throw BadRequestException("Transition blocked: role '$userRole' not permitted")
+                        throw BadRequestException.keyed("workflow.transitionRoleNotPermitted", userRole)
                 }
             }
         }
@@ -114,7 +114,7 @@ class WorkflowService(
     @Transactional
     fun createStatus(workflowId: UUID, name: String, category: StatusCategory, color: String): WorkflowStatus {
         val workflow = workflowRepository.findById(workflowId)
-            .orElseThrow { NotFoundException("Workflow not found: $workflowId") }
+            .orElseThrow { NotFoundException.keyed("workflow.notFound", workflowId) }
         val position = (workflow.statuses.maxOfOrNull { it.position } ?: -1) + 1
         return statusRepository.save(WorkflowStatus(name, category, color, position, workflow))
     }
@@ -122,7 +122,7 @@ class WorkflowService(
     @Transactional
     fun updateStatus(statusId: UUID, name: String?, category: StatusCategory?, color: String?): WorkflowStatus {
         val status = statusRepository.findById(statusId)
-            .orElseThrow { NotFoundException("Status not found: $statusId") }
+            .orElseThrow { NotFoundException.keyed("workflow.statusNotFound", statusId) }
         name?.let { status.name = it }
         category?.let { status.category = it }
         color?.let { status.color = it }
@@ -131,7 +131,7 @@ class WorkflowService(
 
     @Transactional
     fun deleteStatus(statusId: UUID) {
-        if (!statusRepository.existsById(statusId)) throw NotFoundException("Status not found: $statusId")
+        if (!statusRepository.existsById(statusId)) throw NotFoundException.keyed("workflow.statusNotFound", statusId)
         statusRepository.deleteById(statusId)
     }
 
@@ -140,25 +140,25 @@ class WorkflowService(
     @Transactional
     fun createTransition(workflowId: UUID, fromStatusId: UUID?, toStatusId: UUID): WorkflowTransition {
         val workflow = workflowRepository.findById(workflowId)
-            .orElseThrow { NotFoundException("Workflow not found: $workflowId") }
+            .orElseThrow { NotFoundException.keyed("workflow.notFound", workflowId) }
         val toStatus = statusRepository.findById(toStatusId)
-            .orElseThrow { NotFoundException("Status not found: $toStatusId") }
+            .orElseThrow { NotFoundException.keyed("workflow.statusNotFound", toStatusId) }
         val fromStatus = fromStatusId?.let {
-            statusRepository.findById(it).orElseThrow { NotFoundException("Status not found: $it") }
+            statusRepository.findById(it).orElseThrow { NotFoundException.keyed("workflow.statusNotFound", it) }
         }
         return transitionRepository.save(WorkflowTransition(workflow, fromStatus, toStatus))
     }
 
     @Transactional
     fun deleteTransition(transitionId: UUID) {
-        if (!transitionRepository.existsById(transitionId)) throw NotFoundException("Transition not found: $transitionId")
+        if (!transitionRepository.existsById(transitionId)) throw NotFoundException.keyed("workflow.transitionNotFound", transitionId)
         transitionRepository.deleteById(transitionId)
     }
 
     @Transactional
     fun updateGuards(transitionId: UUID, guards: List<TransitionGuard>): WorkflowTransition {
         val transition = transitionRepository.findById(transitionId)
-            .orElseThrow { NotFoundException("Transition not found: $transitionId") }
+            .orElseThrow { NotFoundException.keyed("workflow.transitionNotFound", transitionId) }
         transition.guards = mapper.writeValueAsString(guards)
         return transitionRepository.save(transition)
     }
