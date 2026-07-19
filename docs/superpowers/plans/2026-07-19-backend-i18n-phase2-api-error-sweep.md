@@ -2,9 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Localize the remaining 81 free-text exception throw-sites (27 files) and the one remaining custom Bean-Validation message onto Spring `MessageSource` keys (en default, de), reusing Phase 1's `.keyed()` factory, catalog, validator wiring, and parity gate.
+**Goal:** Localize the remaining **~130 free-text, user-facing exception sites across all five throw constructs** (not just `throw X("…")`) plus the one remaining custom Bean-Validation message onto Spring `MessageSource` keys (en default, de), reusing Phase 1's `.keyed()` factory, catalog, validator wiring, and parity gate — and **fix latent 500-instead-of-404/403 bugs** (six 500→404 in `servicedesk`, two 500→404 in `organizations`, one 500→403 in the OIDC path) along the way.
 
-**Architecture:** A mechanical sweep applying the Phase 1 pattern module-by-module. First, three cross-cutting hardening changes (Task 0): a typo safety net in `LocalizedMessages`, a placeholder-parity check in the gate, and a source-scanning gate that asserts every `.keyed(...)`/`message="{…}"` key referenced in code exists in the catalog (this auto-guards every later slice). Then seven module slices, each adding a keyed catalog section (en + de) + swapping that module's throws to `Exception.keyed("key", args…)` + a data-driven resolution test, kept green by the parity + reference gates. `ErrorResponse.code` values never change.
+> **Scope-correction note (2026-07-19):** The original inventory grepped only `throw X("…")` and found 81 sites. Executing Session 1 (auth, shipped in **PR #84** — not affected by this correction) surfaced that user-facing free-text errors are thrown via **five** constructs, four of which the original grep missed: `throw X("…")`, `.orElseThrow { X("…") }`, `?: error("…")` / `check {…}`, `throw ResponseStatusException(status, "…")`, and `throw AccessDeniedException("…")`. The corrected remaining surface is **~130 sites plus two modules absent from the original plan (`issues`, `servicedesk`)** — including eight sites discovered during plan review (an `OrganizationService.findById` `NoSuchElementException` and seven `IssueService` free-text throws) that Wolfgang folded into scope on 2026-07-19. The authoritative per-site index is **`docs/superpowers/specs/2026-07-19-backend-i18n-phase2-scope-correction.md`** — this plan implements it. Tasks 2–7 gain an **"orElseThrow / error / AccessDenied sites"** subsection; Tasks 8 (`issues`) and 9 (`servicedesk`) are new.
+
+**Architecture:** A mechanical sweep applying the Phase 1 pattern module-by-module. First, three cross-cutting hardening changes (Task 0): a typo safety net in `LocalizedMessages`, a placeholder-parity check in the gate, and a source-scanning gate that asserts every `.keyed(...)`/`message="{…}"` key referenced in code exists in the catalog (this auto-guards every later slice). Then module slices (Tasks 1–9), each adding a keyed catalog section (en + de) + swapping that module's error sites to `Exception.keyed("key", args…)` + a data-driven resolution test, kept green by the parity + reference gates. **Constructs 3–4 (`error()`/`check()`/`ResponseStatusException`) are also status-correctness fixes:** an unhandled `IllegalStateException` currently returns **500**; converting it to a keyed `NotFoundException`/`BadRequestException` both localizes it AND fixes the HTTP status (Decision 3 requires a status-change test at every such site). `ErrorResponse.code` values never change.
 
 **Tech Stack:** Kotlin, Spring Boot, Gradle (`./gradlew`), JUnit 5 + MockK + Testcontainers (Postgres). Backend-only — no frontend changes.
 
@@ -18,7 +20,26 @@
 - **MessageFormat single-quote rule (critical):** a message resolved *with arguments* is run through `java.text.MessageFormat`, where a single quote `'` is an escape character. A literal `'{0}'` would render as the literal text `{0}` (no substitution). **Any literal single quote in an arg-bearing message must be doubled `''`** — in BOTH en and de. Messages resolved with no args are not MessageFormat-processed, so their apostrophes stay single. All catalog lines below already follow this rule.
 - Keys are namespaced by domain: `auth.*`, `project.*`, `workflow.*`, `sprint.*`, `report.*`, `integration.*`, `org.*`, `customField.*`, `label.*`, `version.*`, `comment.*`, `attachment.*`, `notification.*`, `automation.*`.
 - TDD: failing test first → watch it fail → minimal implementation → watch it pass → commit. Backend tests run from `backend/` via `./gradlew`. Frequent commits.
-- Each module slice ships as its **own worktree branch + PR**. Suggested session grouping at the ~70% usage checkpoint: **Session 1** = Task 0 + Task 1; **Session 2** = Tasks 2–4; **Session 3** = Tasks 5–7.
+- Each module slice ships as its **own worktree branch + PR**. **Session 1 (Task 0 + Task 1 auth) already shipped in PR #84.** Approved session grouping for the four remaining sessions (Wolfgang, 2026-07-19):
+  - **Session 2** = Task 2 (projects + boards) + Task 3 (workflow) — incl. orElseThrow sites.
+  - **Session 3** = Task 4 (agile-reports) + Task 8 (issues). **Order matters:** Task 4 defines `sprint.notFound` and `issue.notFoundGeneric`, which Task 8 reuses — run Task 4 first.
+  - **Session 4** = Task 5 (integrations) + Task 6 (orgs — incl. `error()` `org.notFound`, the `AccessDeniedException`, `org.memberNotFound`, `AuthController` `ResponseStatusException`, and the OIDC `check` `auth.autoProvisionDisabled` follow-up) + Task 7 (content — incl. `attachment/comment/customField/label/version` `.notFound`).
+  - **Session 5** = Task 9 (servicedesk) — the 6× 500→404 fixes + status-change tests.
+
+### Approved decisions (Wolfgang, 2026-07-19)
+
+1. **Sprint-not-found unification:** ONE key `sprint.notFound = "Sprint not found: {0}"` — pass the in-scope `sprintId` at ALL four sites (`ReportsService:32,72`, `SprintService:115`, `IssueService:170`). No separate no-arg `sprint.notFoundWithId`. Matches the codebase's `*.notFound` id-in-message convention.
+2. **`auth.autoProvisionDisabled`:** INCLUDE as a keyed `ForbiddenException` (403) for `OidcUserProvisioningService:31` `check`. Still SKIP the two internal invariants (`SsoController:35` `clientSecret required`, `OidcUserProvisioningService:28` `OIDC user has no email`) and the two webhook `SecurityException`s — those are not user-facing.
+3. **Status-change tests:** every construct-3/4 conversion that changes the HTTP status (the 6× 500→404 in servicedesk; the 2× 500→404 in `OrganizationService.findBySlug`/`findById`; the OIDC 500→403) gets a test asserting the NEW status + localized body. `ResponseStatusException`→keyed conversions that keep their status (the servicedesk 400s, `AuthController` 403) still get a test asserting status + `$.code` + localized body. Grep existing tests for any assertion of the old 500/RSE behavior and update it (the current servicedesk test dir has no web-layer tests, so none exist to update).
+4. **No new exception handler needed** provided every user-facing `error()`/`check()` site is converted to a keyed exception. The sweep must leave **no user-facing `IllegalStateException`** — see Final verification.
+
+### Out of scope (leave as-is)
+
+- `IncomingWebhookService` `SecurityException` ×2 (webhook signature/token) — security internals.
+- `SsoController:35` `clientSecret required`, `OidcUserProvisioningService:28` `OIDC user has no email` — internal invariants.
+- `log.error(...)` in `EmailIngestionService` — logging, not an exception.
+
+> **Folded into scope (Wolfgang, 2026-07-19):** the two items discovered during plan review are now in scope — `OrganizationService.findById:33` `NoSuchElementException` (Task 6, a second 500→404 fix) and the seven `IssueService` free-text throws `:184, :312, :357, :361, :367, :371, :386` (Task 8). They are no longer flags; their swaps are itemized in those tasks.
 
 ---
 
@@ -39,8 +60,10 @@
 - Task 3 (workflow): `WorkflowService.kt`
 - Task 4 (agile-reports): `SprintService.kt`, `ReportsService.kt`, `DashboardService.kt`
 - Task 5 (integrations): `WebhookService.kt`, `ProjectIntegrationService.kt`, `SsrfValidator.kt`, `IncomingWebhookService.kt` (+ `SsrfValidatorTest.kt`)
-- Task 6 (organizations): `OrganizationService.kt`, `AutomationService.kt`, `AdminAutomationController.kt`, `organizations/api/dto/CreateOrganizationRequest.kt`
+- Task 6 (organizations): `OrganizationService.kt`, `AutomationService.kt`, `AdminAutomationController.kt`, `organizations/api/dto/CreateOrganizationRequest.kt`, **`auth/api/AuthController.kt`** (RSE follow-up), **`auth/application/OidcUserProvisioningService.kt`** (OIDC `check` follow-up)
 - Task 7 (content): `CustomFieldService.kt`, `LabelService.kt`, `VersionService.kt`, `CommentService.kt`, `AttachmentService.kt`, `StorageService.kt`, `NotificationService.kt`, `NotificationPreferenceController.kt`
+- Task 8 (issues): `issues/application/IssueService.kt`
+- Task 9 (servicedesk): `servicedesk/api/ServiceDeskController.kt`, `servicedesk/api/IncidentController.kt`
 
 **Backend (create — tests, one resolution test per slice + one e2e in Task 1):**
 - `backend/src/test/kotlin/com/taskowolf/i18n/AuthMessagesTest.kt` (+ `AuthErrorLocalizationTest.kt`, e2e)
@@ -50,6 +73,10 @@
 - `backend/src/test/kotlin/com/taskowolf/i18n/IntegrationMessagesTest.kt`
 - `backend/src/test/kotlin/com/taskowolf/i18n/OrganizationMessagesTest.kt`
 - `backend/src/test/kotlin/com/taskowolf/i18n/ContentMessagesTest.kt`
+- `backend/src/test/kotlin/com/taskowolf/i18n/IssuesMessagesTest.kt` (Task 8)
+- `backend/src/test/kotlin/com/taskowolf/i18n/ServiceDeskMessagesTest.kt` (Task 9 — resolution)
+- `backend/src/test/kotlin/com/taskowolf/servicedesk/ServiceDeskErrorLocalizationTest.kt` (Task 9 — web-layer status-change guard)
+- `backend/src/test/kotlin/com/taskowolf/organizations/OrgSwitchLocalizationTest.kt` (Task 6 — `AuthController` RSE→403 guard)
 
 > **Resolution-test pattern (used by every slice).** A fast, no-Spring-context test that loads the real catalog via `ResourceBundleMessageSource` and asserts each new key renders the exact English and German text (exercising `\uXXXX` decoding, placeholder substitution, and the MessageFormat quote-doubling). Each slice writes one such file. The shared shape:
 > ```kotlin
@@ -493,6 +520,15 @@ Run: `cd backend && ./gradlew test --tests "com.taskowolf.i18n.ProjectMessagesTe
 
 - `throw NotFoundException("Project has no workflow")` → `throw NotFoundException.keyed("project.noWorkflow")`
 
+#### orElseThrow / error / AccessDenied sites
+
+Two `.orElseThrow` sites in `ProjectService.kt` reuse keys that already exist — `project.notFound` (added in Step 1 of this task) and `user.notFound` (shipped in PR #84). **No new keys, no catalog or resolution-test changes.** (`ProjectService.kt` already imports `NotFoundException`.)
+
+- [ ] **Step 6b: Swap the two `ProjectService.kt` orElseThrow sites**
+
+- `ProjectService.kt:59` `.orElseThrow { NotFoundException("Project not found: $projectId") }` → `.orElseThrow { NotFoundException.keyed("project.notFound", projectId) }`
+- `ProjectService.kt:106` `.orElseThrow { NotFoundException("User not found") }` → `.orElseThrow { NotFoundException.keyed("user.notFound") }`
+
 - [ ] **Step 7: Full suite + gates**
 
 Run: `cd backend && ./gradlew test` → BUILD SUCCESSFUL. (`ProjectServiceTest`, `ProjectMemberIntegrationTest`, etc. assert type/status, not message text.)
@@ -564,6 +600,46 @@ workflow.transitionNotFound=Übergang nicht gefunden: {0}
 - `throw BadRequestException("Transition blocked: role '$userRole' not permitted")` → `throw BadRequestException.keyed("workflow.transitionRoleNotPermitted", userRole)`
 - `throw NotFoundException("Status not found: $statusId")` → `throw NotFoundException.keyed("workflow.statusNotFound", statusId)`
 - `throw NotFoundException("Transition not found: $transitionId")` → `throw NotFoundException.keyed("workflow.transitionNotFound", transitionId)`
+
+#### orElseThrow / error / AccessDenied sites
+
+`WorkflowService.kt` has eight `.orElseThrow` sites. Seven reuse the `workflow.statusNotFound` / `workflow.transitionNotFound` keys added in Step 1; three introduce one **new** key `workflow.notFound` (distinct from `workflow.noneForProject`).
+
+- [ ] **Step 5b: Add the `workflow.notFound` key (en + de)**
+
+Append to `messages.properties` (under the `# --- workflow ---` section):
+
+```properties
+workflow.notFound=Workflow not found: {0}
+```
+
+Append to `messages_de.properties` (under `# --- workflow ---`, `\uXXXX`-escaped — `nicht` has no non-ASCII, so no escape needed here):
+
+```properties
+workflow.notFound=Workflow nicht gefunden: {0}
+```
+
+- [ ] **Step 5c: Extend `WorkflowMessagesTest.kt` with the new key**
+
+Add to the `@Test fun ...` body:
+
+```kotlin
+        assertEquals("Workflow not found: 12", en("workflow.notFound", 12))
+        assertEquals("Workflow nicht gefunden: 12", de("workflow.notFound", 12))
+```
+
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.i18n.WorkflowMessagesTest"` → PASS.
+
+- [ ] **Step 5d: Swap the eight `WorkflowService.kt` orElseThrow sites**
+
+- `:46` `.orElseThrow { NotFoundException("Status not found: $statusId") }` → `.orElseThrow { NotFoundException.keyed("workflow.statusNotFound", statusId) }`
+- `:51` `.orElseThrow { NotFoundException("Workflow not found: $workflowId") }` → `.orElseThrow { NotFoundException.keyed("workflow.notFound", workflowId) }`
+- `:117` `.orElseThrow { NotFoundException("Workflow not found: $workflowId") }` → `.orElseThrow { NotFoundException.keyed("workflow.notFound", workflowId) }`
+- `:125` `.orElseThrow { NotFoundException("Status not found: $statusId") }` → `.orElseThrow { NotFoundException.keyed("workflow.statusNotFound", statusId) }`
+- `:143` `.orElseThrow { NotFoundException("Workflow not found: $workflowId") }` → `.orElseThrow { NotFoundException.keyed("workflow.notFound", workflowId) }`
+- `:145` `.orElseThrow { NotFoundException("Status not found: $toStatusId") }` → `.orElseThrow { NotFoundException.keyed("workflow.statusNotFound", toStatusId) }`
+- `:147` `statusRepository.findById(it).orElseThrow { NotFoundException("Status not found: $it") }` → `statusRepository.findById(it).orElseThrow { NotFoundException.keyed("workflow.statusNotFound", it) }`
+- `:161` `.orElseThrow { NotFoundException("Transition not found: $transitionId") }` → `.orElseThrow { NotFoundException.keyed("workflow.transitionNotFound", transitionId) }`
 
 - [ ] **Step 6: Full suite + gates** → `cd backend && ./gradlew test` → BUILD SUCCESSFUL. (`WorkflowTransitionGuardTest` asserts `BadRequestException` type.)
 
@@ -647,6 +723,62 @@ report.dashboardNotFound=Dashboard nicht gefunden
 - [ ] **Step 7: Swap `DashboardService.kt`** (both occurrences)
 
 - `throw NotFoundException("Dashboard not found")` → `throw NotFoundException.keyed("report.dashboardNotFound")`
+
+#### orElseThrow / error / AccessDenied sites
+
+Three **new** keys, six `.orElseThrow` swaps. Per **Decision 1**, `sprint.notFound` carries the id at every site (`ReportsService:32,72`, `SprintService:115`, and — in Task 8 — `IssueService:170`). `issue.notFoundGeneric` is the no-arg "Issue not found" (distinct from the P1 `issue.notFound` = "Issue {0} not found"); Task 8 reuses it too.
+
+- [ ] **Step 7b: Add English keys**
+
+Append to `messages.properties`:
+
+```properties
+report.widgetNotFound=Widget not found: {0}
+sprint.notFound=Sprint not found: {0}
+issue.notFoundGeneric=Issue not found
+```
+
+- [ ] **Step 7c: Add German keys** (`\uXXXX`-escaped where needed — none of these three have non-ASCII characters)
+
+Append to `messages_de.properties`:
+
+```properties
+report.widgetNotFound=Widget nicht gefunden: {0}
+sprint.notFound=Sprint nicht gefunden: {0}
+issue.notFoundGeneric=Vorgang nicht gefunden
+```
+
+- [ ] **Step 7d: Extend `AgileReportsMessagesTest.kt`**
+
+Add to the test body:
+
+```kotlin
+        assertEquals("Widget not found: 8", en("report.widgetNotFound", 8))
+        assertEquals("Widget nicht gefunden: 8", de("report.widgetNotFound", 8))
+        assertEquals("Sprint not found: 42", en("sprint.notFound", 42))
+        assertEquals("Sprint nicht gefunden: 42", de("sprint.notFound", 42))
+        assertEquals("Issue not found", en("issue.notFoundGeneric"))
+        assertEquals("Vorgang nicht gefunden", de("issue.notFoundGeneric"))
+```
+
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.i18n.AgileReportsMessagesTest"` → PASS.
+
+- [ ] **Step 7e: Swap the six orElseThrow sites**
+
+`DashboardService.kt`:
+- `:36` `.orElseThrow { NotFoundException("Widget not found: ${item.widgetId}") }` → `.orElseThrow { NotFoundException.keyed("report.widgetNotFound", item.widgetId) }`
+- `:71` `.orElseThrow { NotFoundException("Widget not found: $widgetId") }` → `.orElseThrow { NotFoundException.keyed("report.widgetNotFound", widgetId) }`
+
+`ReportsService.kt` (both occurrences, var `sprintId` in scope):
+- `:32` `.orElseThrow { NotFoundException("Sprint not found") }` → `.orElseThrow { NotFoundException.keyed("sprint.notFound", sprintId) }`
+- `:72` `.orElseThrow { NotFoundException("Sprint not found") }` → `.orElseThrow { NotFoundException.keyed("sprint.notFound", sprintId) }`
+
+`SprintService.kt`:
+- `:97` `.orElseThrow { NotFoundException("Issue not found") }` → `.orElseThrow { NotFoundException.keyed("issue.notFoundGeneric") }`
+- `:108` `.orElseThrow { NotFoundException("Issue not found") }` → `.orElseThrow { NotFoundException.keyed("issue.notFoundGeneric") }`
+- `:115` `.orElseThrow { NotFoundException("Sprint not found") }` → `.orElseThrow { NotFoundException.keyed("sprint.notFound", sprintId) }`
+
+(All three files already import `NotFoundException`.)
 
 - [ ] **Step 8: Full suite + gates** → `cd backend && ./gradlew test` → BUILD SUCCESSFUL. (`SprintServiceTest` asserts `ConflictException` type.)
 
@@ -763,6 +895,10 @@ Each of the four (`localhost is rejected`, `127_0_0_1 is rejected`, `10_x privat
 
 (Leave `public URL is accepted` unchanged.)
 
+#### orElseThrow / error / AccessDenied sites
+
+**None.** Per the scope-correction inventory the `integrations` module has no `.orElseThrow`, `error()`/`check()`, `ResponseStatusException`, or `AccessDeniedException` user-facing sites. Its `IllegalArgumentException`→`BadRequestException` conversions (the only non-`throw`-keyword construct present) are already handled in Steps 6–9 above. Nothing to add here.
+
 - [ ] **Step 10: Full suite + gates**
 
 Run: `cd backend && ./gradlew test`
@@ -848,7 +984,7 @@ automation.systemAdminRequired=Systemadministratorrolle erforderlich
 
 - [ ] **Step 6: Swap `AutomationService.kt` + `AdminAutomationController.kt`**
 
-- `AutomationService.kt`: `throw NotFoundException("Rule not found: $ruleId")` → `throw NotFoundException.keyed("automation.ruleNotFound", ruleId)`
+- `AutomationService.kt:64` (this site is an `.orElseThrow` lambda, not a bare `throw`): `.orElseThrow { NotFoundException("Rule not found: $ruleId") }` → `.orElseThrow { NotFoundException.keyed("automation.ruleNotFound", ruleId) }`
 - `AdminAutomationController.kt`: `throw ForbiddenException("System admin role required")` → `throw ForbiddenException.keyed("automation.systemAdminRequired")`
 
 - [ ] **Step 7: Key the slug validation message**
@@ -859,6 +995,161 @@ In `organizations/api/dto/CreateOrganizationRequest.kt`, change:
     @field:NotBlank @field:Pattern(regexp = "^[a-z0-9-]+$", message = "{org.slug.pattern}") val slug: String
 ```
 
+#### orElseThrow / error / AccessDenied sites
+
+This task also absorbs the auth follow-ups (the auth slice already merged in PR #84, so these are handled here, NOT via a re-open of #84). Covers all five constructs:
+
+- **Construct 2 (`orElseThrow`):** `OrganizationService:51,99` User → `user.notFound` (reuse, PR #84); `OrganizationService:59,89` Member → `org.memberNotFound` (**new**). `AutomationService:64` already handled in Step 6.
+- **Construct 3 (`error()` / `NoSuchElementException`):** `OrganizationService:30` `findBySlug` and `OrganizationService:33` `findById` → `org.notFound` (**new**, **two 500→404 fixes** — both lookups currently throw unhandled exceptions that surface as 500).
+- **Construct 3 (`check`):** `OidcUserProvisioningService:31` → `auth.autoProvisionDisabled` (**new**, **500→403 fix**, Decision 2).
+- **Construct 4 (`ResponseStatusException`):** `AuthController:55` `switch-org` → `org.notMemberCurrent` (**new**, stays 403).
+- **Construct 5 (`AccessDeniedException`):** `OrganizationService:82` → `org.notMember` (**new**, stays 403).
+
+- [ ] **Step 7b: Add English keys**
+
+Append to `messages.properties`:
+
+```properties
+org.memberNotFound=Member not found
+org.notFound=Organization not found: {0}
+org.notMember=Not a member of organization {0}
+org.notMemberCurrent=Not a member of this organization
+```
+
+Append to the `# --- auth ---` section:
+
+```properties
+auth.autoProvisionDisabled=Auto-provisioning is disabled
+```
+
+- [ ] **Step 7c: Add German keys** (`\uXXXX`-escaped where needed)
+
+Append to `messages_de.properties` (`Organisation`, `Mitglied` have no non-ASCII):
+
+```properties
+org.memberNotFound=Mitglied nicht gefunden
+org.notFound=Organisation nicht gefunden: {0}
+org.notMember=Kein Mitglied der Organisation {0}
+org.notMemberCurrent=Kein Mitglied dieser Organisation
+```
+
+Append to the `# --- auth ---` section:
+
+```properties
+auth.autoProvisionDisabled=Automatische Bereitstellung ist deaktiviert
+```
+
+- [ ] **Step 7d: Extend `OrganizationMessagesTest.kt`**
+
+Add to the test body:
+
+```kotlin
+        assertEquals("Member not found", en("org.memberNotFound"))
+        assertEquals("Mitglied nicht gefunden", de("org.memberNotFound"))
+        assertEquals("Organization not found: acme", en("org.notFound", "acme"))
+        assertEquals("Organisation nicht gefunden: acme", de("org.notFound", "acme"))
+        assertEquals("Not a member of this organization", en("org.notMemberCurrent"))
+        assertEquals("Kein Mitglied dieser Organisation", de("org.notMemberCurrent"))
+        assertEquals("Auto-provisioning is disabled", en("auth.autoProvisionDisabled"))
+        assertEquals("Automatische Bereitstellung ist deaktiviert", de("auth.autoProvisionDisabled"))
+```
+
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.i18n.OrganizationMessagesTest"` → PASS.
+
+- [ ] **Step 7e: Swap the `OrganizationService.kt` orElseThrow + error + AccessDenied sites**
+
+- `:30` `fun findBySlug(slug: String) = orgRepo.findBySlug(slug) ?: error("Org not found: $slug")` → `fun findBySlug(slug: String) = orgRepo.findBySlug(slug) ?: throw NotFoundException.keyed("org.notFound", slug)`
+- `:33` `fun findById(id: UUID) = orgRepo.findById(id).orElseThrow { NoSuchElementException("Org not found: $id") }` → `fun findById(id: UUID) = orgRepo.findById(id).orElseThrow { NotFoundException.keyed("org.notFound", id) }` (reuses `org.notFound`; renders "Organization not found: &lt;id&gt;")
+- `:51` `.orElseThrow { NotFoundException("User not found") }` → `.orElseThrow { NotFoundException.keyed("user.notFound") }`
+- `:59` `.orElseThrow { NotFoundException("Member not found") }` → `.orElseThrow { NotFoundException.keyed("org.memberNotFound") }`
+- `:82` `if (!isMember) throw AccessDeniedException("Not a member of organization $orgId")` → `if (!isMember) throw ForbiddenException.keyed("org.notMember", orgId)`
+- `:89` `.orElseThrow { NotFoundException("Member not found") }` → `.orElseThrow { NotFoundException.keyed("org.memberNotFound") }`
+- `:99` `.orElseThrow { NotFoundException("User not found") }` → `.orElseThrow { NotFoundException.keyed("user.notFound") }`
+
+Then **remove the now-unused import** `import org.springframework.security.access.AccessDeniedException` (line 13). (`NotFoundException`, `ForbiddenException`, `ConflictException` remain imported.) `requireMembershipOrAdmin` is service code — no security filter matches on the `AccessDeniedException` type here, so the switch to `ForbiddenException` (still HTTP 403 via `GlobalExceptionHandler`) is safe.
+
+- [ ] **Step 7f: Swap `AuthController.kt:55` (ResponseStatusException → keyed, stays 403)**
+
+In `auth/api/AuthController.kt`, `switchOrg`:
+
+```kotlin
+        if (userOrgs.none { it.id == orgId }) {
+            throw ForbiddenException.keyed("org.notMemberCurrent")
+        }
+```
+
+Add `import com.taskowolf.core.infrastructure.ForbiddenException`. If `ResponseStatusException` / `HttpStatus` are now unused in the file, remove those imports (verify — other handlers in the file may still use them).
+
+- [ ] **Step 7g: Swap `OidcUserProvisioningService.kt:31` (`check` → keyed, 500→403)**
+
+Replace the `check(...)`:
+
+```kotlin
+            if (config?.autoProvision == false) throw ForbiddenException.keyed("auth.autoProvisionDisabled")
+```
+
+Add `import com.taskowolf.core.infrastructure.ForbiddenException`. Leave `OidcUserProvisioningService:28` `?: error("OIDC user has no email")` untouched (Decision 2 — internal invariant).
+
+- [ ] **Step 7h: Write the `AuthController` switch-org status/localization guard**
+
+`backend/src/test/kotlin/com/taskowolf/organizations/OrgSwitchLocalizationTest.kt` — proves the RSE→keyed swap keeps 403 and renders the standard localized `ErrorResponse`:
+
+```kotlin
+package com.taskowolf.organizations
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.taskowolf.IntegrationTestBase
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
+
+class OrgSwitchLocalizationTest : IntegrationTestBase() {
+
+    @Autowired private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var objectMapper: ObjectMapper
+
+    private fun register(email: String): String {
+        val res = mockMvc.perform(
+            post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+                .content("""{"email":"$email","displayName":"User","password":"password123"}""")
+        ).andReturn()
+        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asText()
+    }
+
+    @Test
+    fun `switching to a non-member org returns localized 403 (de)`() {
+        val token = register("switch-de@test.com")
+        mockMvc.perform(
+            post("/api/v1/auth/switch-org/${UUID.randomUUID()}")
+                .header("Authorization", "Bearer $token")
+                .header("Accept-Language", "de")
+        ).andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+            .andExpect(jsonPath("$.message").value("Kein Mitglied dieser Organisation"))
+    }
+
+    @Test
+    fun `switching to a non-member org returns english by default`() {
+        val token = register("switch-en@test.com")
+        mockMvc.perform(
+            post("/api/v1/auth/switch-org/${UUID.randomUUID()}")
+                .header("Authorization", "Bearer $token")
+                .header("Accept-Language", "en")
+        ).andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.message").value("Not a member of this organization"))
+    }
+}
+```
+
+> **Status-change coverage (Decision 3):** `findBySlug` + `findById` (500→404) and the OIDC `check` (500→403) are exercised at the service/unit layer rather than via MockMvc (the OIDC path needs a full OAuth2 login the web layer can't easily drive). After swapping, grep `OidcUserProvisioningServiceTest` and any `OrganizationServiceTest` for assertions of `IllegalStateException` / `NoSuchElementException` / a 500 status and update them to `ForbiddenException` / `NotFoundException` — in particular any existing test asserting `findById`/`findBySlug` throws `NoSuchElementException`/`IllegalStateException` must switch to `NotFoundException`. If no such assertion exists, add one MockK service test: `handleOidcLogin` with `config.autoProvision = false` and an unknown email → `assertThrows<ForbiddenException>`.
+
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.organizations.OrgSwitchLocalizationTest"` → PASS.
+
 - [ ] **Step 8: Full suite + gates** → `cd backend && ./gradlew test` → BUILD SUCCESSFUL. (`OrganizationServiceTest`/`OrganizationMemberIntegrationTest` assert type/status.)
 
 - [ ] **Step 9: Commit**
@@ -866,8 +1157,11 @@ In `organizations/api/dto/CreateOrganizationRequest.kt`, change:
 ```bash
 git add backend/src/main/resources/messages*.properties \
         backend/src/main/kotlin/com/taskowolf/organizations backend/src/main/kotlin/com/taskowolf/automation \
-        backend/src/test/kotlin/com/taskowolf/i18n/OrganizationMessagesTest.kt
-git commit -m "feat(i18n): localize organizations and automation errors + org slug validation"
+        backend/src/main/kotlin/com/taskowolf/auth/api/AuthController.kt \
+        backend/src/main/kotlin/com/taskowolf/auth/application/OidcUserProvisioningService.kt \
+        backend/src/test/kotlin/com/taskowolf/i18n/OrganizationMessagesTest.kt \
+        backend/src/test/kotlin/com/taskowolf/organizations/OrgSwitchLocalizationTest.kt
+git commit -m "feat(i18n): localize organizations + automation + auth follow-ups (org.notFound 500->404, switch-org 403, OIDC auto-provision 403)"
 ```
 
 ---
@@ -969,6 +1263,77 @@ notification.unknownType=Unbekannter Benachrichtigungstyp: {0}
 
 (Confirm `NotificationPreferenceController.kt` imports `BadRequestException`; if not, add `import com.taskowolf.core.infrastructure.BadRequestException`.)
 
+#### orElseThrow / error / AccessDenied sites
+
+Five **new** `.notFound` keys (all id-in-message, `{0}` arg) + reuse of `customField.optionNotFound`, 13 `.orElseThrow` swaps across five content services. No quotes → no MessageFormat doubling concerns.
+
+> **`customField.optionNotFound` is already defined by Task 8** (which runs earlier, in Session 3). Do NOT re-append it here — just reference it in the swaps. It is the only shared key; the other five below are new.
+
+- [ ] **Step 5b: Add English keys**
+
+Append to `messages.properties` (each under its existing `# --- <domain> ---` section):
+
+```properties
+customField.notFound=Custom field not found: {0}
+label.notFound=Label not found: {0}
+version.notFound=Version not found: {0}
+comment.notFound=Comment not found: {0}
+attachment.notFound=Attachment not found: {0}
+```
+
+- [ ] **Step 5c: Add German keys** (`\uXXXX`-escaped where needed — `Benutzerdefiniertes` etc. have no non-ASCII)
+
+Append to `messages_de.properties`:
+
+```properties
+customField.notFound=Benutzerdefiniertes Feld nicht gefunden: {0}
+label.notFound=Label nicht gefunden: {0}
+version.notFound=Version nicht gefunden: {0}
+comment.notFound=Kommentar nicht gefunden: {0}
+attachment.notFound=Anhang nicht gefunden: {0}
+```
+
+- [ ] **Step 5d: Extend `ContentMessagesTest.kt`**
+
+Add to the test body:
+
+```kotlin
+        assertEquals("Custom field not found: 5", en("customField.notFound", 5))
+        assertEquals("Benutzerdefiniertes Feld nicht gefunden: 5", de("customField.notFound", 5))
+        assertEquals("Option not found: 7", en("customField.optionNotFound", 7))   // reuse — key defined in Task 8
+        assertEquals("Option nicht gefunden: 7", de("customField.optionNotFound", 7))
+        assertEquals("Label not found: 9", en("label.notFound", 9))
+        assertEquals("Label nicht gefunden: 9", de("label.notFound", 9))
+        assertEquals("Version not found: 3", en("version.notFound", 3))
+        assertEquals("Version nicht gefunden: 3", de("version.notFound", 3))
+        assertEquals("Comment not found: 2", en("comment.notFound", 2))
+        assertEquals("Kommentar nicht gefunden: 2", de("comment.notFound", 2))
+        assertEquals("Attachment not found: 4", en("attachment.notFound", 4))
+        assertEquals("Anhang nicht gefunden: 4", de("attachment.notFound", 4))
+```
+
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.i18n.ContentMessagesTest"` → PASS.
+
+- [ ] **Step 5e: Swap the 13 orElseThrow sites**
+
+`CustomFieldService.kt`:
+- `:56, :81, :90, :102, :116` (five occurrences) `.orElseThrow { NotFoundException("Custom field not found: $fieldId") }` → `.orElseThrow { NotFoundException.keyed("customField.notFound", fieldId) }`
+- `:105, :119` (two occurrences) `.orElseThrow { NotFoundException("Option not found: $optId") }` → `.orElseThrow { NotFoundException.keyed("customField.optionNotFound", optId) }` (reuses the key defined in Task 8)
+
+`LabelService.kt` (both occurrences, `:39, :53`):
+- `.orElseThrow { NotFoundException("Label not found: $labelId") }` → `.orElseThrow { NotFoundException.keyed("label.notFound", labelId) }`
+
+`VersionService.kt` (both occurrences, `:40, :53`):
+- `.orElseThrow { NotFoundException("Version not found: $versionId") }` → `.orElseThrow { NotFoundException.keyed("version.notFound", versionId) }`
+
+`CommentService.kt` (both occurrences, `:39, :57`):
+- `.orElseThrow { NotFoundException("Comment not found: $commentId") }` → `.orElseThrow { NotFoundException.keyed("comment.notFound", commentId) }`
+
+`AttachmentService.kt` (`:47`):
+- `.orElseThrow { NotFoundException("Attachment not found: $attachmentId") }` → `.orElseThrow { NotFoundException.keyed("attachment.notFound", attachmentId) }`
+
+(All five files already import `NotFoundException`.)
+
 - [ ] **Step 6: Full suite + gates** → `cd backend && ./gradlew test` → BUILD SUCCESSFUL. (`CustomFieldServiceTest`, `LabelServiceTest`, `VersionServiceTest`, `CommentServiceTest`, `AttachmentServiceTest`, `StorageServiceTest`, `NotificationServiceTest` all assert type.)
 
 - [ ] **Step 7: Commit**
@@ -984,12 +1349,347 @@ git commit -m "feat(i18n): localize content module error messages (custom fields
 
 ---
 
+## Task 8: `issues` slice (5 orElseThrow + 7 folded-in free-text sites)
+
+**Files:** catalogs; `issues/application/IssueService.kt`; create `backend/src/test/kotlin/com/taskowolf/i18n/IssuesMessagesTest.kt`.
+
+**Interfaces:** Consumes `.keyed()`. **Depends on Task 4** (same Session 3, runs first): reuses `sprint.notFound` and `issue.notFoundGeneric` defined there, plus the P1 keys `issue.notFound` (="Issue {0} not found"), `issue.assigneeNotFound` (="Assignee {0} not found"), and `project.noWorkflow`. **New keys:** `issue.parentNotFound`, `issue.statusNotInWorkflow`, and the custom-field-validation set `customField.invalidNumber`, `customField.invalidDate`, `customField.invalidOptionId`, `customField.optionNotFound`, `customField.requiredMissing`.
+
+> **Cross-task ordering — `customField.optionNotFound` is defined HERE.** Task 8 (Session 3) runs **before** Task 7 (Session 4), and both hit the free-text `"Option not found: {0}"`. This task introduces `customField.optionNotFound`; Task 7 **reuses** it (its subsection says so — do NOT re-append it there). The other four `customField.*` validation keys are Task-8-only (those throws live in `IssueService.applyCustomFieldValues`, not `CustomFieldService`).
+
+The Phase-1 pilot keyed the `throw`-keyword issue sites but left these `.orElseThrow` sites — and the seven free-text `throw`/`orElseThrow` sites Wolfgang folded in on 2026-07-19 — untouched.
+
+- [ ] **Step 1: Add the new English keys**
+
+Append to `messages.properties`. The `# --- issue (pilot) ---` section exists from Phase 1; **this task is the first to introduce `customField.*` keys** (Task 7 runs later), so add a `# --- customField ---` comment before the customField lines:
+
+```properties
+issue.parentNotFound=Parent issue not found: {0}
+issue.statusNotInWorkflow=Status does not belong to project's workflow
+customField.invalidNumber=Invalid number for field ''{0}'': {1}
+customField.invalidDate=Invalid date for field ''{0}'': {1}
+customField.invalidOptionId=Invalid option ID for field ''{0}''
+customField.optionNotFound=Option not found: {0}
+customField.requiredMissing=Required custom field ''{0}'' must have a value
+```
+
+> `issue.statusNotInWorkflow` is resolved with **no args**, so its apostrophe in `project's` stays single (no MessageFormat). The four `customField.*` messages that carry a field name (`''{0}''`) ARE arg-bearing, so their literal single quotes MUST be doubled (`''`). `customField.optionNotFound` has no literal quotes.
+
+- [ ] **Step 1b: Add the new German keys** (`\uXXXX`-escaped where needed)
+
+Append to `messages_de.properties`. Shown with readable umlauts; write `Ü`=`Ü`, `ö`=`ö`, `ü`=`ü` — `IssuesMessagesTest` (Step 2) asserts the decoded strings, so mojibake fails the test:
+
+```properties
+issue.parentNotFound=Übergeordneter Vorgang nicht gefunden: {0}
+issue.statusNotInWorkflow=Status gehört nicht zum Workflow des Projekts
+customField.invalidNumber=Ungültige Zahl für Feld ''{0}'': {1}
+customField.invalidDate=Ungültiges Datum für Feld ''{0}'': {1}
+customField.invalidOptionId=Ungültige Options-ID für Feld ''{0}''
+customField.optionNotFound=Option nicht gefunden: {0}
+customField.requiredMissing=Pflichtfeld ''{0}'' muss einen Wert haben
+```
+
+- [ ] **Step 2: Write the resolution test**
+
+`backend/src/test/kotlin/com/taskowolf/i18n/IssuesMessagesTest.kt` (resolution-test shape from File Structure). Asserts the new key plus the reused keys render correctly (guards the Decision-1 id-in-message form and the P1 word order):
+
+```kotlin
+    @Test fun `issue keys render en and de`() {
+        assertEquals("Parent issue not found: PROJ-1", en("issue.parentNotFound", "PROJ-1"))
+        assertEquals("Übergeordneter Vorgang nicht gefunden: PROJ-1", de("issue.parentNotFound", "PROJ-1"))
+        assertEquals("Issue not found: PROJ-2", en("issue.notFound", "PROJ-2"))     // reuse P1 → renders "Issue {0} not found"
+        assertEquals("Vorgang PROJ-2 nicht gefunden", de("issue.notFound", "PROJ-2"))
+        assertEquals("Sprint not found: 8", en("sprint.notFound", 8))               // reuse Task 4
+        assertEquals("Sprint nicht gefunden: 8", de("sprint.notFound", 8))
+        assertEquals("Issue not found", en("issue.notFoundGeneric"))               // reuse Task 4
+        assertEquals("Vorgang nicht gefunden", de("issue.notFoundGeneric"))
+        assertEquals("Assignee not found: 5", en("issue.assigneeNotFound", 5))      // reuse P1 → renders "Assignee {0} not found"
+        assertEquals("Bearbeiter 5 nicht gefunden", de("issue.assigneeNotFound", 5))
+        // folded-in extras
+        assertEquals("Status does not belong to project's workflow", en("issue.statusNotInWorkflow"))
+        assertEquals("Status gehört nicht zum Workflow des Projekts", de("issue.statusNotInWorkflow"))
+        assertEquals("Invalid number for field 'Severity': abc", en("customField.invalidNumber", "Severity", "abc"))
+        assertEquals("Ungültige Zahl für Feld 'Severity': abc", de("customField.invalidNumber", "Severity", "abc"))
+        assertEquals("Invalid date for field 'Due': xx", en("customField.invalidDate", "Due", "xx"))
+        assertEquals("Ungültiges Datum für Feld 'Due': xx", de("customField.invalidDate", "Due", "xx"))
+        assertEquals("Invalid option ID for field 'Team'", en("customField.invalidOptionId", "Team"))
+        assertEquals("Ungültige Options-ID für Feld 'Team'", de("customField.invalidOptionId", "Team"))
+        assertEquals("Option not found: 7", en("customField.optionNotFound", 7))
+        assertEquals("Option nicht gefunden: 7", de("customField.optionNotFound", 7))
+        assertEquals("Required custom field 'Severity' must have a value", en("customField.requiredMissing", "Severity"))
+        assertEquals("Pflichtfeld 'Severity' muss einen Wert haben", de("customField.requiredMissing", "Severity"))
+    }
+```
+
+> The `customField.*` arg-bearing messages render `''{0}''` as a single-quoted `'Severity'` — if you see the literal `{0}` instead, the quote-doubling in the catalog is wrong.
+
+> Note: `issue.notFound` = `Issue {0} not found`, so `en("issue.notFound", "PROJ-2")` renders **"Issue PROJ-2 not found"** — the assertion above must match that exact word order, NOT "Issue not found: PROJ-2". Same for `issue.assigneeNotFound` = "Assignee {0} not found". The P1 key text intentionally differs from the current free-text ("Issue not found: $issueId"); the scope-correction chose reuse (Decision noted in the spec's construct-2 table).
+
+- [ ] **Step 3: Run it** → `cd backend && ./gradlew test --tests "com.taskowolf.i18n.IssuesMessagesTest"` → PASS. (Fix the assertions to the real rendered word order if they fail — the catalog is authoritative.)
+
+- [ ] **Step 4: Swap the five `IssueService.kt` orElseThrow sites**
+
+- `:66` `.orElseThrow { NotFoundException("Parent issue not found: $parentId") }` → `.orElseThrow { NotFoundException.keyed("issue.parentNotFound", parentId) }`
+- `:81` `.orElseThrow { NotFoundException("Issue not found: $issueId") }` → `.orElseThrow { NotFoundException.keyed("issue.notFound", issueId) }`
+- `:170` `.orElseThrow { NotFoundException("Sprint not found: ${request.sprintId}") }` → `.orElseThrow { NotFoundException.keyed("sprint.notFound", request.sprintId) }`
+- `:301` `.orElseThrow { NotFoundException("Issue not found") }` → `.orElseThrow { NotFoundException.keyed("issue.notFoundGeneric") }`
+- `:393` `.orElseThrow { NotFoundException("Assignee not found: $assigneeId") }` → `.orElseThrow { NotFoundException.keyed("issue.assigneeNotFound", assigneeId) }`
+
+- [ ] **Step 4b: Swap the seven folded-in free-text sites**
+
+These use fully-qualified `com.taskowolf.core.infrastructure.*` names in the source (only `NotFoundException` is imported at the top of the file); preserve the FQN form so the `old_string` matches exactly:
+
+- `:184` `throw com.taskowolf.core.infrastructure.ForbiddenException("Status does not belong to project's workflow")` → `throw com.taskowolf.core.infrastructure.ForbiddenException.keyed("issue.statusNotInWorkflow")`
+- `:312` `?: throw com.taskowolf.core.infrastructure.NotFoundException("Project has no workflow")` → `?: throw com.taskowolf.core.infrastructure.NotFoundException.keyed("project.noWorkflow")` (reuses the Phase-1 key)
+- `:357` `?: throw com.taskowolf.core.infrastructure.BadRequestException("Invalid number for field '${definition.name}': ${input.value}")` → `?: throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.invalidNumber", definition.name, input.value)`
+- `:361` `throw com.taskowolf.core.infrastructure.BadRequestException("Invalid date for field '${definition.name}': ${input.value}")` → `throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.invalidDate", definition.name, input.value)`
+- `:367` `throw com.taskowolf.core.infrastructure.BadRequestException("Invalid option ID for field '${definition.name}'")` → `throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.invalidOptionId", definition.name)`
+- `:371` `.orElseThrow { com.taskowolf.core.infrastructure.BadRequestException("Option not found: $optId") }` → `.orElseThrow { com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.optionNotFound", optId) }`
+- `:386` `throw com.taskowolf.core.infrastructure.BadRequestException("Required custom field '${field.name}' must have a value")` → `throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.requiredMissing", field.name)`
+
+(`:184` is a 403, `:312` a 404, and the five `customField.*` sites stay 400 — none of these seven change HTTP status; they only localize. `IssueService.kt` already imports `NotFoundException`; the `Forbidden`/`BadRequest` FQN references need no new imports.)
+
+- [ ] **Step 5: Full suite + gates** → `cd backend && ./gradlew test` → BUILD SUCCESSFUL. (`IssueServiceTest` asserts exception type; `IssueErrorLocalizationTest` (P1) already covers the `issue.notFound` web path. If any existing `IssueServiceTest`/custom-field test asserts an exception *message* string for the seven folded-in sites, update it — grep `IssueServiceTest` for `"Invalid number"`/`"Option not found"`/`"Required custom field"`/`"Status does not belong"`.)
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add backend/src/main/resources/messages*.properties \
+        backend/src/main/kotlin/com/taskowolf/issues \
+        backend/src/test/kotlin/com/taskowolf/i18n/IssuesMessagesTest.kt
+git commit -m "feat(i18n): localize issues errors (orElseThrow + custom-field validation + status-not-in-workflow)"
+```
+
+---
+
+## Task 9: `servicedesk` slice (9 error() + 2 ResponseStatusException — fixes 6× 500→404)
+
+**Files:** catalogs; `servicedesk/api/ServiceDeskController.kt`, `servicedesk/api/IncidentController.kt`; create `backend/src/test/kotlin/com/taskowolf/i18n/ServiceDeskMessagesTest.kt` and `backend/src/test/kotlin/com/taskowolf/servicedesk/ServiceDeskErrorLocalizationTest.kt`.
+
+**Interfaces:** Consumes `.keyed()`. This module was entirely absent from the original plan. Nine `?: error("…")` sites currently throw unhandled `IllegalStateException` → **HTTP 500**; converting them to keyed `NotFoundException` fixes the status to **404** (the 6× `project.notFound` conversions are the headline fix; the 3× `serviceDesk.notEnabled` conversions are also 500→404). Two `ResponseStatusException(BAD_REQUEST, …)` sites become keyed `BadRequestException` (stay 400, but gain the standard localized `ErrorResponse` body). New keys: `serviceDesk.notEnabled`, `serviceDesk.invalidPriority`, `incident.invalidSeverity`; `project.notFound` is reused (defined in Task 2). Enum lists: `IssuePriority.entries.joinToString()` = `"CRITICAL, HIGH, MEDIUM, LOW"`; `IncidentSeverity.entries.joinToString()` = `"P1, P2, P3, P4"`.
+
+- [ ] **Step 1: Confirm no existing servicedesk web test asserts the old 500/RSE behavior**
+
+Run: `cd backend && grep -rEn 'isInternalServerError|is5xxServerError|ResponseStatusException|IllegalStateException' backend/src/test/kotlin/com/taskowolf/servicedesk`
+Expected: no matches (the servicedesk test dir has only service-layer tests). If any match asserts the old behavior, note it and update it in Step 7's run.
+
+- [ ] **Step 2: Add English keys**
+
+Append to `messages.properties`:
+
+```properties
+# --- serviceDesk ---
+serviceDesk.notEnabled=Service desk not enabled for project: {0}
+serviceDesk.invalidPriority=Invalid priority: {0}. Valid values: {1}
+# --- incident ---
+incident.invalidSeverity=Invalid severity ''{0}''. Must be one of: {1}
+```
+
+> `incident.invalidSeverity` contains literal single quotes around `{0}` and is resolved **with args**, so the quotes MUST be doubled (`''{0}''`) per the MessageFormat rule — in both en and de. `serviceDesk.invalidPriority` has no literal quotes.
+
+- [ ] **Step 3: Add German keys** (`\uXXXX`-escaped)
+
+Append to `messages_de.properties`:
+
+```properties
+# --- serviceDesk ---
+serviceDesk.notEnabled=Servicedesk ist für Projekt {0} nicht aktiviert
+serviceDesk.invalidPriority=Ungültige Priorität: {0}. Gültige Werte: {1}
+# --- incident ---
+incident.invalidSeverity=Ungültiger Schweregrad ''{0}''. Muss einer von: {1}
+```
+
+- [ ] **Step 4: Write the resolution test**
+
+`backend/src/test/kotlin/com/taskowolf/i18n/ServiceDeskMessagesTest.kt` (resolution-test shape). The two-arg messages carry the enum list as `{1}`:
+
+```kotlin
+    @Test fun `servicedesk keys render en and de`() {
+        assertEquals("Service desk not enabled for project: DEMO", en("serviceDesk.notEnabled", "DEMO"))
+        assertEquals("Servicedesk ist für Projekt DEMO nicht aktiviert", de("serviceDesk.notEnabled", "DEMO"))
+        assertEquals("Invalid priority: X. Valid values: CRITICAL, HIGH, MEDIUM, LOW",
+            en("serviceDesk.invalidPriority", "X", "CRITICAL, HIGH, MEDIUM, LOW"))
+        assertEquals("Ungültige Priorität: X. Gültige Werte: CRITICAL, HIGH, MEDIUM, LOW",
+            de("serviceDesk.invalidPriority", "X", "CRITICAL, HIGH, MEDIUM, LOW"))
+        assertEquals("Invalid severity 'SEV5'. Must be one of: P1, P2, P3, P4",
+            en("incident.invalidSeverity", "SEV5", "P1, P2, P3, P4"))
+        assertEquals("Ungültiger Schweregrad 'SEV5'. Muss einer von: P1, P2, P3, P4",
+            de("incident.invalidSeverity", "SEV5", "P1, P2, P3, P4"))
+    }
+```
+
+- [ ] **Step 5: Run it** → `cd backend && ./gradlew test --tests "com.taskowolf.i18n.ServiceDeskMessagesTest"` → PASS. (If `''{0}''` renders as a literal `{0}`, the quote-doubling is wrong.)
+
+- [ ] **Step 6: Swap `ServiceDeskController.kt` (5× project.notFound + 3× serviceDesk.notEnabled + 1 RSE)**
+
+Add imports:
+```kotlin
+import com.taskowolf.core.infrastructure.NotFoundException
+import com.taskowolf.core.infrastructure.BadRequestException
+```
+Then swap:
+- `:32, :38, :51, :72, :87` (five occurrences) `projectRepository.findByKey(key) ?: error("Project not found: $key")` → `projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)`
+- `:40, :73, :88` (three occurrences) `serviceDeskService.findByProject(project.id) ?: error("Service desk not enabled for project: $key")` → `serviceDeskService.findByProject(project.id) ?: throw NotFoundException.keyed("serviceDesk.notEnabled", key)`
+- `:77` the invalid-priority block:
+  ```kotlin
+          throw ResponseStatusException(HttpStatus.BAD_REQUEST,
+              "Invalid priority: ${req.priority}. Valid values: ${IssuePriority.entries.joinToString()}")
+  ```
+  →
+  ```kotlin
+          throw BadRequestException.keyed("serviceDesk.invalidPriority", req.priority, IssuePriority.entries.joinToString())
+  ```
+
+Then **remove the now-unused import** `import org.springframework.web.server.ResponseStatusException` (the only RSE in the file was `:77`). Keep the `HttpStatus` import — it is still used by `@ResponseStatus(HttpStatus.CREATED)` / `@ResponseStatus(HttpStatus.NO_CONTENT)`.
+
+- [ ] **Step 7: Swap `IncidentController.kt` (1× project.notFound + 1 RSE)**
+
+Add imports:
+```kotlin
+import com.taskowolf.core.infrastructure.NotFoundException
+import com.taskowolf.core.infrastructure.BadRequestException
+```
+Then swap:
+- `:50` `projectRepository.findByKey(key) ?: error("Project not found: $key")` → `projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)`
+- `:32` the invalid-severity block:
+  ```kotlin
+          throw ResponseStatusException(
+              HttpStatus.BAD_REQUEST,
+              "Invalid severity '${req.severity}'. Must be one of: ${IncidentSeverity.entries.joinToString()}"
+          )
+  ```
+  →
+  ```kotlin
+          throw BadRequestException.keyed("incident.invalidSeverity", req.severity, IncidentSeverity.entries.joinToString())
+  ```
+
+Then **remove the now-unused import** `import org.springframework.web.server.ResponseStatusException`. Keep `HttpStatus` (used by `@ResponseStatus`).
+
+- [ ] **Step 8: Write the status-change / localization web guard (Decision 3)**
+
+`backend/src/test/kotlin/com/taskowolf/servicedesk/ServiceDeskErrorLocalizationTest.kt` — asserts the corrected status (404 for the ex-500 sites, 400 for the RSE sites) AND the localized `ErrorResponse` body. The registering user is the project owner/admin, satisfying `@projectSecurity.isProjectAdmin`. For invalid-severity, `severity` is parsed **before** `issueId` is used, so a random UUID reaches the 400 path.
+
+```kotlin
+package com.taskowolf.servicedesk
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.taskowolf.IntegrationTestBase
+import org.hamcrest.Matchers.startsWith
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
+
+class ServiceDeskErrorLocalizationTest : IntegrationTestBase() {
+
+    @Autowired private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var objectMapper: ObjectMapper
+
+    private fun register(email: String): String {
+        val res = mockMvc.perform(
+            post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+                .content("""{"email":"$email","displayName":"User","password":"password123"}""")
+        ).andReturn()
+        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asText()
+    }
+    private fun createProject(token: String, key: String) =
+        mockMvc.perform(
+            post("/api/v1/projects").header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"key":"$key","name":"Demo"}""")
+        ).andExpect(status().isCreated)
+    private fun enableServiceDesk(token: String, key: String) =
+        mockMvc.perform(
+            post("/api/v1/projects/$key/service-desk/enable").header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"emailAddress":"desk@test.com"}""")
+        ).andExpect(status().isOk)
+
+    @Test
+    fun `unknown project returns 404 not 500 (localized de)`() {
+        val token = register("sd-nf-de@test.com")
+        mockMvc.perform(
+            get("/api/v1/projects/NOPE/service-desk").header("Authorization", "Bearer $token")
+                .header("Accept-Language", "de")
+        ).andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+            .andExpect(jsonPath("$.message").value("Projekt nicht gefunden: NOPE"))
+    }
+
+    @Test
+    fun `service desk not enabled returns 404 not 500 (localized de)`() {
+        val token = register("sd-off-de@test.com")
+        createProject(token, "SDOFF")
+        mockMvc.perform(
+            get("/api/v1/projects/SDOFF/service-desk").header("Authorization", "Bearer $token")
+                .header("Accept-Language", "de")
+        ).andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+            .andExpect(jsonPath("$.message").value("Servicedesk ist für Projekt SDOFF nicht aktiviert"))
+    }
+
+    @Test
+    fun `invalid priority returns 400 with localized body (de)`() {
+        val token = register("sd-prio-de@test.com")
+        createProject(token, "SDPRIO")
+        enableServiceDesk(token, "SDPRIO")
+        mockMvc.perform(
+            post("/api/v1/projects/SDPRIO/service-desk/sla-policies").header("Authorization", "Bearer $token")
+                .header("Accept-Language", "de").contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"P1","priority":"BOGUS","responseMinutes":10,"resolutionMinutes":60}""")
+        ).andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+            .andExpect(jsonPath("$.message", startsWith("Ungültige Priorität: BOGUS")))
+    }
+
+    @Test
+    fun `invalid severity returns 400 with localized body (de)`() {
+        val token = register("sd-sev-de@test.com")
+        createProject(token, "SDSEV")
+        mockMvc.perform(
+            post("/api/v1/projects/SDSEV/incidents").header("Authorization", "Bearer $token")
+                .header("Accept-Language", "de").contentType(MediaType.APPLICATION_JSON)
+                .content("""{"issueId":"${UUID.randomUUID()}","severity":"BOGUS","onCallAssigneeId":null,"notifyUserIds":[]}""")
+        ).andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+            .andExpect(jsonPath("$.message", startsWith("Ungültiger Schweregrad 'BOGUS'")))
+    }
+}
+```
+
+> If a project-scoped security interceptor short-circuits an unknown project key with 403 before the controller runs, the first two tests would see 403 — but `GET /service-desk` and `GET /incidents` carry no method-level `@PreAuthorize`, so the request reaches the controller's `?: throw` and yields 404. Adjust only if the run proves otherwise.
+
+- [ ] **Step 9: Run the servicedesk tests + full suite + gates**
+
+Run: `cd backend && ./gradlew test --tests "com.taskowolf.servicedesk.*" --tests "com.taskowolf.i18n.ServiceDeskMessagesTest"` → PASS, then `cd backend && ./gradlew test` → BUILD SUCCESSFUL. (`ServiceDeskServiceTest`, `IncidentServiceTest`, `SlaMonitorJobTest` are service-layer and assert domain behavior, unaffected.)
+
+- [ ] **Step 10: Commit**
+
+```bash
+git add backend/src/main/resources/messages*.properties \
+        backend/src/main/kotlin/com/taskowolf/servicedesk \
+        backend/src/test/kotlin/com/taskowolf/i18n/ServiceDeskMessagesTest.kt \
+        backend/src/test/kotlin/com/taskowolf/servicedesk/ServiceDeskErrorLocalizationTest.kt
+git commit -m "feat(i18n): localize servicedesk errors + fix 6x 500->404 (project/service-desk not-found) and key invalid severity/priority"
+```
+
+---
+
 ## Final verification
 
 - [ ] **Full backend suite green:** `cd backend && ./gradlew test` → BUILD SUCCESSFUL.
 - [ ] **Gates green:** `MessagesParityTest` (key-set + non-blank + placeholder-parity), `KeyedReferenceIntegrityTest` (every referenced key exists) both pass.
-- [ ] **Sweep complete:** `grep -rEn 'throw (NotFoundException|ForbiddenException|ConflictException|BadRequestException)\("' backend/src/main/kotlin` returns only intentional free-text throws (if any remain, they are deliberate English-only internal errors — none expected after this plan). User-facing `IllegalArgumentException` throw-sites (SsrfValidator, IncomingWebhookService, ProjectIntegrationService unknown-provider) are now keyed `BadRequestException`.
-- [ ] **Manual smoke** (see `reference-local-docker-run`): run the app, switch UI to Deutsch, trigger errors in a few migrated modules (e.g. duplicate project key, unknown webhook, remove last org owner) → German text; switch to English → English. Confirm `Accept-Language` in the Network tab.
+- [ ] **Construct-1 sweep complete:** `grep -rEn 'throw (NotFoundException|ForbiddenException|ConflictException|BadRequestException)\("' backend/src/main/kotlin` returns only intentional free-text throws — none expected after this plan (the seven folded-in `IssueService` sites are now keyed in Task 8). User-facing `IllegalArgumentException` throw-sites (SsrfValidator, IncomingWebhookService, ProjectIntegrationService unknown-provider) are now keyed `BadRequestException`.
+- [ ] **Construct-2 sweep complete:** `grep -rEn 'orElseThrow \{ (NotFoundException|ForbiddenException|ConflictException|BadRequestException)\("' backend/src/main/kotlin` returns nothing (every user-facing `.orElseThrow` free-text lambda is now `.keyed(...)`). The only remaining bare-`orElseThrow` calls are arg-less `orElseThrow()` (e.g. `AuditService`, `IncidentService:43`) which throw `NoSuchElementException` for internal invariants — acceptable.
+- [ ] **Construct 3/4/5 sweep — NO user-facing 500s (Decision 4):** `grep -rEn '\?: error\(|throw ResponseStatusException|throw AccessDeniedException|check\(' backend/src/main/kotlin` returns only the deliberately-skipped internal invariants (`SsoController:35` `clientSecret required`, `OidcUserProvisioningService:28` `OIDC user has no email`). No user-facing `IllegalStateException` remains — every `error()`/`check()` user path was converted to a keyed exception with the correct status.
+- [ ] **Status fixes confirmed:** the servicedesk web guard (`ServiceDeskErrorLocalizationTest`) shows 404 (not 500) for unknown project + service-desk-not-enabled, and 400 with a localized `ErrorResponse` body for invalid severity/priority. The `OrgSwitchLocalizationTest` shows a localized 403.
+- [ ] **Folded-in extras done:** `OrganizationService.findById:33` (Task 6, now keyed `NotFoundException` → 404) and the seven `IssueService` free-text throws `:184, :312, :357, :361, :367, :371, :386` (Task 8) are all keyed. Grep confirms no remaining `NoSuchElementException("Org not found` or free-text `BadRequestException("Invalid number`/`"Option not found`/`"Required custom field`/`ForbiddenException("Status does not belong` in `src/main/kotlin`.
+- [ ] **Manual smoke** (see `reference-local-docker-run`): run the app, switch UI to Deutsch, trigger errors in a few migrated modules (e.g. duplicate project key, unknown webhook, remove last org owner, GET a service desk on a project that has none → should be a German 404, not a 500) → German text; switch to English → English. Confirm `Accept-Language` in the Network tab.
 
 ## Notes for Phase 3 (not in scope here)
 
