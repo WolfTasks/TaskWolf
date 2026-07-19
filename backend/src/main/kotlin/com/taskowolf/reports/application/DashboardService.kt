@@ -29,11 +29,11 @@ class DashboardService(
     fun saveLayout(projectKey: String, items: List<LayoutItem>, userId: UUID): DashboardResponse {
         val project = projectService.requireAdmin(projectKey, userId)
         val dashboard = dashboardRepository.findByProjectId(project.id)
-            ?: throw NotFoundException("Dashboard not found")
+            ?: throw NotFoundException.keyed("report.dashboardNotFound")
         items.forEach { item ->
             val widget = dashboardWidgetRepository.findById(item.widgetId)
                 .filter { it.dashboard.id == dashboard.id }
-                .orElseThrow { NotFoundException("Widget not found: ${item.widgetId}") }
+                .orElseThrow { NotFoundException.keyed("report.widgetNotFound", item.widgetId) }
             widget.gridX = item.gridX
             widget.gridY = item.gridY
             widget.gridW = item.gridW
@@ -65,10 +65,10 @@ class DashboardService(
     fun removeWidget(projectKey: String, widgetId: UUID, userId: UUID) {
         val project = projectService.requireAdmin(projectKey, userId)
         val dashboard = dashboardRepository.findByProjectId(project.id)
-            ?: throw NotFoundException("Dashboard not found")
+            ?: throw NotFoundException.keyed("report.dashboardNotFound")
         val widget = dashboardWidgetRepository.findById(widgetId)
             .filter { it.dashboard.id == dashboard.id }
-            .orElseThrow { NotFoundException("Widget not found: $widgetId") }
+            .orElseThrow { NotFoundException.keyed("report.widgetNotFound", widgetId) }
         dashboardWidgetRepository.delete(widget)
     }
 }

@@ -44,7 +44,7 @@ class SprintService(
         request.name?.let { sprint.name = it }
         request.goal?.let { sprint.goal = it }
         if (request.startDate != null || request.endDate != null) {
-            if (sprint.status != SprintStatus.PLANNED) throw ConflictException("Cannot change sprint dates once sprint is started")
+            if (sprint.status != SprintStatus.PLANNED) throw ConflictException.keyed("sprint.cannotChangeDatesStarted")
         }
         request.startDate?.let { sprint.startDate = it }
         request.endDate?.let { sprint.endDate = it }
@@ -55,9 +55,9 @@ class SprintService(
     fun start(projectKey: String, sprintId: UUID, actor: User): Sprint {
         val project = projectService.requireMember(projectKey, actor.id)
         val sprint = requireSprint(sprintId, project.id)
-        if (sprint.status != SprintStatus.PLANNED) throw ConflictException("Sprint is not in PLANNED state")
+        if (sprint.status != SprintStatus.PLANNED) throw ConflictException.keyed("sprint.notPlanned")
         if (sprintRepository.existsByProjectIdAndStatus(project.id, SprintStatus.ACTIVE))
-            throw ConflictException("Project already has an active sprint")
+            throw ConflictException.keyed("sprint.alreadyActive")
         sprint.status = SprintStatus.ACTIVE
         if (sprint.startDate == null) sprint.startDate = LocalDate.now()
         sprint.plannedPoints = issueRepository.sumStoryPointsBySprintId(sprint.id).toInt()
@@ -70,7 +70,7 @@ class SprintService(
     fun complete(projectKey: String, sprintId: UUID, actor: User): SprintCompleteResult {
         val project = projectService.requireMember(projectKey, actor.id)
         val sprint = requireSprint(sprintId, project.id)
-        if (sprint.status != SprintStatus.ACTIVE) throw ConflictException("Sprint is not ACTIVE")
+        if (sprint.status != SprintStatus.ACTIVE) throw ConflictException.keyed("sprint.notActive")
         val allIssues = issueRepository.findBySprintId(sprint.id)
         val openIssues = allIssues.filter { it.status.category != StatusCategory.DONE }
         openIssues.forEach { it.sprint = null }
@@ -91,10 +91,10 @@ class SprintService(
     fun assignIssue(projectKey: String, sprintId: UUID, issueId: UUID, actor: User) {
         val project = projectService.requireMember(projectKey, actor.id)
         val sprint = requireSprint(sprintId, project.id)
-        if (sprint.status == SprintStatus.CLOSED) throw ConflictException("Cannot assign issues to a closed sprint")
+        if (sprint.status == SprintStatus.CLOSED) throw ConflictException.keyed("sprint.cannotAssignClosed")
         val issue = issueRepository.findById(issueId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Issue not found") }
+            .orElseThrow { NotFoundException.keyed("issue.notFoundGeneric") }
         issue.sprint = sprint
         issueRepository.save(issue)
     }
@@ -105,15 +105,15 @@ class SprintService(
         requireSprint(sprintId, project.id)
         val issue = issueRepository.findById(issueId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Issue not found") }
-        if (issue.sprint?.id != sprintId) throw ConflictException("Issue is not in this sprint")
+            .orElseThrow { NotFoundException.keyed("issue.notFoundGeneric") }
+        if (issue.sprint?.id != sprintId) throw ConflictException.keyed("sprint.issueNotInSprint")
         issue.sprint = null
         issueRepository.save(issue)
     }
 
     private fun requireSprint(sprintId: UUID, projectId: UUID): Sprint {
-        val sprint = sprintRepository.findById(sprintId).orElseThrow { NotFoundException("Sprint not found") }
-        if (sprint.project.id != projectId) throw ForbiddenException("Sprint does not belong to this project")
+        val sprint = sprintRepository.findById(sprintId).orElseThrow { NotFoundException.keyed("sprint.notFound", sprintId) }
+        if (sprint.project.id != projectId) throw ForbiddenException.keyed("sprint.notInProject")
         return sprint
     }
 }
