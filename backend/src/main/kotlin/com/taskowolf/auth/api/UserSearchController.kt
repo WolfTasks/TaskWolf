@@ -20,7 +20,7 @@ class UserSearchController(
         @AuthenticationPrincipal user: User
     ): List<UserSearchResponse> {
         if (!projectService.canManageAnyProjectMembers(user)) {
-            throw ForbiddenException("Not allowed to search users")
+            throw ForbiddenException.keyed("auth.searchNotAllowed")
         }
         return userSearchService.search(q).map { UserSearchResponse.from(it) }
     }

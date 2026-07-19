@@ -44,7 +44,7 @@ class AccessTokenService(
     @Transactional
     fun revoke(user: User, tokenId: UUID) {
         val token = accessTokenRepository.findByIdAndUserId(tokenId, user.id)
-            ?: throw NotFoundException("Access token not found: $tokenId")
+            ?: throw NotFoundException.keyed("auth.accessTokenNotFound", tokenId)
         if (token.revokedAt == null) {
             token.revokedAt = Instant.now()
             accessTokenRepository.save(token)

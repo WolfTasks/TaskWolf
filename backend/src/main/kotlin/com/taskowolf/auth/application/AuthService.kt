@@ -27,9 +27,9 @@ class AuthService(
 ) {
     @Transactional
     fun register(request: RegisterRequest): AuthResponse {
-        if (!registrationEnabled) throw ForbiddenException("Registration is disabled")
+        if (!registrationEnabled) throw ForbiddenException.keyed("auth.registrationDisabled")
         if (userRepository.existsByEmail(request.email)) {
-            throw ConflictException("Email already registered: ${request.email}")
+            throw ConflictException.keyed("auth.emailAlreadyRegistered", request.email)
         }
         val isFirstUser = userRepository.count() == 0L
         val user = userRepository.save(
@@ -50,11 +50,11 @@ class AuthService(
         val hash = user?.passwordHash
         if (user == null || hash == null || !passwordEncoder.matches(request.password, hash)) {
             securityAuditListener.onLoginFailed(request.email, null)
-            throw ForbiddenException("Invalid credentials")
+            throw ForbiddenException.keyed("auth.invalidCredentials")
         }
         if (!user.active) {
             securityAuditListener.onLoginFailed(request.email, null)
-            throw ForbiddenException("Account is disabled")
+            throw ForbiddenException.keyed("auth.accountDisabled")
         }
         val response = tokenPair(user.id)
         securityAuditListener.onLoginSuccess(user.email, null)
@@ -64,7 +64,7 @@ class AuthService(
     @Transactional
     fun refresh(refreshToken: String): AuthResponse {
         val userId = jwtService.validateToken(refreshToken, "refresh")
-            ?: throw ForbiddenException("Invalid refresh token")
+            ?: throw ForbiddenException.keyed("auth.invalidRefreshToken")
         refreshTokenService.consume(refreshToken)
         return tokenPair(userId)
     }
@@ -78,7 +78,7 @@ class AuthService(
 
     @Transactional(readOnly = true)
     fun me(userId: UUID) = userRepository.findById(userId)
-        .orElseThrow { NotFoundException("User not found") }
+        .orElseThrow { NotFoundException.keyed("user.notFound") }
 
     private fun tokenPair(userId: UUID): AuthResponse {
         val refreshToken = jwtService.generateRefreshToken(userId)

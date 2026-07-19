@@ -38,4 +38,21 @@ class MessagesParityTest {
             }
         }
     }
+
+    @Test
+    fun `en and de use the same placeholder set per key`() {
+        val en = load("messages.properties")
+        val de = load("messages_de.properties")
+        val placeholder = Regex("""\{(\d+)}""")
+        fun indices(v: String) = placeholder.findAll(v).map { it.groupValues[1] }.toSortedSet()
+
+        val mismatches = en.stringPropertyNames()
+            .filter { de.getProperty(it) != null }
+            .filter { indices(en.getProperty(it)) != indices(de.getProperty(it)) }
+            .sorted()
+
+        assertTrue(mismatches.isEmpty()) {
+            "Keys whose en/de placeholder sets differ: $mismatches"
+        }
+    }
 }

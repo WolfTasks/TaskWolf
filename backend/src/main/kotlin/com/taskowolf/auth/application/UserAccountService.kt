@@ -28,7 +28,7 @@ class UserAccountService(
 
     @Transactional
     fun deactivate(userId: UUID) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         requireNotLastActiveAdmin(user)
         user.active = false
         userRepository.save(user)
@@ -38,9 +38,9 @@ class UserAccountService(
 
     @Transactional
     fun activate(userId: UUID) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         if (user.deletedAt != null) {
-            throw ConflictException("Cannot reactivate a deleted account")
+            throw ConflictException.keyed("auth.cannotReactivateDeleted")
         }
         user.active = true
         userRepository.save(user)
@@ -48,7 +48,7 @@ class UserAccountService(
 
     @Transactional
     fun softDelete(userId: UUID) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         requireNotLastActiveAdmin(user)
         user.active = false
         user.deletedAt = Instant.now()
@@ -65,7 +65,7 @@ class UserAccountService(
 
     @Transactional
     fun updateProfile(userId: UUID, displayName: String): User {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         user.displayName = displayName
         val saved = userRepository.save(user)
         securityAuditListener.onProfileUpdated(user.email)
@@ -74,11 +74,11 @@ class UserAccountService(
 
     @Transactional
     fun changePassword(userId: UUID, currentPassword: String, newPassword: String) {
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         val hash = user.passwordHash
-            ?: throw ConflictException("This account has no password set")
+            ?: throw ConflictException.keyed("auth.noPasswordSet")
         if (!passwordEncoder.matches(currentPassword, hash)) {
-            throw ForbiddenException("Current password is incorrect")
+            throw ForbiddenException.keyed("auth.currentPasswordIncorrect")
         }
         user.passwordHash = passwordEncoder.encode(newPassword)
         userRepository.save(user)
@@ -89,9 +89,9 @@ class UserAccountService(
     @Transactional
     fun updateLanguage(userId: UUID, language: String): User {
         if (language !in SUPPORTED_LANGUAGES) {
-            throw BadRequestException("Unsupported language")
+            throw BadRequestException.keyed("auth.unsupportedLanguage")
         }
-        val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
+        val user = userRepository.findById(userId).orElseThrow { NotFoundException.keyed("user.notFound") }
         user.language = language
         return userRepository.save(user)
     }
@@ -99,7 +99,7 @@ class UserAccountService(
     private fun requireNotLastActiveAdmin(user: User) {
         if (user.systemRole == SystemRole.ADMIN && user.active) {
             if (userRepository.countBySystemRoleAndActiveTrue(SystemRole.ADMIN) <= 1) {
-                throw ConflictException("Cannot deactivate or delete the last active admin")
+                throw ConflictException.keyed("auth.lastAdmin")
             }
         }
     }

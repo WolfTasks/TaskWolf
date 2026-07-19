@@ -45,7 +45,7 @@ class ApiKeyService(
     fun revoke(projectKey: String, keyId: UUID, caller: User) {
         val project = projectService.requireAdmin(projectKey, caller.id)
         val key = apiKeyRepository.findByIdAndProjectId(keyId, project.id)
-            ?: throw NotFoundException("API key not found: $keyId")
+            ?: throw NotFoundException.keyed("auth.apiKeyNotFound", keyId)
         apiKeyRepository.delete(key)
     }
 

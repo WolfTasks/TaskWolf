@@ -12,7 +12,11 @@ class LocalizedMessages(private val messageSource: MessageSource) {
 
     /** Resolve against the current request locale (LocaleContextHolder). */
     fun get(key: String, vararg args: Any?): String =
-        messageSource.getMessage(key, args, LocaleContextHolder.getLocale())
+        try {
+            messageSource.getMessage(key, args, LocaleContextHolder.getLocale())
+        } catch (e: NoSuchMessageException) {
+            key
+        }
 
     /** Resolve against an explicit locale (async: email / notification). */
     fun get(key: String, locale: Locale, vararg args: Any?): String =

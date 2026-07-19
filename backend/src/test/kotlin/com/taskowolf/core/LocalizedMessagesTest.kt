@@ -34,4 +34,9 @@ class LocalizedMessagesTest {
         assertEquals("Issue X not found",
             messages().get("issue.notFound", Locale.FRENCH, "X"))
     }
+
+    @Test
+    fun `request-locale get returns the key itself when the key is unknown (no throw)`() {
+        assertEquals("nonexistent.key.zzz", messages().get("nonexistent.key.zzz"))
+    }
 }
