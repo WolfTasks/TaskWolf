@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size
 data class CreateProjectRequest(
     @field:NotBlank
     @field:Size(min = 2, max = 10)
-    @field:Pattern(regexp = "[A-Z0-9]+", message = "Key must be uppercase letters and digits")
+    @field:Pattern(regexp = "[A-Z0-9]+", message = "{project.key.pattern}")
     val key: String,
 
     @field:NotBlank val name: String,

@@ -16,6 +16,10 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
   servlet:
     multipart:
       max-file-size: ${TW_ATTACHMENT_MAX_SIZE:26214400}
