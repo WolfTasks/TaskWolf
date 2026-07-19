@@ -26,7 +26,7 @@ class BoardService(
         val project = projectService.requireMember(projectKey, userId)
         val sprint = sprintRepository.findByProjectIdAndStatus(project.id, SprintStatus.ACTIVE)
             .firstOrNull() ?: return null
-        val workflow = project.workflow ?: throw NotFoundException("Project has no workflow")
+        val workflow = project.workflow ?: throw NotFoundException.keyed("project.noWorkflow")
         val issues = issueRepository.findBySprintId(sprint.id)
         val issuesByStatus = issues.groupBy { it.status.id }
         val columns = workflow.statuses.map { status ->

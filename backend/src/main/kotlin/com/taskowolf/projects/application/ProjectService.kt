@@ -30,7 +30,7 @@ class ProjectService(
     @Transactional
     fun create(request: CreateProjectRequest, owner: User): Project {
         if (projectRepository.existsByKey(request.key)) {
-            throw ConflictException("Project key already exists: ${request.key}")
+            throw ConflictException.keyed("project.keyExists", request.key)
         }
         val project = projectRepository.save(
             Project(key = request.key, name = request.name, description = request.description, owner = owner)
@@ -52,16 +52,16 @@ class ProjectService(
 
     @Transactional(readOnly = true)
     fun findByKey(key: String) = projectRepository.findByKey(key)
-        ?: throw NotFoundException("Project not found: $key")
+        ?: throw NotFoundException.keyed("project.notFound", key)
 
     @Transactional(readOnly = true)
     fun findById(projectId: UUID) = projectRepository.findById(projectId)
-        .orElseThrow { NotFoundException("Project not found: $projectId") }
+        .orElseThrow { NotFoundException.keyed("project.notFound", projectId) }
 
     @Transactional(readOnly = true)
     fun requireMember(projectKey: String, userId: UUID): Project {
         val project = findByKey(projectKey)
-        if (roleOf(project, userId) == null) throw ForbiddenException("Not a member of project $projectKey")
+        if (roleOf(project, userId) == null) throw ForbiddenException.keyed("project.notMember", projectKey)
         return project
     }
 
@@ -69,7 +69,7 @@ class ProjectService(
     fun requireAdmin(projectKey: String, userId: UUID): Project {
         val project = requireMember(projectKey, userId)
         if (!isProjectAdmin(projectKey, userId))
-            throw ForbiddenException("Project admin role required")
+            throw ForbiddenException.keyed("project.adminRequired")
         return project
     }
 
@@ -100,20 +100,20 @@ class ProjectService(
     fun addMember(projectKey: String, actorId: UUID, targetUserId: UUID, role: ProjectRole): ProjectMember {
         val project = requireAdmin(projectKey, actorId)
         if (project.owner.id == targetUserId || memberRepository.existsByProjectIdAndUserId(project.id, targetUserId)) {
-            throw ConflictException("User is already a member of this project")
+            throw ConflictException.keyed("project.alreadyMember")
         }
         val user = userRepository.findById(targetUserId)
-            .orElseThrow { NotFoundException("User not found") }
+            .orElseThrow { NotFoundException.keyed("user.notFound") }
         return memberRepository.save(ProjectMember(project = project, user = user, role = role))
     }
 
     @Transactional
     fun changeMemberRole(projectKey: String, actorId: UUID, targetUserId: UUID, role: ProjectRole): ProjectMember {
         val project = requireAdmin(projectKey, actorId)
-        if (actorId == targetUserId) throw ForbiddenException("You cannot change your own role")
-        if (project.owner.id == targetUserId) throw ForbiddenException("Cannot change the project owner's role")
+        if (actorId == targetUserId) throw ForbiddenException.keyed("project.cannotChangeOwnRole")
+        if (project.owner.id == targetUserId) throw ForbiddenException.keyed("project.cannotChangeOwnerRole")
         val member = memberRepository.findByProjectIdAndUserId(project.id, targetUserId)
-            ?: throw NotFoundException("Member not found")
+            ?: throw NotFoundException.keyed("project.memberNotFound")
         member.role = role
         return memberRepository.save(member)
     }
@@ -121,9 +121,9 @@ class ProjectService(
     @Transactional
     fun removeMember(projectKey: String, actorId: UUID, targetUserId: UUID) {
         val project = requireAdmin(projectKey, actorId)
-        if (project.owner.id == targetUserId) throw ForbiddenException("Cannot remove the project owner")
+        if (project.owner.id == targetUserId) throw ForbiddenException.keyed("project.cannotRemoveOwner")
         val member = memberRepository.findByProjectIdAndUserId(project.id, targetUserId)
-            ?: throw NotFoundException("Member not found")
+            ?: throw NotFoundException.keyed("project.memberNotFound")
         memberRepository.delete(member)
     }
 
@@ -132,11 +132,11 @@ class ProjectService(
         val project = findByKey(projectKey)
         val isSystemAdmin = actor.systemRole == SystemRole.ADMIN
         if (!isSystemAdmin && roleOf(project, actor.id) != ProjectRole.ADMIN)
-            throw ForbiddenException("Project admin role required")
+            throw ForbiddenException.keyed("project.adminRequired")
         if (orgId != null && !isSystemAdmin) {
             val orgRole = orgMembershipLookup.roleOf(orgId, actor.id)
             if (orgRole != OrgRole.OWNER && orgRole != OrgRole.ADMIN)
-                throw ForbiddenException("Must be an admin of the target organization")
+                throw ForbiddenException.keyed("project.targetOrgAdminRequired")
         }
         project.orgId = orgId
         return projectRepository.save(project)
