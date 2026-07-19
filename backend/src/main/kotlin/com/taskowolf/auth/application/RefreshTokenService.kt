@@ -28,9 +28,9 @@ class RefreshTokenService(
     @Transactional
     fun consume(token: String) {
         val stored = repository.findByTokenHash(hash(token))
-            ?: throw ForbiddenException("Invalid refresh token")
+            ?: throw ForbiddenException.keyed("auth.invalidRefreshToken")
         if (stored.revoked || stored.expiresAt.isBefore(Instant.now())) {
-            throw ForbiddenException("Invalid refresh token")
+            throw ForbiddenException.keyed("auth.invalidRefreshToken")
         }
         stored.revoked = true
         repository.save(stored)

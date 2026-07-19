@@ -40,7 +40,7 @@ class UserAccountService(
     fun activate(userId: UUID) {
         val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
         if (user.deletedAt != null) {
-            throw ConflictException("Cannot reactivate a deleted account")
+            throw ConflictException.keyed("auth.cannotReactivateDeleted")
         }
         user.active = true
         userRepository.save(user)
@@ -76,9 +76,9 @@ class UserAccountService(
     fun changePassword(userId: UUID, currentPassword: String, newPassword: String) {
         val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
         val hash = user.passwordHash
-            ?: throw ConflictException("This account has no password set")
+            ?: throw ConflictException.keyed("auth.noPasswordSet")
         if (!passwordEncoder.matches(currentPassword, hash)) {
-            throw ForbiddenException("Current password is incorrect")
+            throw ForbiddenException.keyed("auth.currentPasswordIncorrect")
         }
         user.passwordHash = passwordEncoder.encode(newPassword)
         userRepository.save(user)
@@ -89,7 +89,7 @@ class UserAccountService(
     @Transactional
     fun updateLanguage(userId: UUID, language: String): User {
         if (language !in SUPPORTED_LANGUAGES) {
-            throw BadRequestException("Unsupported language")
+            throw BadRequestException.keyed("auth.unsupportedLanguage")
         }
         val user = userRepository.findById(userId).orElseThrow { NotFoundException("User not found") }
         user.language = language
@@ -99,7 +99,7 @@ class UserAccountService(
     private fun requireNotLastActiveAdmin(user: User) {
         if (user.systemRole == SystemRole.ADMIN && user.active) {
             if (userRepository.countBySystemRoleAndActiveTrue(SystemRole.ADMIN) <= 1) {
-                throw ConflictException("Cannot deactivate or delete the last active admin")
+                throw ConflictException.keyed("auth.lastAdmin")
             }
         }
     }
