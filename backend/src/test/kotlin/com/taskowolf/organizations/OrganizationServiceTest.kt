@@ -192,7 +192,7 @@ class OrganizationServiceTest {
         every { user.systemRole } returns com.taskowolf.auth.domain.SystemRole.MEMBER
         every { user.id } returns userId
         every { memberRepo.findByIdOrgId(orgId) } returns emptyList()
-        org.junit.jupiter.api.assertThrows<org.springframework.security.access.AccessDeniedException> {
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.ForbiddenException> {
             service.requireMembershipOrAdmin(orgId, user)
         }
     }

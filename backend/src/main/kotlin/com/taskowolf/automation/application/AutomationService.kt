@@ -55,13 +55,13 @@ class AutomationService(
 
     @Transactional
     fun delete(ruleId: UUID) {
-        if (!ruleRepository.existsById(ruleId)) throw NotFoundException("Rule not found: $ruleId")
+        if (!ruleRepository.existsById(ruleId)) throw NotFoundException.keyed("automation.ruleNotFound", ruleId)
         ruleRepository.deleteById(ruleId)
     }
 
     @Transactional(readOnly = true)
     fun find(ruleId: UUID): AutomationRule =
-        ruleRepository.findById(ruleId).orElseThrow { NotFoundException("Rule not found: $ruleId") }
+        ruleRepository.findById(ruleId).orElseThrow { NotFoundException.keyed("automation.ruleNotFound", ruleId) }
 
     @Transactional(readOnly = true)
     fun listByProject(projectId: UUID, pageable: Pageable): Page<AutomationRule> =
