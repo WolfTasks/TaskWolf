@@ -17,6 +17,23 @@ class OrganizationServiceTest {
     private val service = OrganizationService(orgRepo, memberRepo, userRepository)
 
     @Test
+    fun `findBySlug throws NotFoundException for a missing slug`() {
+        every { orgRepo.findBySlug("ghost-org") } returns null
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+            service.findBySlug("ghost-org")
+        }
+    }
+
+    @Test
+    fun `findById throws NotFoundException for a missing id`() {
+        val orgId = UUID.randomUUID()
+        every { orgRepo.findById(orgId) } returns java.util.Optional.empty()
+        org.junit.jupiter.api.assertThrows<com.taskowolf.core.infrastructure.NotFoundException> {
+            service.findById(orgId)
+        }
+    }
+
+    @Test
     fun `create adds creator as OWNER`() {
         every { orgRepo.save(any()) } returnsArgument 0
         every { memberRepo.save(any()) } returnsArgument 0
