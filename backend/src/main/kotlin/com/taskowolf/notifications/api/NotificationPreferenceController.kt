@@ -25,7 +25,7 @@ class NotificationPreferenceController(
     ): NotificationPreferencesResponse {
         val map = request.preferences.associate { item ->
             val type = NotificationType.entries.find { it.name == item.type }
-                ?: throw BadRequestException("Unknown notification type: ${item.type}")
+                ?: throw BadRequestException.keyed("notification.unknownType", item.type)
             type to Pair(item.inApp, item.email)
         }
         service.update(user.id, map)

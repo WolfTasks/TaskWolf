@@ -26,7 +26,7 @@ class LabelService(
     fun create(projectKey: String, request: LabelRequest, actor: User): Label {
         val project = projectService.requireMember(projectKey, actor.id)
         if (labelRepository.existsByProjectIdAndName(project.id, request.name)) {
-            throw ConflictException("Label '${request.name}' already exists in this project")
+            throw ConflictException.keyed("label.alreadyExists", request.name)
         }
         return labelRepository.save(Label(name = request.name, color = request.color, project = project))
     }
@@ -36,9 +36,9 @@ class LabelService(
         val project = projectService.requireMember(projectKey, actor.id)
         val label = labelRepository.findById(labelId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Label not found: $labelId") }
+            .orElseThrow { NotFoundException.keyed("label.notFound", labelId) }
         if (label.name != request.name && labelRepository.existsByProjectIdAndName(project.id, request.name)) {
-            throw ConflictException("Label '${request.name}' already exists in this project")
+            throw ConflictException.keyed("label.alreadyExists", request.name)
         }
         label.name = request.name
         label.color = request.color
@@ -50,7 +50,7 @@ class LabelService(
         val project = projectService.requireMember(projectKey, actor.id)
         val label = labelRepository.findById(labelId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Label not found: $labelId") }
+            .orElseThrow { NotFoundException.keyed("label.notFound", labelId) }
         labelRepository.delete(label)
     }
 }
