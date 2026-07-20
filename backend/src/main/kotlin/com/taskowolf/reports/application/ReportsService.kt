@@ -29,8 +29,8 @@ class ReportsService(
     @Transactional(readOnly = true)
     fun getBurndown(projectKey: String, sprintId: UUID, userId: UUID): BurndownResponse {
         val project = projectService.requireMember(projectKey, userId)
-        val sprint = sprintRepository.findById(sprintId).orElseThrow { NotFoundException("Sprint not found") }
-        if (sprint.project.id != project.id) throw ForbiddenException("Sprint does not belong to this project")
+        val sprint = sprintRepository.findById(sprintId).orElseThrow { NotFoundException.keyed("sprint.notFound", sprintId) }
+        if (sprint.project.id != project.id) throw ForbiddenException.keyed("sprint.notInProject")
         val issues = issueRepository.findBySprintId(sprintId)
         val startDate = sprint.startDate ?: return BurndownResponse(sprintId, emptyList())
         val endDate = sprint.endDate ?: startDate.plusDays(13)
@@ -69,8 +69,8 @@ class ReportsService(
     @Transactional(readOnly = true)
     fun getCycleTime(projectKey: String, sprintId: UUID, userId: UUID): CycleTimeResponse {
         val project = projectService.requireMember(projectKey, userId)
-        val sprint = sprintRepository.findById(sprintId).orElseThrow { NotFoundException("Sprint not found") }
-        if (sprint.project.id != project.id) throw ForbiddenException("Sprint does not belong to this project")
+        val sprint = sprintRepository.findById(sprintId).orElseThrow { NotFoundException.keyed("sprint.notFound", sprintId) }
+        if (sprint.project.id != project.id) throw ForbiddenException.keyed("sprint.notInProject")
         // Assumes one workflow per project; status name collisions across workflows would silently lose one mapping.
         val statusMap = statusRepository.findByWorkflowProjectId(project.id).associate { it.name to it.category }
         val issues = issueRepository.findBySprintId(sprintId)

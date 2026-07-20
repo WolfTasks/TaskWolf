@@ -63,7 +63,7 @@ class IssueService(
                 parent = request.parentId?.let { parentId ->
                     issueRepository.findById(parentId)
                         .filter { it.project.id == project.id }
-                        .orElseThrow { NotFoundException("Parent issue not found: $parentId") }
+                        .orElseThrow { NotFoundException.keyed("issue.parentNotFound", parentId) }
                 }
             )
         )
@@ -78,7 +78,7 @@ class IssueService(
         val project = projectService.requireMember(projectKey, currentUser.id)
         val issue = issueRepository.findById(issueId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Issue not found: $issueId") }
+            .orElseThrow { NotFoundException.keyed("issue.notFound", issueId) }
 
         request.title?.let { newTitle ->
             if (issue.title != newTitle) {
@@ -167,7 +167,7 @@ class IssueService(
             request.sprintId != null -> {
                 val newSprint = sprintRepository.findById(request.sprintId)
                     .filter { it.project.id == project.id }
-                    .orElseThrow { NotFoundException("Sprint not found: ${request.sprintId}") }
+                    .orElseThrow { NotFoundException.keyed("sprint.notFound", request.sprintId) }
                 if (issue.sprint?.id != newSprint.id) {
                     val old = issue.sprint?.name
                     issue.sprint = newSprint
@@ -181,7 +181,7 @@ class IssueService(
             val newStatus = workflowService.findStatusById(newStatusId)
             val projectWorkflowId = issue.project.workflow?.id
             if (projectWorkflowId != null && newStatus.workflow.id != projectWorkflowId) {
-                throw com.taskowolf.core.infrastructure.ForbiddenException("Status does not belong to project's workflow")
+                throw com.taskowolf.core.infrastructure.ForbiddenException.keyed("issue.statusNotInWorkflow")
             }
             if (oldStatus.id != newStatus.id) {
                 workflowService.validateTransition(issue, newStatusId, currentUser)
@@ -298,7 +298,7 @@ class IssueService(
         val project = projectService.requireMember(projectKey, currentUser.id)
         val issue = issueRepository.findById(issueId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Issue not found") }
+            .orElseThrow { NotFoundException.keyed("issue.notFoundGeneric") }
         issueRepository.delete(issue)
     }
 
@@ -309,7 +309,7 @@ class IssueService(
     @Transactional
     fun createTicketFromEmail(projectId: UUID, title: String, body: String, senderEmail: String): Issue {
         val project = projectService.findById(projectId)
-        val workflow = project.workflow ?: throw com.taskowolf.core.infrastructure.NotFoundException("Project has no workflow")
+        val workflow = project.workflow ?: throw com.taskowolf.core.infrastructure.NotFoundException.keyed("project.noWorkflow")
         val status = workflowService.getDefaultStatus(workflow.id)
         val nextNumber = issueRepository.maxKeyNumberByProject(project.id) + 1
         val reporter = project.owner
@@ -354,21 +354,21 @@ class IssueService(
             when (definition.type) {
                 com.taskowolf.customfields.domain.FieldType.TEXT -> cfv.textValue = input.value
                 com.taskowolf.customfields.domain.FieldType.NUMBER -> cfv.numberValue = input.value.toBigDecimalOrNull()
-                    ?: throw com.taskowolf.core.infrastructure.BadRequestException("Invalid number for field '${definition.name}': ${input.value}")
+                    ?: throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.invalidNumber", definition.name, input.value)
                 com.taskowolf.customfields.domain.FieldType.DATE -> cfv.dateValue = runCatching {
                     java.time.LocalDate.parse(input.value)
                 }.getOrElse {
-                    throw com.taskowolf.core.infrastructure.BadRequestException("Invalid date for field '${definition.name}': ${input.value}")
+                    throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.invalidDate", definition.name, input.value)
                 }
                 com.taskowolf.customfields.domain.FieldType.CHECKBOX ->
                     cfv.booleanValue = input.value.equals("true", ignoreCase = true)
                 com.taskowolf.customfields.domain.FieldType.DROPDOWN -> {
                     val optId = runCatching { UUID.fromString(input.value) }.getOrElse {
-                        throw com.taskowolf.core.infrastructure.BadRequestException("Invalid option ID for field '${definition.name}'")
+                        throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.invalidOptionId", definition.name)
                     }
                     cfv.option = customFieldOptionRepository.findById(optId)
                         .filter { it.field.id == definition.id }
-                        .orElseThrow { com.taskowolf.core.infrastructure.BadRequestException("Option not found: $optId") }
+                        .orElseThrow { com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.optionNotFound", optId) }
                 }
             }
             customFieldValueRepository.save(cfv)
@@ -383,14 +383,14 @@ class IssueService(
         requiredFields.forEach { field ->
             val input = providedMap[field.id]
             if (input == null || input.value == null || input.value.isBlank()) {
-                throw com.taskowolf.core.infrastructure.BadRequestException("Required custom field '${field.name}' must have a value")
+                throw com.taskowolf.core.infrastructure.BadRequestException.keyed("customField.requiredMissing", field.name)
             }
         }
     }
 
     private fun resolveAssignee(assigneeId: UUID, project: com.taskowolf.projects.domain.Project): com.taskowolf.auth.domain.User {
         val assignee = userRepository.findById(assigneeId)
-            .orElseThrow { NotFoundException("Assignee not found: $assigneeId") }
+            .orElseThrow { NotFoundException.keyed("issue.assigneeNotFound", assigneeId) }
         if (!projectService.isMember(project, assignee.id)) {
             throw NotFoundException.keyed("issue.assigneeNotFound", assigneeId)
         }
