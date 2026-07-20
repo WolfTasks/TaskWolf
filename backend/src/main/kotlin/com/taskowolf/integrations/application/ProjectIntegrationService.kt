@@ -1,6 +1,7 @@
 package com.taskowolf.integrations.application
 
 import com.taskowolf.auth.domain.User
+import com.taskowolf.core.infrastructure.BadRequestException
 import com.taskowolf.core.infrastructure.ConflictException
 import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.integrations.api.dto.CreateProjectIntegrationRequest
@@ -27,9 +28,9 @@ class ProjectIntegrationService(
     fun create(projectKey: String, req: CreateProjectIntegrationRequest, caller: User): CreateProjectIntegrationResponse {
         val project = projectService.requireAdmin(projectKey, caller.id)
         val provider = try { IntegrationProvider.valueOf(req.provider.uppercase()) }
-                       catch (e: IllegalArgumentException) { throw IllegalArgumentException("Unknown provider: ${req.provider}") }
+                       catch (e: IllegalArgumentException) { throw BadRequestException.keyed("integration.unknownProvider", req.provider) }
         if (integrationRepository.findByProjectIdAndProvider(project.id, provider) != null) {
-            throw ConflictException("Integration already exists for $provider in project $projectKey")
+            throw ConflictException.keyed("integration.alreadyExists", provider, projectKey)
         }
         val plainSecret = generateSecret()
         val integration = integrationRepository.save(
@@ -55,7 +56,7 @@ class ProjectIntegrationService(
     fun delete(projectKey: String, integrationId: UUID, caller: User) {
         val project = projectService.requireAdmin(projectKey, caller.id)
         val integration = integrationRepository.findByIdAndProjectId(integrationId, project.id)
-            ?: throw NotFoundException("Integration not found: $integrationId")
+            ?: throw NotFoundException.keyed("integration.notFound", integrationId)
         integrationRepository.delete(integration)
     }
 

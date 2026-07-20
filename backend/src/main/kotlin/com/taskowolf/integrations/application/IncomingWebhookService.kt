@@ -2,6 +2,7 @@ package com.taskowolf.integrations.application
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.taskowolf.core.infrastructure.BadRequestException
 import com.taskowolf.integrations.domain.IntegrationProvider
 import com.taskowolf.integrations.domain.IssueRef
 import com.taskowolf.integrations.domain.RefType
@@ -37,7 +38,7 @@ class IncomingWebhookService(
         val node = try {
             objectMapper.readTree(payload)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid JSON payload")
+            throw BadRequestException.keyed("integration.invalidJsonPayload")
         }
         processGitHubPayload(node, project.id, projectKey)
     }
@@ -53,7 +54,7 @@ class IncomingWebhookService(
         val node = try {
             objectMapper.readTree(payload)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid JSON payload")
+            throw BadRequestException.keyed("integration.invalidJsonPayload")
         }
         processGitLabPayload(node, project.id, projectKey)
     }

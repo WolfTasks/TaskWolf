@@ -58,7 +58,7 @@ class WebhookService(
     fun update(projectKey: String, webhookId: UUID, req: UpdateWebhookRequest, caller: User): WebhookResponse {
         val project = projectService.requireAdmin(projectKey, caller.id)
         val hook = webhookRepository.findByIdAndProjectId(webhookId, project.id)
-            ?: throw NotFoundException("Webhook not found: $webhookId")
+            ?: throw NotFoundException.keyed("integration.webhookNotFound", webhookId)
         req.url?.let { ssrfValidator.validate(it); hook.url = it }
         req.events?.let { hook.events = it }
         req.enabled?.let { hook.enabled = it }
@@ -69,7 +69,7 @@ class WebhookService(
     fun delete(projectKey: String, webhookId: UUID, caller: User) {
         val project = projectService.requireAdmin(projectKey, caller.id)
         val hook = webhookRepository.findByIdAndProjectId(webhookId, project.id)
-            ?: throw NotFoundException("Webhook not found: $webhookId")
+            ?: throw NotFoundException.keyed("integration.webhookNotFound", webhookId)
         webhookRepository.delete(hook)
     }
 
@@ -83,7 +83,7 @@ class WebhookService(
     ): List<WebhookDeliveryResponse> {
         val project = projectService.requireMember(projectKey, caller.id)
         webhookRepository.findByIdAndProjectId(webhookId, project.id)
-            ?: throw NotFoundException("Webhook not found: $webhookId")
+            ?: throw NotFoundException.keyed("integration.webhookNotFound", webhookId)
         val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
         return deliveryRepository.findByWebhookId(webhookId, pageable).content.map { WebhookDeliveryResponse.from(it) }
     }
@@ -92,7 +92,7 @@ class WebhookService(
     fun testPing(projectKey: String, webhookId: UUID, caller: User): WebhookDeliveryResponse {
         val project = projectService.requireAdmin(projectKey, caller.id)
         val hook = webhookRepository.findByIdAndProjectId(webhookId, project.id)
-            ?: throw NotFoundException("Webhook not found: $webhookId")
+            ?: throw NotFoundException.keyed("integration.webhookNotFound", webhookId)
         val payload = objectMapper.writeValueAsString(
             mapOf("event" to "ping", "project" to projectKey, "timestamp" to Instant.now().toString())
         )
