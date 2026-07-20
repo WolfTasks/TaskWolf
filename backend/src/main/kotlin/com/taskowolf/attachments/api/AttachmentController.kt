@@ -58,7 +58,7 @@ class AttachmentController(
     ): ResponseEntity<Resource> {
         val attachments = attachmentService.listForIssue(key, issueKey, user.id)
         val attachment = attachments.firstOrNull { it.id == attachmentId }
-            ?: throw com.taskowolf.core.infrastructure.NotFoundException("Attachment not found: $attachmentId")
+            ?: throw com.taskowolf.core.infrastructure.NotFoundException.keyed("attachment.notFound", attachmentId)
         val resource = storageService.load(attachment.storedName)
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(attachment.contentType))
