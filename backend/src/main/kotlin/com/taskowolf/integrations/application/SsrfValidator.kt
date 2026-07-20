@@ -1,5 +1,6 @@
 package com.taskowolf.integrations.application
 
+import com.taskowolf.core.infrastructure.BadRequestException
 import org.springframework.stereotype.Component
 import java.net.InetAddress
 import java.net.URL
@@ -8,7 +9,7 @@ import java.net.URL
 class SsrfValidator {
     fun validate(url: String) {
         val host = try { URL(url).host } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid URL: $url")
+            throw BadRequestException.keyed("integration.invalidUrl", url)
         }
         val addresses = try {
             InetAddress.getAllByName(host)
@@ -18,9 +19,7 @@ class SsrfValidator {
         }
         for (addr in addresses) {
             if (isPrivate(addr)) {
-                throw IllegalArgumentException(
-                    "Webhook URL resolves to a private or reserved IP address"
-                )
+                throw BadRequestException.keyed("integration.blockedAddress")
             }
         }
     }

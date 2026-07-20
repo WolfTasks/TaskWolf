@@ -4,6 +4,7 @@ import com.taskowolf.auth.api.dto.*
 import com.taskowolf.auth.application.AuthService
 import com.taskowolf.auth.application.JwtService
 import com.taskowolf.auth.domain.User
+import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.organizations.api.dto.SwitchOrgResponse
 import com.taskowolf.organizations.application.OrganizationService
 import jakarta.validation.Valid
@@ -11,7 +12,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @RestController
@@ -52,7 +52,7 @@ class AuthController(
     ): SwitchOrgResponse {
         val userOrgs = organizationService.listOrgsForUser(user.id)
         if (userOrgs.none { it.id == orgId }) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Not a member of this organization")
+            throw ForbiddenException.keyed("org.notMemberCurrent")
         }
         return SwitchOrgResponse(accessToken = jwtService.generateAccessToken(user.id, orgId))
     }

@@ -41,7 +41,7 @@ class CustomFieldService(
     fun create(projectKey: String, request: CustomFieldDefinitionRequest, actor: User): CustomFieldDefinition {
         val project = projectService.requireMember(projectKey, actor.id)
         if (definitionRepo.existsByProjectIdAndName(project.id, request.name)) {
-            throw ConflictException("Custom field '${request.name}' already exists in this project")
+            throw ConflictException.keyed("customField.alreadyExists", request.name)
         }
         return definitionRepo.save(
             CustomFieldDefinition(request.name, request.type, request.required, request.sortOrder, project)
@@ -53,9 +53,9 @@ class CustomFieldService(
         val project = projectService.requireMember(projectKey, actor.id)
         val field = definitionRepo.findById(fieldId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Custom field not found: $fieldId") }
+            .orElseThrow { NotFoundException.keyed("customField.notFound", fieldId) }
         if (field.name != request.name && definitionRepo.existsByProjectIdAndName(project.id, request.name)) {
-            throw ConflictException("Custom field '${request.name}' already exists in this project")
+            throw ConflictException.keyed("customField.alreadyExists", request.name)
         }
         field.name = request.name
         field.required = request.required
@@ -78,7 +78,7 @@ class CustomFieldService(
         val project = projectService.requireMember(projectKey, actor.id)
         val field = definitionRepo.findById(fieldId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Custom field not found: $fieldId") }
+            .orElseThrow { NotFoundException.keyed("customField.notFound", fieldId) }
         definitionRepo.delete(field)
     }
 
@@ -87,9 +87,9 @@ class CustomFieldService(
         val project = projectService.requireMember(projectKey, actor.id)
         val field = definitionRepo.findById(fieldId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Custom field not found: $fieldId") }
+            .orElseThrow { NotFoundException.keyed("customField.notFound", fieldId) }
         if (optionRepo.findByFieldIdOrderBySortOrder(field.id).any { it.label.equals(request.label, ignoreCase = false) }) {
-            throw ConflictException("Option '${request.label}' already exists for this field")
+            throw ConflictException.keyed("customField.optionAlreadyExists", request.label)
         }
         return optionRepo.save(CustomFieldOption(request.label, request.sortOrder, field))
     }
@@ -99,10 +99,10 @@ class CustomFieldService(
         val project = projectService.requireMember(projectKey, actor.id)
         val field = definitionRepo.findById(fieldId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Custom field not found: $fieldId") }
+            .orElseThrow { NotFoundException.keyed("customField.notFound", fieldId) }
         val option = optionRepo.findById(optId)
             .filter { it.field.id == field.id }
-            .orElseThrow { NotFoundException("Option not found: $optId") }
+            .orElseThrow { NotFoundException.keyed("customField.optionNotFound", optId) }
         option.label = request.label
         option.sortOrder = request.sortOrder
         return optionRepo.save(option)
@@ -113,10 +113,10 @@ class CustomFieldService(
         val project = projectService.requireMember(projectKey, actor.id)
         val field = definitionRepo.findById(fieldId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Custom field not found: $fieldId") }
+            .orElseThrow { NotFoundException.keyed("customField.notFound", fieldId) }
         val option = optionRepo.findById(optId)
             .filter { it.field.id == field.id }
-            .orElseThrow { NotFoundException("Option not found: $optId") }
+            .orElseThrow { NotFoundException.keyed("customField.optionNotFound", optId) }
         optionRepo.delete(option)
     }
 

@@ -2,6 +2,7 @@ package com.taskowolf.notifications
 
 import com.taskowolf.auth.domain.User
 import com.taskowolf.core.infrastructure.BadRequestException
+import com.taskowolf.core.infrastructure.LocalizedException
 import com.taskowolf.notifications.api.NotificationPreferenceController
 import com.taskowolf.notifications.api.dto.NotificationPreferenceItem
 import com.taskowolf.notifications.api.dto.NotificationPreferencesRequest
@@ -62,11 +63,13 @@ class NotificationPreferenceControllerTest {
             controller.update(request, user)
         }
 
-        // Message must not leak the fully qualified enum name
+        // Localized: message is just the catalog key, not a leaked FQCN or raw enum error
         assertFalse(ex.message!!.contains("com.taskowolf"))
         assertFalse(ex.message!!.contains("No enum constant"))
-        // Message names the reported unknown type
-        assertTrue(ex.message!!.contains("NOT_A_REAL_TYPE"))
+        // Key + args carry the reported unknown type for the message-source lookup
+        val loc = ex as LocalizedException
+        assertEquals("notification.unknownType", loc.messageKey)
+        assertTrue(loc.args.contains("NOT_A_REAL_TYPE"))
 
         verify(exactly = 0) { service.update(any(), any()) }
     }

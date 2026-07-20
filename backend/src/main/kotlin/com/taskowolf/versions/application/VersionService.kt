@@ -27,7 +27,7 @@ class VersionService(
     fun create(projectKey: String, request: VersionRequest, actor: User): Version {
         val project = projectService.requireMember(projectKey, actor.id)
         if (versionRepository.existsByProjectIdAndName(project.id, request.name)) {
-            throw ConflictException("Version '${request.name}' already exists in this project")
+            throw ConflictException.keyed("version.alreadyExists", request.name)
         }
         return versionRepository.save(Version(name = request.name, project = project))
     }
@@ -37,9 +37,9 @@ class VersionService(
         val project = projectService.requireMember(projectKey, actor.id)
         val version = versionRepository.findById(versionId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Version not found: $versionId") }
+            .orElseThrow { NotFoundException.keyed("version.notFound", versionId) }
         if (version.name != request.name && versionRepository.existsByProjectIdAndName(project.id, request.name)) {
-            throw ConflictException("Version '${request.name}' already exists in this project")
+            throw ConflictException.keyed("version.alreadyExists", request.name)
         }
         version.name = request.name
         return versionRepository.save(version)
@@ -50,7 +50,7 @@ class VersionService(
         val project = projectService.requireMember(projectKey, actor.id)
         val version = versionRepository.findById(versionId)
             .filter { it.project.id == project.id }
-            .orElseThrow { NotFoundException("Version not found: $versionId") }
+            .orElseThrow { NotFoundException.keyed("version.notFound", versionId) }
         versionRepository.delete(version)
     }
 }

@@ -20,7 +20,7 @@ import java.util.UUID
 class AdminAutomationController(private val automationService: AutomationService) {
 
     private fun requireSystemAdmin(user: User) {
-        if (user.systemRole != SystemRole.ADMIN) throw ForbiddenException("System admin role required")
+        if (user.systemRole != SystemRole.ADMIN) throw ForbiddenException.keyed("automation.systemAdminRequired")
     }
 
     @GetMapping

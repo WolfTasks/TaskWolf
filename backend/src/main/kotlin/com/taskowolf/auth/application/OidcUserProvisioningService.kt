@@ -4,6 +4,7 @@ import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.domain.User
 import com.taskowolf.auth.infrastructure.SsoConfigRepository
 import com.taskowolf.auth.infrastructure.UserRepository
+import com.taskowolf.core.infrastructure.ForbiddenException
 import com.taskowolf.organizations.domain.OrgRole
 import com.taskowolf.organizations.domain.OrganizationMember
 import com.taskowolf.organizations.domain.OrganizationMemberId
@@ -28,7 +29,7 @@ class OidcUserProvisioningService(
         val email = oidcUser.email ?: error("OIDC user has no email")
         val config = ssoConfigRepository.findById(UUID.fromString(registrationId)).orElse(null)
         val user = userRepository.findByEmail(email) ?: run {
-            check(config?.autoProvision != false) { "Auto-provisioning disabled" }
+            if (config?.autoProvision == false) throw ForbiddenException.keyed("auth.autoProvisionDisabled")
             val newUser = userRepository.save(
                 User(
                     email = email,

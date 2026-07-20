@@ -38,10 +38,10 @@ class StorageService(
     fun load(storedName: String): Resource {
         val file = rootPath.resolve(storedName).normalize()
         if (!file.startsWith(rootPath)) {
-            throw NotFoundException("File not found: $storedName")
+            throw NotFoundException.keyed("attachment.fileNotFound", storedName)
         }
         val resource = UrlResource(file.toUri())
-        if (!resource.exists()) throw NotFoundException("File not found: $storedName")
+        if (!resource.exists()) throw NotFoundException.keyed("attachment.fileNotFound", storedName)
         return resource
     }
 

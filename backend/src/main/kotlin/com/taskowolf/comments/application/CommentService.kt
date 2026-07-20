@@ -36,8 +36,8 @@ class CommentService(
     @Transactional
     fun editComment(commentId: UUID, body: String, actor: User): Comment {
         val comment = commentRepository.findById(commentId)
-            .orElseThrow { NotFoundException("Comment not found: $commentId") }
-        if (comment.authorId != actor.id) throw ForbiddenException("Not the comment author")
+            .orElseThrow { NotFoundException.keyed("comment.notFound", commentId) }
+        if (comment.authorId != actor.id) throw ForbiddenException.keyed("comment.notAuthor")
         comment.body = body
         comment.editedAt = Instant.now()
         return commentRepository.save(comment)
@@ -54,9 +54,9 @@ class CommentService(
     @Transactional
     fun deleteComment(commentId: UUID, projectKey: String, actor: User) {
         val comment = commentRepository.findById(commentId)
-            .orElseThrow { NotFoundException("Comment not found: $commentId") }
+            .orElseThrow { NotFoundException.keyed("comment.notFound", commentId) }
         if (comment.authorId != actor.id && !projectService.isProjectAdmin(projectKey, actor.id)) {
-            throw ForbiddenException("Cannot delete this comment")
+            throw ForbiddenException.keyed("comment.cannotDelete")
         }
         comment.deletedAt = Instant.now()
         commentRepository.save(comment)

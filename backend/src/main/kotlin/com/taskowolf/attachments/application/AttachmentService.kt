@@ -44,10 +44,10 @@ class AttachmentService(
     @Transactional
     fun delete(projectKey: String, issueKey: String, attachmentId: UUID, actor: User) {
         val attachment = attachmentRepository.findById(attachmentId)
-            .orElseThrow { NotFoundException("Attachment not found: $attachmentId") }
+            .orElseThrow { NotFoundException.keyed("attachment.notFound", attachmentId) }
         val issue = issueService.findByKey(projectKey, issueKey, actor.id)
         if (attachment.uploaderId != actor.id && !projectService.isProjectAdmin(projectKey, actor.id)) {
-            throw ForbiddenException("Cannot delete this attachment")
+            throw ForbiddenException.keyed("attachment.cannotDelete")
         }
         storageService.delete(attachment.storedName)
         attachmentRepository.delete(attachment)

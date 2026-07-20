@@ -55,7 +55,7 @@ class NotificationService(
     @Transactional
     fun markRead(notificationId: UUID, userId: UUID): Notification {
         val notif = repository.findByIdAndUserId(notificationId, userId)
-            ?: throw NotFoundException("Notification not found")
+            ?: throw NotFoundException.keyed("notification.notFound")
         notif.read = true
         return repository.save(notif)
     }
