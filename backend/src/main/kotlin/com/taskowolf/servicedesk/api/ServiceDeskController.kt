@@ -1,6 +1,8 @@
 package com.taskowolf.servicedesk.api
 
 import com.taskowolf.auth.domain.User
+import com.taskowolf.core.infrastructure.BadRequestException
+import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.issues.api.dto.IssueResponse
 import com.taskowolf.issues.application.IssueService
 import com.taskowolf.issues.domain.IssuePriority
@@ -12,7 +14,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @RestController
@@ -29,15 +30,15 @@ class ServiceDeskController(
         @PathVariable key: String,
         @RequestBody req: CreateServiceDeskRequest
     ): ServiceDeskResponse {
-        val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
+        val project = projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)
         return ServiceDeskResponse.from(serviceDeskService.enable(project.id, req.emailAddress))
     }
 
     @GetMapping
     fun get(@PathVariable key: String): ServiceDeskResponse {
-        val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
+        val project = projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)
         return ServiceDeskResponse.from(
-            serviceDeskService.findByProject(project.id) ?: error("Service desk not enabled for project: $key")
+            serviceDeskService.findByProject(project.id) ?: throw NotFoundException.keyed("serviceDesk.notEnabled", key)
         )
     }
 
@@ -48,7 +49,7 @@ class ServiceDeskController(
         @PathVariable key: String,
         @Valid @RequestBody req: SubmitTicketRequest
     ) {
-        val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
+        val project = projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)
         issueService.createTicketFromEmail(project.id, req.title, req.description, req.senderEmail ?: "anonymous")
     }
 
@@ -69,13 +70,12 @@ class ServiceDeskController(
         @PathVariable key: String,
         @Valid @RequestBody req: CreateSlaPolicyRequest
     ): SlaPolicyResponse {
-        val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
-        val sd = serviceDeskService.findByProject(project.id) ?: error("Service desk not enabled for project: $key")
+        val project = projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)
+        val sd = serviceDeskService.findByProject(project.id) ?: throw NotFoundException.keyed("serviceDesk.notEnabled", key)
         val priority = try {
             IssuePriority.valueOf(req.priority)
         } catch (e: IllegalArgumentException) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Invalid priority: ${req.priority}. Valid values: ${IssuePriority.entries.joinToString()}")
+            throw BadRequestException.keyed("serviceDesk.invalidPriority", req.priority, IssuePriority.entries.joinToString())
         }
         return SlaPolicyResponse.from(
             serviceDeskService.addSlaPolicy(sd.id, req.name, priority, req.responseMinutes, req.resolutionMinutes)
@@ -84,8 +84,8 @@ class ServiceDeskController(
 
     @GetMapping("/sla-policies")
     fun listSlaPolicies(@PathVariable key: String): List<SlaPolicyResponse> {
-        val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
-        val sd = serviceDeskService.findByProject(project.id) ?: error("Service desk not enabled for project: $key")
+        val project = projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)
+        val sd = serviceDeskService.findByProject(project.id) ?: throw NotFoundException.keyed("serviceDesk.notEnabled", key)
         return serviceDeskService.listSlaPolicies(sd.id).map { SlaPolicyResponse.from(it) }
     }
 
