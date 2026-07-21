@@ -1,5 +1,7 @@
 package com.taskowolf.servicedesk.api
 
+import com.taskowolf.core.infrastructure.BadRequestException
+import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.projects.infrastructure.ProjectRepository
 import com.taskowolf.servicedesk.api.dto.CreateIncidentRequest
 import com.taskowolf.servicedesk.api.dto.IncidentResponse
@@ -9,7 +11,6 @@ import com.taskowolf.servicedesk.domain.IncidentSeverity
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @RestController
@@ -29,10 +30,7 @@ class IncidentController(
         val severity = try {
             IncidentSeverity.valueOf(req.severity)
         } catch (e: IllegalArgumentException) {
-            throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Invalid severity '${req.severity}'. Must be one of: ${IncidentSeverity.entries.joinToString()}"
-            )
+            throw BadRequestException.keyed("incident.invalidSeverity", req.severity, IncidentSeverity.entries.joinToString())
         }
         return IncidentResponse.from(
             incidentService.create(
@@ -47,7 +45,7 @@ class IncidentController(
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     fun list(@PathVariable key: String): List<IncidentResponse> {
-        val project = projectRepository.findByKey(key) ?: error("Project not found: $key")
+        val project = projectRepository.findByKey(key) ?: throw NotFoundException.keyed("project.notFound", key)
         return incidentService.listByProject(project.id).map { IncidentResponse.from(it) }
     }
 
