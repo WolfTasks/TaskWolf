@@ -66,6 +66,9 @@ extra["commons-lang3.version"] = "3.18.0"
 // logback-core 1.5.34 -> 1.5.35 fixes CVE (object injection via HardenedObjectInputStream, Dependabot #79).
 // Spring Boot 3.5.16 BOM pins 1.5.34; override the shared property so logback-core AND logback-classic move together.
 extra["logback.version"] = "1.5.35"
+// postgresql 42.7.11 -> 42.7.12 fixes CVE-2026-54291 (HIGH). Spring Boot 3.5.16 BOM pins 42.7.11;
+// override the managed property so the runtime JDBC driver picks up the patched release.
+extra["postgresql.version"] = "42.7.12"
 
 // Override Spring Boot BOM version for Testcontainers to support Docker Desktop 4.x on Windows
 dependencyManagement {
