@@ -50,9 +50,11 @@ class SlaMonitorJob(
                         notificationService.createDirect(
                             userId = uid,
                             type = NotificationType.SLA_BREACHED,
-                            title = "SLA Breached: ${issue.key}",
-                            body = "Issue ${issue.key} has exceeded its SLA resolution time of ${policy.resolutionMinutes} minutes.",
-                            link = "/issues/${issue.key}"
+                            titleKey = "notification.slaBreached.title",
+                            link = "/issues/${issue.key}",
+                            titleArgs = arrayOf(issue.key),
+                            bodyKey = "notification.slaBreached.body",
+                            bodyArgs = arrayOf(issue.key, policy.resolutionMinutes.toString()),
                         )
                     }
                 }

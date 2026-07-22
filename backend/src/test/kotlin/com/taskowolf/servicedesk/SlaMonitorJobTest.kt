@@ -72,7 +72,7 @@ class SlaMonitorJobTest {
 
         job.run()
 
-        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any(), any()) }
+        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any()) }
         verify(exactly = 0) { auditService.log(any(), any(), any()) }
     }
 
@@ -96,11 +96,14 @@ class SlaMonitorJobTest {
 
         verify(exactly = 1) {
             notificationService.createDirect(
-                notifyUserId,
-                NotificationType.SLA_BREACHED,
-                match { it.contains("WOLF-1") },
-                any(),
-                any()
+                userId = notifyUserId,
+                type = NotificationType.SLA_BREACHED,
+                titleKey = "notification.slaBreached.title",
+                link = "/issues/WOLF-1",
+                titleArgs = match { it.contains("WOLF-1") },
+                bodyKey = "notification.slaBreached.body",
+                bodyArgs = any(),
+                rawBody = any(),
             )
         }
         verify(exactly = 1) {
@@ -122,7 +125,7 @@ class SlaMonitorJobTest {
 
         job.run()
 
-        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any(), any()) }
+        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any()) }
     }
 
     @Test
@@ -136,7 +139,7 @@ class SlaMonitorJobTest {
 
         job.run()
 
-        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any(), any()) }
+        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any()) }
     }
 
     @Test
@@ -145,7 +148,7 @@ class SlaMonitorJobTest {
 
         job.run()
 
-        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any(), any()) }
+        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any()) }
         verify(exactly = 0) { auditService.log(any(), any(), any()) }
     }
 
