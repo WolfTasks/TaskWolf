@@ -55,9 +55,10 @@ class ActionExecutor(
                     notificationService.createDirect(
                         userId = recipientId,
                         type = NotificationType.AUTOMATION,
-                        title = "Automation: ${issue.key}",
-                        body = message,
-                        link = "/p/${issue.project.key}/issues/${issue.key}"
+                        titleKey = "notification.automation.title",
+                        link = "/p/${issue.project.key}/issues/${issue.key}",
+                        titleArgs = arrayOf(issue.key),
+                        rawBody = message,
                     )
                 }
                 ActionType.CREATE_COMMENT -> {

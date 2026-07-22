@@ -2,6 +2,8 @@ package com.taskowolf.servicedesk
 
 import com.taskowolf.comments.domain.Comment
 import com.taskowolf.comments.infrastructure.CommentRepository
+import com.taskowolf.issues.domain.Issue
+import com.taskowolf.issues.infrastructure.IssueRepository
 import com.taskowolf.notifications.application.NotificationService
 import com.taskowolf.notifications.domain.NotificationType
 import com.taskowolf.servicedesk.application.IncidentService
@@ -24,34 +26,49 @@ class IncidentServiceTest {
     private val incidentRepo = mockk<IncidentRepository>()
     private val commentRepo = mockk<CommentRepository>()
     private val notificationService = mockk<NotificationService>(relaxed = true)
-    private val service = IncidentService(incidentRepo, commentRepo, notificationService)
+    private val issueRepository = mockk<IssueRepository>()
+    private val service = IncidentService(incidentRepo, commentRepo, notificationService, issueRepository)
 
     private val issueId = UUID.randomUUID()
 
     @Test
-    fun `create saves incident and notifies users`() {
+    fun `create saves incident and notifies users with issue key`() {
         val onCallId = UUID.randomUUID()
         val notifyId1 = UUID.randomUUID()
         val notifyId2 = UUID.randomUUID()
         every { incidentRepo.save(any()) } returnsArgument 0
+        val issue = mockk<Issue> { every { key } returns "WOLF-1" }
+        every { issueRepository.findById(issueId) } returns Optional.of(issue)
 
         val incident = service.create(issueId, IncidentSeverity.P1, onCallId, listOf(notifyId1, notifyId2))
 
         assertEquals(issueId, incident.issueId)
         assertEquals(IncidentSeverity.P1, incident.severity)
         assertEquals(onCallId, incident.onCallAssigneeId)
-        verify(exactly = 2) { notificationService.createDirect(any(), NotificationType.AUTOMATION, any(), any(), any()) }
+        verify(exactly = 2) {
+            notificationService.createDirect(
+                userId = any(),
+                type = NotificationType.AUTOMATION,
+                titleKey = "notification.incident.title",
+                link = "/issues/WOLF-1",
+                titleArgs = match { it.contains("WOLF-1") },
+                bodyKey = "notification.incident.body",
+                bodyArgs = match { it.contains("WOLF-1") },
+                rawBody = any(),
+            )
+        }
     }
 
     @Test
-    fun `create without notify users saves incident without notifications`() {
+    fun `create without notify users saves incident without notifications or issue lookup`() {
         every { incidentRepo.save(any()) } returnsArgument 0
 
         val incident = service.create(issueId, IncidentSeverity.P2, null, emptyList())
 
         assertEquals(issueId, incident.issueId)
         assertEquals(IncidentSeverity.P2, incident.severity)
-        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any(), any()) }
+        verify(exactly = 0) { notificationService.createDirect(any(), any(), any(), any()) }
+        verify(exactly = 0) { issueRepository.findById(any()) }
     }
 
     @Test

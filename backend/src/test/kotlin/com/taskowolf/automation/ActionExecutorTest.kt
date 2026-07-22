@@ -60,6 +60,17 @@ class ActionExecutorTest {
     fun `SEND_NOTIFICATION calls notificationService`() {
         val issue = makeIssue()
         executor.execute(listOf(makeAction(ActionType.SEND_NOTIFICATION, """{"message":"Hello"}""")), issue)
-        verify { notificationService.createDirect(any(), NotificationType.AUTOMATION, any(), any(), any()) }
+        verify {
+            notificationService.createDirect(
+                userId = any(),
+                type = NotificationType.AUTOMATION,
+                titleKey = "notification.automation.title",
+                link = any(),
+                titleArgs = any(),
+                bodyKey = any(),
+                bodyArgs = any(),
+                rawBody = "Hello",
+            )
+        }
     }
 }
