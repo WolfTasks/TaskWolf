@@ -1,0 +1,2890 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open-source, self-hosted project management">
+      
+      
+      
+      
+        <link rel="prev" href="../conventions/">
+      
+      
+        <link rel="next" href="../backend/core/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Supply-Chain Security - TaskWolf</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#supply-chain-security" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TaskWolf" class="md-header__button md-logo" aria-label="TaskWolf" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TaskWolf
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Supply-Chain Security
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/WolfTasks/TaskWolf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    WolfTasks/TaskWolf
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../release-notes/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Release Notes
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../configuration/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Configuration
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/projects/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../admin-guide/sso/" class="md-tabs__link">
+          
+  
+  
+  Admin Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Developer Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../development/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TaskWolf" class="md-nav__button md-logo" aria-label="TaskWolf" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TaskWolf
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/WolfTasks/TaskWolf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    WolfTasks/TaskWolf
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects & Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/boards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Boards & Sprints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/automation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/dashboards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/access-tokens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personal Access Tokens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admin Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Admin Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../admin-guide/sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSO / OIDC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../admin-guide/organizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Organizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../admin-guide/service-desk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Desk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../admin-guide/audit-logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../admin-guide/user-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Implementation Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conventions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conventions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply-Chain Security
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply-Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ubersicht-schutzebenen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Übersicht: Schutzebenen
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gating-regel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gating-Regel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci-security-gates-workflow-ciyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI-Security-Gates (Workflow: ci.yml)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI-Security-Gates (Workflow: ci.yml)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependency-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency-Review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#npm-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        npm audit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#codeql-workflow-codeqlyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CodeQL (Workflow: codeql.yml)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitleaks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitleaks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trivy-container-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trivy (Container-Scan)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nachtlicher-owasp-scan-workflow-nightly-securityyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nächtlicher OWASP-Scan (Workflow: nightly-security.yml)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependabot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependabot
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependabot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-tage-cooldown-gradle-und-npm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5-Tage-Cooldown (Gradle und npm)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sbom-provenance-und-cosign-signatur-workflow-docker-publishyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SBOM, Provenance und Cosign-Signatur (Workflow: docker-publish.yml)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actions-sha-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions-SHA-Pinning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#harden-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        harden-runner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auf-findings-reagieren" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auf Findings reagieren
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auf Findings reagieren">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#highcritical-cve-blockiert-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High/Critical-CVE blockiert CI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geleaktes-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geleaktes Secret
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verdachtiges-paket-lifecycle-skript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verdächtiges Paket / Lifecycle-Skript
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schwachstellen-melden" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schwachstellen melden
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#weiterfuhrende-inhalte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Weiterführende Inhalte
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_5" id="__nav_8_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Backend
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    auth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/labels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/versions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/custom-fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    custom-fields
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/sprints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sprints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/boards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    boards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/comments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    comments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    notifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/attachments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    attachments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/automation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    automation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    integrations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/organizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    organizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/servicedesk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    servicedesk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_6" id="__nav_8_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Frontend
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/pages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/i18n/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ubersicht-schutzebenen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Übersicht: Schutzebenen
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gating-regel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gating-Regel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci-security-gates-workflow-ciyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI-Security-Gates (Workflow: ci.yml)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI-Security-Gates (Workflow: ci.yml)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependency-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency-Review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#npm-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        npm audit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#codeql-workflow-codeqlyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CodeQL (Workflow: codeql.yml)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitleaks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitleaks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trivy-container-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trivy (Container-Scan)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nachtlicher-owasp-scan-workflow-nightly-securityyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nächtlicher OWASP-Scan (Workflow: nightly-security.yml)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependabot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependabot
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependabot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-tage-cooldown-gradle-und-npm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5-Tage-Cooldown (Gradle und npm)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sbom-provenance-und-cosign-signatur-workflow-docker-publishyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SBOM, Provenance und Cosign-Signatur (Workflow: docker-publish.yml)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actions-sha-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions-SHA-Pinning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#harden-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        harden-runner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auf-findings-reagieren" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auf Findings reagieren
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auf Findings reagieren">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#highcritical-cve-blockiert-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High/Critical-CVE blockiert CI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geleaktes-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geleaktes Secret
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verdachtiges-paket-lifecycle-skript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verdächtiges Paket / Lifecycle-Skript
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schwachstellen-melden" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schwachstellen melden
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#weiterfuhrende-inhalte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Weiterführende Inhalte
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="supply-chain-security">Supply-Chain Security<a class="headerlink" href="#supply-chain-security" title="Permanent link">&para;</a></h1>
+<p>Diese Seite beschreibt die Security-Pipeline, die jede Änderung an TaskWolf
+durchläuft. Ziel ist es, kompromittierte Abhängigkeiten, geleakte Secrets und
+verwundbare Container-Images so früh wie möglich zu erkennen — und bei
+hohem Schweregrad den Merge automatisch zu blockieren.</p>
+<hr />
+<h2 id="ubersicht-schutzebenen">Übersicht: Schutzebenen<a class="headerlink" href="#ubersicht-schutzebenen" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Ebene</th>
+<th>Mechanismus</th>
+<th>Wann</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dependency-Review</td>
+<td>GitHub Dependency Review Action</td>
+<td>Jeder Pull Request</td>
+</tr>
+<tr>
+<td>npm audit</td>
+<td><code>npm audit --audit-level=high</code></td>
+<td>Jeder Build (frontend)</td>
+</tr>
+<tr>
+<td>OWASP Dependency-Check</td>
+<td>Gradle-Plugin <code>dependencyCheckAnalyze</code></td>
+<td>Nächtlich 03:00 UTC</td>
+</tr>
+<tr>
+<td>CodeQL</td>
+<td>Statische Analyse (Java/Kotlin + JS/TS)</td>
+<td>Push + PR + wöchentlich</td>
+</tr>
+<tr>
+<td>Secret-Scanning (gitleaks)</td>
+<td><code>gitleaks-action</code> auf vollständiger Git-History</td>
+<td>Jeder Build</td>
+</tr>
+<tr>
+<td>Container-Scan (Trivy)</td>
+<td>Trivy Image-Scan auf Backend- und Frontend-Image</td>
+<td>Jeder Build</td>
+</tr>
+<tr>
+<td>SBOM + Provenance</td>
+<td>Docker BuildKit SBOM, <code>provenance: mode=max</code></td>
+<td>Jedes Release-Tag</td>
+</tr>
+<tr>
+<td>Cosign-Signatur</td>
+<td>Keyless-Signatur via Sigstore/OIDC</td>
+<td>Jedes Release-Tag</td>
+</tr>
+<tr>
+<td>Dependabot</td>
+<td>Automatische Update-PRs (4 Ökosysteme)</td>
+<td>Wöchentlich</td>
+</tr>
+<tr>
+<td>Actions-SHA-Pinning</td>
+<td>Alle Workflow-Schritte auf Commit-SHA gepinnt</td>
+<td>Permanent</td>
+</tr>
+<tr>
+<td>harden-runner</td>
+<td>Egress-Audit auf jedem Runner</td>
+<td>Jeder Job</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="gating-regel">Gating-Regel<a class="headerlink" href="#gating-regel" title="Permanent link">&para;</a></h2>
+<p>Die Pipeline unterscheidet zwei Reaktionen:</p>
+<ul>
+<li><strong>High / Critical (CVSS ≥ 7,0) → CI bricht ab</strong>, der PR kann nicht gemergt werden.</li>
+<li><strong>Medium / Low → Warnung</strong> (Alert, SARIF-Upload), kein harter Block.</li>
+</ul>
+<p>Diese Schwelle gilt konsistent in allen vier Scan-Werkzeugen:</p>
+<table>
+<thead>
+<tr>
+<th>Werkzeug</th>
+<th>Konfiguration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dependency Review</td>
+<td><code>fail-on-severity: high</code></td>
+</tr>
+<tr>
+<td>npm audit</td>
+<td><code>--audit-level=high</code></td>
+</tr>
+<tr>
+<td>OWASP Dependency-Check</td>
+<td><code>failBuildOnCVSS=7.0</code></td>
+</tr>
+<tr>
+<td>Trivy</td>
+<td><code>severity: HIGH,CRITICAL</code>, <code>exit-code: 1</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ci-security-gates-workflow-ciyml">CI-Security-Gates (Workflow: <code>ci.yml</code>)<a class="headerlink" href="#ci-security-gates-workflow-ciyml" title="Permanent link">&para;</a></h2>
+<h3 id="dependency-review">Dependency-Review<a class="headerlink" href="#dependency-review" title="Permanent link">&para;</a></h3>
+<p>Läuft ausschließlich auf Pull Requests, nachdem der Dependency-Graph des
+Gradle-Projekts via <code>gradle/actions/dependency-submission</code> hochgeladen wurde.
+Die <code>actions/dependency-review-action</code> vergleicht die neuen Abhängigkeiten mit
+der GitHub Advisory Database und kommentiert bei Problemen direkt im PR
+(<code>comment-summary-in-pr: on-failure</code>). Neue Abhängigkeiten mit bekannten
+High/Critical-CVEs blockieren den Merge.</p>
+<h3 id="npm-audit">npm audit<a class="headerlink" href="#npm-audit" title="Permanent link">&para;</a></h3>
+<p>Im Job <code>frontend-build</code> wird nach <code>npm ci</code> sofort <code>npm audit --audit-level=high</code>
+ausgeführt. Schlägt das Audit an, bricht der Build ab — das Frontend-Image wird
+nicht gebaut und auch nicht gepusht. Damit ist sichergestellt, dass kein Build mit
+verwundbaren npm-Paketen die nächste Stufe erreicht.</p>
+<h3 id="codeql-workflow-codeqlyml">CodeQL (Workflow: <code>codeql.yml</code>)<a class="headerlink" href="#codeql-workflow-codeqlyml" title="Permanent link">&para;</a></h3>
+<p>GitHub CodeQL analysiert <strong>Java/Kotlin</strong> (Autobuild) und <strong>JavaScript/TypeScript</strong>
+(kein separater Build nötig). Der Workflow läuft bei jedem Push und PR auf <code>main</code>
+sowie wöchentlich montags um 03:30 UTC. Findings werden als Code-Scanning-Alerts
+im Security-Tab angezeigt. CodeQL blockt den Build nicht direkt, ist jedoch als
+Required Status Check konfigurierbar.</p>
+<h3 id="gitleaks">gitleaks<a class="headerlink" href="#gitleaks" title="Permanent link">&para;</a></h3>
+<p><code>gitleaks-action</code> scannt die <strong>vollständige Git-History</strong> (<code>fetch-depth: 0</code>) auf
+geleakte Secrets (API-Keys, Tokens, Passwörter). Der Scan läuft auf jedem Push
+und PR. Bei einem Fund bricht der Job sofort ab. Damit werden sowohl neu
+eingeführte als auch historisch begrabene Secrets erkannt.</p>
+<h3 id="trivy-container-scan">Trivy (Container-Scan)<a class="headerlink" href="#trivy-container-scan" title="Permanent link">&para;</a></h3>
+<p>Trivy scannt die Docker-Images für Backend und Frontend <strong>vor dem Push</strong> auf
+bekannte CVEs. Der Workflow baut dazu zunächst ein lokales Image (ohne Push),
+führt dann den Trivy-Scan durch und lädt das SARIF-Ergebnis in den GitHub
+Security-Tab hoch. Erst wenn der Scan bestanden hat, wird das Image gepusht.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>severity: HIGH,CRITICAL
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>exit-code: 1
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>trivyignores: .trivyignore
+</code></pre></div>
+<p>Begründete Ausnahmen (nicht ausnutzbare CVEs) werden in <code>.trivyignore</code>
+eingetragen — mit Begründung und Datum. Die Datei wird quartalsweise reviewt.</p>
+<hr />
+<h2 id="nachtlicher-owasp-scan-workflow-nightly-securityyml">Nächtlicher OWASP-Scan (Workflow: <code>nightly-security.yml</code>)<a class="headerlink" href="#nachtlicher-owasp-scan-workflow-nightly-securityyml" title="Permanent link">&para;</a></h2>
+<p>Täglich um 03:00 UTC führt <code>./gradlew dependencyCheckAnalyze</code> einen
+OWASP-Dependency-Check auf dem Backend durch. Die Schwelle liegt bei
+<code>failBuildOnCVSS=7.0</code>. Das SARIF-Ergebnis wird in den GitHub Security-Tab
+hochgeladen.</p>
+<p><strong>Besonderheit:</strong> Schlägt der nächtliche Scan an, öffnet der Workflow automatisch
+ein GitHub-Issue mit dem Label <code>security</code> und verweist auf den Workflow-Run. So
+gehen Findings nicht unbemerkt unter. Für schnellere NVD-API-Abfragen kann der
+Repo-Secret <code>NVD_API_KEY</code> gesetzt werden.</p>
+<hr />
+<h2 id="dependabot">Dependabot<a class="headerlink" href="#dependabot" title="Permanent link">&para;</a></h2>
+<p>Dependabot überwacht vier Ökosysteme und öffnet wöchentlich Update-PRs:</p>
+<table>
+<thead>
+<tr>
+<th>Ökosystem</th>
+<th>Verzeichnis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gradle (Backend-Deps)</td>
+<td><code>/backend</code></td>
+</tr>
+<tr>
+<td>npm (Frontend-Deps)</td>
+<td><code>/frontend</code></td>
+</tr>
+<tr>
+<td>GitHub Actions</td>
+<td><code>/</code></td>
+</tr>
+<tr>
+<td>Docker (Basis-Images)</td>
+<td><code>/backend</code>, <code>/frontend</code></td>
+</tr>
+</tbody>
+</table>
+<p>Gradle-, npm- und GitHub-Actions-Updates sind in Gruppen zusammengefasst
+(<code>backend-deps</code>, <code>frontend-deps</code>, <code>actions</code>), damit verwandte Updates gebündelt
+ankommen statt als Einzelflut. Docker-Image-Updates werden nicht gruppiert und
+treffen pro Image einzeln ein.</p>
+<h3 id="5-tage-cooldown-gradle-und-npm">5-Tage-Cooldown (Gradle und npm)<a class="headerlink" href="#5-tage-cooldown-gradle-und-npm" title="Permanent link">&para;</a></h3>
+<p>Für die Package-Registries Gradle und npm ist ein Cooldown (<code>cooldown.default-days: 5</code>)
+konfiguriert. Dieser verhindert, dass Dependabot eine frisch veröffentlichte —
+und potenziell noch nicht gecheckte oder kompromittierte — Version sofort als PR
+öffnet. GitHub Actions und Docker haben keinen Cooldown. Dasselbe Prinzip gilt
+beim manuellen Pinnen: Niemals eine Version fixieren, die weniger als 5 Tage alt
+ist. Details dazu in der <a href="../ai-guide/#adding-a-new-dependency">Dependency-Checkliste im AI-Guide</a>.</p>
+<hr />
+<h2 id="sbom-provenance-und-cosign-signatur-workflow-docker-publishyml">SBOM, Provenance und Cosign-Signatur (Workflow: <code>docker-publish.yml</code>)<a class="headerlink" href="#sbom-provenance-und-cosign-signatur-workflow-docker-publishyml" title="Permanent link">&para;</a></h2>
+<p>Jeder Release-Tag (<code>v*.*.*</code>) durchläuft einen erweiterten Publish-Workflow:</p>
+<ol>
+<li>
+<p><strong>SBOM:</strong> Docker BuildKit generiert automatisch eine
+   Software-Bill-of-Materials (<code>sbom: true</code>) — eine maschinenlesbare Liste
+   aller Schichten und Pakete im Image.</p>
+</li>
+<li>
+<p><strong>Provenance:</strong> Mit <code>provenance: mode=max</code> wird ein SLSA-Provenance-Attestat
+   eingebettet, das den vollständigen Build-Kontext (Quelle, Commit-SHA,
+   Build-Umgebung) beschreibt.</p>
+</li>
+<li>
+<p><strong>Cosign-Signatur (keyless):</strong> Nach dem Push wird das Image mit <code>cosign sign</code>
+   signiert. Da der Workflow <code>id-token: write</code> hat, authentifiziert sich cosign
+   via GitHub-OIDC bei Sigstore/Fulcio — es wird kein langlebiger privater Key
+   benötigt. Das Zertifikat ist an den OIDC-Claim (<code>repo</code>, <code>workflow</code>, <code>ref</code>)
+   gebunden und in Rekor transparent geloggt.</p>
+</li>
+</ol>
+<p><strong>Signatur verifizieren:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cosign<span class="w"> </span>verify<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--certificate-identity-regexp<span class="w"> </span><span class="s2">&quot;https://github.com/WolfTasks/TaskWolf&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>--certificate-oidc-issuer<span class="w"> </span><span class="s2">&quot;https://token.actions.githubusercontent.com&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>kwolfgang/taskowolf-backend:&lt;digest&gt;
+</code></pre></div>
+<hr />
+<h2 id="actions-sha-pinning">Actions-SHA-Pinning<a class="headerlink" href="#actions-sha-pinning" title="Permanent link">&para;</a></h2>
+<p>Alle <code>uses:</code>-Einträge in Workflows sind auf einen vollständigen Commit-SHA
+(40 Zeichen) gepinnt, nicht auf einen mutable Tag wie <code>@v3</code>. Damit ist
+sichergestellt, dass ein kompromittierter Tag-Push die CI-Schritte nicht
+austauschen kann. Der kommentierte Versionsname (z. B. <code># v2</code>) dient nur der
+Lesbarkeit; verbindlich ist ausschließlich der SHA.</p>
+<p>Beispiel aus <code>ci.yml</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411</span><span class="w">   </span><span class="c1"># v2</span>
+</code></pre></div>
+<p>Dependabot aktualisiert die SHAs automatisch, sobald eine neue Action-Version
+erscheint.</p>
+<hr />
+<h2 id="harden-runner">harden-runner<a class="headerlink" href="#harden-runner" title="Permanent link">&para;</a></h2>
+<p>Jeder Job in jedem Workflow startet mit <code>step-security/harden-runner</code>.
+Im aktuellen Modus (<code>egress-policy: audit</code>) werden alle ausgehenden
+Netzwerkverbindungen des Runners geloggt, ohne sie zu blockieren. Die
+Egress-Reports erscheinen im Workflow-Summary und ermöglichen es,
+unerwartete Verbindungen (Indikatoren für einen kompromittierten Build-Schritt
+oder ein bösartiges Skript) frühzeitig zu erkennen.</p>
+<hr />
+<h2 id="auf-findings-reagieren">Auf Findings reagieren<a class="headerlink" href="#auf-findings-reagieren" title="Permanent link">&para;</a></h2>
+<h3 id="highcritical-cve-blockiert-ci">High/Critical-CVE blockiert CI<a class="headerlink" href="#highcritical-cve-blockiert-ci" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Dependabot-PR prüfen — oft ist bereits ein Update verfügbar.</li>
+<li>Wenn kein Update verfügbar: Ausnutzbarkeit im TaskWolf-Kontext prüfen.</li>
+<li>Wenn nicht ausnutzbar: Suppression in <code>.trivyignore</code> (Container) oder
+   <code>dependency-check-suppressions.xml</code> (Backend) eintragen — mit Begründung
+   und Datum.</li>
+<li>Den vollständigen Reaktionsprozess beschreibt
+   <code>docs/superpowers/supply-chain-policy.md</code> (interne Repo-Datei,
+   nicht im veröffentlichten Docs-Build).</li>
+</ol>
+<h3 id="geleaktes-secret">Geleaktes Secret<a class="headerlink" href="#geleaktes-secret" title="Permanent link">&para;</a></h3>
+<ol>
+<li>CI sofort anhalten; betroffenen PR <strong>nicht</strong> mergen.</li>
+<li>Alle betroffenen Tokens und Secrets <strong>rotieren</strong> (Annahme: exfiltriert).</li>
+<li>gitleaks-Befund in der Git-History adressieren (Commit reschreiben oder
+   Token per se ungültig machen).</li>
+</ol>
+<h3 id="verdachtiges-paket-lifecycle-skript">Verdächtiges Paket / Lifecycle-Skript<a class="headerlink" href="#verdachtiges-paket-lifecycle-skript" title="Permanent link">&para;</a></h3>
+<p>Indikatoren und Gegenmaßnahmen sind in
+<code>docs/superpowers/supply-chain-policy.md</code> beschrieben
+(Abschnitt <em>Indicators of Compromise</em> und <em>Reaktion bei Verdacht auf
+Kompromittierung</em>).</p>
+<hr />
+<h2 id="schwachstellen-melden">Schwachstellen melden<a class="headerlink" href="#schwachstellen-melden" title="Permanent link">&para;</a></h2>
+<p>Sicherheitslücken in TaskWolf bitte <strong>nicht</strong> als öffentliches GitHub-Issue
+melden. Stattdessen das Private Vulnerability Reporting nutzen:
+<em>Security → Report a vulnerability</em> im Repository. Details zur Reaktionszeit
+und zum Prozess stehen in der
+<a href="https://github.com/WolfTasks/TaskWolf/blob/main/SECURITY.md">SECURITY.md</a>
+im Repository-Root.</p>
+<hr />
+<h2 id="weiterfuhrende-inhalte">Weiterführende Inhalte<a class="headerlink" href="#weiterfuhrende-inhalte" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../ai-guide/#adding-a-new-dependency">AI Implementation Guide → Adding a New Dependency</a> —
+  Checkliste für neue Abhängigkeiten (Reife, CVEs, Cooldown, Lizenz).</li>
+<li><code>docs/superpowers/supply-chain-policy.md</code> — internes Dokument mit
+  CVE-Reaktionsprozess, Update-Kadenz, IOC-Liste und Kompromittierungs-Reaktion.</li>
+<li><a href="https://github.com/WolfTasks/TaskWolf/blob/main/SECURITY.md">SECURITY.md</a> —
+  Supported Versions und Responsible-Disclosure-Prozess.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
