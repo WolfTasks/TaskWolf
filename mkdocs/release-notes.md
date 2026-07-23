@@ -4,6 +4,21 @@ Version history for TaskWolf. Docker images are published to Docker Hub as
 `kwolfgang/taskowolf-backend:<version>` and `kwolfgang/taskowolf-frontend:<version>`
 (e.g. `1.0.10`). See the [GitHub releases](https://github.com/WolfTasks/TaskWolf/releases) for downloads.
 
+## v1.0.15 — 2026-07-23
+
+#### Highlights
+
+- **#16 Backend internationalization**: backend-generated text is now localized in **German and English**, completing the i18n effort that the v1.0.13 frontend rollout began. Everything the server produces for a user — **API error messages**, **email subjects and bodies**, and **in-app notification titles and bodies** — now runs through Spring `MessageSource` and is rendered in the **recipient's** language (per-user preference, English fallback). Delivered across three phases: foundation + full API-error sweep (Phases 1–2) and emails + notifications (Phase 3). Untranslatable identifiers (enum codes, event types, issue keys) stay as-is by design, and three CI gates (message parity, keyed-reference integrity, no un-keyed user-facing throws) keep coverage from regressing.
+
+#### Security
+
+- **jackson-databind 2.21.4 → 2.21.5** (#93): fixes two `@JsonView` bypass advisories — GHSA-mhm7-754m-9p8w and GHSA-5gvw-p9qm-jgwh / CVE-2026-59889 (both medium). Applied by overriding the Spring Boot BOM-managed `jackson-bom` version so the whole Jackson family moves together.
+
+#### Maintenance
+
+- **Backend dependencies** (#89): includes `postgresql` 42.7.12 (CVE-2026-54291).
+- **CI actions** (#88): grouped GitHub Actions bumps.
+
 ## v1.0.14 — 2026-07-18
 
 #### Maintenance
