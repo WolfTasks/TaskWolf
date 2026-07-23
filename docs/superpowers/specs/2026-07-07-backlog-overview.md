@@ -20,8 +20,9 @@
 | 13 | Internationalisierung — Fundament + Pilot-Slice | Full-Stack/UI | ✅ **AUSGELIEFERT** (PR #57, squash `0b9b817`; Release v1.0.13) |
 | 14 | Organisationen als Oberkategorie (Projekt-/Member-Zuordnung + Rechte-Vererbung) | Full-Stack | ✅ **AUSGELIEFERT** (Backend PR #55, Frontend PR #56, Release v1.0.12) |
 | 15 | Internationalisierung — Full-Rollout (alle Komponenten, mehrere Sessions) | UI | ✅ **AUSGELIEFERT** (S0–S18 alle gemergt, zuletzt S17 PR #79 + S18 PR #80; Allowlist `[]`, Scanner 0, en/de-Parität grün — Frontend-UI 100% lokalisiert; Release v1.0.13; Wolfgangs manueller DE/EN-Browser-Check S9–S18 noch offen) |
-| 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | 🟩 **GEMERGT — Release ausstehend** (Phasen 1–3 alle auf `main`: P1 Fundament+Pilot PR #83, P2 voller API-Fehler-Sweep PRs #84/#85/#86/#87/#90, P3 E-Mails+In-App-Notifications in Empfänger-Sprache PR #92 squash `00665f5`; en/de mit EN-Fallback, 3 CI-Gates grün [MessagesParity/KeyedReferenceIntegrity/NoUnkeyedUserFacingThrow]. Offen: Wolfgangs manueller DE/EN-Smoke + `v1.0.x`-Release) |
+| 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ✅ **AUSGELIEFERT** (Phasen 1–3 alle auf `main`: P1 Fundament+Pilot PR #83, P2 voller API-Fehler-Sweep PRs #84/#85/#86/#87/#90, P3 E-Mails+In-App-Notifications in Empfänger-Sprache PR #92 squash `00665f5`; en/de mit EN-Fallback, 3 CI-Gates grün [MessagesParity/KeyedReferenceIntegrity/NoUnkeyedUserFacingThrow]; **Release v1.0.15**. Offen: Wolfgangs manueller DE/EN-Smoke [post-release]) |
 | M1 | Dependency-/Base-Image-Wartung (Dependabot-Bündel) | Ops/Maintenance | ✅ **AUSGELIEFERT** (PRs #81/#62/#60/#59/#82, Release v1.0.14) |
+| M2 | jackson-databind @JsonView-Bypass-CVEs + Dependabot-Bündel | Ops/Security | ✅ **AUSGELIEFERT** (jackson-bom 2.21.4→2.21.5 PR #93 [GHSA-mhm7-754m-9p8w + GHSA-5gvw-p9qm-jgwh/CVE-2026-59889]; backend-deps #89 [postgresql 42.7.12], Actions #88; Release v1.0.15) |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -145,6 +146,13 @@ Lockfile) als *inaccurate* dismissed. **#78** (jackson-databind, kein installier
 Patch) als *tolerable_risk* dismissed (Defer bis Spring-Boot-BOM 2.21.5 trägt, vgl.
 Issue #33). Zusätzlich in PR #48 mitgelöst: Trivy-HIGH-Gate im Frontend-Image durch
 `c-ares`-Bump (CVE-2026-33630) im Dockerfile. Details siehe Spec/Plan `2026-07-10-*`.
+> **Update 2026-07-23 (M2):** Der deferte jackson-databind-Fall ist **aufgelöst** —
+> 2.21.5 ist inzwischen erschienen. Per BOM-Override `extra["jackson-bom.version"]
+> = "2.21.5"` (+ Lockfile-Regen) auf `main` gebumpt (PR #93), damit die zwei offenen
+> `@JsonView`-Bypass-Alerts (#80 GHSA-mhm7-754m-9p8w, #81 GHSA-5gvw-p9qm-jgwh /
+> CVE-2026-59889) geschlossen; **Release v1.0.15**. Nebenbefund: Dependabots
+> Security-Update scheiterte wiederholt mit `security_update_dependency_not_found`,
+> weil jackson-databind rein transitiv ist (kein direkter `dependency-type`).
 
 <details><summary>Ausgangslage (Stand 2026-07-09)</summary>
 
