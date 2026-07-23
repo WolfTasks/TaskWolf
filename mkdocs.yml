@@ -1,7 +1,7 @@
 site_name: TaskWolf
 site_description: Open-source, self-hosted project management
-repo_url: https://github.com/taskowolf/TaskWolf
-repo_name: taskowolf/TaskWolf
+repo_url: https://github.com/WolfTasks/TaskWolf
+repo_name: WolfTasks/TaskWolf
 docs_dir: mkdocs
 
 theme:

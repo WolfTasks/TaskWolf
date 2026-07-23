@@ -9,7 +9,7 @@
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/taskowolf/TaskWolf.git
+git clone https://github.com/WolfTasks/TaskWolf.git
 cd TaskWolf
 ```
 
