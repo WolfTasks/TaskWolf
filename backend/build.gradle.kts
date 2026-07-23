@@ -60,9 +60,14 @@ dependencies {
 
 // Security override of a Spring Boot 3.5.16 BOM-managed transitive version.
 // commons-lang3 3.17.0 -> 3.18.0 fixes CVE-2025-48924 (BOM pins 3.17.0 even though swagger-core wants 3.20.0).
-// NOTE: jackson-databind CVE-2026-54515 (2.21.4) has no installable fix yet — 2.21.5/2.22.1 are unreleased,
-// 2.18.9 is a downgrade, 3.1.4 is a major jump. Let the Spring Boot BOM carry 2.21.5 once it ships.
 extra["commons-lang3.version"] = "3.18.0"
+// jackson-bom 2.21.4 -> 2.21.5 fixes @JsonView bypass CVEs on jackson-databind
+// (GHSA-mhm7-754m-9p8w and GHSA-5gvw-p9qm-jgwh / CVE-2026-59889, both medium; Dependabot #80/#81).
+// 2.21.5 shipped to Maven Central; Spring Boot 3.5.16 BOM still pins 2.21.4. Override the shared
+// jackson-bom property so the whole Jackson family (databind, core, module-kotlin, ...) moves together.
+// jackson-databind is transitive-only here, so Dependabot's direct-only security update could not patch
+// it (security_update_dependency_not_found) — this BOM override is the fix.
+extra["jackson-bom.version"] = "2.21.5"
 // logback-core 1.5.34 -> 1.5.35 fixes CVE (object injection via HardenedObjectInputStream, Dependabot #79).
 // Spring Boot 3.5.16 BOM pins 1.5.34; override the shared property so logback-core AND logback-classic move together.
 extra["logback.version"] = "1.5.35"
