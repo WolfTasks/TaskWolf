@@ -38,7 +38,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: github/codeql-action/init@7188fc363630916deb702c7fdcf4e481b751f97a     # v4.37.1
+      - uses: github/codeql-action/init@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81     # v4.37.3
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -50,7 +50,7 @@ jobs:
           chmod +x gradlew
           ./gradlew compileTestKotlin -x test --no-daemon
         working-directory: backend
-      - uses: github/codeql-action/analyze@7188fc363630916deb702c7fdcf4e481b751f97a  # v4.37.1
+      - uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81  # v4.37.3
         continue-on-error: ${{ matrix.language == 'java-kotlin' }}   # temp: see issue #26
         with:
           category: "/language:${{ matrix.language }}"
