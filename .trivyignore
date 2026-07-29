@@ -1,2 +1,9 @@
 # Begründete Ausnahmen. Format pro Zeile: CVE-ID  # Grund + Datum
 # z.B.: CVE-2024-12345  # nicht ausnutzbar (Komponente ungenutzt), 2026-06-28
+
+# react-router GHSA-qwww-vcr4-c8h2 (CSRF, CWE-352, CVSS 7.1): betrifft AUSSCHLIESSLICH
+# den unstable RSC-Modus (React Server Components). TaskWolf-Frontend ist eine reine
+# Client-SPA (createBrowserRouter, kein SSR/RSC, keine unstable_ APIs) -> Code-Pfad
+# ungenutzt, nicht ausnutzbar. Fix nur in react-router 8.3.0 (Major, react-router-dom
+# in v8 aufgelöst). Auflösung geplant via v8-Migration -> docs/superpowers/plans/2026-07-29-react-router-v8-migration.md
+GHSA-qwww-vcr4-c8h2  # RSC-only CSRF, Client-SPA nicht betroffen, 2026-07-29
