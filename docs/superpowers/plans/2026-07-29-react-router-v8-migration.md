@@ -3,9 +3,10 @@
 **Status:** Backlog / geplant — noch NICHT umgesetzt
 **Erstellt:** 2026-07-29
 **Auslöser:** Security-Advisory `GHSA-qwww-vcr4-c8h2` (react-router, HIGH, CVSS 7.1)
-**Aktueller Interim-Zustand:** CVE als *nicht ausnutzbar* suppressed
-(`.trivyignore` + Dependabot-Alert #82 dismissed `not_used`, 2026-07-29). Dieser Plan
-löst die Ausnahme sauber auf.
+**Aktueller Interim-Zustand:** CVE als *nicht ausnutzbar* suppressed an **drei** Gates
+(2026-07-29): `.trivyignore` (Trivy-Nightly + ci.yml-Spiegel), `.github/scripts/audit-gate.mjs`
+ALLOWLIST (npm-audit-Gate in ci.yml) und Dependabot-Alert #82 dismissed `not_used`.
+Dieser Plan löst alle drei Ausnahmen sauber auf.
 
 ## Kontext / Warum
 
@@ -62,7 +63,9 @@ ist damit unvermeidlich ein Major-Bump mit Import-Umstellung in 42 Dateien.
 4. `.github/workflows/ci.yml`: `node-version: '20'` → `'22'` (oder `'24'`).
 5. `npm install` → `package-lock.json` aktualisieren; prüfen, dass `react-router-dom`
    komplett aus dem Lockfile verschwindet.
-6. `.trivyignore`: `GHSA-qwww-vcr4-c8h2`-Zeile **entfernen** (CVE dann echt behoben).
+6. Alle **drei** Interim-Ausnahmen für `GHSA-qwww-vcr4-c8h2` **entfernen** (CVE dann echt behoben):
+   `.trivyignore`-Zeile, `ALLOWLIST`-Eintrag in `.github/scripts/audit-gate.mjs`,
+   und Dependabot-Alert-Dismiss ist mit dem Upgrade automatisch gegenstandslos.
 7. **Verifikation:**
    - `npm run typecheck` grün (Frontend hat kein Test-Framework → Typecheck ist das Gate).
    - `npm run build` grün.
