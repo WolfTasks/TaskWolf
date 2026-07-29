@@ -90,21 +90,28 @@ zeigt 0 HIGH/CRITICAL.
 
 Setzt auf dem gemergten Schritt A auf.
 
-1. **RR-native Route-`lazy`** (nicht `React.lazy`) — idiomatisch für Data-Router,
-   splittet die Component pro Route in einen eigenen Chunk. Helper kapselt named/default:
+1. **`React.lazy` + top-level `<Suspense>`** (nicht RR-native Route-`lazy`). Begründung:
+   RR-native `lazy` koppelt seinen Initial-Load-Fallback an `HydrateFallback`, das an
+   Hydration/Loaders hängt und in reinen CSR-SPAs **ohne** Loader bekanntermaßen quirky
+   ist (remix-run/react-router#12699 „HydrateFallback rendered intermittently on refresh
+   in SPA without SSR"). Wir haben keine Loader und kein SSR → identisches Code-Splitting,
+   aber glasklare Fallback-Story. Helper kapselt named/default-Export:
    ```ts
-   const lazyRoute = (imp: () => Promise<any>, exportName: string) =>
-     async () => ({ Component: (await imp())[exportName] })
-   // named:   lazy: lazyRoute(() => import('@/pages/board/BoardPage'), 'BoardPage')
-   // default: lazy: lazyRoute(() => import('@/pages/admin/AuditLogPage'), 'default')
+   import { lazy } from 'react'
+   const lazyPage = (imp: () => Promise<any>, name: string) =>
+     lazy(() => imp().then(m => ({ default: m[name] })))
+   // named:   const BoardPage = lazyPage(() => import('@/pages/board/BoardPage'), 'BoardPage')
+   // default: const AuditLogPage = lazyPage(() => import('@/pages/admin/AuditLogPage'), 'default')
+   // Route bleibt element-basiert: { path:'/p/:key/board', element: <BoardPage/> }
    ```
-2. Nur die **~40 Leaf-Pages** auf `lazy` umstellen. Die 3 Layout-Shells + `RequireAuth`
-   bleiben **eager** (First-Paint immer nötig, Auth-Wrapper unangetastet).
-3. **`RouteFallback`**-Komponente: minimaler zentrierter Spinner (Tailwind `animate-spin`),
-   während der Lazy-Auflösung beim Initial-Load. Mid-Navigation hält der Router die
-   aktuelle Seite (kein Flash). Die exakte v8-Fallback-Verdrahtung
-   (`RouterProvider`-Fallback-Prop vs. `HydrateFallback`) wird in der Umsetzung gegen die
-   v8-Docs verifiziert und festgelegt.
+2. Nur die **~40 Leaf-Pages** lazy laden. Die 3 Layout-Shells + `RequireAuth` bleiben
+   **eager** (First-Paint immer nötig, Auth-Wrapper unangetastet).
+3. **`RouteFallback`**-Komponente: minimaler zentrierter Spinner (Tailwind `animate-spin`).
+   `<Suspense fallback={<RouteFallback/>}>` wird **um den `<Outlet/>` in jedem der 3 Layouts**
+   gelegt (nicht top-level um `RouterProvider`) — so bleibt die Layout-Shell (Sidebar/
+   Settings-Nav) beim Lazy-Load stehen und nur der Content-Bereich zeigt den Fallback,
+   sowohl beim Initial-Load als auch bei Navigation. Da alle Routen unter `AuthLayout` oder
+   `AppLayout` (mit ggf. verschachteltem `SettingsLayout`) hängen, deckt das jede Leaf-Page ab.
 
 **Verifikation B:** typecheck+build grün; `dist/`-Ausgabe zeigt **separate Page-Chunks**
 (Beleg fürs Splitting, statt eines Monolith-Bundles); manueller DE/EN-Smoke inkl.
