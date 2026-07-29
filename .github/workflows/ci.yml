@@ -55,9 +55,12 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: npm audit (block on high/critical)
+      - name: npm audit (block on high/critical, begründete Allowlist)
         working-directory: frontend
-        run: npm audit --audit-level=high
+        # Blockt bei jedem HIGH/CRITICAL-Advisory, lässt aber begründete Ausnahmen
+        # durch (Allowlist im Script, gespiegelt in .trivyignore). npm audit selbst
+        # kann keine einzelnen Advisories ausnehmen.
+        run: node ../.github/scripts/audit-gate.mjs
 
       - name: i18n scanner self-tests
         working-directory: frontend
