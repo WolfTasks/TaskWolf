@@ -33,12 +33,12 @@ jobs:
         with:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1              # v7.0.1
-      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95            # v5
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961            # v5
         if: matrix.language == 'java-kotlin'
         with:
           java-version: '21'
           distribution: 'temurin'
-      - uses: github/codeql-action/init@7188fc363630916deb702c7fdcf4e481b751f97a     # v4.37.1
+      - uses: github/codeql-action/init@f205ea1c3313d32999d8d6a48b4f6530d4437b38     # v4.37.4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -50,7 +50,7 @@ jobs:
           chmod +x gradlew
           ./gradlew compileTestKotlin -x test --no-daemon
         working-directory: backend
-      - uses: github/codeql-action/analyze@7188fc363630916deb702c7fdcf4e481b751f97a  # v4.37.1
+      - uses: github/codeql-action/analyze@f205ea1c3313d32999d8d6a48b4f6530d4437b38  # v4.37.4
         continue-on-error: ${{ matrix.language == 'java-kotlin' }}   # temp: see issue #26
         with:
           category: "/language:${{ matrix.language }}"
