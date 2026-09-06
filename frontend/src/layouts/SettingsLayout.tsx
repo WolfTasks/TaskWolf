@@ -1,4 +1,6 @@
+import { Suspense } from 'react'
 import { Outlet, NavLink } from 'react-router'
+import { RouteFallback } from '@/components/RouteFallback'
 import { useTranslation } from 'react-i18next'
 import { User, Shield, Bell, KeyRound, UserX } from 'lucide-react'
 
@@ -32,7 +34,9 @@ export function SettingsLayout() {
         ))}
       </nav>
       <div className="flex-1 min-h-0">
-        <Outlet />
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   )

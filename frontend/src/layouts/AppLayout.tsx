@@ -1,4 +1,6 @@
+import { Suspense } from 'react'
 import { Outlet, Link, useNavigate, useMatch } from 'react-router'
+import { RouteFallback } from '@/components/RouteFallback'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import {
@@ -146,7 +148,9 @@ export function AppLayout() {
         </div>
       </aside>
       <main className="flex-1 overflow-auto p-8">
-        <Outlet />
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
         {projectKey && <IssueDialogHost projectKey={projectKey} />}
       </main>
     </div>

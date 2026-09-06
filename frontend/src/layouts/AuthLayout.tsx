@@ -1,4 +1,6 @@
+import { Suspense } from 'react'
 import { Outlet } from 'react-router'
+import { RouteFallback } from '@/components/RouteFallback'
 import { VersionTag } from '@/components/VersionTag'
 
 export function AuthLayout() {
@@ -8,7 +10,9 @@ export function AuthLayout() {
         {/* i18n-ignore: brand name, not translated */}
         <h1 className="text-3xl font-bold text-white text-center mb-1">🐺 TaskWolf</h1>
         <VersionTag className="block text-center mb-8" />
-        <Outlet />
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   )
