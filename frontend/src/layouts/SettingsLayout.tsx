@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { User, Shield, Bell, KeyRound, UserX } from 'lucide-react'
 

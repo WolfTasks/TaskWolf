@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router'
 import type { LucideIcon } from 'lucide-react'
 
 export interface NavItemProps {

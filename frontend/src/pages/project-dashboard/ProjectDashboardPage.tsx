@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useProjectDashboard, useSaveDashboardLayout, useAddWidget, useRemoveWidget } from '@/hooks/useProjectDashboard'
 import type { WidgetData } from '@/hooks/useProjectDashboard'
 import { DashboardCanvas } from '@/components/dashboard/DashboardCanvas'

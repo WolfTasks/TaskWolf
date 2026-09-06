@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useSearchParams, useMatch } from 'react-router-dom'
+import { useSearchParams, useMatch } from 'react-router'
 import { IssueDialog } from '@/components/issue/IssueDialog'
 
 interface Props { projectKey: string }

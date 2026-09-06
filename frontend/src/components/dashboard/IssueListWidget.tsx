@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/api/client'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import type { Issue, Page } from '@/types'
 import { useTranslation } from 'react-i18next'
 

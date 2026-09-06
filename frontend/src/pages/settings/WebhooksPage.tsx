@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import {
   useWebhooks, useCreateWebhook, useDeleteWebhook,
   useWebhookDeliveries, useTestPing, ALL_WEBHOOK_EVENTS,

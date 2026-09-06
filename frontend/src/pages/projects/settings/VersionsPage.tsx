@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useVersions, useCreateVersion, useUpdateVersion, useDeleteVersion } from '@/hooks/useVersions'
 import { useProjectRole } from '@/hooks/useProjectRole'
 import type { Version } from '@/types'

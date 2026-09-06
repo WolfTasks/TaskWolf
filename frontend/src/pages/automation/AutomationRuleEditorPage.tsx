@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router'
 import { useCreateRule } from '../../hooks/useAutomation'
 import { RuleEditor } from '../../components/automation/RuleEditor'
 import type { TriggerType, RuleConditionGroup, RuleAction } from '../../types'
