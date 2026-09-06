@@ -11,10 +11,7 @@ import { execSync } from 'node:child_process';
 
 // Begründete Ausnahmen: GHSA-ID -> Grund + Datum. Jede Zeile muss auch in .trivyignore
 // gespiegelt sein (Trivy-Gate) und via Dependabot-Alert-Dismiss abgedeckt werden.
-const ALLOWLIST = {
-  'GHSA-QWWW-VCR4-C8H2':
-    'react-router RSC-only CSRF (CWE-352); TaskWolf ist Client-SPA (createBrowserRouter, kein RSC/SSR) -> nicht ausnutzbar. Fix nur in react-router 8.3.0 (Major); v8-Migration geplant, 2026-07-29',
-};
+const ALLOWLIST = {};
 
 const BLOCK = new Set(['high', 'critical']);
 const GHSA_RE = /GHSA-[a-z0-9]{4,}-[a-z0-9]{4,}-[a-z0-9]{4,}/i;
