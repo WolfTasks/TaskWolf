@@ -74,6 +74,15 @@ extra["logback.version"] = "1.5.35"
 // postgresql 42.7.11 -> 42.7.12 fixes CVE-2026-54291 (HIGH). Spring Boot 3.5.16 BOM pins 42.7.11;
 // override the managed property so the runtime JDBC driver picks up the patched release.
 extra["postgresql.version"] = "42.7.12"
+// tomcat-embed 10.1.55 -> 10.1.59 fixes three CRITICAL auth-bypass CVEs (disclosed 2026-09-03,
+// caught by the nightly Trivy scan): CVE-2026-68525 (FORM authentication bypass), CVE-2026-65905
+// (DIGEST authenticator replay) and CVE-2026-65182 (security constraint bypass).
+// The advisories name 10.1.58 as the fix, but that release was never published to Maven Central
+// (404) — 10.1.59 is the first available release carrying the fixes. Spring Boot 3.5.16 is the
+// latest 3.5.x and still pins 10.1.55, and tomcat-embed-core is transitive-only here, so
+// Dependabot's direct-only security update could not patch it (security_update_dependency_not_found).
+// Override the shared property so core, el and websocket move together.
+extra["tomcat.version"] = "10.1.59"
 
 // Override Spring Boot BOM version for Testcontainers to support Docker Desktop 4.x on Windows
 dependencyManagement {
