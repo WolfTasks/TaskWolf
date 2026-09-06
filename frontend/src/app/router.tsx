@@ -1,45 +1,52 @@
+import { lazy } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router'
 import { AuthLayout } from '@/layouts/AuthLayout'
 import { AppLayout } from '@/layouts/AppLayout'
-import { LoginPage } from '@/pages/auth/LoginPage'
-import { RegisterPage } from '@/pages/auth/RegisterPage'
-import { DashboardPage } from '@/pages/dashboard/DashboardPage'
-import { ProjectListPage } from '@/pages/projects/ProjectListPage'
-import { ProjectCreatePage } from '@/pages/projects/ProjectCreatePage'
-import { IssueListPage } from '@/pages/issues/IssueListPage'
-import { IssueDetailPage } from '@/pages/issues/IssueDetailPage'
-import { BoardPage } from '@/pages/board/BoardPage'
-import { BacklogPage } from '@/pages/backlog/BacklogPage'
-import { SprintsPage } from '@/pages/sprints/SprintsPage'
-import { ProjectDashboardPage } from '@/pages/project-dashboard/ProjectDashboardPage'
-import { ReportsPage } from '@/pages/reports/ReportsPage'
-import { NotificationsPage } from '@/pages/notifications/NotificationsPage'
-import { WorkflowEditorPage } from '@/pages/settings/WorkflowEditorPage'
-import { AutomationPage } from '@/pages/automation/AutomationPage'
-import { AutomationRuleEditorPage } from '@/pages/automation/AutomationRuleEditorPage'
-import { AdminAutomationPage } from '@/pages/admin/AdminAutomationPage'
-import AuditLogPage from '@/pages/admin/AuditLogPage'
-import { SsoSettingsPage } from '@/pages/admin/SsoSettingsPage'
-import { ApiKeysPage } from '@/pages/settings/ApiKeysPage'
-import { AccessTokensPage } from '@/pages/settings/AccessTokensPage'
-import { AccountSettingsPage } from '@/pages/settings/AccountSettingsPage'
 import { SettingsLayout } from '@/layouts/SettingsLayout'
-import { ProfilePage } from '@/pages/settings/ProfilePage'
-import { SecurityPage } from '@/pages/settings/SecurityPage'
-import { NotificationSettingsPage } from '@/pages/settings/NotificationSettingsPage'
-import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
-import { WebhooksPage } from '@/pages/settings/WebhooksPage'
-import { IntegrationsPage } from '@/pages/settings/IntegrationsPage'
-import ProjectAuditPage from '@/pages/projects/settings/ProjectAuditPage'
-import { LabelsPage } from '@/pages/projects/settings/LabelsPage'
-import { VersionsPage } from '@/pages/projects/settings/VersionsPage'
-import { CustomFieldsPage } from '@/pages/projects/settings/CustomFieldsPage'
-import { MembersPage } from '@/pages/projects/settings/MembersPage'
-import { OrganizationSettingsPage } from '@/pages/projects/settings/OrganizationSettingsPage'
-import { OrgsPage } from '@/pages/orgs/OrgsPage'
-import { OrgSettingsPage } from '@/pages/orgs/OrgSettingsPage'
-import ServiceDeskPage from '@/pages/projects/servicedesk/ServiceDeskPage'
-import IncidentDashboardPage from '@/pages/projects/servicedesk/IncidentDashboardPage'
+
+// Lazy-Helper: kapselt named- und default-Exports einheitlich als React.lazy.
+const lazyPage = (imp: () => Promise<any>, name: string) =>
+  lazy(() => imp().then((m) => ({ default: m[name] })))
+
+// Leaf-Pages (lazy). default-Export-Pages nutzen name = 'default'.
+const LoginPage = lazyPage(() => import('@/pages/auth/LoginPage'), 'LoginPage')
+const RegisterPage = lazyPage(() => import('@/pages/auth/RegisterPage'), 'RegisterPage')
+const DashboardPage = lazyPage(() => import('@/pages/dashboard/DashboardPage'), 'DashboardPage')
+const ProjectListPage = lazyPage(() => import('@/pages/projects/ProjectListPage'), 'ProjectListPage')
+const ProjectCreatePage = lazyPage(() => import('@/pages/projects/ProjectCreatePage'), 'ProjectCreatePage')
+const IssueListPage = lazyPage(() => import('@/pages/issues/IssueListPage'), 'IssueListPage')
+const IssueDetailPage = lazyPage(() => import('@/pages/issues/IssueDetailPage'), 'IssueDetailPage')
+const BoardPage = lazyPage(() => import('@/pages/board/BoardPage'), 'BoardPage')
+const BacklogPage = lazyPage(() => import('@/pages/backlog/BacklogPage'), 'BacklogPage')
+const SprintsPage = lazyPage(() => import('@/pages/sprints/SprintsPage'), 'SprintsPage')
+const ProjectDashboardPage = lazyPage(() => import('@/pages/project-dashboard/ProjectDashboardPage'), 'ProjectDashboardPage')
+const ReportsPage = lazyPage(() => import('@/pages/reports/ReportsPage'), 'ReportsPage')
+const NotificationsPage = lazyPage(() => import('@/pages/notifications/NotificationsPage'), 'NotificationsPage')
+const WorkflowEditorPage = lazyPage(() => import('@/pages/settings/WorkflowEditorPage'), 'WorkflowEditorPage')
+const AutomationPage = lazyPage(() => import('@/pages/automation/AutomationPage'), 'AutomationPage')
+const AutomationRuleEditorPage = lazyPage(() => import('@/pages/automation/AutomationRuleEditorPage'), 'AutomationRuleEditorPage')
+const AdminAutomationPage = lazyPage(() => import('@/pages/admin/AdminAutomationPage'), 'AdminAutomationPage')
+const AuditLogPage = lazyPage(() => import('@/pages/admin/AuditLogPage'), 'default')
+const SsoSettingsPage = lazyPage(() => import('@/pages/admin/SsoSettingsPage'), 'SsoSettingsPage')
+const ApiKeysPage = lazyPage(() => import('@/pages/settings/ApiKeysPage'), 'ApiKeysPage')
+const AccessTokensPage = lazyPage(() => import('@/pages/settings/AccessTokensPage'), 'AccessTokensPage')
+const AccountSettingsPage = lazyPage(() => import('@/pages/settings/AccountSettingsPage'), 'AccountSettingsPage')
+const ProfilePage = lazyPage(() => import('@/pages/settings/ProfilePage'), 'ProfilePage')
+const SecurityPage = lazyPage(() => import('@/pages/settings/SecurityPage'), 'SecurityPage')
+const NotificationSettingsPage = lazyPage(() => import('@/pages/settings/NotificationSettingsPage'), 'NotificationSettingsPage')
+const AdminUsersPage = lazyPage(() => import('@/pages/admin/AdminUsersPage'), 'AdminUsersPage')
+const WebhooksPage = lazyPage(() => import('@/pages/settings/WebhooksPage'), 'WebhooksPage')
+const IntegrationsPage = lazyPage(() => import('@/pages/settings/IntegrationsPage'), 'IntegrationsPage')
+const ProjectAuditPage = lazyPage(() => import('@/pages/projects/settings/ProjectAuditPage'), 'default')
+const LabelsPage = lazyPage(() => import('@/pages/projects/settings/LabelsPage'), 'LabelsPage')
+const VersionsPage = lazyPage(() => import('@/pages/projects/settings/VersionsPage'), 'VersionsPage')
+const CustomFieldsPage = lazyPage(() => import('@/pages/projects/settings/CustomFieldsPage'), 'CustomFieldsPage')
+const MembersPage = lazyPage(() => import('@/pages/projects/settings/MembersPage'), 'MembersPage')
+const OrganizationSettingsPage = lazyPage(() => import('@/pages/projects/settings/OrganizationSettingsPage'), 'OrganizationSettingsPage')
+const OrgsPage = lazyPage(() => import('@/pages/orgs/OrgsPage'), 'OrgsPage')
+const OrgSettingsPage = lazyPage(() => import('@/pages/orgs/OrgSettingsPage'), 'OrgSettingsPage')
+const ServiceDeskPage = lazyPage(() => import('@/pages/projects/servicedesk/ServiceDeskPage'), 'default')
+const IncidentDashboardPage = lazyPage(() => import('@/pages/projects/servicedesk/IncidentDashboardPage'), 'default')
 
 const isAuthenticated = () => !!localStorage.getItem('accessToken')
 
