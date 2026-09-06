@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 import { VersionTag } from '@/components/VersionTag'
 
 export function AuthLayout() {

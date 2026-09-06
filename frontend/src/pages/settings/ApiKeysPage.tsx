@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useApiKeys, useCreateApiKey, useRevokeApiKey } from '@/hooks/useApiKeys'
 import type { CreateApiKeyResponse } from '@/hooks/useApiKeys'
 import { DataTable, type Column } from '@/components/table/DataTable'

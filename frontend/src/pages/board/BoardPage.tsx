@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router'
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useBoard, useMoveIssue } from '@/hooks/useBoard'
 import { useCompleteSprint } from '@/hooks/useSprints'

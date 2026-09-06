@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useWorkflowEditor, useCreateStatus, useCreateTransition, useUpdateGuards, useDeleteTransition, useSaveLayout } from '../../hooks/useWorkflowEditor'
 import { WorkflowCanvas } from '../../components/workflow/WorkflowCanvas'
 import { useState } from 'react'

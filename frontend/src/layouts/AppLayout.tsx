@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate, useMatch } from 'react-router-dom'
+import { Outlet, Link, useNavigate, useMatch } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import {

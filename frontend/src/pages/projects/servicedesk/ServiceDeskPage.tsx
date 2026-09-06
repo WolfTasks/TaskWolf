@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { serviceDeskApi } from '@/api/servicedesk'
 import { useTranslation } from 'react-i18next'

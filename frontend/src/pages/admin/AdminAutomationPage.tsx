@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { useSystemRules, useToggleSystemRule } from '../../hooks/useAutomation'
 import { useTranslation } from 'react-i18next'
 

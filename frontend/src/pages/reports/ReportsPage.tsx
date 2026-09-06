@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useSprints } from '@/hooks/useSprints'
 import { useBurndown, useVelocity } from '@/hooks/useReports'
 import {

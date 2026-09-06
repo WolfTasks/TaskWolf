@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router'
 import { useAutomationRules, useToggleRule, useDeleteRule } from '../../hooks/useAutomation'
 import { useTranslation } from 'react-i18next'
 

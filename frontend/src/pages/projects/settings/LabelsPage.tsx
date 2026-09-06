@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useLabels, useCreateLabel, useUpdateLabel, useDeleteLabel } from '@/hooks/useLabels'
 import { useProjectRole } from '@/hooks/useProjectRole'
 import { LabelChip } from '@/components/issue/LabelChip'
