@@ -10,7 +10,7 @@
 | Tailwind CSS 4 | Utility-first styling (Vite plugin, no `tailwind.config.js`) |
 | shadcn/ui | Headless component library — local copies in `frontend/src/components/ui/` |
 | `@tanstack/react-query` v5 | Server state: all API data, caching, invalidation |
-| React Router v6 | Client-side routing (`createBrowserRouter`) |
+| React Router v8 | Client-side routing (`createBrowserRouter`); the package is `react-router` — `react-router-dom` no longer exists in v8 |
 | axios | HTTP client; all requests go through `apiClient` in `frontend/src/api/client.ts` |
 | `@dnd-kit` | Drag-and-drop for Kanban board columns |
 | `react-grid-layout` | Resizable/draggable dashboard widgets |
@@ -60,7 +60,21 @@ Ephemeral UI state (modal open/closed, form inputs, selected tab) uses React `us
 
 ## Routing
 
-Routes are defined in `frontend/src/app/router.tsx` via `createBrowserRouter`.
+Routes are defined in `frontend/src/app/router.tsx` via `createBrowserRouter`. Import every routing symbol from `react-router` — the one exception is `RouterProvider`, which comes from `react-router/dom` (see `main.tsx`).
+
+Routes stay element-based (`element: <Page/>`); we deliberately do not use loaders, actions, or the framework mode.
+
+**Code-splitting:** leaf pages are lazy-loaded via a `lazyPage` helper wrapping `React.lazy`, which normalises named and default exports:
+
+```typescript
+const lazyPage = (imp: () => Promise<any>, name: string) =>
+  lazy(() => imp().then((m) => ({ default: m[name] })))
+
+const BoardPage = lazyPage(() => import('@/pages/board/BoardPage'), 'BoardPage')
+const AuditLogPage = lazyPage(() => import('@/pages/admin/AuditLogPage'), 'default')  // default export
+```
+
+Layouts and `RequireAuth` stay eager, so the shell renders immediately. Each layout wraps its `<Outlet/>` in `<Suspense fallback={<RouteFallback/>}>`, keeping sidebar and nav visible while a page chunk loads. When adding a page, add it as a `lazyPage` — the second argument must match the export name exactly, and a mismatch fails only at runtime, not in `tsc` or the build.
 
 **Modal-over-page pattern:** issue detail can be opened as a modal overlay on top of whatever page the user is on (Board, Backlog, Issue List) via the `?issue=KEY` query parameter, handled by `IssueDialogHost` (mounted once in `AppLayout`). The full page route `/p/:key/issues/:issueKey` remains as a deep-link fallback, so a direct link or page refresh always resolves to a valid view. See `components.md` for the components involved.
 

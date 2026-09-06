@@ -439,6 +439,28 @@ Every user-facing frontend string goes through `useTranslation()` from the start
 
 ---
 
+### Frontend: Route Registration
+
+Routing symbols come from `react-router` (v8 — `react-router-dom` no longer exists). The single exception is `RouterProvider`, imported from `react-router/dom` in `main.tsx`.
+
+Leaf pages are lazy-loaded. Register a new page in `frontend/src/app/router.tsx` via the `lazyPage` helper, never as a plain top-level import:
+
+```typescript
+// named export (the common case)
+const BoardPage = lazyPage(() => import('@/pages/board/BoardPage'), 'BoardPage')
+// default export — pass 'default'
+const AuditLogPage = lazyPage(() => import('@/pages/admin/AuditLogPage'), 'default')
+```
+
+The second argument must match the export name **exactly**. A mismatch type-checks and builds fine and only fails when the route is opened, so click the new route once after adding it.
+
+Layouts, `RequireAuth`, and `Navigate` stay eager. Each layout already wraps its `<Outlet/>` in `<Suspense fallback={<RouteFallback/>}>`; a new page needs no Suspense boundary of its own.
+
+> **DO NOT** add a leaf page as an eager top-level import — it lands in the shared initial bundle and undoes the code-splitting.  
+> **DO NOT** import from `react-router-dom` — the package does not exist in v8.
+
+---
+
 ## Architecture Decisions
 
 | Decision | Rejected | Reason |
@@ -452,3 +474,5 @@ Every user-facing frontend string goes through `useTranslation()` from the start
 | shadcn/ui as local copy (`frontend/src/components/ui/`) | Direct npm package import | Components are owned code — customizable without upstream library changes |
 | Hexagonal package structure (`domain/application/infrastructure/api`) | Flat by feature or flat by layer | Enforces dependency direction: `domain` has no Spring imports; `infrastructure` imports `domain`, never the reverse |
 | `AuditableEntity` base class for all `@Entity` | Declaring `id`/`createdAt`/`updatedAt` per entity | Single source of truth; consistent UUID generation; JPA auditing wired once |
+| react-router v8 in library mode (`createBrowserRouter`, element-based routes) | Framework mode with loaders/actions | Data lives in React Query; loaders would split server state across two systems. The v8 bump itself was required to fix GHSA-qwww-vcr4-c8h2 rather than suppress it |
+| Route-level `React.lazy` for leaf pages only | Lazy layouts too, or no splitting | Halves the initial bundle (1,692 kB → 833 kB) while the eager shell keeps sidebar and nav visible during a page load |

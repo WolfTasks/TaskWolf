@@ -1,8 +1,36 @@
 # React Router v7 → v8 Migration (Backlog)
 
-**Status:** Backlog / geplant — noch NICHT umgesetzt
+**Status:** ✅ ERLEDIGT — umgesetzt und released am 2026-09-06 in **v1.0.17**
 **Erstellt:** 2026-07-29
 **Auslöser:** Security-Advisory `GHSA-qwww-vcr4-c8h2` (react-router, HIGH, CVSS 7.1)
+
+## Ergebnis
+
+Umgesetzt via `2026-07-29-react-router-v8-migration-impl.md` in zwei PRs:
+
+- **PR #125** (squash `c3d472b`) — Security-Migration: `react-router-dom@7.18.1` → `react-router@8.3.1`,
+  42 Import-Umstellungen, `RouterProvider` aus `react-router/dom`, CI-Node 20 → 22.
+- **PR #126** (squash `6fd3df7`) — Lazy-Code-Splitting: Initial-Bundle 1.692,35 kB → 832,55 kB
+  (gzip 501,25 → 260,60), 1 → 56 JS-Chunks.
+
+**Alle drei Interim-Ausnahmen sind aufgelöst:**
+
+1. `.trivyignore` — Block entfernt, Datei wieder nur Header.
+2. `.github/scripts/audit-gate.mjs` — `ALLOWLIST` wieder leer (`{}`); Gate läuft scharf und grün.
+3. Dependabot-Alert #82 — hat sich mit dem Entfernen von `react-router-dom` selbst erledigt
+   (API liefert 404; kein react-router-Alert mehr unter den offenen).
+
+`npm audit --audit-level=high` liefert `exit=0`. Die CVE ist damit **behoben**, nicht unterdrückt.
+
+**Abweichung vom Impl-Plan:** dessen `RouteFallback` spezifizierte ein hartkodiertes
+`aria-label="Loading"`. Das bricht den i18n-Scanner-Gate (seit #15 mit leerer Allowlist scharf) —
+reproduziert, nicht vermutet. Stattdessen der vorhandene Key `common:loading`.
+
+---
+
+<details>
+<summary>Ursprünglicher Backlog-Text (Stand 2026-07-29)</summary>
+
 **Aktueller Interim-Zustand:** CVE als *nicht ausnutzbar* suppressed an **drei** Gates
 (2026-07-29): `.trivyignore` (Trivy-Nightly + ci.yml-Spiegel), `.github/scripts/audit-gate.mjs`
 ALLOWLIST (npm-audit-Gate in ci.yml) und Dependabot-Alert #82 dismissed `not_used`.
@@ -84,3 +112,5 @@ ist damit unvermeidlich ein Major-Bump mit Import-Umstellung in 42 Dateien.
   relativem Routing / `Navigate replace` / `useSearchParams`-Defaults achten.
 - Reihenfolge im PR beachten: Node-Bump (Schritt 4) muss zusammen mit dem
   Paket-Bump landen, sonst CI-Rotlauf (vgl. TS7-Bump-Lektion, PR #81).
+
+</details>

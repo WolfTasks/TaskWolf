@@ -67,7 +67,7 @@ export function StatusBadge({ name, category }: Props) {
 
 ```typescript
 // frontend/src/components/notifications/NotificationBell.tsx
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { useUnreadCount } from '@/hooks/useNotifications'
 export function NotificationBell() {
   const navigate = useNavigate()
