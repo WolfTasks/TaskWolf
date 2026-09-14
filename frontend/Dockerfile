@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # nginx:alpine
-FROM nginx:alpine@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752
+FROM nginx:alpine@sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3
 # libexpat 2.8.1-r0 -> 2.8.2-r0 (CVE-2026-56131/56407/56408); c-ares 1.34.6-r0 -> 1.34.8-r0 (CVE-2026-33630)
 # curl/libcurl 8.19.0-r0 -> 8.20.0-r0 (CVE-2026-5773/6276)
 # libssl3/libcrypto3 3.5.7-r0 -> 3.5.8-r0 (CVE-2026-14456, same openssl flaw patched in backend/Dockerfile)
