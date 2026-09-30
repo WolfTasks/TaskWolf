@@ -61,13 +61,24 @@ dependencies {
 // Security override of a Spring Boot 3.5.16 BOM-managed transitive version.
 // commons-lang3 3.17.0 -> 3.18.0 fixes CVE-2025-48924 (BOM pins 3.17.0 even though swagger-core wants 3.20.0).
 extra["commons-lang3.version"] = "3.18.0"
-// jackson-bom 2.21.4 -> 2.21.5 fixes @JsonView bypass CVEs on jackson-databind
-// (GHSA-mhm7-754m-9p8w and GHSA-5gvw-p9qm-jgwh / CVE-2026-59889, both medium; Dependabot #80/#81).
-// 2.21.5 shipped to Maven Central; Spring Boot 3.5.16 BOM still pins 2.21.4. Override the shared
-// jackson-bom property so the whole Jackson family (databind, core, module-kotlin, ...) moves together.
+// jackson-bom 2.21.5 -> 2.21.7 clears the whole current HIGH set on jackson-databind:
+//   - CVE-2026-68497 (Dependabot #102, what turned the nightly Trivy gate red on 2026-09-29):
+//     CoreXMLDeserializers passes a JSON *string* straight into DatatypeFactory.newDuration /
+//     newXMLGregorianCalendar, so BigInteger(String)/BigDecimal(String) parse arbitrarily long digit
+//     runs quadratically. Those deserializers are on by default and jackson-core's maxNumberLength
+//     guard does not apply to string tokens, so a few-MB unauthenticated request burns minutes of CPU.
+//   - CVE-2026-91776 (TypeDeserializerBase._findDeserializer) and CVE-2026-91777 (@JsonIdentityInfo
+//     forward-reference completion), both fixed only in 2.21.7. 2.21.6 was verified against a current
+//     Trivy DB and still failed the HIGH gate on these two, so 2.21.6 is NOT sufficient.
+// 2.21.7 also clears three mediums: CVE-2026-83557, CVE-2026-19032, CVE-2026-77310 (Dependabot #103/#101/#100).
+// Earlier: 2.21.4 -> 2.21.5 fixed the @JsonView bypass CVEs (GHSA-mhm7-754m-9p8w,
+// GHSA-5gvw-p9qm-jgwh / CVE-2026-59889; Dependabot #80/#81).
+// 2.21.7 is the newest release on Maven Central (2.21.8 is not published); Spring Boot 3.5.16 BOM
+// still pins 2.21.4. Override the shared jackson-bom property so the whole Jackson family
+// (databind, core, module-kotlin, ...) moves together.
 // jackson-databind is transitive-only here, so Dependabot's direct-only security update could not patch
 // it (security_update_dependency_not_found) — this BOM override is the fix.
-extra["jackson-bom.version"] = "2.21.5"
+extra["jackson-bom.version"] = "2.21.7"
 // logback-core 1.5.34 -> 1.5.35 fixes CVE (object injection via HardenedObjectInputStream, Dependabot #79).
 // Spring Boot 3.5.16 BOM pins 1.5.34; override the shared property so logback-core AND logback-classic move together.
 extra["logback.version"] = "1.5.35"
