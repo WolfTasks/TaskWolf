@@ -1,5 +1,5 @@
 # eclipse-temurin:21-jre-alpine
-FROM eclipse-temurin:25-jre-alpine@sha256:28db6fdf60e38945e43d840c0333aeaec66c15943070104f7586fd3c9d1665b0
+FROM eclipse-temurin:25-jre-alpine@sha256:3c0a9084927a221ccd1d007fcaf614465672c0af37aaa834c5184483afe56d61
 RUN apk upgrade --no-cache p11-kit p11-kit-trust libexpat openssl libssl3
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
