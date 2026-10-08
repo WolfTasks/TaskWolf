@@ -12,7 +12,8 @@ FROM nginx:alpine@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2
 # curl/libcurl 8.19.0-r0 -> 8.20.0-r0 (CVE-2026-5773/6276)
 # libssl3/libcrypto3 3.5.7-r0 -> 3.5.8-r0 (CVE-2026-14456, same openssl flaw patched in backend/Dockerfile)
 # libuuid 2.42.1-r0 -> 2.42.3-r1 (CVE-2026-78408/78409/78410, -76642, -53612/53613/53614)
-RUN apk upgrade --no-cache libexpat c-ares curl libssl3 libcrypto3 libuuid
+# pcre2 10.47-r1 -> 10.49-r0 (CVE-2026-86145/89157/89161/103111)
+RUN apk upgrade --no-cache libexpat c-ares curl libssl3 libcrypto3 libuuid pcre2
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx-spa.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
