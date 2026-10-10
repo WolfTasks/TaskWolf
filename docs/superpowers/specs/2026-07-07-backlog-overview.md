@@ -23,6 +23,7 @@
 | 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ✅ **AUSGELIEFERT** (Phasen 1–3 alle auf `main`: P1 Fundament+Pilot PR #83, P2 voller API-Fehler-Sweep PRs #84/#85/#86/#87/#90, P3 E-Mails+In-App-Notifications in Empfänger-Sprache PR #92 squash `00665f5`; en/de mit EN-Fallback, 3 CI-Gates grün [MessagesParity/KeyedReferenceIntegrity/NoUnkeyedUserFacingThrow]; **Release v1.0.15**. Offen: Wolfgangs manueller DE/EN-Smoke [post-release]) |
 | M1 | Dependency-/Base-Image-Wartung (Dependabot-Bündel) | Ops/Maintenance | ✅ **AUSGELIEFERT** (PRs #81/#62/#60/#59/#82, Release v1.0.14) |
 | M2 | jackson-databind @JsonView-Bypass-CVEs + Dependabot-Bündel | Ops/Security | ✅ **AUSGELIEFERT** (jackson-bom 2.21.4→2.21.5 PR #93 [GHSA-mhm7-754m-9p8w + GHSA-5gvw-p9qm-jgwh/CVE-2026-59889]; backend-deps #89 [postgresql 42.7.12], Actions #88; Release v1.0.15) |
+| M3 | Spring Boot 4 Migration (Spring Framework 7) | Ops/Security | 🔜 Backlog — dringlich: 2 unfixbare spring-webmvc-CVEs in `.trivyignore` |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -47,6 +48,37 @@
 > docker-publish grün, Images `kwolfgang/taskowolf-{backend,frontend}:1.0.14`.
 > Lokales Docker-Deploy stichprobenartig verifiziert (Images = 1.0.14, Stack
 > startet sauber).
+
+## M3 — Spring Boot 4 Migration (Spring Framework 7)
+> 🔜 **Backlog** (angelegt 2026-10-10). Braucht eigenen Brainstorming-→Spec-→Plan-Zyklus,
+> voraussichtlich mehrere Sessions.
+
+**Warum jetzt:** Spring Boot 3.5.16 (Framework 6.2.19) ist das letzte OSS-Release der
+3.5-Linie auf Maven Central; neue spring-webmvc-CVEs werden nur noch in Framework 7.0.x
+gefixt. Stand 2026-10-10 liegen **zwei CRITICAL-CVEs nur per `.trivyignore`** auf Eis
+(beide im Code ungenutzt, daher nicht ausnutzbar — aber die Liste wächst):
+- CVE-2026-47884 — XsltView path limitation (PR #148)
+- CVE-2026-47890 — SSE + View-Fragments stream corruption (PR #151)
+
+Dependabot-Alerts #109/#110 bleiben bis dahin offen. Nächste nicht-ignorierbare
+Framework-CVE (in genutzter Komponente) würde die Nightly/CI ohne Ausweg rot machen.
+
+**Scope (erste Einschätzung, im Spec zu verifizieren):**
+- `org.springframework.boot` 3.5.16 → 4.x, Framework 6.2 → 7.0, Jakarta EE 11
+  (Tomcat 11, Servlet 6.1), Hibernate ORM 7.
+- **Jackson 3** ist Boot-4-Default (`tools.jackson`-Packages statt `com.fasterxml.jackson`):
+  11 Main-Dateien importieren `com.fasterxml.jackson`, dazu `jackson-module-kotlin` und
+  `jjwt-jackson` (Kompatibilität prüfen; ggf. Jackson-2-Kompatmodus als Zwischenschritt).
+- Security-Overrides in `backend/build.gradle.kts` (`commons-lang3`, `jackson-bom`,
+  `logback`, `postgresql`, `tomcat`, `log4j2`) gegen den neuen BOM prüfen und
+  überflüssige entfernen.
+- Drittbibliotheken auf Boot-4-Kompatibilität: springdoc-openapi (2.9.1 → 3.x),
+  spring-integration-mail, Testcontainers-BOM (1.21.4 → 2.x?), jjwt.
+- Spring Security 7 (Konfigurations-DSL / deprecated APIs), OAuth2-Client/SSO,
+  WebSocket-Konfig.
+- Abschluss: **beide `.trivyignore`-Einträge entfernen**, Dependabot #109/#110 schließen,
+  lokaler Trivy-Lauf + volle Backend-Suite (inkl. Postgres-Testcontainers) grün,
+  Docker-Smoke-Test.
 
 ## #3 — User-Profil-Seiten mit gruppierten Einstellungen
 Eigene Profil-/Einstellungsseiten pro Nutzer, gruppiert nach Themengebieten
