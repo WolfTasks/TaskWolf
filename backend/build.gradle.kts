@@ -94,6 +94,10 @@ extra["postgresql.version"] = "42.7.12"
 // Dependabot's direct-only security update could not patch it (security_update_dependency_not_found).
 // Override the shared property so core, el and websocket move together.
 extra["tomcat.version"] = "10.1.59"
+// log4j-api 2.24.3 -> 2.25.5 fixes CVE-2026-49844 (MEDIUM, Dependabot #90). Pulled in transitively via
+// log4j-to-slf4j (spring-boot-starter-logging); Spring Boot 3.5.16 BOM pins 2.24.3. Override the shared
+// property so log4j-api AND log4j-to-slf4j move together. 2.25.5 is the minimal fixed release.
+extra["log4j2.version"] = "2.25.5"
 
 // Override Spring Boot BOM version for Testcontainers to support Docker Desktop 4.x on Windows
 dependencyManagement {
