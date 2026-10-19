@@ -68,6 +68,16 @@ dependencies {
 // newest 2.x on Maven Central. Jackson 2 is only needed until M3 Phase 2 (Jackson 3 + jjwt-gson);
 // this override goes away with it.
 extra["jackson-2-bom.version"] = "2.21.7"
+// jackson-bom (Jackson 3, tools.jackson) 3.1.5 -> 3.1.7: the same advisories exist on the 3.x line.
+// CVE-2026-68497 (fixed 3.1.6), CVE-2026-91776/91777 (databind) and CVE-2026-89407/89425 (core) are
+// fixed in 3.1.7, the minimal release clearing all five. Boot 4.1.1 pins 3.1.5. Jackson 3 is on the
+// classpath via spring-boot-starter-webmvc even while Phase 1 keeps Jackson 2 as the active mapper.
+extra["jackson-bom.version"] = "3.1.7"
+// tomcat-embed 11.0.24 -> 11.0.25 fixes the three CRITICAL auth-bypass CVEs on the 11.0 line:
+// CVE-2026-68525 (FORM authentication), CVE-2026-65905 (DIGEST replay), CVE-2026-65182 (security
+// constraint bypass). Boot 4.1.1 pins 11.0.24; 11.0.25 is the minimal fixed release. Override the
+// shared property so core, el and websocket move together.
+extra["tomcat.version"] = "11.0.25"
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
