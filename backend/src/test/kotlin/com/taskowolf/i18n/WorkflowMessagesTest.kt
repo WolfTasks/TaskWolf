@@ -9,8 +9,8 @@ class WorkflowMessagesTest {
     private val src = ResourceBundleMessageSource().apply {
         setBasename("messages"); setDefaultEncoding("UTF-8"); setFallbackToSystemLocale(false)
     }
-    private fun en(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.ENGLISH)
-    private fun de(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.GERMAN)
+    private fun en(key: String, vararg a: Any) = src.getMessage(key, a, Locale.ENGLISH)
+    private fun de(key: String, vararg a: Any) = src.getMessage(key, a, Locale.GERMAN)
 
     @Test fun `workflow keys render en and de with doubled quotes and two args`() {
         assertEquals("Transition from 'TODO' to status 5 is not allowed", en("workflow.transitionNotAllowed", "TODO", 5))

@@ -59,12 +59,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.14.11")
     // okhttp3 is not managed by the Spring Boot BOM; pin explicitly.
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-
-    // commons-compress 1.24.0 -> 1.26.0 fixes DoS (infinite loop on DUMP file / OOM on Pack200,
-    // Dependabot #1/#2). Test-scope only (transitive via Testcontainers).
-    constraints {
-        testImplementation("org.apache.commons:commons-compress:1.28.0")
-    }
 }
 
 // Security override of a Spring Boot 4.1.1 BOM-managed transitive version.
@@ -84,11 +78,4 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    if (System.getProperty("os.name", "").lowercase().contains("win")) {
-        // Docker Desktop 4.x enforces minimum API version 1.44.
-        // docker-java (used by Testcontainers) negotiates starting at 1.32, which Docker Desktop rejects.
-        // Setting DOCKER_HOST to TCP (exposed by Docker Desktop) and api.version=1.44 bypasses this issue.
-        environment("DOCKER_HOST", "tcp://localhost:2375")
-        systemProperty("api.version", "1.44")
-    }
 }

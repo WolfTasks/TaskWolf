@@ -9,8 +9,8 @@ class IssuesMessagesTest {
     private val src = ResourceBundleMessageSource().apply {
         setBasename("messages"); setDefaultEncoding("UTF-8"); setFallbackToSystemLocale(false)
     }
-    private fun en(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.ENGLISH)
-    private fun de(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.GERMAN)
+    private fun en(key: String, vararg a: Any) = src.getMessage(key, a, Locale.ENGLISH)
+    private fun de(key: String, vararg a: Any) = src.getMessage(key, a, Locale.GERMAN)
 
     @Test fun `issue keys render en and de`() {
         assertEquals("Parent issue not found: PROJ-1", en("issue.parentNotFound", "PROJ-1"))
