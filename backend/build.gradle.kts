@@ -1,6 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+// The Spring Boot 4.1.1 Gradle plugin brings Jackson 3.1.5 onto the *build* classpath
+// (GHSA-p6pp-m3f8-5c89, GHSA-7hhh-6rmp-j9qf). It never ships in the app, but GitHub's dependency
+// submission reports the plugin classpath and dependency-review fails on it. Same minimal fix as
+// the runtime jackson-bom override below.
+buildscript {
+    dependencies {
+        constraints {
+            classpath("tools.jackson.core:jackson-core:3.1.7")
+            classpath("tools.jackson.core:jackson-databind:3.1.7")
+        }
+    }
+}
+
 plugins {
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
