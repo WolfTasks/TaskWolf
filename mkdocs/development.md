@@ -43,7 +43,7 @@ cd backend
 
 Tests use H2 for unit tests and Testcontainers (PostgreSQL) for integration tests.
 
-**Windows note:** Docker Desktop must be running with TCP socket enabled (`tcp://localhost:2375`).
+**Windows note:** Docker Desktop must be running (Testcontainers 2 negotiates the Docker API version itself; no TCP socket needed).
 
 ### Frontend
 

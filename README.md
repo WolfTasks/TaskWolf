@@ -65,7 +65,7 @@ TaskWolf is a Jira-style issue tracker and agile board you run on your own infra
 
 | Layer | Technology |
 |---|---|
-| Backend | Kotlin 2.x + Spring Boot 3.x |
+| Backend | Kotlin 2.x + Spring Boot 4.x |
 | Frontend | React 19 + TypeScript + Vite |
 | UI | shadcn/ui + Tailwind CSS 4 |
 | Database (prod) | PostgreSQL 16 |
