@@ -8,7 +8,7 @@ Complete every item before touching any file:
 
 1. Read [Conventions](conventions.md) — all cross-cutting rules apply to every module.
 2. Read the module page for the area you are modifying (e.g. `backend/issues.md`).
-3. Check the current Flyway version: **V29** (`V29__notification_preferences.sql`; also see `V28__access_tokens.sql`). The next migration must be **V30**.
+3. Check the current Flyway version: **V30** (`V30__add_user_language.sql`). The next migration must be **V31**.
 4. Run `cd backend && ./gradlew test` — establish a passing baseline before making any changes.
 5. Identify which pattern sections below apply to every layer you will touch.
 6. **Bevor du eine neue Dependency hinzufügst**, arbeite die Sektion
@@ -244,9 +244,28 @@ class LabelServiceTest {
 
 ---
 
+### Backend: Spring Boot 4 Conventions
+
+- **Modulare Starter:** Jede genutzte Auto-Configuration braucht ihren Starter. Insbesondere
+  `spring-boot-starter-flyway` — `flyway-core` allein führt in Boot 4 **keine** Migrationen aus
+  (Guard: `FlywayMigrationsAppliedIntegrationTest`).
+- **Test-Annotationen** liegen in Modul-Paketen: `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`,
+  `org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest`,
+  `org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase`.
+- **Spring-Context-Mocks:** `@MockitoBean` (`org.springframework.test.context.bean.override.mockito`); `@MockBean` existiert nicht mehr.
+  Unit-Tests weiterhin mit MockK.
+- **Testcontainers 2:** `org.testcontainers.postgresql.PostgreSQLContainer` (nicht generisch), Artefakte `testcontainers-*`.
+- **JSpecify-Nullability:** Spring 7 annotiert seine APIs mit JSpecify, Kotlin prüft das strikt. Beispiele:
+  `MessageSource.getMessage` erwartet non-null Arg-Elemente (`LocalizedMessages` castet dafür);
+  `SimpMessagingTemplate.convertAndSend(dest, mapOf(...))` ist mehrdeutig → Payload `as Any`.
+- **Jackson:** bis M3 Phase 2 Jackson 2 (`com.fasterxml.jackson.databind`) via `spring-boot-jackson2` und
+  `preferred-json-mapper: jackson2` (HTTP + STOMP, Guard: `JsonWireFormatGuardIntegrationTest`).
+  Keine neuen `tools.jackson`-Imports vor Phase 2.
+- **Security-Overrides:** nur per `extra["<lib>.version"]` mit CVE-Kommentar; bei jedem Boot-Upgrade prüfen, ob der BOM ihn überholt hat.
+
 ### Backend: Flyway Migration
 
-File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V29** — the next file must be named **V30**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
+File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V30** — the next file must be named **V31**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
 
 ```sql
 -- backend/src/main/resources/db/migration/V23__labels.sql
