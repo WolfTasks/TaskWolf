@@ -1,6 +1,14 @@
 spring:
   application:
     name: taskowolf
+  # M3 Phase 1: Spring Boot 4 defaults to Jackson 3. Keep Jackson 2 for HTTP and STOMP payloads
+  # until Phase 2 migrates the code base to tools.jackson. Remove both keys in Phase 2.
+  http:
+    converters:
+      preferred-json-mapper: jackson2
+  websocket:
+    messaging:
+      preferred-json-mapper: jackson2
   jpa:
     open-in-view: false
     hibernate:

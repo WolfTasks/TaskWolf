@@ -9,8 +9,8 @@ class ContentMessagesTest {
     private val src = ResourceBundleMessageSource().apply {
         setBasename("messages"); setDefaultEncoding("UTF-8"); setFallbackToSystemLocale(false)
     }
-    private fun en(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.ENGLISH)
-    private fun de(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.GERMAN)
+    private fun en(key: String, vararg a: Any) = src.getMessage(key, a, Locale.ENGLISH)
+    private fun de(key: String, vararg a: Any) = src.getMessage(key, a, Locale.GERMAN)
 
     @Test fun `content keys render en and de`() {
         assertEquals("Custom field 'Severity' already exists in this project", en("customField.alreadyExists", "Severity"))
