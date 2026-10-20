@@ -22,7 +22,7 @@ jobs:
             gradle_build: false
 
     steps:
-      - uses: step-security/harden-runner@351661ca32ac09a36dc5ee2d536e3128f2a3c8ed   # v2
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25   # v2
         with:
           egress-policy: audit
 
@@ -30,7 +30,7 @@ jobs:
 
       - name: Set up JDK 21
         if: matrix.gradle_build
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6   # v5
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad   # v5
         with:
           java-version: '21'
           distribution: 'temurin'
