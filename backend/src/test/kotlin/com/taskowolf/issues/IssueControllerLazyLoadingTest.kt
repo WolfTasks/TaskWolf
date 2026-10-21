@@ -1,6 +1,6 @@
 package com.taskowolf.issues
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +32,7 @@ class IssueControllerLazyLoadingTest : IntegrationTestBase() {
                 .content("""{"email":"$email","displayName":"Lazy Tester","password":"password123"}""")
         ).andReturn()
         val body = objectMapper.readTree(result.response.contentAsString)
-        return body.get("accessToken").asText()
+        return body.get("accessToken").asString()
     }
 
     /** Returns the created issue as (id, key). */
@@ -52,7 +52,7 @@ class IssueControllerLazyLoadingTest : IntegrationTestBase() {
         ).andExpect(status().isCreated).andReturn()
 
         val body = objectMapper.readTree(created.response.contentAsString)
-        return body.get("id").asText() to body.get("key").asText()
+        return body.get("id").asString() to body.get("key").asString()
     }
 
     @Test

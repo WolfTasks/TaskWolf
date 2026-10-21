@@ -117,6 +117,8 @@ null-Handling bei Primitiven), wird das alte Verhalten explizit über `spring.ja
 `JsonMapperBuilderCustomizer` gesetzt. Den neuen Default übernehmen wir nur, wenn die
 Charakterisierungstests zeigen, dass niemand betroffen ist. Jede so gesetzte Option bekommt einen
 kurzen Begründungs-Kommentar.
+Umgesetzt über spring.jackson.use-jackson2-defaults: true (Boot-4-Schalter); die Feature-Assertion in
+JsonWireFormatGuardIntegrationTest belegt es.
 
 ### 3. Umstellung
 
@@ -139,9 +141,11 @@ kurzen Begründungs-Kommentar.
   JWT-(De)Serialisierung genutzt.
 - Test: Ein vor dem Wechsel (Jackson-Serializer) ausgestelltes Token wird nach dem Wechsel
   akzeptiert; die Claims sind identisch.
-- Danach **ist Jackson 2 nicht mehr im Runtime-Classpath** (per `./gradlew dependencies`
-  verifiziert, Runtime- und Test-Konfiguration). Der `jackson-2-bom`-Override samt Kommentar
-  fällt weg.
+- **Angepasst 2026-10-19 (Wolfgangs Entscheidung):** springdoc 3.1.1 zieht über `swagger-core-jakarta`
+  2.2.55 (neueste Version, keine Jackson-3-Variante) weiterhin Jackson 2 transitiv. springdoc bleibt;
+  Jackson 2 wird von unserem Code, von Spring und von jjwt nicht mehr genutzt, bleibt aber im
+  Classpath. `jackson-2-bom.version` (2.21.7) und die zugehörige CVE-Pflege bleiben, bis swagger-core
+  auf Jackson 3 umsteigt.
 
 ### 5. Verifikation und Release
 

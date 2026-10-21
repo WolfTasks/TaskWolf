@@ -1,21 +1,28 @@
 package com.taskowolf.core
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter
+import org.springframework.messaging.converter.CompositeMessageConverter
+import org.springframework.messaging.converter.JacksonJsonMessageConverter
+import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.MapperFeature
+import tools.jackson.databind.cfg.DateTimeFeature
 
 /**
- * M3 guard: while the backend still runs Jackson 2 (Phase 1 of the Boot 4 migration),
- * HTTP JSON must be written by the Jackson 2 converter and the wire format must not drift.
- * Phase 2 (Jackson 3) replaces the converter assertion but keeps the wire-format assertions.
+ * M3 guard: HTTP and STOMP JSON must be written by the Jackson 3 converters
+ * and the wire format must not drift.
  */
 class JsonWireFormatGuardIntegrationTest : IntegrationTestBase() {
 
@@ -29,12 +36,12 @@ class JsonWireFormatGuardIntegrationTest : IntegrationTestBase() {
     private lateinit var handlerAdapter: RequestMappingHandlerAdapter
 
     @Test
-    fun `first JSON converter is the Jackson 2 converter`() {
+    fun `first JSON converter is the Jackson 3 converter`() {
         val firstJson = handlerAdapter.messageConverters
             .first { it.canWrite(Map::class.java, MediaType.APPLICATION_JSON) }
         assertTrue(
-            firstJson is MappingJackson2HttpMessageConverter,
-            "expected Jackson 2 converter first, got ${firstJson::class.qualifiedName}"
+            firstJson is JacksonJsonHttpMessageConverter,
+            "expected Jackson 3 converter first, got ${firstJson::class.qualifiedName}"
         )
     }
 
@@ -46,7 +53,7 @@ class JsonWireFormatGuardIntegrationTest : IntegrationTestBase() {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""{"email":"jsonguard@test.com","displayName":"Json Guard","password":"password123"}""")
             ).andReturn().response.contentAsString
-        ).get("accessToken").asText()
+        ).get("accessToken").asString()
 
         mockMvc.perform(
             post("/api/v1/projects")
@@ -65,11 +72,31 @@ class JsonWireFormatGuardIntegrationTest : IntegrationTestBase() {
         )
 
         val isoInstant = Regex("""^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$""")
-        assertTrue(issue.get("createdAt").isTextual, "createdAt must be a string, was ${issue.get("createdAt")}")
-        assertTrue(isoInstant.matches(issue.get("createdAt").asText()), "createdAt not ISO-8601: ${issue.get("createdAt")}")
+        assertTrue(issue.get("createdAt").isString, "createdAt must be a string, was ${issue.get("createdAt")}")
+        assertTrue(isoInstant.matches(issue.get("createdAt").asString()), "createdAt not ISO-8601: ${issue.get("createdAt")}")
         assertTrue(issue.has("description") && issue.get("description").isNull, "description must be present as explicit null")
         assertTrue(issue.has("dueDate") && issue.get("dueDate").isNull, "dueDate must be present as explicit null")
         assertTrue(issue.get("labels").isArray && issue.get("labels").isEmpty, "labels must be an empty array")
-        assertTrue(issue.get("type").isTextual && issue.get("type").asText() == "TASK", "enum must serialize by name")
+        assertTrue(issue.get("type").isString && issue.get("type").asString() == "TASK", "enum must serialize by name")
+    }
+
+    @Autowired
+    @Qualifier("brokerMessageConverter")
+    private lateinit var brokerMessageConverter: CompositeMessageConverter
+
+    @Test
+    fun `STOMP payloads use the Jackson 3 converter`() {
+        val converters = brokerMessageConverter.converters
+        assertTrue(converters.any { it is JacksonJsonMessageConverter }, "got $converters")
+        assertFalse(converters.any { it is MappingJackson2MessageConverter }, "got $converters")
+    }
+
+    @Test
+    fun `Jackson 3 runs with the Jackson 2 defaults`() {
+        assertFalse(objectMapper.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY), "property order must stay declaration order")
+        assertFalse(objectMapper.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES), "null for primitives must stay lenient")
+        assertFalse(objectMapper.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS), "trailing tokens must stay lenient")
+        assertFalse(objectMapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES), "unknown properties must be ignored")
+        assertFalse(objectMapper.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS), "dates must be ISO strings")
     }
 }

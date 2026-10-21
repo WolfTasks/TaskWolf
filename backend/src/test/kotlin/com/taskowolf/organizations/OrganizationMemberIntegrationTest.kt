@@ -1,6 +1,6 @@
 package com.taskowolf.organizations
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.infrastructure.UserRepository
@@ -22,21 +22,21 @@ class OrganizationMemberIntegrationTest : IntegrationTestBase() {
             post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"U","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asString()
     }
     private fun makeSystemAdmin(email: String) {
         val u = userRepository.findByEmail(email)!!; u.systemRole = SystemRole.ADMIN; userRepository.save(u)
     }
     private fun myId(token: String): String {
         val res = mockMvc.perform(get("/api/v1/auth/me").header("Authorization", "Bearer $token")).andReturn()
-        return objectMapper.readTree(res.response.contentAsString).get("id").asText()
+        return objectMapper.readTree(res.response.contentAsString).get("id").asString()
     }
     fun createOrg(adminToken: String, slug: String): String {
         val res = mockMvc.perform(
             post("/api/v1/organizations").header("Authorization", "Bearer $adminToken")
                 .contentType(MediaType.APPLICATION_JSON).content("""{"name":"$slug","slug":"$slug"}""")
         ).andExpect(status().isCreated).andReturn()
-        return objectMapper.readTree(res.response.contentAsString).get("id").asText()
+        return objectMapper.readTree(res.response.contentAsString).get("id").asString()
     }
     fun addMember(actorToken: String, orgId: String, userId: String, role: String) =
         mockMvc.perform(

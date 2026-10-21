@@ -1,6 +1,6 @@
 package com.taskowolf.organizations
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +21,7 @@ class OrgSwitchLocalizationTest : IntegrationTestBase() {
             post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(res.response.contentAsString).get("accessToken").asString()
     }
 
     @Test

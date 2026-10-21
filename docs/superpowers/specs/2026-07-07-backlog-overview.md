@@ -23,7 +23,7 @@
 | 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ✅ **AUSGELIEFERT** (Phasen 1–3 alle auf `main`: P1 Fundament+Pilot PR #83, P2 voller API-Fehler-Sweep PRs #84/#85/#86/#87/#90, P3 E-Mails+In-App-Notifications in Empfänger-Sprache PR #92 squash `00665f5`; en/de mit EN-Fallback, 3 CI-Gates grün [MessagesParity/KeyedReferenceIntegrity/NoUnkeyedUserFacingThrow]; **Release v1.0.15**. Offen: Wolfgangs manueller DE/EN-Smoke [post-release]) |
 | M1 | Dependency-/Base-Image-Wartung (Dependabot-Bündel) | Ops/Maintenance | ✅ **AUSGELIEFERT** (PRs #81/#62/#60/#59/#82, Release v1.0.14) |
 | M2 | jackson-databind @JsonView-Bypass-CVEs + Dependabot-Bündel | Ops/Security | ✅ **AUSGELIEFERT** (jackson-bom 2.21.4→2.21.5 PR #93 [GHSA-mhm7-754m-9p8w + GHSA-5gvw-p9qm-jgwh/CVE-2026-59889]; backend-deps #89 [postgresql 42.7.12], Actions #88; Release v1.0.15) |
-| M3 | Spring Boot 4 Migration (Spring Framework 7) | Ops/Security | 🚧 **Phase 1 fertig** (Boot 4.1.1 + Jackson-2-Kompat, spring-webmvc 7.0.9, beide Spring-trivyignores entfernt, Tomcat 11.0.25 + Jackson 3.1.7 Overrides); Phase 2 (Jackson 3 + jjwt-gson) offen, **Release erst nach Phase 2** |
+| M3 | Spring Boot 4 Migration (Spring Framework 7) | Ops/Security | 🚧 **Phase 1 + 2 fertig** (Phase 1 PR #156: Boot 4.1.1, spring-webmvc 7.0.9, beide Spring-trivyignores entfernt; Phase 2 PR #164: Jackson 3 + jjwt-gson); **Release v1.0.21 ausstehend**. Jackson 2 bleibt nur transitiv über springdoc/swagger-core |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
@@ -50,18 +50,24 @@
 > startet sauber).
 
 ## M3 — Spring Boot 4 Migration (Spring Framework 7)
-> 🚧 **Phase 1 fertig** (2026-10-19): Boot 4.1.1 mit Jackson-2-Kompatmodus, beide Spring-CVEs
-> echt behoben. Phase 2 (Jackson 3 + jjwt-gson) offen; gemeinsames Release v1.0.21 nach Phase 2.
-> Notfall-Ausnahme: Erzwingt eine neue Framework-CVE ein Release, darf `main` schon nach Phase 1
-> released werden.
+> 🚧 **Phase 1 + 2 fertig** (2026-10-21): Boot 4.1.1, beide Spring-CVEs echt behoben (Phase 1);
+> Jackson 3 als einziger aktiver Mapper (`use-jackson2-defaults: true`) und jjwt-gson (Phase 2).
+> Jackson 2 bleibt nur transitiv über springdoc/swagger-core. Gemeinsames Release v1.0.21 nach
+> Wolfgangs manuellem SSO/IMAP-Check.
 > Spec: `docs/superpowers/specs/2026-10-19-m3-spring-boot-4-migration-design.md` ·
-> Plan Phase 1: `docs/superpowers/plans/2026-10-19-m3-phase1-spring-boot-4.md`
+> Plan Phase 1: `docs/superpowers/plans/2026-10-19-m3-phase1-spring-boot-4.md` ·
+> Plan Phase 2: `docs/superpowers/plans/2026-10-19-m3-phase2-jackson3.md`
 >
 > **Nebenbefunde (schon vor M3 vorhanden, nicht im M3-Scope):**
 > - Dev-Profil mit H2 startet nicht: ab V11 nutzen die Migrationen `gen_random_uuid()`, das H2
 >   (auch 2.3.232 unter Boot 3) nicht kennt. Lokal deshalb gegen Postgres entwickeln.
 > - Unbekannte Pfade liefern 500 statt 404: `GlobalExceptionHandler.handleGeneric(Exception)`
 >   fängt Springs `NoResourceFoundException` mit ab (z. B. `/v3/api-docs` in prod).
+> - Transition-Guards kaputt: `WorkflowService.updateGuards` schreibt `List<TransitionGuard>` per
+>   `writeValueAsString` ohne `type`-Diskriminator (Type-Erasure). `validateTransition` kann das
+>   nicht mehr lesen → Issue über eine Transition mit Guards verschieben liefert 500 (im M3-Smoke
+>   belegt; unter Jackson 2 identisch). Fix: `mapper.writerFor(<TypeReference<List<TransitionGuard>>>)`
+>   + Test für den Schreibpfad; bereits gespeicherte, untypisierte Guards brauchen eine Migration/Neuspeichern.
 
 **Warum jetzt:** Spring Boot 3.5.16 (Framework 6.2.19) ist das letzte OSS-Release der
 3.5-Linie auf Maven Central; neue spring-webmvc-CVEs werden nur noch in Framework 7.0.x

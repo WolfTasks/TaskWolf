@@ -1,6 +1,6 @@
 package com.taskowolf
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -22,7 +22,7 @@ class CollaborationIntegrationTest : IntegrationTestBase() {
             .andExpect(status().isCreated)
             .andReturn()
         val tree = objectMapper.readTree(result.response.contentAsString)
-        return tree.get("accessToken").asText()
+        return tree.get("accessToken").asString()
     }
 
     @Test
@@ -46,7 +46,7 @@ class CollaborationIntegrationTest : IntegrationTestBase() {
         )
             .andExpect(status().isCreated)
             .andReturn()
-        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asText()
+        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asString()
 
         // Post a comment
         val commentResult = mockMvc.perform(
@@ -58,7 +58,7 @@ class CollaborationIntegrationTest : IntegrationTestBase() {
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.body").value("This is a test comment"))
             .andReturn()
-        val commentId = objectMapper.readTree(commentResult.response.contentAsString).get("id").asText()
+        val commentId = objectMapper.readTree(commentResult.response.contentAsString).get("id").asString()
 
         // List comments — should contain the comment
         mockMvc.perform(

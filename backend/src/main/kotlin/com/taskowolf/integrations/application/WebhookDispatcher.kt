@@ -1,6 +1,6 @@
 package com.taskowolf.integrations.application
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.attachments.domain.events.AttachmentAddedEvent
 import com.taskowolf.comments.domain.events.CommentCreatedEvent
 import com.taskowolf.integrations.domain.WebhookDelivery

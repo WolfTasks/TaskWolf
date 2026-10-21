@@ -1,6 +1,6 @@
 package com.taskowolf.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +19,7 @@ class UserSearchIntegrationTest : IntegrationTestBase() {
             post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"$displayName","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     @Test

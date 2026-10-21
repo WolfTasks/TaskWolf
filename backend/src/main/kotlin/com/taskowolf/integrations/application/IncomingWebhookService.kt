@@ -1,7 +1,7 @@
 package com.taskowolf.integrations.application
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.core.infrastructure.BadRequestException
 import com.taskowolf.integrations.domain.IntegrationProvider
 import com.taskowolf.integrations.domain.IssueRef
@@ -70,19 +70,19 @@ class IncomingWebhookService(
             "push" -> {
                 val commits = node.path("commits")
                 for (commit in commits) {
-                    val sha = commit.path("id").asText()
-                    val message = commit.path("message").asText()
-                    val url = commit.path("url").asText()
+                    val sha = commit.path("id").asString()
+                    val message = commit.path("message").asString()
+                    val url = commit.path("url").asString()
                     linkKeys(issueKeyParser.parseKeys(message), projectId, projectKey,
                         IntegrationProvider.GITHUB, RefType.COMMIT, sha, url, message.take(100))
                 }
             }
             "pull_request" -> {
                 val pr = node.path("pull_request")
-                val number = node.path("number").asText()
-                val title = pr.path("title").asText()
-                val url = pr.path("html_url").asText()
-                val texts = listOf(title, pr.path("body").asText(""))
+                val number = node.path("number").asString()
+                val title = pr.path("title").asString()
+                val url = pr.path("html_url").asString()
+                val texts = listOf(title, pr.path("body").asString(""))
                 val keys = texts.flatMap { issueKeyParser.parseKeys(it) }.distinct()
                 linkKeys(keys, projectId, projectKey, IntegrationProvider.GITHUB, RefType.PR, number, url, title)
             }
@@ -90,23 +90,23 @@ class IncomingWebhookService(
     }
 
     private fun processGitLabPayload(node: JsonNode, projectId: UUID, projectKey: String) {
-        when (node.path("object_kind").asText()) {
+        when (node.path("object_kind").asString()) {
             "push" -> {
                 val commits = node.path("commits")
                 for (commit in commits) {
-                    val sha = commit.path("id").asText()
-                    val message = commit.path("message").asText()
-                    val url = commit.path("url").asText()
+                    val sha = commit.path("id").asString()
+                    val message = commit.path("message").asString()
+                    val url = commit.path("url").asString()
                     linkKeys(issueKeyParser.parseKeys(message), projectId, projectKey,
                         IntegrationProvider.GITLAB, RefType.COMMIT, sha, url, message.take(100))
                 }
             }
             "merge_request" -> {
                 val mr = node.path("object_attributes")
-                val iid = mr.path("iid").asText()
-                val title = mr.path("title").asText()
-                val url = mr.path("url").asText()
-                val keys = issueKeyParser.parseKeys(title) + issueKeyParser.parseKeys(mr.path("description").asText(""))
+                val iid = mr.path("iid").asString()
+                val title = mr.path("title").asString()
+                val url = mr.path("url").asString()
+                val keys = issueKeyParser.parseKeys(title) + issueKeyParser.parseKeys(mr.path("description").asString(""))
                 linkKeys(keys.distinct(), projectId, projectKey, IntegrationProvider.GITLAB, RefType.PR, iid, url, title)
             }
         }
