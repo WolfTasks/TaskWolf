@@ -8,8 +8,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 buildscript {
     dependencies {
         constraints {
-            classpath("tools.jackson.core:jackson-core:3.1.7")
-            classpath("tools.jackson.core:jackson-databind:3.1.7")
+            classpath("tools.jackson.core:jackson-core:3.2.3")
+            classpath("tools.jackson.core:jackson-databind:3.2.3")
         }
     }
 }
@@ -17,9 +17,9 @@ buildscript {
 plugins {
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.4.20"
-    kotlin("plugin.spring") version "2.4.20"
-    kotlin("plugin.jpa") version "2.4.20"
+    kotlin("jvm") version "2.4.21"
+    kotlin("plugin.spring") version "2.4.21"
+    kotlin("plugin.jpa") version "2.4.21"
 }
 
 group = "com.taskowolf"
