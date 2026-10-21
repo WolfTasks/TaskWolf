@@ -1,0 +1,15 @@
+# gitleaks configuration: default rules plus a narrow allowlist for known, non-secret test fixtures.
+# Every entry must name the exact fixture value and the reason. Do not add path-wide exceptions.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "M3 test fixtures (not real secrets)"
+regexes = [
+  # JwtServiceTest: HMAC secret that only signs the fixture token below (M3 Phase 2, 2026-10-21).
+  '''jwt-fixture-secret-0123456789abcdef''',
+  # JwtServiceTest: fixture access token issued with jjwt-jackson, signed with the fixture secret above.
+  '''eyJhbGciOiJIUzI1NiJ9\.eyJqdGkiOiIwMDAwMDAwMC0w[A-Za-z0-9_.-]*''',
+  # M3 Phase 2 plan: throwaway JWT secret for the isolated local smoke stack.
+  '''m3p2smoke-jwt-secret-[0-9a-f]+''',
+]
