@@ -44,8 +44,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // Boot 4 split auto-configuration into modules: flyway-core alone no longer runs migrations.
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+    // Boot 4 split auto-configuration into modules: spring-integration-core alone no longer gets
+    // @EnableIntegration, so the IMAP ingestion flow would never start (guard:
+    // ImapIngestionFlowStartedIntegrationTest).
+    implementation("org.springframework.boot:spring-boot-starter-integration")
     implementation("org.springframework.integration:spring-integration-mail")
-    implementation("org.springframework.integration:spring-integration-core")
     implementation("jakarta.mail:jakarta.mail-api")
     implementation("org.eclipse.angus:angus-mail")
     implementation("org.flywaydb:flyway-database-postgresql")
