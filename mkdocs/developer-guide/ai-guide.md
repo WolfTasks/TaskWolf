@@ -258,9 +258,13 @@ class LabelServiceTest {
 - **JSpecify-Nullability:** Spring 7 annotiert seine APIs mit JSpecify, Kotlin prüft das strikt. Beispiele:
   `MessageSource.getMessage` erwartet non-null Arg-Elemente (`LocalizedMessages` castet dafür);
   `SimpMessagingTemplate.convertAndSend(dest, mapOf(...))` ist mehrdeutig → Payload `as Any`.
-- **Jackson:** bis M3 Phase 2 Jackson 2 (`com.fasterxml.jackson.databind`) via `spring-boot-jackson2` und
-  `preferred-json-mapper: jackson2` (HTTP + STOMP, Guard: `JsonWireFormatGuardIntegrationTest`).
-  Keine neuen `tools.jackson`-Imports vor Phase 2.
+- **Jackson 3:** `tools.jackson.databind.ObjectMapper`/`JsonNode`, `tools.jackson.core.type.TypeReference`,
+  `tools.jackson.module.kotlin.readValue`. **Annotationen bleiben** `com.fasterxml.jackson.annotation.*`.
+  `JsonNode.asText()` ist deprecated → `asString()`. Jackson-Exceptions sind unchecked (`JacksonException`).
+  `ObjectMapper` ist immutable → eigene Mapper nur über `JsonMapper.builder()...build()`. Konfiguration über
+  `spring.jackson.*`; `use-jackson2-defaults: true` hält Property-Reihenfolge und lockeres null-/Trailing-Token-
+  Handling (Guards: `JsonWireFormatGuardIntegrationTest`, `JsonCompatCharacterizationIntegrationTest`).
+  Jackson 2 (`com.fasterxml.jackson.databind`) nicht mehr importieren; es ist nur noch transitiv über springdoc da.
 - **Security-Overrides:** nur per `extra["<lib>.version"]` mit CVE-Kommentar; bei jedem Boot-Upgrade prüfen, ob der BOM ihn überholt hat.
 
 ### Backend: Flyway Migration
