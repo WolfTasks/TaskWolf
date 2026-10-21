@@ -53,6 +53,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
+    // Jackson 2 Kotlin module for springdoc/swagger-core only (they still run on Jackson 2): without it
+    // the OpenAPI schemas lose `required` derived from Kotlin nullability. Our code uses Jackson 3.
+    // Guard: OpenApiKotlinSchemaIntegrationTest.
+    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     // jjwt-gson instead of jjwt-jackson (M3 Phase 2): jjwt-jackson only exists for Jackson 2, and
     // untrusted JWT headers/claims should not go through Jackson 2. Token format is unchanged

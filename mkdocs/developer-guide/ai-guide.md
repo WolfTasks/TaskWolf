@@ -264,7 +264,8 @@ class LabelServiceTest {
   `ObjectMapper` ist immutable → eigene Mapper nur über `JsonMapper.builder()...build()`. Konfiguration über
   `spring.jackson.*`; `use-jackson2-defaults: true` hält Property-Reihenfolge und lockeres null-/Trailing-Token-
   Handling (Guards: `JsonWireFormatGuardIntegrationTest`, `JsonCompatCharacterizationIntegrationTest`).
-  Jackson 2 (`com.fasterxml.jackson.databind`) nicht mehr importieren; es ist nur noch transitiv über springdoc da.
+  Jackson 2 (`com.fasterxml.jackson.databind`) nicht mehr importieren; es ist nur noch für springdoc da (transitiv
+  plus `runtimeOnly` Jackson-2-Kotlin-Modul, sonst fehlen in den OpenAPI-Schemas die `required`-Felder).
 - **Security-Overrides:** nur per `extra["<lib>.version"]` mit CVE-Kommentar; bei jedem Boot-Upgrade prüfen, ob der BOM ihn überholt hat.
 
 ### Backend: Flyway Migration
