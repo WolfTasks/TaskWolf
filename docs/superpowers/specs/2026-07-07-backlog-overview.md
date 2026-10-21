@@ -23,13 +23,18 @@
 | 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ✅ **AUSGELIEFERT** (Phasen 1–3 alle auf `main`: P1 Fundament+Pilot PR #83, P2 voller API-Fehler-Sweep PRs #84/#85/#86/#87/#90, P3 E-Mails+In-App-Notifications in Empfänger-Sprache PR #92 squash `00665f5`; en/de mit EN-Fallback, 3 CI-Gates grün [MessagesParity/KeyedReferenceIntegrity/NoUnkeyedUserFacingThrow]; **Release v1.0.15**. Offen: Wolfgangs manueller DE/EN-Smoke [post-release]) |
 | M1 | Dependency-/Base-Image-Wartung (Dependabot-Bündel) | Ops/Maintenance | ✅ **AUSGELIEFERT** (PRs #81/#62/#60/#59/#82, Release v1.0.14) |
 | M2 | jackson-databind @JsonView-Bypass-CVEs + Dependabot-Bündel | Ops/Security | ✅ **AUSGELIEFERT** (jackson-bom 2.21.4→2.21.5 PR #93 [GHSA-mhm7-754m-9p8w + GHSA-5gvw-p9qm-jgwh/CVE-2026-59889]; backend-deps #89 [postgresql 42.7.12], Actions #88; Release v1.0.15) |
-| M3 | Spring Boot 4 Migration (Spring Framework 7) | Ops/Security | 🚧 **Phase 1 + 2 fertig** (Phase 1 PR #156: Boot 4.1.1, spring-webmvc 7.0.9, beide Spring-trivyignores entfernt; Phase 2 PR #164: Jackson 3 + jjwt-gson); **Release v1.0.21 ausstehend**. Jackson 2 bleibt nur transitiv über springdoc/swagger-core |
+| M3 | Spring Boot 4 Migration (Spring Framework 7) | Ops/Security | ✅ **AUSGELIEFERT** (Phase 1 PR #156, Phase 2 PR #164, IMAP-Fix PR #166; Release v1.0.21). Jackson 2 bleibt nur für springdoc/swagger-core. Folgepunkte: B4–B7, H4 |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | B1 | User können ihre eigene Rolle ändern | Bug | ✅ **AUSGELIEFERT** (PR #53, Release v1.0.11) |
 | B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | ⏸️ Zurückgestellt — bereits umgesetzt (client `useProjectRole`+server 403); nur Regressionstest offen |
 | B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
+| B4 | Transition-Guards: Issue über Transition mit Guards verschieben → 500 | Bug/Backend | ⏸️ Zurückgestellt (nächste Session) — gefunden im M3-Smoke, schon in v1.0.20 |
+| B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | ⏸️ Zurückgestellt (nächste Session) — Backend-OIDC-Flow funktioniert (Smoke v1.0.20 + v1.0.21) |
+| B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | ⏸️ Zurückgestellt — Nebenbefund M3 Phase 1 |
+| B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | ⏸️ Zurückgestellt — Nebenbefund M3 Phase 1 |
+| H4 | Jackson-3-Feinschliff: `asString()` im Webhook-Eingang, Mapper-Empfehlung im ai-guide | Hardening/Docs | ⏸️ Zurückgestellt — Deferred Minors aus dem M3-Final-Review |
 
 ## M1 — Dependency-/Base-Image-Wartung (Dependabot-Bündel)
 > ✅ **AUSGELIEFERT** (2026-07-18, Release **v1.0.14**). Reines Wartungsrelease,
@@ -50,31 +55,17 @@
 > startet sauber).
 
 ## M3 — Spring Boot 4 Migration (Spring Framework 7)
-> 🚧 **Phase 1 + 2 fertig** (2026-10-21): Boot 4.1.1, beide Spring-CVEs echt behoben (Phase 1);
-> Jackson 3 als einziger aktiver Mapper (`use-jackson2-defaults: true`) und jjwt-gson (Phase 2).
-> Jackson 2 bleibt nur transitiv über springdoc/swagger-core. Gemeinsames Release v1.0.21 nach
-> Wolfgangs manuellem SSO/IMAP-Check.
+> ✅ **AUSGELIEFERT** (2026-10-21, Release **v1.0.21**): Boot 4.1.1 / Framework 7.0.9, beide Spring-CVEs
+> echt behoben (Phase 1, PR #156); Jackson 3 als einziger aktiver Mapper (`use-jackson2-defaults: true`)
+> und jjwt-gson (Phase 2, PR #164); IMAP-Eingang unter Boot 4 repariert (`spring-boot-starter-integration`,
+> PR #166 — gefunden im Pre-Release-Smoke mit mock-oauth2-server + GreenMail). Jackson 2 bleibt nur für
+> springdoc/swagger-core (inkl. `runtimeOnly` Jackson-2-Kotlin-Modul).
 > Spec: `docs/superpowers/specs/2026-10-19-m3-spring-boot-4-migration-design.md` ·
 > Plan Phase 1: `docs/superpowers/plans/2026-10-19-m3-phase1-spring-boot-4.md` ·
 > Plan Phase 2: `docs/superpowers/plans/2026-10-19-m3-phase2-jackson3.md`
 >
-> **Nebenbefunde (schon vor M3 vorhanden, nicht im M3-Scope):**
-> - Dev-Profil mit H2 startet nicht: ab V11 nutzen die Migrationen `gen_random_uuid()`, das H2
->   (auch 2.3.232 unter Boot 3) nicht kennt. Lokal deshalb gegen Postgres entwickeln.
-> - Unbekannte Pfade liefern 500 statt 404: `GlobalExceptionHandler.handleGeneric(Exception)`
->   fängt Springs `NoResourceFoundException` mit ab (z. B. `/v3/api-docs` in prod).
-> - Transition-Guards kaputt: `WorkflowService.updateGuards` schreibt `List<TransitionGuard>` per
->   `writeValueAsString` ohne `type`-Diskriminator (Type-Erasure). `validateTransition` kann das
->   nicht mehr lesen → Issue über eine Transition mit Guards verschieben liefert 500 (im M3-Smoke
->   belegt; unter Jackson 2 identisch). Fix: `mapper.writerFor(<TypeReference<List<TransitionGuard>>>)`
->   + Test für den Schreibpfad; bereits gespeicherte, untypisierte Guards brauchen eine Migration/Neuspeichern.
-> - SSO im Prod-Stack nicht durchgängig verdrahtet (Backend-OIDC-Flow selbst funktioniert, per
->   mock-oauth2-server-Smoke unter v1.0.20 und v1.0.21 belegt): (1) `LoginPage.tsx` verlinkt
->   `/login/oauth2/authorization/{id}`, Spring hört auf `/oauth2/authorization/{id}` (Backend → 500);
->   (2) `docker/nginx.conf` proxyt weder `/oauth2/` noch `/login/oauth2/` ans Backend; (3) das Frontend hat
->   keine Route für den Redirect `/auth/sso/callback?token=…`.
-> - Behoben in M3 (Release v1.0.21): IMAP-Eingang lief unter Boot 4 nicht mehr, weil die Spring-Integration-
->   Autokonfiguration ein eigenes Modul ist → `spring-boot-starter-integration` + Guard-Test.
+> **Folgepunkte (zurückgestellt, eigene Einträge):** B4 Transition-Guards 500 · B5 SSO-UI-Verdrahtung ·
+> B6 unbekannte Pfade 500 · B7 Dev-Profil H2 · H4 Jackson-3-Feinschliff.
 
 **Warum jetzt:** Spring Boot 3.5.16 (Framework 6.2.19) ist das letzte OSS-Release der
 3.5-Linie auf Maven Central; neue spring-webmvc-CVEs werden nur noch in Framework 7.0.x
@@ -388,3 +379,67 @@ erreichbar. Erwartet: Logout bleibt immer erreichbar (z.B. gepinnt und die Sideb
 selbst intern scrollbar). Berührungspunkt: verwandt mit #11 (Layout-Fix, Logout
 unten gepinnt / `<aside>` fixe Viewport-Höhe) – der Fix deckt diesen Fall (Sidebar
 selbst höher als Viewport) offenbar noch nicht ab. Eigener UI-Bug-Zyklus.
+
+## B4 — Transition-Guards: Issue über Transition mit Guards verschieben → 500 🐞
+> Gefunden 2026-10-21 im M3-Phase-2-Smoke, Status: **⏸️ Zurückgestellt (nächste Session)**. Schon in v1.0.20.
+
+`WorkflowService.updateGuards` schreibt `List<TransitionGuard>` per `mapper.writeValueAsString(guards)`.
+Durch Type-Erasure sieht Jackson nur eine `List<Object>` und schreibt den `type`-Diskriminator **nicht**
+(`[{"field":"assigneeId"},{"roles":["ADMIN"]}]`). `validateTransition` liest polymorph und scheitert →
+`PATCH /api/v1/projects/{key}/issues/{id}` mit `statusId` über diese Transition liefert **500 INTERNAL_ERROR**.
+Der Workflow-Editor (`TransitionGuardPanel.tsx`) zeigt die gespeicherten Guards vermutlich ebenfalls falsch an.
+
+Fix-Skizze:
+- Schreibpfad: `mapper.writerFor(object : TypeReference<List<TransitionGuard>>() {}).writeValueAsString(guards)`.
+- Test für den Schreibpfad (bisher nur Lesepfad mit handgeschriebenem JSON in `WorkflowTransitionGuardTest`)
+  + Integrationstest PUT guards → Issue-Transition → 400 statt 500.
+- Bestand: untypisierte Guards in `workflow_transitions.guards` per Flyway-Migration reparieren
+  (Typ aus dem Feldnamen ableiten: `field` → `REQUIRED_FIELD`, `roles` → `ROLE_RESTRICTION`).
+- `JsonCompatCharacterizationIntegrationTest` pinnt heute bewusst das untypisierte Format → beim Fix mit
+  umstellen (erwartet dann `storedGuards` mit `type`).
+- Kandidat für Frontend-Check: liest der Editor `type`?
+
+## B5 — SSO über die Oberfläche nicht nutzbar 🐞
+> Gefunden 2026-10-21 im Pre-Release-Smoke für v1.0.21, Status: **⏸️ Zurückgestellt (nächste Session)**.
+> Schon in v1.0.20; der Backend-OIDC-Flow selbst ist ok (Authorization-Redirect mit PKCE/nonce, Code-Exchange,
+> id_token-Validierung, Auto-Provisioning, zweiter Login — gegen mock-oauth2-server unter v1.0.20 und v1.0.21 grün).
+
+Lücken:
+1. `frontend/src/pages/auth/LoginPage.tsx:58` verlinkt `/login/oauth2/authorization/{id}`; Spring Security hört auf
+   `/oauth2/authorization/{id}` (der falsche Pfad liefert im Backend 500, siehe auch B6).
+2. `docker/nginx.conf` proxyt nur `/api/` und `/ws` ans Backend; `/oauth2/` und `/login/oauth2/` landen beim Frontend.
+3. Das Frontend hat keine Route für den Redirect des Success-Handlers `/auth/sso/callback?token=…`
+   (`SecurityConfig.oidcSuccessHandler`), d. h. das Token wird nie übernommen.
+4. Prüfen: Token in der Query (`?token=`) landet in Browser-History/Proxy-Logs → besser kurzlebiger Code oder Fragment.
+5. `redirectUri` = `{baseUrl}/login/oauth2/code/{registrationId}` — hinter nginx korrektes `baseUrl` sicherstellen
+   (`X-Forwarded-*` / `server.forward-headers-strategy`).
+
+Testaufbau zum Wiederverwenden: `docker-compose.prod.yml` + Override mit `ghcr.io/navikt/mock-oauth2-server:2.1.10`
+(JSON_CONFIG mit `email`/`name`/`aud`-Claims; Browser-Simulation mit `Host: mockoauth:8080`).
+
+## B6 — Unbekannte Pfade liefern 500 statt 404 🐞
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **⏸️ Zurückgestellt**.
+
+`GlobalExceptionHandler.handleGeneric(Exception)` fängt Springs `NoResourceFoundException` mit ab → z. B.
+`/v3/api-docs` in prod oder `/login/oauth2/authorization/{id}` (B5) liefern `500 INTERNAL_ERROR` statt 404.
+Fix: eigener Handler für `NoResourceFoundException`/`NoHandlerFoundException` → 404 mit keyed Message + Test.
+
+## B7 — Dev-Profil mit H2 startet nicht 🐞
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **⏸️ Zurückgestellt**.
+
+Ab V11 nutzen die Flyway-Migrationen `gen_random_uuid()`, das H2 (auch schon 2.3.232 unter Boot 3) nicht kennt.
+Lokal gegen Postgres entwickeln (`--spring.datasource.url=jdbc:postgresql://…`). Optionen: Dev-Profil auf
+Postgres (Testcontainers/Docker) umstellen und H2 + `spring-boot-h2console` entfernen, oder H2-Alias-Funktion.
+
+## H4 — Jackson-3-Feinschliff (Deferred Minors aus dem M3-Final-Review)
+> Status: **⏸️ Zurückgestellt**.
+
+- `IncomingWebhookService` (Zeilen ~73–108): `JsonNode.asString()` ohne Default **wirft** unter Jackson 3 bei
+  Object-/Array-Knoten (Jackson 2 `asText()` gab `""`) und liefert `""` statt `"null"` für JSON-null. Ein korrekt
+  signierter, aber ungewöhnlicher Webhook-Payload ergibt dann 500 statt 200. Fix: `asString("")` an den
+  Aufrufstellen oder `JacksonException` → `integration.invalidJsonPayload`; Test mit null-/Objekt-`title`.
+- `mkdocs/developer-guide/ai-guide.md` und Kommentar in `StringListConverter.kt`: empfehlen `JsonMapper.builder()`
+  (rohe Jackson-3-Defaults: alphabetisch, strenger). Besser: Spring-`ObjectMapper` injizieren bzw.
+  `JsonMapper.builderWithJackson2Defaults()`, wo keine Injection möglich ist (JPA-Converter).
+- Optional: Feature-Assertion in `JsonWireFormatGuardIntegrationTest` um `EnumFeature.WRITE_ENUMS_USING_TO_STRING`/
+  `READ_ENUMS_USING_TO_STRING` und `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS` erweitern.
