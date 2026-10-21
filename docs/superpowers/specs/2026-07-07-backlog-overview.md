@@ -68,6 +68,13 @@
 >   nicht mehr lesen → Issue über eine Transition mit Guards verschieben liefert 500 (im M3-Smoke
 >   belegt; unter Jackson 2 identisch). Fix: `mapper.writerFor(<TypeReference<List<TransitionGuard>>>)`
 >   + Test für den Schreibpfad; bereits gespeicherte, untypisierte Guards brauchen eine Migration/Neuspeichern.
+> - SSO im Prod-Stack nicht durchgängig verdrahtet (Backend-OIDC-Flow selbst funktioniert, per
+>   mock-oauth2-server-Smoke unter v1.0.20 und v1.0.21 belegt): (1) `LoginPage.tsx` verlinkt
+>   `/login/oauth2/authorization/{id}`, Spring hört auf `/oauth2/authorization/{id}` (Backend → 500);
+>   (2) `docker/nginx.conf` proxyt weder `/oauth2/` noch `/login/oauth2/` ans Backend; (3) das Frontend hat
+>   keine Route für den Redirect `/auth/sso/callback?token=…`.
+> - Behoben in M3 (Release v1.0.21): IMAP-Eingang lief unter Boot 4 nicht mehr, weil die Spring-Integration-
+>   Autokonfiguration ein eigenes Modul ist → `spring-boot-starter-integration` + Guard-Test.
 
 **Warum jetzt:** Spring Boot 3.5.16 (Framework 6.2.19) ist das letzte OSS-Release der
 3.5-Linie auf Maven Central; neue spring-webmvc-CVEs werden nur noch in Framework 7.0.x
