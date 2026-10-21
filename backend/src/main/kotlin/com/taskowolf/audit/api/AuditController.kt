@@ -1,6 +1,6 @@
 package com.taskowolf.audit.api
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.audit.api.dto.AuditConfigRequest
 import com.taskowolf.audit.api.dto.AuditEventResponse
 import com.taskowolf.audit.application.AuditService

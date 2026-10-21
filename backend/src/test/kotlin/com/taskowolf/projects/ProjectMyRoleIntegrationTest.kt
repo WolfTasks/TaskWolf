@@ -1,6 +1,6 @@
 package com.taskowolf.projects
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,12 +19,12 @@ class ProjectMyRoleIntegrationTest : IntegrationTestBase() {
             post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"Test","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun myId(token: String): String {
         val result = mockMvc.perform(get("/api/v1/auth/me").header("Authorization", "Bearer $token")).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("id").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("id").asString()
     }
 
     @Test

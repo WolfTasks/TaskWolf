@@ -1,6 +1,6 @@
 package com.taskowolf.automation
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import com.taskowolf.automation.application.ConditionEvaluator
 import com.taskowolf.automation.domain.*
 import com.taskowolf.issues.domain.Issue

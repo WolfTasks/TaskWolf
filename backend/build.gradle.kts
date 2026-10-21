@@ -44,15 +44,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // Boot 4 split auto-configuration into modules: flyway-core alone no longer runs migrations.
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    // M3 Phase 1: keep Jackson 2 as the active mapper (HTTP + STOMP, see application.yml).
-    // Removed in Phase 2 together with all com.fasterxml.jackson.databind usages.
-    implementation("org.springframework.boot:spring-boot-jackson2")
     implementation("org.springframework.integration:spring-integration-mail")
     implementation("org.springframework.integration:spring-integration-core")
     implementation("jakarta.mail:jakarta.mail-api")
     implementation("org.eclipse.angus:angus-mail")
     implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
@@ -78,13 +75,15 @@ dependencies {
 // jackson-2-bom 2.21.5 -> 2.21.7: Boot 4.1.1 still pins Jackson 2 at 2.21.5, which re-opens
 // CVE-2026-68497 (quadratic BigInteger/BigDecimal parsing in CoreXMLDeserializers), CVE-2026-91776
 // and CVE-2026-91777. 2.21.6 is NOT sufficient (verified against a current Trivy DB), 2.21.7 is the
-// newest 2.x on Maven Central. Jackson 2 is only needed until M3 Phase 2 (Jackson 3 + jjwt-gson);
-// this override goes away with it.
+// newest 2.x on Maven Central.
+// Jackson 2 is no longer used by our code or by Spring, but springdoc 3.1.1 still pulls it in
+// transitively via swagger-core-jakarta 2.2.55 (no Jackson 3 swagger-core exists yet). Keep this
+// override until swagger-core moves to Jackson 3.
 extra["jackson-2-bom.version"] = "2.21.7"
 // jackson-bom (Jackson 3, tools.jackson) 3.1.5 -> 3.1.7: the same advisories exist on the 3.x line.
 // CVE-2026-68497 (fixed 3.1.6), CVE-2026-91776/91777 (databind) and CVE-2026-89407/89425 (core) are
-// fixed in 3.1.7, the minimal release clearing all five. Boot 4.1.1 pins 3.1.5. Jackson 3 is on the
-// classpath via spring-boot-starter-webmvc even while Phase 1 keeps Jackson 2 as the active mapper.
+// fixed in 3.1.7, the minimal release clearing all five. Boot 4.1.1 pins 3.1.5.
+// Jackson 3 is the active mapper (HTTP, STOMP, application code).
 extra["jackson-bom.version"] = "3.1.7"
 // tomcat-embed 11.0.24 -> 11.0.25 fixes the three CRITICAL auth-bypass CVEs on the 11.0 line:
 // CVE-2026-68525 (FORM authentication), CVE-2026-65905 (DIGEST replay), CVE-2026-65182 (security

@@ -1,6 +1,6 @@
 package com.taskowolf.integrations.application
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.auth.domain.User
 import com.taskowolf.core.infrastructure.NotFoundException
 import com.taskowolf.integrations.api.dto.CreateWebhookRequest

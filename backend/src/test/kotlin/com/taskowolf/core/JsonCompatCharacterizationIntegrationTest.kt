@@ -1,7 +1,7 @@
 package com.taskowolf.core
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import com.taskowolf.workflows.domain.RequiredFieldGuard
 import com.taskowolf.workflows.domain.RoleRestrictionGuard
@@ -62,7 +62,7 @@ class JsonCompatCharacterizationIntegrationTest : IntegrationTestBase() {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""{"email":"$email","displayName":"Compat","password":"password123"}""")
             ).andReturn().response.contentAsString
-        ).get("accessToken").asText()
+        ).get("accessToken").asString()
 
     @Test
     fun `unknown request properties are ignored`() {
@@ -93,9 +93,9 @@ class JsonCompatCharacterizationIntegrationTest : IntegrationTestBase() {
                     .content("""{"title":""}""")
             ).andExpect(status().isBadRequest).andReturn().response.contentAsString
         )
-        assertEquals(setOf("code", "message", "details"), body.fieldNames().asSequence().toSet())
-        assertTrue(body.get("code").isTextual, "code must be a string")
-        assertTrue(body.get("message").isTextual, "message must be a string")
+        assertEquals(setOf("code", "message", "details"), body.propertyNames().toSet())
+        assertTrue(body.get("code").isString, "code must be a string")
+        assertTrue(body.get("message").isString, "message must be a string")
         assertTrue(body.get("details").isObject, "details must be an object")
     }
 }

@@ -1,6 +1,6 @@
 package com.taskowolf.integrations
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +20,7 @@ class WebhookControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun createProject(token: String, key: String) {
@@ -48,7 +48,7 @@ class WebhookControllerTest : IntegrationTestBase() {
             .andExpect(jsonPath("$.plaintextSecret").isString)
             .andReturn()
 
-        val secret = objectMapper.readTree(result.response.contentAsString).get("plaintextSecret").asText()
+        val secret = objectMapper.readTree(result.response.contentAsString).get("plaintextSecret").asString()
         assert(secret.isNotBlank())
     }
 
@@ -96,7 +96,7 @@ class WebhookControllerTest : IntegrationTestBase() {
                 .content("""{"url":"https://hooks.example.com/del","events":["issue.created"]}""")
         ).andReturn()
         val webhookId = objectMapper.readTree(createResult.response.contentAsString)
-            .get("webhook").get("id").asText()
+            .get("webhook").get("id").asString()
 
         mockMvc.perform(
             delete("/api/v1/projects/WH4/webhooks/$webhookId")

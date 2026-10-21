@@ -1,6 +1,6 @@
 package com.taskowolf.projects
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,12 +21,12 @@ class ProjectWriteEnforcementIntegrationTest : IntegrationTestBase() {
             post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"Test","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun myId(token: String): String {
         val result = mockMvc.perform(get("/api/v1/auth/me").header("Authorization", "Bearer $token")).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("id").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("id").asString()
     }
 
     private fun addMember(ownerToken: String, key: String, userId: String, role: String) {
@@ -88,14 +88,14 @@ class ProjectWriteEnforcementIntegrationTest : IntegrationTestBase() {
             post("/api/v1/projects/DEM/issues").header("Authorization", "Bearer $memberToken")
                 .contentType(MediaType.APPLICATION_JSON).content("""{"title":"has a comment"}""")
         ).andExpect(status().isCreated).andReturn()
-        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asText()
+        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asString()
 
         // member posts a comment → capture its id
         val commentResult = mockMvc.perform(
             post("/api/v1/projects/DEM/issues/$issueKey/comments").header("Authorization", "Bearer $memberToken")
                 .contentType(MediaType.APPLICATION_JSON).content("""{"body":"mine"}""")
         ).andExpect(status().isCreated).andReturn()
-        val commentId = objectMapper.readTree(commentResult.response.contentAsString).get("id").asText()
+        val commentId = objectMapper.readTree(commentResult.response.contentAsString).get("id").asString()
 
         // owner demotes the member to VIEWER
         mockMvc.perform(
@@ -153,7 +153,7 @@ class ProjectWriteEnforcementIntegrationTest : IntegrationTestBase() {
             post("/api/v1/projects/ATT/issues").header("Authorization", "Bearer $ownerToken")
                 .contentType(MediaType.APPLICATION_JSON).content("""{"title":"needs an attachment"}""")
         ).andExpect(status().isCreated).andReturn()
-        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asText()
+        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asString()
 
         val file = MockMultipartFile("file", "x.txt", "text/plain", "hi".toByteArray())
 

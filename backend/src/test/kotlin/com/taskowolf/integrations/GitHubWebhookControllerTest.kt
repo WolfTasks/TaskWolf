@@ -1,6 +1,6 @@
 package com.taskowolf.integrations
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import com.taskowolf.integrations.application.HmacSigner
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun createProject(token: String, key: String) {
@@ -41,7 +41,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"provider":"GITHUB"}""")
         ).andExpect(status().isCreated).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("plaintextSecret").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("plaintextSecret").asString()
     }
 
     @Test
@@ -88,7 +88,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"title":"Test Issue","type":"TASK","priority":"MEDIUM"}""")
         ).andReturn()
-        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asText()
+        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asString()
 
         val payload = """{"ref":"refs/heads/main","commits":[{"id":"def456","message":"fix $issueKey crash","url":"https://github.com/org/repo/commit/def456"}]}"""
         val sig = hmacSigner.sign(payload, secret)

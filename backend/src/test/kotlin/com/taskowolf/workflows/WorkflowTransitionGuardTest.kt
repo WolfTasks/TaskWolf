@@ -1,6 +1,6 @@
 package com.taskowolf.workflows
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import com.taskowolf.auth.domain.User
 import com.taskowolf.core.infrastructure.BadRequestException
 import com.taskowolf.issues.domain.Issue
