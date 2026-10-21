@@ -2,11 +2,16 @@ package com.taskowolf.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.messaging.converter.CompositeMessageConverter
+import org.springframework.messaging.converter.JacksonJsonMessageConverter
+import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -71,5 +76,16 @@ class JsonWireFormatGuardIntegrationTest : IntegrationTestBase() {
         assertTrue(issue.has("dueDate") && issue.get("dueDate").isNull, "dueDate must be present as explicit null")
         assertTrue(issue.get("labels").isArray && issue.get("labels").isEmpty, "labels must be an empty array")
         assertTrue(issue.get("type").isTextual && issue.get("type").asText() == "TASK", "enum must serialize by name")
+    }
+
+    @Autowired
+    @Qualifier("brokerMessageConverter")
+    private lateinit var brokerMessageConverter: CompositeMessageConverter
+
+    @Test
+    fun `STOMP payloads use the Jackson 2 converter`() {
+        val converters = brokerMessageConverter.converters
+        assertTrue(converters.any { it is MappingJackson2MessageConverter }, "got $converters")
+        assertFalse(converters.any { it is JacksonJsonMessageConverter }, "got $converters")
     }
 }
