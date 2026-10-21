@@ -54,7 +54,10 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    // jjwt-gson instead of jjwt-jackson (M3 Phase 2): jjwt-jackson only exists for Jackson 2, and
+    // untrusted JWT headers/claims should not go through Jackson 2. Token format is unchanged
+    // (guard: JwtServiceTest fixture token issued with jjwt-jackson).
+    runtimeOnly("io.jsonwebtoken:jjwt-gson:0.13.0")
     runtimeOnly("com.h2database:h2")
     // Boot 4 moved the H2 web console (dev profile, /h2-console) into its own module.
     runtimeOnly("org.springframework.boot:spring-boot-h2console")
