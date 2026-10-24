@@ -260,8 +260,12 @@ class LabelServiceTest {
   `SimpMessagingTemplate.convertAndSend(dest, mapOf(...))` ist mehrdeutig → Payload `as Any`.
 - **Jackson 3:** `tools.jackson.databind.ObjectMapper`/`JsonNode`, `tools.jackson.core.type.TypeReference`,
   `tools.jackson.module.kotlin.readValue`. **Annotationen bleiben** `com.fasterxml.jackson.annotation.*`.
-  `JsonNode.asText()` ist deprecated → `asString()`. Jackson-Exceptions sind unchecked (`JacksonException`).
-  `ObjectMapper` ist immutable → eigene Mapper nur über `JsonMapper.builder()...build()`. Konfiguration über
+  `JsonNode.asText()` ist deprecated → `asString()`. **Achtung:** `asString()` ohne Argument **wirft** bei
+  Object-/Array-Knoten (Jackson 2 `asText()` gab `""`) → bei fremdem/untrusted JSON immer `asString("")` (H4).
+  Jackson-Exceptions sind unchecked (`JacksonException`).
+  Den von Spring konfigurierten `ObjectMapper` **injizieren**. Wo das nicht geht (z. B. JPA-`AttributeConverter`),
+  `JsonMapper.builderWithJackson2Defaults().build()` — nicht `JsonMapper.builder()`, dessen rohe Jackson-3-Defaults
+  (alphabetische Reihenfolge, strenger) vom Rest der App abweichen. Konfiguration über
   `spring.jackson.*`; `use-jackson2-defaults: true` hält Property-Reihenfolge und lockeres null-/Trailing-Token-
   Handling (Guards: `JsonWireFormatGuardIntegrationTest`, `JsonCompatCharacterizationIntegrationTest`).
   Jackson 2 (`com.fasterxml.jackson.databind`) nicht mehr importieren; es ist nur noch für springdoc da (transitiv

@@ -15,9 +15,9 @@ class StringListConverter : AttributeConverter<List<String>, String> {
         if (dbData.isNullOrBlank()) emptyList() else mapper.readValue(dbData, typeRef)
 
     private companion object {
-        // JPA instantiates converters itself (no Spring injection), so the converter owns one
-        // immutable Jackson 3 mapper. A list of strings is unaffected by Jackson 3 default changes.
-        val mapper: JsonMapper = JsonMapper.builder().build()
+        // JPA instantiates converters itself (no Spring injection), so the converter owns one immutable mapper.
+        // Jackson-2 defaults match the app-wide `spring.jackson.use-jackson2-defaults: true`.
+        val mapper: JsonMapper = JsonMapper.builderWithJackson2Defaults().build()
         val typeRef = object : TypeReference<List<String>>() {}
     }
 }
