@@ -13,9 +13,11 @@ interface Props {
   onSaveLayout: (positions: StatusPosition[]) => void
   onUpdateGuards: (tid: string, guards: TransitionGuard[]) => void
   onDeleteTransition: (tid: string) => void
+  /** Non-admins see the workflow but cannot move nodes or edit guards (the server only lets admins write). */
+  readOnly?: boolean
 }
 
-export function WorkflowCanvas({ data, onSaveLayout, onUpdateGuards, onDeleteTransition }: Props) {
+export function WorkflowCanvas({ data, onSaveLayout, onUpdateGuards, onDeleteTransition, readOnly = false }: Props) {
   const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>(() => {
     const map: Record<string, { x: number; y: number }> = {}
     data.statuses.forEach((s, i) => {
@@ -27,6 +29,7 @@ export function WorkflowCanvas({ data, onSaveLayout, onUpdateGuards, onDeleteTra
   const [selectedTransition, setSelectedTransition] = useState<WorkflowTransition | null>(null)
 
   function handleDragEnd(e: DragEndEvent) {
+    if (readOnly) return
     const id = e.active.id as string
     const prev = positions[id] ?? { x: 0, y: 0 }
     const next = { x: prev.x + (e.delta.x ?? 0), y: prev.y + (e.delta.y ?? 0) }
@@ -56,7 +59,7 @@ export function WorkflowCanvas({ data, onSaveLayout, onUpdateGuards, onDeleteTra
               <TransitionArrow
                 x1={fx} y1={fy} x2={tx} y2={ty}
                 hasGuards={!!t.guards && t.guards !== '[]'}
-                onClick={() => setSelectedTransition(t)}
+                onClick={() => { if (!readOnly) setSelectedTransition(t) }}
               />
             </g>
           )

@@ -12,6 +12,7 @@ import { CycleTimeWidget } from '@/components/dashboard/CycleTimeWidget'
 import { IssueCountWidget } from '@/components/dashboard/IssueCountWidget'
 import { IssuesByStatusWidget } from '@/components/dashboard/IssuesByStatusWidget'
 import { IssueListWidget } from '@/components/dashboard/IssueListWidget'
+import { useProjectRole } from '@/hooks/useProjectRole'
 
 type LayoutItem = { widgetId: string; gridX: number; gridY: number; gridW: number; gridH: number }
 
@@ -28,6 +29,7 @@ export function ProjectDashboardPage() {
   const saveLayout = useSaveDashboardLayout(projectKey)
   const addWidget = useAddWidget(projectKey)
   const removeWidget = useRemoveWidget(projectKey)
+  const { isAdmin } = useProjectRole(projectKey)
 
   function renderWidget(widget: WidgetData) {
     const inner = (() => {
@@ -98,7 +100,7 @@ export function ProjectDashboardPage() {
               </button>
             </>
           )}
-          {!editMode && (
+          {!editMode && isAdmin && (
             <button
               onClick={() => setEditMode(true)}
               className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded"
@@ -119,12 +121,14 @@ export function ProjectDashboardPage() {
       {dashboard?.widgets.length === 0 && !editMode && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <p className="text-gray-400 mb-3">{t('empty.text')}</p>
-          <button
-            onClick={() => setEditMode(true)}
-            className="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded"
-          >
-            {t('empty.cta')}
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setEditMode(true)}
+              className="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded"
+            >
+              {t('empty.cta')}
+            </button>
+          )}
         </div>
       )}
 
