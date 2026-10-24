@@ -25,7 +25,7 @@ class OidcUserProvisioningService(
     private val orgMemberRepo: OrganizationMemberRepository
 ) {
     @Transactional
-    fun handleOidcLogin(oidcUser: OidcUser, registrationId: String): String {
+    fun handleOidcLogin(oidcUser: OidcUser, registrationId: String): SsoTokens {
         val email = oidcUser.email ?: error("OIDC user has no email")
         val config = ssoConfigRepository.findById(UUID.fromString(registrationId)).orElse(null)
         val user = userRepository.findByEmail(email) ?: run {
@@ -53,6 +53,9 @@ class OidcUserProvisioningService(
         val defaultOrg = orgRepo.findBySlug("default")
         val refreshToken = jwtService.generateRefreshToken(user.id)
         refreshTokenService.store(refreshToken, user.id)
-        return jwtService.generateAccessToken(user.id, defaultOrg?.id)
+        return SsoTokens(jwtService.generateAccessToken(user.id, defaultOrg?.id), refreshToken)
     }
 }
+
+/** Same token pair a password login returns, so the SPA can refresh an SSO session too. */
+data class SsoTokens(val accessToken: String, val refreshToken: String)

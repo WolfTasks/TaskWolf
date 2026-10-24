@@ -16,6 +16,8 @@ logging:
     com.taskowolf: DEBUG
 
 taskowolf:
+  # The browser talks to the Vite dev server, which proxies /api, /oauth2 and /login/oauth2 (SSO redirect URI).
+  base-url: ${TW_BASE_URL:http://localhost:5173}
   jwt:
     secret: ${TW_JWT_SECRET:dev-secret-change-in-production-min-256-bits}
   allowed-origins: "http://localhost:*"

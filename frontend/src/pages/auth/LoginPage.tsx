@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
+import { useNavigate, useSearchParams, Link } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { authApi } from '@/api/auth'
@@ -8,9 +8,16 @@ import { ssoApi, SsoConfigPublic } from '@/api/sso'
 export function LoginPage() {
   const { t } = useTranslation('auth')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  // The backend's OIDC handlers send failed SSO attempts back here with ?sso=denied|failed.
+  const [error, setError] = useState(() => {
+    const sso = searchParams.get('sso')
+    if (sso === 'denied') return t('login.ssoDenied')
+    if (sso === 'failed') return t('login.ssoFailed')
+    return ''
+  })
 
   const { data: ssoConfigs = [] } = useQuery<SsoConfigPublic[]>({
     queryKey: ['sso-configs-public'],
@@ -55,7 +62,7 @@ export function LoginPage() {
           {ssoConfigs.map(config => (
             <a
               key={config.id}
-              href={`/login/oauth2/authorization/${config.id}`}
+              href={`/oauth2/authorization/${config.id}`}
               className="bg-gray-700 hover:bg-gray-600 text-white rounded px-4 py-2 text-sm font-medium text-center"
             >
               {t('login.ssoButton', { name: config.name })}
