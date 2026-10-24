@@ -3,6 +3,7 @@ import { useWorkflowEditor, useCreateStatus, useCreateTransition, useUpdateGuard
 import { WorkflowCanvas } from '../../components/workflow/WorkflowCanvas'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useProjectRole } from '@/hooks/useProjectRole'
 
 export function WorkflowEditorPage() {
   const { t } = useTranslation('workflow')
@@ -14,6 +15,7 @@ export function WorkflowEditorPage() {
   const deleteTransition = useDeleteTransition(key!)
   const saveLayout = useSaveLayout(key!)
   const [newStatusName, setNewStatusName] = useState('')
+  const { isAdmin } = useProjectRole(key!)
 
   if (isLoading || !data) return <div className="p-6 text-zinc-400">{t('loading')}</div>
 
@@ -21,7 +23,7 @@ export function WorkflowEditorPage() {
     <div className="p-6 max-w-5xl mx-auto flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-zinc-100">{t('title')}</h1>
-        <div className="flex gap-2">
+        {isAdmin && <div className="flex gap-2">
           <input
             value={newStatusName}
             onChange={e => setNewStatusName(e.target.value)}
@@ -35,15 +37,16 @@ export function WorkflowEditorPage() {
           >
             + {t('addStatus')}
           </button>
-        </div>
+        </div>}
       </div>
       <WorkflowCanvas
         data={data}
         onSaveLayout={positions => saveLayout.mutate(positions)}
         onUpdateGuards={(tid, guards) => updateGuards.mutate({ tid, guards })}
         onDeleteTransition={tid => deleteTransition.mutate(tid)}
+        readOnly={!isAdmin}
       />
-      <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
+      {isAdmin && <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
         <p className="text-sm text-zinc-400 mb-3">{t('addTransition')}</p>
         <div className="flex gap-2 flex-wrap">
           {data.statuses.map(from => (
@@ -58,7 +61,7 @@ export function WorkflowEditorPage() {
             ))
           ))}
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

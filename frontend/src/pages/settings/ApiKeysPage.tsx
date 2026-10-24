@@ -5,6 +5,7 @@ import type { CreateApiKeyResponse } from '@/hooks/useApiKeys'
 import { DataTable, type Column } from '@/components/table/DataTable'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/i18n/format'
+import { useProjectRole } from '@/hooks/useProjectRole'
 
 export function ApiKeysPage() {
   const { t } = useTranslation('settings')
@@ -13,6 +14,7 @@ export function ApiKeysPage() {
   const { data: keys = [], isLoading } = useApiKeys(projectKey)
   const createKey = useCreateApiKey(projectKey)
   const revokeKey = useRevokeApiKey(projectKey)
+  const { isAdmin } = useProjectRole(projectKey)
 
   const [showCreate, setShowCreate] = useState(false)
   const [keyName, setKeyName] = useState('')
@@ -49,7 +51,7 @@ export function ApiKeysPage() {
       header: '',
       width: '100px',
       align: 'right',
-      cell: k => (
+      cell: k => isAdmin && (
         <button
           onClick={() => revokeKey.mutate(k.id, {
             onError: (e: any) => alert(e.response?.data?.message || t('apiKeys.revokeFailed')),
@@ -68,12 +70,14 @@ export function ApiKeysPage() {
     <div className="flex flex-col h-full min-h-0 max-w-2xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{t('apiKeys.title')}</h1>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-sm font-medium"
-        >
-          {t('apiKeys.create')}
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setShowCreate(true)}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-sm font-medium"
+          >
+            {t('apiKeys.create')}
+          </button>
+        )}
       </div>
 
       {newKey && (
