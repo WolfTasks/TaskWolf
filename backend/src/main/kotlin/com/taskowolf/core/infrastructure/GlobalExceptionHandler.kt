@@ -8,6 +8,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
 /** Exceptions that can carry a MessageSource key + args instead of free text. */
 interface LocalizedException {
@@ -103,7 +104,25 @@ class GlobalExceptionHandler(private val messages: LocalizedMessages) {
     fun handleAccessDenied(ex: AccessDeniedException) =
         ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse("FORBIDDEN", ex.message ?: messages.get("common.forbidden")))
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleTypeMismatch(ex: MethodArgumentTypeMismatchException) =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse("BAD_REQUEST", messages.get("common.badRequest")))
+
     @ExceptionHandler(Exception::class)
-    fun handleGeneric(ex: Exception) =
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse("INTERNAL_ERROR", messages.get("common.internalError")))
+    fun handleGeneric(ex: Exception): ResponseEntity<ErrorResponse> {
+        // Spring MVC's own exceptions (unknown path, wrong method, missing param, ...) carry their status;
+        // without this they would all surface as 500.
+        val status = (ex as? org.springframework.web.ErrorResponse)?.statusCode
+            ?.let { HttpStatus.resolve(it.value()) }
+            ?.takeIf { it.is4xxClientError }
+        return when (status) {
+            null -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse("INTERNAL_ERROR", messages.get("common.internalError")))
+            HttpStatus.NOT_FOUND -> ResponseEntity.status(status)
+                .body(ErrorResponse("NOT_FOUND", messages.get("common.notFound")))
+            HttpStatus.METHOD_NOT_ALLOWED -> ResponseEntity.status(status)
+                .body(ErrorResponse("METHOD_NOT_ALLOWED", messages.get("common.methodNotAllowed")))
+            else -> ResponseEntity.status(status).body(ErrorResponse(status.name, messages.get("common.badRequest")))
+        }
+    }
 }
