@@ -28,13 +28,14 @@
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | B1 | User können ihre eigene Rolle ändern | Bug | ✅ **AUSGELIEFERT** (PR #53, Release v1.0.11) |
-| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | ⏸️ Zurückgestellt — bereits umgesetzt (client `useProjectRole`+server 403); nur Regressionstest offen |
+| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | 🔀 **PR #173 offen** (2026-10-24): Regressionstest VIEWER PATCH/DELETE → 403 + Admin-only-Konfigseiten clientseitig auf `isAdmin` gegated |
 | B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
-| B4 | Transition-Guards: Issue über Transition mit Guards verschieben → 500 | Bug/Backend | ⏸️ Zurückgestellt (nächste Session) — gefunden im M3-Smoke, schon in v1.0.20 |
-| B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | ⏸️ Zurückgestellt (nächste Session) — Backend-OIDC-Flow funktioniert (Smoke v1.0.20 + v1.0.21) |
-| B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | ⏸️ Zurückgestellt — Nebenbefund M3 Phase 1 |
-| B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | ⏸️ Zurückgestellt — Nebenbefund M3 Phase 1 |
+| B4 | Transition-Guards: Issue über Transition mit Guards verschieben → 500 | Bug/Backend | 🔀 **PR #171 offen** (2026-10-24): `writerFor(TypeReference)` + V31-Repair gespeicherter Guards |
+| B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | 🔀 **PR #174 offen** (2026-10-24): Link, Proxy, Callback-Route + Refresh-Token, Fragment statt Query, `TW_BASE_URL`; E2E-Smoke grün |
+| B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | 🔀 **PR #170 offen** (2026-10-24): Spring-`ErrorResponse`-Status respektiert (404/405/400) |
+| B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | 🔀 **PR #172 offen** (2026-10-24): Dev-Profil auf lokales Postgres, H2 nur noch Test-Scope |
 | H4 | Jackson-3-Feinschliff: `asString()` im Webhook-Eingang, Mapper-Empfehlung im ai-guide | Hardening/Docs | ⏸️ Zurückgestellt — Deferred Minors aus dem M3-Final-Review |
+| H5 | Auth-Rate-Limit vertraut client-gesetztem `X-Forwarded-For` (umgehbar) bzw. teilt sich hinter nginx einen Bucket | Security/Hardening | 🆕 Neu (2026-10-24, Nebenbefund B5) — noch nicht umgesetzt |
 
 ## M1 — Dependency-/Base-Image-Wartung (Dependabot-Bündel)
 > ✅ **AUSGELIEFERT** (2026-07-18, Release **v1.0.14**). Reines Wartungsrelease,
@@ -344,7 +345,7 @@ möglich sein. Berührungspunkt: Rollen-/Rechte-Verwaltung aus #9
 serverseitig unterbinden) **und** UI (eigene Rolle nicht editierbar anzeigen).
 
 ## B2 — Read-only greift nicht: User können Tickets trotz Read-only ändern 🐞
-> Gemeldet 2026-07-11. Status: **⏸️ Zurückgestellt — bereits umgesetzt.**
+> Gemeldet 2026-07-11. Status: **🔀 PR #173 offen (2026-10-24)** — (a) Regressionstest + (b) Admin-Gating umgesetzt, s. u.
 > Zwei Fehldiagnosen unterwegs korrigiert (beide durch fehlerhafte Greps): (1) das
 > Backend blockt Read-only bereits — Reproduktion VIEWER `PATCH /issues/{id}` →
 > **403**, Titel unverändert (jeder Ticket-Write via `@PreAuthorize canWrite` bzw.
@@ -381,7 +382,8 @@ unten gepinnt / `<aside>` fixe Viewport-Höhe) – der Fix deckt diesen Fall (Si
 selbst höher als Viewport) offenbar noch nicht ab. Eigener UI-Bug-Zyklus.
 
 ## B4 — Transition-Guards: Issue über Transition mit Guards verschieben → 500 🐞
-> Gefunden 2026-10-21 im M3-Phase-2-Smoke, Status: **⏸️ Zurückgestellt (nächste Session)**. Schon in v1.0.20.
+> Gefunden 2026-10-21 im M3-Phase-2-Smoke, Status: **🔀 PR #171 offen (2026-10-24)**. Schon in v1.0.20.
+> Umsetzung wie skizziert: `writerFor`/`readValue(typeRef)`, Flyway **V31** repariert Altdaten, Charakterisierungstest umgedreht.
 
 `WorkflowService.updateGuards` schreibt `List<TransitionGuard>` per `mapper.writeValueAsString(guards)`.
 Durch Type-Erasure sieht Jackson nur eine `List<Object>` und schreibt den `type`-Diskriminator **nicht**
@@ -400,7 +402,10 @@ Fix-Skizze:
 - Kandidat für Frontend-Check: liest der Editor `type`?
 
 ## B5 — SSO über die Oberfläche nicht nutzbar 🐞
-> Gefunden 2026-10-21 im Pre-Release-Smoke für v1.0.21, Status: **⏸️ Zurückgestellt (nächste Session)**.
+> Gefunden 2026-10-21 im Pre-Release-Smoke für v1.0.21, Status: **🔀 PR #174 offen (2026-10-24)**.
+> Zusätzlich behoben: Refresh-Token wurde nie ausgeliefert; Tokens jetzt im URL-Fragment; Redirect-URI + Post-Login-Redirect
+> aus `TW_BASE_URL` (Tomcat macht relative Redirects aus dem Proxy-Request absolut); Fehlerpfade → `/login?sso=denied|failed`;
+> Admin → SSO zeigt die Redirect-URI. **Betreiber müssen `TW_BASE_URL` auf die öffentliche URL setzen.**
 > Schon in v1.0.20; der Backend-OIDC-Flow selbst ist ok (Authorization-Redirect mit PKCE/nonce, Code-Exchange,
 > id_token-Validierung, Auto-Provisioning, zweiter Login — gegen mock-oauth2-server unter v1.0.20 und v1.0.21 grün).
 
@@ -418,14 +423,15 @@ Testaufbau zum Wiederverwenden: `docker-compose.prod.yml` + Override mit `ghcr.i
 (JSON_CONFIG mit `email`/`name`/`aud`-Claims; Browser-Simulation mit `Host: mockoauth:8080`).
 
 ## B6 — Unbekannte Pfade liefern 500 statt 404 🐞
-> Nebenbefund M3 Phase 1 (2026-10-19), Status: **⏸️ Zurückgestellt**.
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **🔀 PR #170 offen (2026-10-24)** — inkl. 405 und Typ-Mismatch → 400.
 
 `GlobalExceptionHandler.handleGeneric(Exception)` fängt Springs `NoResourceFoundException` mit ab → z. B.
 `/v3/api-docs` in prod oder `/login/oauth2/authorization/{id}` (B5) liefern `500 INTERNAL_ERROR` statt 404.
 Fix: eigener Handler für `NoResourceFoundException`/`NoHandlerFoundException` → 404 mit keyed Message + Test.
 
 ## B7 — Dev-Profil mit H2 startet nicht 🐞
-> Nebenbefund M3 Phase 1 (2026-10-19), Status: **⏸️ Zurückgestellt**.
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **🔀 PR #172 offen (2026-10-24)** — Option 1 umgesetzt (Dev auf Postgres via
+> `docker-compose.dev.yml`, H2 + Console aus dem Prod-Classpath, `bootRun` startet mit `dev`).
 
 Ab V11 nutzen die Flyway-Migrationen `gen_random_uuid()`, das H2 (auch schon 2.3.232 unter Boot 3) nicht kennt.
 Lokal gegen Postgres entwickeln (`--spring.datasource.url=jdbc:postgresql://…`). Optionen: Dev-Profil auf
@@ -443,3 +449,15 @@ Postgres (Testcontainers/Docker) umstellen und H2 + `spring-boot-h2console` entf
   `JsonMapper.builderWithJackson2Defaults()`, wo keine Injection möglich ist (JPA-Converter).
 - Optional: Feature-Assertion in `JsonWireFormatGuardIntegrationTest` um `EnumFeature.WRITE_ENUMS_USING_TO_STRING`/
   `READ_ENUMS_USING_TO_STRING` und `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS` erweitern.
+
+## H5 — Auth-Rate-Limit: Client-IP aus ungeprüftem `X-Forwarded-For`
+> Nebenbefund beim B5-Sichten (2026-10-24), Status: **🆕 Neu — noch nicht umgesetzt**.
+
+`AuthRateLimitFilter` nimmt den **ersten** Wert von `X-Forwarded-For`, sonst `remoteAddr`. `docker/nginx.conf` setzt
+den Header nicht, d. h. (1) ein Angreifer setzt pro Request einen anderen `X-Forwarded-For` und umgeht das
+Login-/Register-Rate-Limit (Brute-Force); (2) ohne Header sehen alle Clients die nginx-IP → ein einzelner Client kann
+den gemeinsamen Bucket ausschöpfen und Logins für alle blockieren.
+Fix-Skizze: nginx `proxy_set_header X-Real-IP $remote_addr` (schon da) bzw. `X-Forwarded-For $remote_addr`
+(überschreiben statt anhängen) und im Filter nur dem vom eigenen Proxy gesetzten Header trauen (oder
+`server.forward-headers-strategy` + `RemoteIpValve` mit `internal-proxies`); Test mit gefälschtem Header.
+Nebenbei: die 429-Message ist hart englisch (nicht keyed).
