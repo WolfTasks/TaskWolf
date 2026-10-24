@@ -63,11 +63,12 @@ verwundbaren npm-Paketen die nächste Stufe erreicht.
 
 ### CodeQL (Workflow: `codeql.yml`)
 
-GitHub CodeQL analysiert **Java/Kotlin** (Autobuild) und **JavaScript/TypeScript**
-(kein separater Build nötig). Der Workflow läuft bei jedem Push und PR auf `main`
+GitHub CodeQL analysiert **Java/Kotlin** (manueller Build: `./gradlew compileTestKotlin`) und
+**JavaScript/TypeScript** (kein separater Build nötig). Der Workflow läuft bei jedem Push und PR auf `main`
 sowie wöchentlich montags um 03:30 UTC. Findings werden als Code-Scanning-Alerts
-im Security-Tab angezeigt. CodeQL blockt den Build nicht direkt, ist jedoch als
-Required Status Check konfigurierbar.
+im Security-Tab angezeigt. Beide `analyze`-Checks sind Required Status Checks der `main`-Ruleset; ein
+Fehlschlag (z. B. eine Kotlin-Version, die der CodeQL-Extractor noch nicht kennt) blockt den Merge.
+Dann `github/codeql-action` aktualisieren statt den Check abzuschwächen (vgl. Issue #26).
 
 ### gitleaks
 
