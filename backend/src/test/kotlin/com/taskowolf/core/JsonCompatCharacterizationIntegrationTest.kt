@@ -43,16 +43,12 @@ class JsonCompatCharacterizationIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `transition guards serialize exactly as WorkflowService writes them today`() {
+    fun `transition guards serialize exactly as WorkflowService writes them`() {
         val guards: List<TransitionGuard> =
             listOf(RequiredFieldGuard("assigneeId"), RoleRestrictionGuard(listOf("ADMIN", "MEMBER")))
-        // Characterizes the current write path (WorkflowService.updateGuards): the List's element type is
-        // erased at runtime, so the "type" discriminator is NOT written. Pre-existing bug, tracked separately;
-        // the Jackson 3 switch must not change this output.
-        assertEquals(
-            """[{"field":"assigneeId"},{"roles":["ADMIN","MEMBER"]}]""",
-            objectMapper.writeValueAsString(guards)
-        )
+        // Mirrors WorkflowService.updateGuards: writerFor keeps the "type" discriminator that a plain
+        // writeValueAsString(list) drops because of type erasure (B4).
+        assertEquals(storedGuards, objectMapper.writerFor(guardListType).writeValueAsString(guards))
     }
 
     private fun token(email: String): String =
