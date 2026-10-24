@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.MapperFeature
 import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.databind.cfg.EnumFeature
 
 /**
  * M3 guard: HTTP and STOMP JSON must be written by the Jackson 3 converters
@@ -98,5 +99,9 @@ class JsonWireFormatGuardIntegrationTest : IntegrationTestBase() {
         assertFalse(objectMapper.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS), "trailing tokens must stay lenient")
         assertFalse(objectMapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES), "unknown properties must be ignored")
         assertFalse(objectMapper.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS), "dates must be ISO strings")
+        assertFalse(objectMapper.isEnabled(EnumFeature.WRITE_ENUMS_USING_TO_STRING), "enums must be written by name()")
+        assertFalse(objectMapper.isEnabled(EnumFeature.READ_ENUMS_USING_TO_STRING), "enums must be read by name()")
+        // Spring Boot 3's Jackson2ObjectMapperBuilder also disabled this, so durations were already ISO-8601 (PT1H)
+        assertFalse(objectMapper.isEnabled(DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS), "durations must be ISO-8601 strings")
     }
 }

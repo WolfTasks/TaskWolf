@@ -109,4 +109,26 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
             .andExpect(jsonPath("$.refs[0].refType").value("COMMIT"))
     }
 
+    // H4: Jackson 3's no-arg asString() throws on object/array nodes; a signed but odd payload must not 500.
+    @Test
+    fun `signed payloads with null, object or array fields are accepted`() {
+        val token = registerAndLogin("gh4@test.com")
+        createProject(token, "GH4")
+        val secret = setupGitHubIntegration(token, "GH4")
+
+        val payloads = listOf(
+            """{"ref":"refs/heads/main","commits":[{"id":{"sha":"x"},"message":{"text":"GH4-1"},"url":["u"]}]}""",
+            """{"number":7,"pull_request":{"title":null,"body":{"x":1},"html_url":"https://example.com/pr/7"}}""",
+            """{"number":[1],"pull_request":{"title":{"t":"GH4-1"},"body":null,"html_url":null}}"""
+        )
+        for (payload in payloads) {
+            mockMvc.perform(
+                post("/api/v1/integrations/github/GH4/webhook")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload)
+                    .header("X-Hub-Signature-256", hmacSigner.sign(payload, secret))
+            ).andExpect(status().isOk)
+        }
+    }
+
 }
