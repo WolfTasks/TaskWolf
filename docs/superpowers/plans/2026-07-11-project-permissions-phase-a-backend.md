@@ -1188,7 +1188,7 @@ git commit -m "feat(users): user search endpoint for member add dialog (#9)"
 ## Task 7: Full backend regression + backlog note
 
 **Files:**
-- Modify: `docs/superpowers/specs/2026-07-07-backlog-overview.md` (Status #9)
+- Modify: `docs/superpowers/backlog-overview.md` (Status #9)
 
 - [ ] **Step 1: Run the whole backend test suite**
 
@@ -1197,13 +1197,13 @@ Expected: BUILD SUCCESSFUL. If anything fails, fix before proceeding — do not 
 
 - [ ] **Step 2: Update the backlog status line for #9**
 
-In `docs/superpowers/specs/2026-07-07-backlog-overview.md`, change the #9 table row status from `Backlog` to note Phase A backend done, e.g.:
+In `docs/superpowers/backlog-overview.md`, change the #9 table row status from `Backlog` to note Phase A backend done, e.g.:
 `| 9 | User-Rechte-Verwaltung (Projekt-/Org-Freischaltung + Rollen) | Full-Stack | Phase A (Backend) fertig — B/C (Frontend) offen |`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-07-07-backlog-overview.md
+git add docs/superpowers/backlog-overview.md
 git commit -m "docs(backlog): #9 Phase A backend complete"
 ```
 

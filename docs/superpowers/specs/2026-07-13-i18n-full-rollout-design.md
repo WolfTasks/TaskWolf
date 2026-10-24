@@ -155,7 +155,7 @@ Session 0 liefert **nur Werkzeuge + Doku**, noch keine Feature-Extraktion:
    CI bleibt grün.
 2. **Diese Master-Spec** (`2026-07-13-i18n-full-rollout-design.md`) mit der lebenden
    Coverage-Matrix.
-3. **Backlog-Korrekturen** in `docs/superpowers/specs/2026-07-07-backlog-overview.md`:
+3. **Backlog-Korrekturen** in `docs/superpowers/backlog-overview.md`:
    - **#13** von „🔀 PR #57 offen, nicht gemergt" auf „✅ Fundament+Pilot **gemergt**
      (`0b9b817`, PR #57; noch nicht released)" korrigieren.
    - Neuer Sammel-Eintrag **#15 — i18n Full-Rollout** (dieses Vorhaben), verlinkt auf

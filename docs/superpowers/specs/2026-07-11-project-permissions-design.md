@@ -1,6 +1,6 @@
 # #9 — Projekt-Rechte-Verwaltung (Member-Management + Rollen-Durchsetzung)
 
-> Spec, 2026-07-11. Backlog-Item #9 aus `2026-07-07-backlog-overview.md`.
+> Spec, 2026-07-11. Backlog-Item #9 aus `backlog-overview.md`.
 > **Scope-Entscheid:** nur **Projekte** (Orgs haben bereits Member-Management
 > `OWNER/ADMIN/MEMBER` + UI → eigener Folge-Zyklus).
 

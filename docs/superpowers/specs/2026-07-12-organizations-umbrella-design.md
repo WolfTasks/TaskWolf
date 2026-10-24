@@ -1,7 +1,7 @@
 # Organisationen als Oberkategorie — Projekt-/Member-Zuordnung & Rechte-Vererbung
 
 > Design-Spec, 2026-07-12. Backlog-Eintrag **#14** (siehe
-> `2026-07-07-backlog-overview.md`). Nachfolge-Zyklus zu #9 (Projekt-Permissions),
+> `backlog-overview.md`). Nachfolge-Zyklus zu #9 (Projekt-Permissions),
 > der bewusst „nur Projekte" scoped hatte, weil Orgs einen eigenen Zyklus bekommen.
 
 ## 1. Ziel

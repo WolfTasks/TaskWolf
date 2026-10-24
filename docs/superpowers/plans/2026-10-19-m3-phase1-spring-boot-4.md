@@ -45,7 +45,7 @@
 | `backend/src/test/kotlin/com/taskowolf/core/FlywayMigrationsAppliedIntegrationTest.kt` | Create | Guard gegen die Flyway-Starter-Falle |
 | `backend/src/test/kotlin/com/taskowolf/core/JsonWireFormatGuardIntegrationTest.kt` | Create | Guard: Jackson 2 aktiv + Draht-Format |
 | `.trivyignore` | Modify | zwei Spring-Einträge entfernen |
-| `docs/superpowers/specs/2026-07-07-backlog-overview.md` | Modify | M3-Status |
+| `docs/superpowers/backlog-overview.md` | Modify | M3-Status |
 | `mkdocs/developer-guide/ai-guide.md` | Modify | Boot-4-Patterns, Flyway-Stand V30 |
 
 ---
@@ -575,7 +575,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 6: Doku
 
 **Files:**
-- Modify: `docs/superpowers/specs/2026-07-07-backlog-overview.md`
+- Modify: `docs/superpowers/backlog-overview.md`
 - Modify: `mkdocs/developer-guide/ai-guide.md`
 
 **Interfaces:**
@@ -613,7 +613,7 @@ In `mkdocs/developer-guide/ai-guide.md`:
 - [ ] **Step 3: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-07-07-backlog-overview.md mkdocs/developer-guide/ai-guide.md
+git add docs/superpowers/backlog-overview.md mkdocs/developer-guide/ai-guide.md
 git commit -m "docs(m3): Phase 1 status and Spring Boot 4 conventions in ai-guide
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
