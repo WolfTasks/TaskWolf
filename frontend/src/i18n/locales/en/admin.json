@@ -56,6 +56,7 @@
     "autoProvisionUsers": "Auto-provision users",
     "autoProvisionBadge": "Auto-provision",
     "configuredProviders": "Configured Providers",
-    "noProviders": "No SSO providers configured."
+    "noProviders": "No SSO providers configured.",
+    "redirectUri": "Redirect URI (register in your IdP)"
   }
 }

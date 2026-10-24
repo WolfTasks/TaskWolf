@@ -56,6 +56,7 @@
     "autoProvisionUsers": "Benutzer automatisch bereitstellen",
     "autoProvisionBadge": "Auto-Provisioning",
     "configuredProviders": "Konfigurierte Anbieter",
-    "noProviders": "Keine SSO-Anbieter konfiguriert."
+    "noProviders": "Keine SSO-Anbieter konfiguriert.",
+    "redirectUri": "Redirect-URI (im IdP eintragen)"
   }
 }
