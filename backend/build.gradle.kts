@@ -65,15 +65,14 @@ dependencies {
     // untrusted JWT headers/claims should not go through Jackson 2. Token format is unchanged
     // (guard: JwtServiceTest fixture token issued with jjwt-jackson).
     runtimeOnly("io.jsonwebtoken:jjwt-gson:0.13.0")
-    runtimeOnly("com.h2database:h2")
-    // Boot 4 moved the H2 web console (dev profile, /h2-console) into its own module.
-    runtimeOnly("org.springframework.boot:spring-boot-h2console")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("org.springframework.security:spring-security-test")
+    // H2 only backs the @DataJpaTest slices (Flyway off); the app itself runs on PostgreSQL, the dev profile too (B7).
+    testRuntimeOnly("com.h2database:h2")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")
     testImplementation("io.mockk:mockk:1.14.11")
@@ -110,4 +109,10 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// `./gradlew bootRun` starts with the dev profile (local PostgreSQL from docker-compose.dev.yml) unless
+// SPRING_PROFILES_ACTIVE says otherwise.
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    if (System.getenv("SPRING_PROFILES_ACTIVE") == null) systemProperty("spring.profiles.active", "dev")
 }

@@ -44,7 +44,6 @@ class SecurityConfig(
                     "/api/v1/projects/*/service-desk/tickets",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
-                    "/h2-console/**",
                     "/ws/**",
                     "/ws-stomp/**",
                     "/login/oauth2/**",
@@ -54,7 +53,6 @@ class SecurityConfig(
                 it.requestMatchers("/api/v1/auth/switch-org/**").authenticated()
                 it.anyRequest().authenticated()
             }
-            .headers { it.frameOptions { fo -> fo.disable() } }
             .oauth2Login { oauth2 ->
                 oauth2
                     .clientRegistrationRepository(dbClientRegistrationRepository)

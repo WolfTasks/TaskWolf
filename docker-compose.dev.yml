@@ -1,8 +1,35 @@
+# Local development. Database only (for `./gradlew bootRun` + `npm run dev`):
+#   docker compose -f docker-compose.dev.yml up -d db
+# Backend in a container as well:
+#   docker compose -f docker-compose.dev.yml up --build
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: taskowolf
+      POSTGRES_USER: taskowolf
+      POSTGRES_PASSWORD: taskowolf
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskowolf -d taskowolf"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   app:
     build: ./backend
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      TW_DB_URL: jdbc:postgresql://db:5432/taskowolf
       TW_JWT_SECRET: dev-secret-change-in-production-min-256-bits
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  dev-pgdata:
