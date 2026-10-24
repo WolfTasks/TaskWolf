@@ -28,12 +28,12 @@
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | B1 | User können ihre eigene Rolle ändern | Bug | ✅ **AUSGELIEFERT** (PR #53, Release v1.0.11) |
-| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | 🔀 **PR #173 offen** (2026-10-24): Regressionstest VIEWER PATCH/DELETE → 403 + Admin-only-Konfigseiten clientseitig auf `isAdmin` gegated |
+| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | ✅ **GEMERGT** (PR #173, 2026-10-24, noch nicht released): Regressionstest VIEWER PATCH/DELETE → 403 + Admin-only-Konfigseiten clientseitig auf `isAdmin` gegated |
 | B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
-| B4 | Transition-Guards: Issue über Transition mit Guards verschieben → 500 | Bug/Backend | 🔀 **PR #171 offen** (2026-10-24): `writerFor(TypeReference)` + V31-Repair gespeicherter Guards |
-| B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | 🔀 **PR #174 offen** (2026-10-24): Link, Proxy, Callback-Route + Refresh-Token, Fragment statt Query, `TW_BASE_URL`; E2E-Smoke grün |
-| B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | 🔀 **PR #170 offen** (2026-10-24): Spring-`ErrorResponse`-Status respektiert (404/405/400) |
-| B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | 🔀 **PR #172 offen** (2026-10-24): Dev-Profil auf lokales Postgres, H2 nur noch Test-Scope |
+| B4 | Transition-Guards: Issue über Transition mit Guards verschieben → 500 | Bug/Backend | ✅ **GEMERGT** (PR #171, 2026-10-24, noch nicht released): `writerFor(TypeReference)` + V31-Repair gespeicherter Guards |
+| B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | ✅ **GEMERGT** (PR #174, 2026-10-24, noch nicht released): Link, Proxy, Callback-Route + Refresh-Token, Fragment statt Query, `TW_BASE_URL`; E2E-Smoke grün |
+| B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | ✅ **GEMERGT** (PR #170, 2026-10-24, noch nicht released): Spring-`ErrorResponse`-Status respektiert (404/405/400) |
+| B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | ✅ **GEMERGT** (PR #172, 2026-10-24, noch nicht released): Dev-Profil auf lokales Postgres, H2 nur noch Test-Scope |
 | H4 | Jackson-3-Feinschliff: `asString()` im Webhook-Eingang, Mapper-Empfehlung im ai-guide | Hardening/Docs | ⏸️ Zurückgestellt — Deferred Minors aus dem M3-Final-Review |
 | H5 | Auth-Rate-Limit vertraut client-gesetztem `X-Forwarded-For` (umgehbar) bzw. teilt sich hinter nginx einen Bucket | Security/Hardening | 🆕 Neu (2026-10-24, Nebenbefund B5) — noch nicht umgesetzt |
 
@@ -345,7 +345,7 @@ möglich sein. Berührungspunkt: Rollen-/Rechte-Verwaltung aus #9
 serverseitig unterbinden) **und** UI (eigene Rolle nicht editierbar anzeigen).
 
 ## B2 — Read-only greift nicht: User können Tickets trotz Read-only ändern 🐞
-> Gemeldet 2026-07-11. Status: **🔀 PR #173 offen (2026-10-24)** — (a) Regressionstest + (b) Admin-Gating umgesetzt, s. u.
+> Gemeldet 2026-07-11. Status: **✅ GEMERGT (PR #173, 2026-10-24, noch nicht released)** — (a) Regressionstest + (b) Admin-Gating umgesetzt, s. u.
 > Zwei Fehldiagnosen unterwegs korrigiert (beide durch fehlerhafte Greps): (1) das
 > Backend blockt Read-only bereits — Reproduktion VIEWER `PATCH /issues/{id}` →
 > **403**, Titel unverändert (jeder Ticket-Write via `@PreAuthorize canWrite` bzw.
@@ -382,7 +382,7 @@ unten gepinnt / `<aside>` fixe Viewport-Höhe) – der Fix deckt diesen Fall (Si
 selbst höher als Viewport) offenbar noch nicht ab. Eigener UI-Bug-Zyklus.
 
 ## B4 — Transition-Guards: Issue über Transition mit Guards verschieben → 500 🐞
-> Gefunden 2026-10-21 im M3-Phase-2-Smoke, Status: **🔀 PR #171 offen (2026-10-24)**. Schon in v1.0.20.
+> Gefunden 2026-10-21 im M3-Phase-2-Smoke, Status: **✅ GEMERGT (PR #171, 2026-10-24, noch nicht released)**. Schon in v1.0.20.
 > Umsetzung wie skizziert: `writerFor`/`readValue(typeRef)`, Flyway **V31** repariert Altdaten, Charakterisierungstest umgedreht.
 
 `WorkflowService.updateGuards` schreibt `List<TransitionGuard>` per `mapper.writeValueAsString(guards)`.
@@ -402,7 +402,7 @@ Fix-Skizze:
 - Kandidat für Frontend-Check: liest der Editor `type`?
 
 ## B5 — SSO über die Oberfläche nicht nutzbar 🐞
-> Gefunden 2026-10-21 im Pre-Release-Smoke für v1.0.21, Status: **🔀 PR #174 offen (2026-10-24)**.
+> Gefunden 2026-10-21 im Pre-Release-Smoke für v1.0.21, Status: **✅ GEMERGT (PR #174, 2026-10-24, noch nicht released)**.
 > Zusätzlich behoben: Refresh-Token wurde nie ausgeliefert; Tokens jetzt im URL-Fragment; Redirect-URI + Post-Login-Redirect
 > aus `TW_BASE_URL` (Tomcat macht relative Redirects aus dem Proxy-Request absolut); Fehlerpfade → `/login?sso=denied|failed`;
 > Admin → SSO zeigt die Redirect-URI. **Betreiber müssen `TW_BASE_URL` auf die öffentliche URL setzen.**
@@ -423,14 +423,14 @@ Testaufbau zum Wiederverwenden: `docker-compose.prod.yml` + Override mit `ghcr.i
 (JSON_CONFIG mit `email`/`name`/`aud`-Claims; Browser-Simulation mit `Host: mockoauth:8080`).
 
 ## B6 — Unbekannte Pfade liefern 500 statt 404 🐞
-> Nebenbefund M3 Phase 1 (2026-10-19), Status: **🔀 PR #170 offen (2026-10-24)** — inkl. 405 und Typ-Mismatch → 400.
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **✅ GEMERGT (PR #170, 2026-10-24, noch nicht released)** — inkl. 405 und Typ-Mismatch → 400.
 
 `GlobalExceptionHandler.handleGeneric(Exception)` fängt Springs `NoResourceFoundException` mit ab → z. B.
 `/v3/api-docs` in prod oder `/login/oauth2/authorization/{id}` (B5) liefern `500 INTERNAL_ERROR` statt 404.
 Fix: eigener Handler für `NoResourceFoundException`/`NoHandlerFoundException` → 404 mit keyed Message + Test.
 
 ## B7 — Dev-Profil mit H2 startet nicht 🐞
-> Nebenbefund M3 Phase 1 (2026-10-19), Status: **🔀 PR #172 offen (2026-10-24)** — Option 1 umgesetzt (Dev auf Postgres via
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **✅ GEMERGT (PR #172, 2026-10-24, noch nicht released)** — Option 1 umgesetzt (Dev auf Postgres via
 > `docker-compose.dev.yml`, H2 + Console aus dem Prod-Classpath, `bootRun` startet mit `dev`).
 
 Ab V11 nutzen die Flyway-Migrationen `gen_random_uuid()`, das H2 (auch schon 2.3.232 unter Boot 3) nicht kennt.
