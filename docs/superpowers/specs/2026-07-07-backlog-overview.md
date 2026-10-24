@@ -34,9 +34,9 @@
 | B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | ✅ **GEMERGT** (PR #174, 2026-10-24, noch nicht released): Link, Proxy, Callback-Route + Refresh-Token, Fragment statt Query, `TW_BASE_URL`; E2E-Smoke grün |
 | B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | ✅ **GEMERGT** (PR #170, 2026-10-24, noch nicht released): Spring-`ErrorResponse`-Status respektiert (404/405/400) |
 | B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | ✅ **GEMERGT** (PR #172, 2026-10-24, noch nicht released): Dev-Profil auf lokales Postgres, H2 nur noch Test-Scope |
-| H4 | Jackson-3-Feinschliff: `asString()` im Webhook-Eingang, Mapper-Empfehlung im ai-guide | Hardening/Docs | 🔀 **PR #178 offen** (2026-10-24): Webhook-`asString("")` (500 belegt), `builderWithJackson2Defaults`, ai-guide, Guard-Asserts |
-| H5 | Auth-Rate-Limit vertraut client-gesetztem `X-Forwarded-For` (umgehbar) bzw. teilt sich hinter nginx einen Bucket | Security/Hardening | 🔀 **PR #177 offen** (2026-10-24): XFF ignoriert, `X-Real-IP` nur von privatem Peer, 429 keyed |
-| H6 | Prod-Compose veröffentlicht Postgres auf `5432:5432` (alle Interfaces) | Security/Ops | 🆕 Neu (2026-10-24, Nebenbefund H5) — noch nicht umgesetzt |
+| H4 | Jackson-3-Feinschliff: `asString()` im Webhook-Eingang, Mapper-Empfehlung im ai-guide | Hardening/Docs | ✅ **GEMERGT** (PR #178, 2026-10-24, noch nicht released): Webhook-`asString("")` (500 belegt), `builderWithJackson2Defaults`, ai-guide, Guard-Asserts |
+| H5 | Auth-Rate-Limit vertraut client-gesetztem `X-Forwarded-For` (umgehbar) bzw. teilt sich hinter nginx einen Bucket | Security/Hardening | ✅ **GEMERGT** (PR #177, 2026-10-24, noch nicht released): XFF ignoriert, `X-Real-IP` nur von privatem Peer, 429 keyed |
+| H6 | Prod-Compose veröffentlicht Postgres auf `5432:5432` (alle Interfaces) | Security/Ops | ✅ **UMGESETZT** (2026-10-24): prod + dev binden Postgres nur noch an `127.0.0.1` |
 
 ## M1 — Dependency-/Base-Image-Wartung (Dependabot-Bündel)
 > ✅ **AUSGELIEFERT** (2026-07-18, Release **v1.0.14**). Reines Wartungsrelease,
@@ -439,7 +439,7 @@ Lokal gegen Postgres entwickeln (`--spring.datasource.url=jdbc:postgresql://…`
 Postgres (Testcontainers/Docker) umstellen und H2 + `spring-boot-h2console` entfernen, oder H2-Alias-Funktion.
 
 ## H4 — Jackson-3-Feinschliff (Deferred Minors aus dem M3-Final-Review)
-> Status: **🔀 PR #178 offen (2026-10-24)**. Der 500 im Webhook-Eingang war real (`JsonNodeException`, per Test belegt).
+> Status: **✅ GEMERGT (PR #178, 2026-10-24, noch nicht released)**. Der 500 im Webhook-Eingang war real (`JsonNodeException`, per Test belegt).
 > Durations: Boot 3 schrieb sie schon als ISO-8601 → Guard pinnt `WRITE_DURATIONS_AS_TIMESTAMPS=false`.
 
 - `IncomingWebhookService` (Zeilen ~73–108): `JsonNode.asString()` ohne Default **wirft** unter Jackson 3 bei
@@ -453,7 +453,7 @@ Postgres (Testcontainers/Docker) umstellen und H2 + `spring-boot-h2console` entf
   `READ_ENUMS_USING_TO_STRING` und `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS` erweitern.
 
 ## H5 — Auth-Rate-Limit: Client-IP aus ungeprüftem `X-Forwarded-For`
-> Nebenbefund beim B5-Sichten (2026-10-24), Status: **🔀 PR #177 offen (2026-10-24)** — nginx unverändert (setzt `X-Real-IP` bereits).
+> Nebenbefund beim B5-Sichten (2026-10-24), Status: **✅ GEMERGT (PR #177, 2026-10-24, noch nicht released)** — nginx unverändert (setzt `X-Real-IP` bereits).
 
 `AuthRateLimitFilter` nimmt den **ersten** Wert von `X-Forwarded-For`, sonst `remoteAddr`. `docker/nginx.conf` setzt
 den Header nicht, d. h. (1) ein Angreifer setzt pro Request einen anderen `X-Forwarded-For` und umgeht das
@@ -465,7 +465,8 @@ Fix-Skizze: nginx `proxy_set_header X-Real-IP $remote_addr` (schon da) bzw. `X-F
 Nebenbei: die 429-Message ist hart englisch (nicht keyed).
 
 ## H6 — Prod-Compose veröffentlicht Postgres auf allen Interfaces
-> Nebenbefund beim H5-Sichten (2026-10-24), Status: **🆕 Neu — noch nicht umgesetzt**.
+> Nebenbefund beim H5-Sichten (2026-10-24), Status: **✅ UMGESETZT (2026-10-24)** — `127.0.0.1:5432:5432` in
+> `docker-compose.prod.yml` und `docker-compose.dev.yml`; `getting-started.md`: SSH-Tunnel statt Port-Freigabe.
 
 `docker-compose.prod.yml` mappt den `db`-Service mit `ports: - "5432:5432"`. Docker bindet das an `0.0.0.0` und
 umgeht dabei typischerweise Host-Firewalls (ufw/iptables-INPUT); die Datenbank ist damit aus dem Netz erreichbar,
