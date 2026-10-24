@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router'
 import { useAutomationRules, useToggleRule, useDeleteRule } from '../../hooks/useAutomation'
 import { useTranslation } from 'react-i18next'
+import { useProjectRole } from '@/hooks/useProjectRole'
 
 export function AutomationPage() {
   const { t } = useTranslation('automation')
@@ -9,6 +10,7 @@ export function AutomationPage() {
   const toggle = useToggleRule(key!)
   const remove = useDeleteRule(key!)
   const navigate = useNavigate()
+  const { isAdmin } = useProjectRole(key!)
 
   if (isLoading) return <div className="p-6 text-zinc-400">{t('loading')}</div>
 
@@ -16,12 +18,14 @@ export function AutomationPage() {
     <div className="p-6 max-w-3xl mx-auto flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-zinc-100">{t('title')}</h1>
-        <button
-          onClick={() => navigate(`/p/${key}/automation/new`)}
-          className="bg-indigo-600 text-white text-sm rounded-lg px-4 py-2 hover:bg-indigo-500"
-        >
-          + {t('newRule')}
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => navigate(`/p/${key}/automation/new`)}
+            className="bg-indigo-600 text-white text-sm rounded-lg px-4 py-2 hover:bg-indigo-500"
+          >
+            + {t('newRule')}
+          </button>
+        )}
       </div>
       {(!data?.content || data.content.length === 0) && (
         <div className="text-zinc-400 text-sm text-center py-12 border border-dashed border-zinc-700 rounded-xl">
@@ -36,15 +40,20 @@ export function AutomationPage() {
           </div>
           <button
             onClick={() => toggle.mutate(rule.id)}
-            className={`text-xs rounded-full px-3 py-1 font-medium transition-colors
+            disabled={!isAdmin}
+            className={`text-xs rounded-full px-3 py-1 font-medium transition-colors disabled:cursor-default
               ${rule.enabled ? 'bg-emerald-900/50 text-emerald-300' : 'bg-zinc-800 text-zinc-500'}`}
           >
             {rule.enabled ? t('active') : t('inactive')}
           </button>
-          {/* i18n-ignore: icon glyph, not translated */}
-          <button onClick={() => navigate(`/p/${key}/automation/${rule.id}/edit`)} className="text-xs text-zinc-400 hover:text-zinc-200 px-2">&#x270E;</button>
-          {/* i18n-ignore: icon glyph, not translated */}
-          <button onClick={() => remove.mutate(rule.id)} className="text-xs text-zinc-500 hover:text-red-400 px-2">&#x2715;</button>
+          {isAdmin && (
+            <>
+              {/* i18n-ignore: icon glyph, not translated */}
+              <button onClick={() => navigate(`/p/${key}/automation/${rule.id}/edit`)} className="text-xs text-zinc-400 hover:text-zinc-200 px-2">&#x270E;</button>
+              {/* i18n-ignore: icon glyph, not translated */}
+              <button onClick={() => remove.mutate(rule.id)} className="text-xs text-zinc-500 hover:text-red-400 px-2">&#x2715;</button>
+            </>
+          )}
         </div>
       ))}
     </div>

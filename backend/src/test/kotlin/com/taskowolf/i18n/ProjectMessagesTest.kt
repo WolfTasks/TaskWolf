@@ -9,8 +9,8 @@ class ProjectMessagesTest {
     private val src = ResourceBundleMessageSource().apply {
         setBasename("messages"); setDefaultEncoding("UTF-8"); setFallbackToSystemLocale(false)
     }
-    private fun en(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.ENGLISH)
-    private fun de(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.GERMAN)
+    private fun en(key: String, vararg a: Any) = src.getMessage(key, a, Locale.ENGLISH)
+    private fun de(key: String, vararg a: Any) = src.getMessage(key, a, Locale.GERMAN)
 
     @Test fun `project keys render en and de`() {
         assertEquals("Project not found: DEMO", en("project.notFound", "DEMO"))

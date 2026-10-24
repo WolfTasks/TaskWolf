@@ -1,6 +1,6 @@
 package com.taskowolf.automation
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import com.taskowolf.automation.application.*
 import com.taskowolf.automation.domain.*
 import com.taskowolf.automation.domain.events.AutomationFiredEvent

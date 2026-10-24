@@ -1,7 +1,7 @@
 package com.taskowolf.workflows.application
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.auth.domain.User
 import com.taskowolf.core.infrastructure.BadRequestException
 import com.taskowolf.core.infrastructure.NotFoundException
@@ -82,7 +82,7 @@ class WorkflowService(
         ) ?: throw BadRequestException.keyed("workflow.transitionNotAllowed", issue.status.name, toStatusId)
 
         val guards: List<TransitionGuard> = transition.guards
-            ?.let { mapper.readValue(it) } ?: emptyList()
+            ?.let { mapper.readValue(it, guardListType) } ?: emptyList()
 
         val issueMap = mapOf(
             "title" to issue.title,
@@ -159,7 +159,8 @@ class WorkflowService(
     fun updateGuards(transitionId: UUID, guards: List<TransitionGuard>): WorkflowTransition {
         val transition = transitionRepository.findById(transitionId)
             .orElseThrow { NotFoundException.keyed("workflow.transitionNotFound", transitionId) }
-        transition.guards = mapper.writeValueAsString(guards)
+        // writerFor: the List's element type is erased at runtime; without it the "type" discriminator is lost
+        transition.guards = mapper.writerFor(guardListType).writeValueAsString(guards)
         return transitionRepository.save(transition)
     }
 
@@ -179,6 +180,8 @@ class WorkflowService(
     fun getLayout(workflowId: UUID): List<WorkflowStatusPosition> =
         positionRepository.findByIdWorkflowId(workflowId)
 }
+
+private val guardListType = object : TypeReference<List<TransitionGuard>>() {}
 
 data class StatusPositionInput(val statusId: UUID, val x: Int, val y: Int)
 

@@ -1,7 +1,7 @@
 package com.taskowolf.automation.application
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import com.taskowolf.automation.domain.TriggerType
 import com.taskowolf.automation.domain.events.AutomationFiredEvent
 import com.taskowolf.automation.infrastructure.AutomationRuleRepository

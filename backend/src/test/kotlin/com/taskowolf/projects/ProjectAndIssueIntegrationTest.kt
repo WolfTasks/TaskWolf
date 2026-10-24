@@ -1,6 +1,6 @@
 package com.taskowolf.projects
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +24,7 @@ class ProjectAndIssueIntegrationTest : IntegrationTestBase() {
                 .content("""{"email":"$email","displayName":"Test","password":"password123"}""")
         ).andReturn()
         val body = objectMapper.readTree(result.response.contentAsString)
-        return body.get("accessToken").asText()
+        return body.get("accessToken").asString()
     }
 
     @Test

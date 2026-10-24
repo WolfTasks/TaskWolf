@@ -9,8 +9,8 @@ class OrganizationMessagesTest {
     private val src = ResourceBundleMessageSource().apply {
         setBasename("messages"); setDefaultEncoding("UTF-8"); setFallbackToSystemLocale(false)
     }
-    private fun en(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.ENGLISH)
-    private fun de(key: String, vararg a: Any?) = src.getMessage(key, a, Locale.GERMAN)
+    private fun en(key: String, vararg a: Any) = src.getMessage(key, a, Locale.ENGLISH)
+    private fun de(key: String, vararg a: Any) = src.getMessage(key, a, Locale.GERMAN)
 
     @Test fun `org and automation keys render en and de`() {
         assertEquals("Only an owner or system admin can grant the OWNER role", en("org.ownerRoleGrantRestricted"))

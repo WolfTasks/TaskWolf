@@ -27,6 +27,13 @@ Edit `.env` — the only **required** variable is `TW_JWT_SECRET`. Generate a se
 openssl rand -hex 32
 ```
 
+Also set `TW_DB_PASS` to a strong password, and `TW_BASE_URL` to the URL users open in the browser
+(e.g. `https://tasks.example.com`) — email links and SSO redirects are built from it.
+
+The PostgreSQL port is published on `127.0.0.1:5432` only, so local tools (`psql`, `pg_dump`) on the host work,
+but the database is not reachable from the network. To reach it remotely, use an SSH tunnel
+(`ssh -L 5432:127.0.0.1:5432 <host>`) rather than publishing the port.
+
 ## 3. Start the stack
 
 ```bash

@@ -1,13 +1,10 @@
 spring:
+  # Local PostgreSQL: `docker compose -f docker-compose.dev.yml up -d db`. The migrations are
+  # PostgreSQL-only (gen_random_uuid(), jsonb), so there is no in-memory H2 fallback (B7).
   datasource:
-    url: jdbc:h2:mem:taskowolf;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: ${TW_DB_URL:jdbc:postgresql://localhost:5432/taskowolf}
+    username: ${TW_DB_USER:taskowolf}
+    password: ${TW_DB_PASS:taskowolf}
   jpa:
     show-sql: false
 
@@ -16,6 +13,8 @@ logging:
     com.taskowolf: DEBUG
 
 taskowolf:
+  # The browser talks to the Vite dev server, which proxies /api, /oauth2 and /login/oauth2 (SSO redirect URI).
+  base-url: ${TW_BASE_URL:http://localhost:5173}
   jwt:
     secret: ${TW_JWT_SECRET:dev-secret-change-in-production-min-256-bits}
   allowed-origins: "http://localhost:*"

@@ -1,23 +1,23 @@
 package com.taskowolf
 
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 abstract class IntegrationTestBase {
 
-    @MockBean
+    @MockitoBean
     protected lateinit var mailSender: JavaMailSender
 
     companion object {
         @JvmStatic
-        val postgres = PostgreSQLContainer<Nothing>("postgres:16-alpine").apply {
+        val postgres = PostgreSQLContainer("postgres:16-alpine").apply {
             withDatabaseName("taskowolf_test")
             withUsername("test")
             withPassword("test")

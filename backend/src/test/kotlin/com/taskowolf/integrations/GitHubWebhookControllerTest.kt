@@ -1,6 +1,6 @@
 package com.taskowolf.integrations
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import com.taskowolf.integrations.application.HmacSigner
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun createProject(token: String, key: String) {
@@ -41,7 +41,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"provider":"GITHUB"}""")
         ).andExpect(status().isCreated).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("plaintextSecret").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("plaintextSecret").asString()
     }
 
     @Test
@@ -88,7 +88,7 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"title":"Test Issue","type":"TASK","priority":"MEDIUM"}""")
         ).andReturn()
-        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asText()
+        val issueKey = objectMapper.readTree(issueResult.response.contentAsString).get("key").asString()
 
         val payload = """{"ref":"refs/heads/main","commits":[{"id":"def456","message":"fix $issueKey crash","url":"https://github.com/org/repo/commit/def456"}]}"""
         val sig = hmacSigner.sign(payload, secret)
@@ -107,6 +107,28 @@ class GitHubWebhookControllerTest : IntegrationTestBase() {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.refs[0].provider").value("GITHUB"))
             .andExpect(jsonPath("$.refs[0].refType").value("COMMIT"))
+    }
+
+    // H4: Jackson 3's no-arg asString() throws on object/array nodes; a signed but odd payload must not 500.
+    @Test
+    fun `signed payloads with null, object or array fields are accepted`() {
+        val token = registerAndLogin("gh4@test.com")
+        createProject(token, "GH4")
+        val secret = setupGitHubIntegration(token, "GH4")
+
+        val payloads = listOf(
+            """{"ref":"refs/heads/main","commits":[{"id":{"sha":"x"},"message":{"text":"GH4-1"},"url":["u"]}]}""",
+            """{"number":7,"pull_request":{"title":null,"body":{"x":1},"html_url":"https://example.com/pr/7"}}""",
+            """{"number":[1],"pull_request":{"title":{"t":"GH4-1"},"body":null,"html_url":null}}"""
+        )
+        for (payload in payloads) {
+            mockMvc.perform(
+                post("/api/v1/integrations/github/GH4/webhook")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload)
+                    .header("X-Hub-Signature-256", hmacSigner.sign(payload, secret))
+            ).andExpect(status().isOk)
+        }
     }
 
 }

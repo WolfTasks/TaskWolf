@@ -14,7 +14,7 @@ class BoardEventPublisher(private val messagingTemplate: SimpMessagingTemplate) 
     fun onIssueStatusChanged(event: IssueStatusChangedEvent) {
         messagingTemplate.convertAndSend(
             "/topic/projects/${event.issue.project.key}",
-            mapOf("type" to "ISSUE_MOVED", "issueId" to event.issue.id, "newStatusId" to event.newStatus.id, "projectKey" to event.issue.project.key)
+            mapOf("type" to "ISSUE_MOVED", "issueId" to event.issue.id, "newStatusId" to event.newStatus.id, "projectKey" to event.issue.project.key) as Any
         )
     }
 
@@ -22,7 +22,7 @@ class BoardEventPublisher(private val messagingTemplate: SimpMessagingTemplate) 
     fun onSprintStarted(event: SprintStartedEvent) {
         messagingTemplate.convertAndSend(
             "/topic/projects/${event.sprint.project.key}",
-            mapOf("type" to "SPRINT_UPDATED", "sprintId" to event.sprint.id, "projectKey" to event.sprint.project.key)
+            mapOf("type" to "SPRINT_UPDATED", "sprintId" to event.sprint.id, "projectKey" to event.sprint.project.key) as Any
         )
     }
 
@@ -30,7 +30,7 @@ class BoardEventPublisher(private val messagingTemplate: SimpMessagingTemplate) 
     fun onSprintCompleted(event: SprintCompletedEvent) {
         messagingTemplate.convertAndSend(
             "/topic/projects/${event.sprint.project.key}",
-            mapOf("type" to "SPRINT_UPDATED", "sprintId" to event.sprint.id, "projectKey" to event.sprint.project.key)
+            mapOf("type" to "SPRINT_UPDATED", "sprintId" to event.sprint.id, "projectKey" to event.sprint.project.key) as Any
         )
     }
 }

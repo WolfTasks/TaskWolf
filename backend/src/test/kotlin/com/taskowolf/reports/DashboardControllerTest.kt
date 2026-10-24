@@ -1,6 +1,6 @@
 package com.taskowolf.reports
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +20,7 @@ class DashboardControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun createProject(token: String, key: String) {
@@ -86,7 +86,7 @@ class DashboardControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"type":"ISSUE_COUNT","gridX":0,"gridY":0,"gridW":3,"gridH":2}""")
         ).andReturn()
-        val widgetId = objectMapper.readTree(addResult.response.contentAsString).get("id").asText()
+        val widgetId = objectMapper.readTree(addResult.response.contentAsString).get("id").asString()
 
         mockMvc.perform(
             delete("/api/v1/projects/DASH4/dashboard/widgets/$widgetId")
@@ -111,7 +111,7 @@ class DashboardControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"type":"VELOCITY","gridX":0,"gridY":0,"gridW":4,"gridH":4}""")
         ).andReturn()
-        val widgetId = objectMapper.readTree(addResult.response.contentAsString).get("id").asText()
+        val widgetId = objectMapper.readTree(addResult.response.contentAsString).get("id").asString()
 
         // Save new layout positions
         mockMvc.perform(

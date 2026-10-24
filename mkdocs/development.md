@@ -16,11 +16,15 @@ cd TaskWolf
 ### Backend
 
 ```bash
+docker compose -f docker-compose.dev.yml up -d db   # PostgreSQL 16 on localhost:5432 (taskowolf/taskowolf)
 cd backend
 ./gradlew bootRun
 ```
 
-The backend starts on `http://localhost:8080` with the `dev` profile (H2 in-memory database, Swagger UI enabled).
+The backend starts on `http://localhost:8080` with the `dev` profile (local PostgreSQL, Swagger UI enabled).
+The Flyway migrations are PostgreSQL-only, so there is no in-memory database. Point the dev profile at another
+database with `TW_DB_URL` / `TW_DB_USER` / `TW_DB_PASS`. Data survives restarts in the `dev-pgdata` volume
+(`docker compose -f docker-compose.dev.yml down -v` resets it).
 
 ### Frontend
 
@@ -43,7 +47,7 @@ cd backend
 
 Tests use H2 for unit tests and Testcontainers (PostgreSQL) for integration tests.
 
-**Windows note:** Docker Desktop must be running with TCP socket enabled (`tcp://localhost:2375`).
+**Windows note:** Docker Desktop must be running (Testcontainers 2 negotiates the Docker API version itself; no TCP socket needed).
 
 ### Frontend
 

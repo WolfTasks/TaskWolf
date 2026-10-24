@@ -1,6 +1,12 @@
 spring:
   application:
     name: taskowolf
+  jackson:
+    # Jackson 3 ships stricter/different defaults (alphabetical property order, FAIL_ON_NULL_FOR_PRIMITIVES,
+    # FAIL_ON_TRAILING_TOKENS). Keep the defaults Spring Boot used for Jackson 2 so API payloads and the
+    # JSON stored in the database stay identical. Guards: JsonWireFormatGuardIntegrationTest,
+    # JsonCompatCharacterizationIntegrationTest.
+    use-jackson2-defaults: true
   jpa:
     open-in-view: false
     hibernate:
