@@ -1,6 +1,7 @@
 # eclipse-temurin:21-jre-alpine
 FROM eclipse-temurin:25-jre-alpine@sha256:3c0a9084927a221ccd1d007fcaf614465672c0af37aaa834c5184483afe56d61
-RUN apk upgrade --no-cache p11-kit p11-kit-trust libexpat openssl libssl3
+# brotli-libs 1.2.0-r1 -> 1.2.1-r0 (CVE-2026-111497)
+RUN apk upgrade --no-cache p11-kit p11-kit-trust libexpat openssl libssl3 brotli-libs
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 COPY build/libs/*.jar app.jar

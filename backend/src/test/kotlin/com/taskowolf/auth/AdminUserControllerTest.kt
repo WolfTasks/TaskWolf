@@ -1,6 +1,6 @@
 package com.taskowolf.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import com.taskowolf.auth.domain.SystemRole
 import com.taskowolf.auth.infrastructure.UserRepository
@@ -24,7 +24,7 @@ class AdminUserControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun setRole(email: String, role: SystemRole): UUID {
@@ -41,7 +41,7 @@ class AdminUserControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"name":"t","scope":"READ_WRITE"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("plaintext").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("plaintext").asString()
     }
 
     @Test

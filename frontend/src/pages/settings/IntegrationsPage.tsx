@@ -5,6 +5,7 @@ import {
 } from '@/hooks/useProjectIntegrations'
 import type { CreateIntegrationResponse } from '@/hooks/useProjectIntegrations'
 import { useTranslation } from 'react-i18next'
+import { useProjectRole } from '@/hooks/useProjectRole'
 
 const PROVIDERS = ['GITHUB', 'GITLAB'] as const
 type Provider = typeof PROVIDERS[number]
@@ -16,6 +17,7 @@ export function IntegrationsPage() {
   const { data: integrations = [], isLoading } = useProjectIntegrations(projectKey)
   const createIntegration = useCreateIntegration(projectKey)
   const deleteIntegration = useDeleteIntegration(projectKey)
+  const { isAdmin } = useProjectRole(projectKey)
 
   const [connectingProvider, setConnectingProvider] = useState<Provider | null>(null)
   const [repoUrl, setRepoUrl] = useState('')
@@ -109,14 +111,16 @@ export function IntegrationsPage() {
                   {isActive ? (
                     <>
                       <span className="text-xs text-green-400 font-medium">● {t('integrations.active')}</span>
-                      <button
-                        onClick={() => existing && deleteIntegration.mutate(existing.id)}
-                        className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 rounded text-xs"
-                      >
-                        {t('integrations.remove')}
-                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => existing && deleteIntegration.mutate(existing.id)}
+                          className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 rounded text-xs"
+                        >
+                          {t('integrations.remove')}
+                        </button>
+                      )}
                     </>
-                  ) : (
+                  ) : isAdmin && (
                     <button
                       onClick={() => setConnectingProvider(provider)}
                       className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 rounded text-sm"

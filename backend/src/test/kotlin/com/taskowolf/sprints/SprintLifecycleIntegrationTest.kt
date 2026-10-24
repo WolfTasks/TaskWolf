@@ -1,6 +1,6 @@
 package com.taskowolf.sprints
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +20,7 @@ class SprintLifecycleIntegrationTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"Dev","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     @Test
@@ -42,7 +42,7 @@ class SprintLifecycleIntegrationTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"title":"Issue 1","storyPoints":5}""")
         ).andExpect(status().isCreated).andReturn()
-        val issue1Id = objectMapper.readTree(issue1Result.response.contentAsString).get("id").asText()
+        val issue1Id = objectMapper.readTree(issue1Result.response.contentAsString).get("id").asString()
 
         val issue2Result = mockMvc.perform(
             post("/api/v1/projects/SPR1/issues")
@@ -50,7 +50,7 @@ class SprintLifecycleIntegrationTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"title":"Issue 2","storyPoints":3}""")
         ).andExpect(status().isCreated).andReturn()
-        val issue2Id = objectMapper.readTree(issue2Result.response.contentAsString).get("id").asText()
+        val issue2Id = objectMapper.readTree(issue2Result.response.contentAsString).get("id").asString()
 
         // Create sprint
         val sprintResult = mockMvc.perform(
@@ -59,7 +59,7 @@ class SprintLifecycleIntegrationTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"name":"Sprint 1","goal":"Ship it"}""")
         ).andExpect(status().isCreated).andReturn()
-        val sprintId = objectMapper.readTree(sprintResult.response.contentAsString).get("id").asText()
+        val sprintId = objectMapper.readTree(sprintResult.response.contentAsString).get("id").asString()
 
         // Assign issues to sprint
         mockMvc.perform(
@@ -93,7 +93,7 @@ class SprintLifecycleIntegrationTest : IntegrationTestBase() {
                 .header("Authorization", "Bearer $token")
         ).andReturn()
         val statuses = objectMapper.readTree(workflowResult.response.contentAsString)[0]["statuses"]
-        val doneStatusId = statuses.first { it["category"].asText() == "DONE" }.get("id").asText()
+        val doneStatusId = statuses.first { it["category"].asString() == "DONE" }.get("id").asString()
 
         // Move issue1 to DONE
         mockMvc.perform(

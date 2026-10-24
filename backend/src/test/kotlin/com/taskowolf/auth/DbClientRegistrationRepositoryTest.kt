@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 class DbClientRegistrationRepositoryTest {
 
     private val ssoService = mockk<SsoService>()
-    private val repo = DbClientRegistrationRepository(ssoService)
+    private val repo = DbClientRegistrationRepository(ssoService, "https://tasks.example.com/")
     private val server = MockWebServer()
 
     @BeforeEach
@@ -69,5 +69,7 @@ class DbClientRegistrationRepositoryTest {
         assertEquals("$baseUrl/authorize", reg.providerDetails.authorizationUri)
         assertEquals("$baseUrl/token", reg.providerDetails.tokenUri)
         assertEquals("$baseUrl/userinfo", reg.providerDetails.userInfoEndpoint.uri)
+        // B5: redirect URI comes from the public base URL (TW_BASE_URL), not the proxied request
+        assertEquals("https://tasks.example.com/login/oauth2/code/{registrationId}", reg.redirectUri)
     }
 }

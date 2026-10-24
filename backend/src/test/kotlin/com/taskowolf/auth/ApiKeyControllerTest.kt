@@ -1,6 +1,6 @@
 package com.taskowolf.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +20,7 @@ class ApiKeyControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun createProject(token: String, key: String) {
@@ -48,7 +48,7 @@ class ApiKeyControllerTest : IntegrationTestBase() {
             .andExpect(jsonPath("$.keyPrefix").value(org.hamcrest.Matchers.startsWith("tw_")))
             .andReturn()
 
-        val plaintext = objectMapper.readTree(result.response.contentAsString).get("plaintext").asText()
+        val plaintext = objectMapper.readTree(result.response.contentAsString).get("plaintext").asString()
         assert(plaintext.startsWith("tw_")) { "plaintext must start with tw_" }
     }
 
@@ -82,7 +82,7 @@ class ApiKeyControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"name":"Del Key"}""")
         ).andReturn()
-        val keyId = objectMapper.readTree(createResult.response.contentAsString).get("id").asText()
+        val keyId = objectMapper.readTree(createResult.response.contentAsString).get("id").asString()
 
         mockMvc.perform(
             delete("/api/v1/projects/AK3/api-keys/$keyId")
@@ -107,7 +107,7 @@ class ApiKeyControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"name":"Auth Key"}""")
         ).andReturn()
-        val plaintext = objectMapper.readTree(createResult.response.contentAsString).get("plaintext").asText()
+        val plaintext = objectMapper.readTree(createResult.response.contentAsString).get("plaintext").asString()
 
         mockMvc.perform(
             get("/api/v1/projects/AK4/api-keys")

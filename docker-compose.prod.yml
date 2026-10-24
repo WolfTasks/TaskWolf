@@ -44,8 +44,10 @@ services:
       POSTGRES_DB: taskowolf
       POSTGRES_USER: ${TW_DB_USER:-taskowolf}
       POSTGRES_PASSWORD: ${TW_DB_PASS}
+    # Loopback only: the app reaches the DB over the Docker network. Publishing on all interfaces would
+    # expose it to the network, and Docker's port mapping usually bypasses host firewalls (ufw).
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

@@ -16,7 +16,10 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:8080',
       '/ws': { target: 'ws://localhost:8080', ws: true },
-      '/ws-stomp': { target: 'ws://localhost:8080', ws: true }
+      '/ws-stomp': { target: 'ws://localhost:8080', ws: true },
+      // SSO: authorization start + IdP callback are Spring Security endpoints (/login itself stays the SPA page)
+      '/oauth2': 'http://localhost:8080',
+      '/login/oauth2': 'http://localhost:8080'
     }
   }
 })

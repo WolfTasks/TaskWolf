@@ -1,6 +1,6 @@
 package com.taskowolf.comments
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import com.taskowolf.comments.application.ActivityService
 import com.taskowolf.comments.domain.ActivityType
@@ -67,7 +67,7 @@ class CommentPaginationTiebreakerIntegrationTest : IntegrationTestBase() {
         )
             .andExpect(status().isCreated)
             .andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun createProjectAndIssue(token: String, projectKey: String): Pair<UUID, UUID> {
@@ -85,8 +85,8 @@ class CommentPaginationTiebreakerIntegrationTest : IntegrationTestBase() {
                 .content("""{"title":"Tiebreaker Issue"}""")
         ).andExpect(status().isCreated).andReturn()
         val issueJson = objectMapper.readTree(issueResult.response.contentAsString)
-        val issueId = UUID.fromString(issueJson.get("id").asText())
-        val authorId = UUID.fromString(issueJson.get("reporterId").asText())
+        val issueId = UUID.fromString(issueJson.get("id").asString())
+        val authorId = UUID.fromString(issueJson.get("reporterId").asString())
         return issueId to authorId
     }
 

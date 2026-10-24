@@ -7,6 +7,7 @@ import {
 import type { CreateWebhookResult } from '@/hooks/useWebhooks'
 import { useTranslation } from 'react-i18next'
 import { formatDateTime } from '@/i18n/format'
+import { useProjectRole } from '@/hooks/useProjectRole'
 
 export function WebhooksPage() {
   const { t } = useTranslation('settings')
@@ -16,6 +17,7 @@ export function WebhooksPage() {
   const createWebhook = useCreateWebhook(projectKey)
   const deleteWebhook = useDeleteWebhook(projectKey)
   const testPing = useTestPing(projectKey)
+  const { isAdmin } = useProjectRole(projectKey)
 
   const [showCreate, setShowCreate] = useState(false)
   const [url, setUrl] = useState('')
@@ -47,10 +49,12 @@ export function WebhooksPage() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{t('webhooks.title')}</h1>
-        <button onClick={() => setShowCreate(true)}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-sm font-medium">
-          {t('webhooks.add')}
-        </button>
+        {isAdmin && (
+          <button onClick={() => setShowCreate(true)}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-sm font-medium">
+            {t('webhooks.add')}
+          </button>
+        )}
       </div>
 
       {newSecret && (
@@ -110,14 +114,18 @@ export function WebhooksPage() {
                 </div>
               </div>
               <div className="flex gap-2 ml-4 shrink-0">
-                <button onClick={() => testPing.mutate(wh.id)}
-                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs">{t('webhooks.ping')}</button>
+                {isAdmin && (
+                  <button onClick={() => testPing.mutate(wh.id)}
+                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs">{t('webhooks.ping')}</button>
+                )}
                 <button onClick={() => setSelectedWebhookId(selectedWebhookId === wh.id ? null : wh.id)}
                   className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs">
                   {selectedWebhookId === wh.id ? t('webhooks.hideLog') : t('webhooks.log')}
                 </button>
-                <button onClick={() => deleteWebhook.mutate(wh.id)}
-                  className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 rounded text-xs">{t('webhooks.delete')}</button>
+                {isAdmin && (
+                  <button onClick={() => deleteWebhook.mutate(wh.id)}
+                    className="px-3 py-1 bg-red-900/40 hover:bg-red-800 text-red-400 rounded text-xs">{t('webhooks.delete')}</button>
+                )}
               </div>
             </div>
 

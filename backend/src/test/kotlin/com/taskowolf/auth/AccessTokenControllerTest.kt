@@ -1,6 +1,6 @@
 package com.taskowolf.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.taskowolf.IntegrationTestBase
 import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ class AccessTokenControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"email":"$email","displayName":"User","password":"password123"}""")
         ).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("accessToken").asString()
     }
 
     private fun createToken(jwt: String, name: String, scope: String): String {
@@ -31,7 +31,7 @@ class AccessTokenControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"name":"$name","scope":"$scope"}""")
         ).andExpect(status().isCreated).andReturn()
-        return objectMapper.readTree(result.response.contentAsString).get("plaintext").asText()
+        return objectMapper.readTree(result.response.contentAsString).get("plaintext").asString()
     }
 
     @Test
@@ -69,7 +69,7 @@ class AccessTokenControllerTest : IntegrationTestBase() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""{"name":"Del","scope":"READ_WRITE"}""")
         ).andReturn()
-        val id = objectMapper.readTree(result.response.contentAsString).get("id").asText()
+        val id = objectMapper.readTree(result.response.contentAsString).get("id").asString()
 
         mockMvc.perform(delete("/api/v1/me/tokens/$id").header("Authorization", "Bearer $jwt"))
             .andExpect(status().isNoContent)

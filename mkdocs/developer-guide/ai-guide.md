@@ -8,7 +8,7 @@ Complete every item before touching any file:
 
 1. Read [Conventions](conventions.md) — all cross-cutting rules apply to every module.
 2. Read the module page for the area you are modifying (e.g. `backend/issues.md`).
-3. Check the current Flyway version: **V30** (`V30__add_user_language.sql`). The next migration must be **V31**.
+3. Check the current Flyway version: **V31** (`V31__repair_untyped_transition_guards.sql`). The next migration must be **V32**.
 4. Run `cd backend && ./gradlew test` — establish a passing baseline before making any changes.
 5. Identify which pattern sections below apply to every layer you will touch.
 6. **Bevor du eine neue Dependency hinzufügst**, arbeite die Sektion
@@ -258,14 +258,26 @@ class LabelServiceTest {
 - **JSpecify-Nullability:** Spring 7 annotiert seine APIs mit JSpecify, Kotlin prüft das strikt. Beispiele:
   `MessageSource.getMessage` erwartet non-null Arg-Elemente (`LocalizedMessages` castet dafür);
   `SimpMessagingTemplate.convertAndSend(dest, mapOf(...))` ist mehrdeutig → Payload `as Any`.
-- **Jackson:** bis M3 Phase 2 Jackson 2 (`com.fasterxml.jackson.databind`) via `spring-boot-jackson2` und
-  `preferred-json-mapper: jackson2` (HTTP + STOMP, Guard: `JsonWireFormatGuardIntegrationTest`).
-  Keine neuen `tools.jackson`-Imports vor Phase 2.
+- **Jackson 3:** `tools.jackson.databind.ObjectMapper`/`JsonNode`, `tools.jackson.core.type.TypeReference`,
+  `tools.jackson.module.kotlin.readValue`. **Annotationen bleiben** `com.fasterxml.jackson.annotation.*`.
+  `JsonNode.asText()` ist deprecated → `asString()`. **Achtung:** `asString()` ohne Argument **wirft** bei
+  Object-/Array-Knoten (Jackson 2 `asText()` gab `""`) → bei fremdem/untrusted JSON immer `asString("")` (H4).
+  Jackson-Exceptions sind unchecked (`JacksonException`).
+  Den von Spring konfigurierten `ObjectMapper` **injizieren**. Wo das nicht geht (z. B. JPA-`AttributeConverter`),
+  `JsonMapper.builderWithJackson2Defaults().build()` — nicht `JsonMapper.builder()`, dessen rohe Jackson-3-Defaults
+  (alphabetische Reihenfolge, strenger) vom Rest der App abweichen. Konfiguration über
+  `spring.jackson.*`; `use-jackson2-defaults: true` hält Property-Reihenfolge und lockeres null-/Trailing-Token-
+  Handling (Guards: `JsonWireFormatGuardIntegrationTest`, `JsonCompatCharacterizationIntegrationTest`).
+  Jackson 2 (`com.fasterxml.jackson.databind`) nicht mehr importieren; es ist nur noch für springdoc da (transitiv
+  plus `runtimeOnly` Jackson-2-Kotlin-Modul, sonst fehlen in den OpenAPI-Schemas die `required`-Felder).
+  Polymorphe Listen (`@JsonTypeInfo`, z. B. `List<TransitionGuard>`) immer mit
+  `mapper.writerFor(object : TypeReference<List<X>>() {})` schreiben — `writeValueAsString(list)` verliert
+  wegen Type Erasure den `type`-Diskriminator (B4).
 - **Security-Overrides:** nur per `extra["<lib>.version"]` mit CVE-Kommentar; bei jedem Boot-Upgrade prüfen, ob der BOM ihn überholt hat.
 
 ### Backend: Flyway Migration
 
-File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V30** — the next file must be named **V31**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
+File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V31** — the next file must be named **V32**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
 
 ```sql
 -- backend/src/main/resources/db/migration/V23__labels.sql
