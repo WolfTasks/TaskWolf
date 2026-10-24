@@ -72,6 +72,35 @@ class ProjectWriteEnforcementIntegrationTest : IntegrationTestBase() {
         ).andExpect(status().isForbidden)
     }
 
+    // B2 regression: a read-only (VIEWER) member must not change or delete existing tickets.
+    @Test
+    fun `viewer cannot update or delete an existing issue`() {
+        val ownerToken = registerAndGetToken("ro-owner@test.com")
+        val viewerToken = registerAndGetToken("ro-viewer@test.com")
+        mockMvc.perform(
+            post("/api/v1/projects").header("Authorization", "Bearer $ownerToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"key":"RO","name":"ReadOnly"}""")
+        ).andExpect(status().isCreated)
+        addMember(ownerToken, "RO", myId(viewerToken), "VIEWER")
+        val issueId = objectMapper.readTree(
+            mockMvc.perform(
+                post("/api/v1/projects/RO/issues").header("Authorization", "Bearer $ownerToken")
+                    .contentType(MediaType.APPLICATION_JSON).content("""{"title":"original"}""")
+            ).andExpect(status().isCreated).andReturn().response.contentAsString
+        ).get("id").asString()
+
+        mockMvc.perform(
+            patch("/api/v1/projects/RO/issues/$issueId").header("Authorization", "Bearer $viewerToken")
+                .contentType(MediaType.APPLICATION_JSON).content("""{"title":"changed by viewer"}""")
+        ).andExpect(status().isForbidden)
+        mockMvc.perform(delete("/api/v1/projects/RO/issues/$issueId").header("Authorization", "Bearer $viewerToken"))
+            .andExpect(status().isForbidden)
+
+        mockMvc.perform(get("/api/v1/projects/RO/issues").header("Authorization", "Bearer $viewerToken"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content[0].title").value("original"))
+    }
+
     @Test
     fun `member demoted to viewer can no longer edit or delete their own comment, but admin still can`() {
         val ownerToken = registerAndGetToken("dem-owner@test.com")

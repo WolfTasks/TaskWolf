@@ -150,6 +150,12 @@ export function SsoSettingsPage() {
                   <span className="ml-2 text-blue-400">{t('sso.autoProvisionBadge')}</span>
                 )}
               </div>
+              {/* The IdP must list exactly this URI; the backend builds it from TW_BASE_URL. */}
+              <div className="text-xs text-gray-500 mt-1">
+                {t('sso.redirectUri')}:{' '}
+                {/* i18n-ignore: URL path, not UI text */}
+                <code className="text-gray-300 select-all">{`${window.location.origin}/login/oauth2/code/${config.id}`}</code>
+              </div>
             </div>
             <button
               onClick={() => deleteMutation.mutate(config.id)}

@@ -11,6 +11,7 @@ const lazyPage = (imp: () => Promise<any>, name: string) =>
 // Leaf-Pages (lazy). default-Export-Pages nutzen name = 'default'.
 const LoginPage = lazyPage(() => import('@/pages/auth/LoginPage'), 'LoginPage')
 const RegisterPage = lazyPage(() => import('@/pages/auth/RegisterPage'), 'RegisterPage')
+const SsoCallbackPage = lazyPage(() => import('@/pages/auth/SsoCallbackPage'), 'SsoCallbackPage')
 const DashboardPage = lazyPage(() => import('@/pages/dashboard/DashboardPage'), 'DashboardPage')
 const ProjectListPage = lazyPage(() => import('@/pages/projects/ProjectListPage'), 'ProjectListPage')
 const ProjectCreatePage = lazyPage(() => import('@/pages/projects/ProjectCreatePage'), 'ProjectCreatePage')
@@ -60,6 +61,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+      { path: '/auth/sso/callback', element: <SsoCallbackPage /> },
     ],
   },
   {

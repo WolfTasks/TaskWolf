@@ -1,8 +1,5 @@
 package com.taskowolf.auth.infrastructure
 
-import com.taskowolf.auth.application.OidcUserProvisioningService
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
@@ -10,9 +7,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.oauth2.core.oidc.user.OidcUser
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
@@ -23,7 +18,7 @@ class SecurityConfig(
     private val apiKeyAuthFilter: ApiKeyAuthFilter,
     private val accessTokenAuthFilter: AccessTokenAuthFilter,
     private val dbClientRegistrationRepository: DbClientRegistrationRepository,
-    private val oidcUserProvisioningService: OidcUserProvisioningService
+    private val oidcLoginHandlers: OidcLoginHandlers
 ) {
     @Bean
     fun passwordEncoder() = BCryptPasswordEncoder()
@@ -44,7 +39,6 @@ class SecurityConfig(
                     "/api/v1/projects/*/service-desk/tickets",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
-                    "/h2-console/**",
                     "/ws/**",
                     "/ws-stomp/**",
                     "/login/oauth2/**",
@@ -54,30 +48,15 @@ class SecurityConfig(
                 it.requestMatchers("/api/v1/auth/switch-org/**").authenticated()
                 it.anyRequest().authenticated()
             }
-            .headers { it.frameOptions { fo -> fo.disable() } }
             .oauth2Login { oauth2 ->
                 oauth2
                     .clientRegistrationRepository(dbClientRegistrationRepository)
-                    .successHandler(oidcSuccessHandler())
+                    .successHandler(oidcLoginHandlers.success())
+                    .failureHandler(oidcLoginHandlers.failure())
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(apiKeyAuthFilter, JwtAuthFilter::class.java)
             .addFilterBefore(accessTokenAuthFilter, JwtAuthFilter::class.java)
         return http.build()
-    }
-
-    private fun oidcSuccessHandler(): AuthenticationSuccessHandler =
-        AuthenticationSuccessHandler { request: HttpServletRequest, response: HttpServletResponse, authentication ->
-            val oidcUser = authentication.principal as OidcUser
-            val registrationId = extractRegistrationId(request)
-            val accessToken = oidcUserProvisioningService.handleOidcLogin(oidcUser, registrationId)
-            response.sendRedirect("/auth/sso/callback?token=$accessToken")
-        }
-
-    private fun extractRegistrationId(request: HttpServletRequest): String {
-        // OAuth2 stores the registration ID in the session under the key used by the authorization request
-        val uri = request.requestURI
-        // URI pattern: /login/oauth2/code/{registrationId}
-        return uri.substringAfterLast("/")
     }
 }

@@ -70,18 +70,18 @@ class IncomingWebhookService(
             "push" -> {
                 val commits = node.path("commits")
                 for (commit in commits) {
-                    val sha = commit.path("id").asString()
-                    val message = commit.path("message").asString()
-                    val url = commit.path("url").asString()
+                    val sha = commit.path("id").asString("")
+                    val message = commit.path("message").asString("")
+                    val url = commit.path("url").asString("")
                     linkKeys(issueKeyParser.parseKeys(message), projectId, projectKey,
                         IntegrationProvider.GITHUB, RefType.COMMIT, sha, url, message.take(100))
                 }
             }
             "pull_request" -> {
                 val pr = node.path("pull_request")
-                val number = node.path("number").asString()
-                val title = pr.path("title").asString()
-                val url = pr.path("html_url").asString()
+                val number = node.path("number").asString("")
+                val title = pr.path("title").asString("")
+                val url = pr.path("html_url").asString("")
                 val texts = listOf(title, pr.path("body").asString(""))
                 val keys = texts.flatMap { issueKeyParser.parseKeys(it) }.distinct()
                 linkKeys(keys, projectId, projectKey, IntegrationProvider.GITHUB, RefType.PR, number, url, title)
@@ -90,22 +90,22 @@ class IncomingWebhookService(
     }
 
     private fun processGitLabPayload(node: JsonNode, projectId: UUID, projectKey: String) {
-        when (node.path("object_kind").asString()) {
+        when (node.path("object_kind").asString("")) {
             "push" -> {
                 val commits = node.path("commits")
                 for (commit in commits) {
-                    val sha = commit.path("id").asString()
-                    val message = commit.path("message").asString()
-                    val url = commit.path("url").asString()
+                    val sha = commit.path("id").asString("")
+                    val message = commit.path("message").asString("")
+                    val url = commit.path("url").asString("")
                     linkKeys(issueKeyParser.parseKeys(message), projectId, projectKey,
                         IntegrationProvider.GITLAB, RefType.COMMIT, sha, url, message.take(100))
                 }
             }
             "merge_request" -> {
                 val mr = node.path("object_attributes")
-                val iid = mr.path("iid").asString()
-                val title = mr.path("title").asString()
-                val url = mr.path("url").asString()
+                val iid = mr.path("iid").asString("")
+                val title = mr.path("title").asString("")
+                val url = mr.path("url").asString("")
                 val keys = issueKeyParser.parseKeys(title) + issueKeyParser.parseKeys(mr.path("description").asString(""))
                 linkKeys(keys.distinct(), projectId, projectKey, IntegrationProvider.GITLAB, RefType.PR, iid, url, title)
             }
