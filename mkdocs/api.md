@@ -41,4 +41,12 @@ All endpoints are prefixed with `/api/v1`. Project-scoped endpoints include the 
 
 ## Rate Limiting
 
-Requests are rate-limited per IP address. The default limit is 100 requests per minute. Exceeded limits return HTTP 429.
+`POST /api/v1/auth/login` and `POST /api/v1/auth/register` are rate-limited per client IP: by default 10 requests
+per 60 seconds (`taskowolf.auth.rate-limit.max-requests` / `window-seconds`). Exceeded limits return HTTP 429 with
+code `RATE_LIMITED`. Other endpoints are not rate-limited.
+
+The client IP is the `X-Real-IP` header set by the bundled nginx (trusted only when the request comes from a
+private/loopback address, i.e. the proxy); `X-Forwarded-For` is ignored because clients can set it themselves. If you
+put another reverse proxy or load balancer in front of the bundled nginx, configure nginx's
+[`real_ip`](https://nginx.org/en/docs/http/ngx_http_realip_module.html) module for it, otherwise all users share
+that proxy's address and one bucket.
