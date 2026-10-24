@@ -57,7 +57,7 @@
 | `backend/src/main/kotlin/com/taskowolf/integrations/infrastructure/StringListConverter.kt` | Modify | ein gemeinsamer `JsonMapper` |
 | `backend/src/test/kotlin/**` (~30 Dateien) | Modify | Imports `tools.jackson`, `asString()` |
 | `docs/superpowers/specs/2026-10-19-m3-spring-boot-4-migration-design.md` | Modify | springdoc-Abweichung |
-| `docs/superpowers/specs/2026-07-07-backlog-overview.md` | Modify | M3-Status |
+| `docs/superpowers/backlog-overview.md` | Modify | M3-Status |
 | `mkdocs/developer-guide/ai-guide.md` | Modify | Jackson-3-Konventionen |
 | `frontend/package.json`, `frontend/package-lock.json` | Modify (Task 7) | Version 1.0.21 |
 
@@ -643,7 +643,7 @@ Danach abbauen: `docker compose -p m3p2smoke ... down -v`.
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-10-19-m3-spring-boot-4-migration-design.md`
-- Modify: `docs/superpowers/specs/2026-07-07-backlog-overview.md`
+- Modify: `docs/superpowers/backlog-overview.md`
 - Modify: `mkdocs/developer-guide/ai-guide.md`
 
 - [ ] **Step 1: Spec-Abweichung dokumentieren**

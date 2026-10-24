@@ -1,6 +1,6 @@
 # Spec: Sidebar-Gruppen einzeln zusammenklappbar (#10) + Logout immer erreichbar (B3)
 
-> Design 2026-07-11. Backlog: `2026-07-07-backlog-overview.md` #10 + B3.
+> Design 2026-07-11. Backlog: `backlog-overview.md` #10 + B3.
 > Frontend-only. Domäne: linke Sidebar (`frontend/src/layouts/AppLayout.tsx`).
 
 ## Kontext & Problem

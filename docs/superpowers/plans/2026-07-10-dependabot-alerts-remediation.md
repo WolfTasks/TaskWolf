@@ -125,10 +125,10 @@ Expected: **leere Ausgabe** (keine offenen Alerts mehr) — jackson (#78) und gg
 
 - [ ] **Step 5: Backlog-Status aktualisieren**
 
-In `docs/superpowers/specs/2026-07-07-backlog-overview.md` die #12-Zeile auf erledigt setzen (Muster wie #3/#7/#8, inkl. „jackson #78 deferred") und committen:
+In `docs/superpowers/backlog-overview.md` die #12-Zeile auf erledigt setzen (Muster wie #3/#7/#8, inkl. „jackson #78 deferred") und committen:
 
 ```bash
-git add docs/superpowers/specs/2026-07-07-backlog-overview.md
+git add docs/superpowers/backlog-overview.md
 git commit -m "docs(backlog): mark #12 done (Dependabot alerts cleared; jackson #78 deferred)"
 ```
 

@@ -139,7 +139,7 @@ Icon-Only-Modus, responsive Verhalten).
 > Frontend Phase B/C; Release v1.0.10). **Scope-Entscheid: nur Projekte** (Orgs haben bereits
 > Member-Management → eigener Folge-Zyklus). Rollen `VIEWER/MEMBER/ADMIN` (bestehender
 > Enum, keine Migration); read-only server- **und** clientseitig durchgesetzt.
-> Spec: `2026-07-11-project-permissions-design.md` · Pläne:
+> Spec: `specs/2026-07-11-project-permissions-design.md` · Pläne:
 > `../plans/2026-07-11-project-permissions-phase-a-backend.md`,
 > `../plans/2026-07-11-project-permissions-phase-bc-frontend.md`. Offen: Wolfgangs
 > manuelle Browser-Verifikation der drei Rollen-Flows.
@@ -223,7 +223,7 @@ deferren bis Patch verfügbar. Ops/Security-Zyklus.
 > **Folge-Vorhaben #15** (Full-Rollout aller Komponenten, mehrere Sessions) ist
 > **KOMPLETT** — alle Sessions S0–S18 gemergt (zuletzt S17 PR #79 + S18 PR #80,
 > main `683a891`); Allowlist `[]`, Scanner 0, en/de-Parität grün → Frontend-UI
-> 100% lokalisiert. Master-Spec `2026-07-13-i18n-full-rollout-design.md`
+> 100% lokalisiert. Master-Spec `specs/2026-07-13-i18n-full-rollout-design.md`
 > (lebende Coverage-Matrix, alle Zeilen ✅). **#13 + #15 zusammen ausgeliefert in
 > Release v1.0.13** (2026-07-18); Wolfgangs manueller DE/EN-Browser-Check
 > S9–S18 noch offen.
@@ -233,7 +233,7 @@ deferren bis Patch verfügbar. Ops/Security-Zyklus.
 > Kern-Settings inkl. Sprachumschalter. Backend: Migration V30 (nullable
 > `users.language`), `PATCH /api/v1/me/language` (en/de-Validierung → 400 generisch).
 > SDD subagent-driven, finaler Whole-Branch-Review = merge-ready (keine Critical/
-> Important). Spec: `2026-07-12-i18n-foundation-design.md` · Plan:
+> Important). Spec: `specs/2026-07-12-i18n-foundation-design.md` · Plan:
 > `../plans/2026-07-12-i18n-foundation.md`. Merge + Release erledigt (v1.0.13).
 > **Offen:** Wolfgangs manuelle Browser-Verifikation. **Folge-Zyklen:** restliche Seiten,
 > `MessageSource`, voller Intl-Zeit-Rollout (Feeds/Activity), weitere Sprachen.
@@ -268,7 +268,7 @@ umgehen können, statt auf feste Strings zu prüfen).
 > Phase B: PR #56. Beide subagent-driven (SDD) + Whole-Branch-Reviews; §5-Autorisierungs-/
 > Vererbungs-Matrix end-to-end gegen das Backend verifiziert (38/38). Nachfolge-Zyklus zu
 > #9 (das bewusst „nur Projekte" scoped hatte). Spec:
-> `2026-07-12-organizations-umbrella-design.md` (+ `-phase-b-frontend.md`) · Pläne:
+> `specs/2026-07-12-organizations-umbrella-design.md` (+ `-phase-b-frontend.md`) · Pläne:
 > `../plans/2026-07-12-organizations-umbrella-phase-a-backend.md`,
 > `../plans/2026-07-12-organizations-umbrella-phase-b-frontend.md`.
 > **Hinweis:** nur UI-Visuelles (Banner/disabled-selects/inline-Fehler) blieb Wolfgangs
@@ -293,7 +293,7 @@ Datenisolation & `switch-org`. Details siehe Spec.
 
 ## H1 — nginx `index.html` no-cache Härtung (Ops, klein)
 > ✅ **AUSGELIEFERT** (PR #51, 2026-07-10; Release v1.0.10). Spec:
-> `2026-07-10-h1-nginx-index-nocache-design.md` ·
+> `specs/2026-07-10-h1-nginx-index-nocache-design.md` ·
 > Plan: `../plans/2026-07-10-h1-nginx-index-nocache.md`
 
 Aus dem Debugging vom 2026-07-07 (wkozian sah nach dem v1.0.07-Redeploy keine
@@ -307,7 +307,7 @@ Frontend-Image.
 
 ## H2 — Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen (klein)
 > ✅ **AUSGELIEFERT** (PR #50, 2026-07-10; Release v1.0.10). Spec:
-> `2026-07-10-h2-notification-prefs-enum-leak-design.md` ·
+> `specs/2026-07-10-h2-notification-prefs-enum-leak-design.md` ·
 > Plan: `../plans/2026-07-10-h2-notification-prefs-enum-leak.md`
 
 Aus dem Final-Review von #3 (v1.0.09): `NotificationPreferenceController.update`
@@ -321,7 +321,7 @@ Trusted UI schickt heute nur gültige Typen → niedrige Prio.
 
 ## H3 — `changePassword`: `newPassword` erlaubt reine Leerzeichen (klein)
 > ✅ **AUSGELIEFERT** (PR #50, 2026-07-10; Release v1.0.10). Spec:
-> `2026-07-10-h3-blank-password-validation-design.md` ·
+> `specs/2026-07-10-h3-blank-password-validation-design.md` ·
 > Plan: `../plans/2026-07-10-h3-blank-password-validation.md`.
 > Scope-Entscheid: fixt **auch** `RegisterRequest.password` (gleiche Lücke).
 
@@ -335,7 +335,7 @@ akzeptiert. Frontend erzwingt zusätzlich die Länge, daher niedriges Risiko. Fi
 > `ProjectService.changeMemberRole` weist jetzt `actorId == targetUserId` mit 403
 > ab (nach `requireAdmin`, vor Owner-Guard) + Integrationstest; `MembersPage`
 > deaktiviert das eigene Rollen-`<select>`. Spec:
-> `2026-07-11-project-permissions-fixes-design.md` · Plan:
+> `specs/2026-07-11-project-permissions-fixes-design.md` · Plan:
 > `plans/2026-07-11-b1-self-role-change.md`.
 
 Ein Nutzer kann seine **eigene** Rolle ändern (Selbst-Rechteausweitung möglich).
@@ -360,7 +360,7 @@ serverseitig unterbinden) **und** UI (eigene Rolle nicht editierbar anzeigen).
 > `VIEWER→PATCH issue → 403` (heute ungetestet); (b) optionaler Polish: Admin-only
 > Config-Seiten (Workflow/Automation/Dashboard/API-Keys/Webhooks/Integrations)
 > clientseitig auf `isAdmin` gaten statt nur Server-403. Details:
-> `2026-07-11-project-permissions-fixes-design.md`.
+> `specs/2026-07-11-project-permissions-fixes-design.md`.
 
 Trotz Read-only-Rolle können Nutzer Tickets ändern – die Read-only-Durchsetzung
 wirkt nicht. Erwartet: Read-only-Nutzer haben ausschließlich Lesezugriff, jegliche
@@ -372,7 +372,7 @@ schreibenden Ticket-Endpunkten verifizieren/nachziehen (nicht nur UI ausblenden)
 ## B3 — Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist 🐞
 > Gemeldet 2026-07-11. Status: ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11).
 > `<nav>` intern scrollbar (`min-h-0 overflow-y-auto`), Footer/Logout bleibt
-> gepinnt. Spec: `2026-07-11-sidebar-groups-and-logout-design.md` · Plan:
+> gepinnt. Spec: `specs/2026-07-11-sidebar-groups-and-logout-design.md` · Plan:
 > `plans/2026-07-11-sidebar-groups-and-logout.md`.
 
 Wird die linke Sidebar vertikal länger als der Bildschirm (viele Einträge/kleiner

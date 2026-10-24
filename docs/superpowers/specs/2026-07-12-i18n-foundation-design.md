@@ -1,6 +1,6 @@
 # #13 — Internationalisierung: Fundament + Pilot-Slice (Design)
 
-> Backlog-Item **#13** aus `2026-07-07-backlog-overview.md` (Typ: Full-Stack/UI).
+> Backlog-Item **#13** aus `backlog-overview.md` (Typ: Full-Stack/UI).
 > Dieser Zyklus liefert das **i18n-Fundament** plus einen vollständig migrierten
 > **Pilot-Slice** als kopierbares Muster. Die flächendeckende String-Extraktion
 > über alle ~95 `.tsx`-Dateien erfolgt in eigenen Folge-Zyklen pro Feature.

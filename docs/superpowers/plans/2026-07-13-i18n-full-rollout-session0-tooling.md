@@ -498,12 +498,12 @@ git commit -m "ci(i18n): gate frontend build on i18n coverage + key parity"
 Fix the stale #13 status, register the two follow-up backlog items (#15 rollout, #16 backend MessageSource), and append a reusable per-session migration checklist to the master spec so every future session follows the locked pattern.
 
 **Files:**
-- Modify: `docs/superpowers/specs/2026-07-07-backlog-overview.md`
+- Modify: `docs/superpowers/backlog-overview.md`
 - Modify: `docs/superpowers/specs/2026-07-13-i18n-full-rollout-design.md` (append appendix)
 
 - [ ] **Step 1: Fix the #13 table row**
 
-In `docs/superpowers/specs/2026-07-07-backlog-overview.md`, replace:
+In `docs/superpowers/backlog-overview.md`, replace:
 
 ```
 | 13 | Internationalisierung (UI in mehreren Sprachen) | Full-Stack/UI | 🔀 **PR #57 offen** (Fundament + Pilot-Slice, nicht gemergt) |
@@ -568,13 +568,13 @@ Parität grün.
 
 - [ ] **Step 4: Verify the docs render and cross-reference correctly**
 
-Run: `cd frontend && node -e "const fs=require('node:fs'); const b=fs.readFileSync('../docs/superpowers/specs/2026-07-07-backlog-overview.md','utf8'); if(b.includes('PR #57 offen')) throw new Error('stale #13 text remains'); if(!b.includes('| 15 |')||!b.includes('| 16 |')) throw new Error('#15/#16 rows missing'); console.log('backlog updated')"`
+Run: `cd frontend && node -e "const fs=require('node:fs'); const b=fs.readFileSync('../docs/superpowers/backlog-overview.md','utf8'); if(b.includes('PR #57 offen')) throw new Error('stale #13 text remains'); if(!b.includes('| 15 |')||!b.includes('| 16 |')) throw new Error('#15/#16 rows missing'); console.log('backlog updated')"`
 Expected: `backlog updated`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-07-07-backlog-overview.md docs/superpowers/specs/2026-07-13-i18n-full-rollout-design.md
+git add docs/superpowers/backlog-overview.md docs/superpowers/specs/2026-07-13-i18n-full-rollout-design.md
 git commit -m "docs(i18n): correct #13 status, register #15/#16, add per-session migration checklist"
 ```
 

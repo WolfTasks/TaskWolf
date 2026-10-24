@@ -1,6 +1,6 @@
 # M3 — Spring Boot 4 Migration (Design)
 
-> Stand 2026-10-19. Backlog-Eintrag: `2026-07-07-backlog-overview.md` → M3.
+> Stand 2026-10-19. Backlog-Eintrag: `backlog-overview.md` → M3.
 > Zwei Phasen, je eine Session mit eigenem Plan. **Ein gemeinsames Release (v1.0.21) nach Phase 2.**
 
 ## Ziel

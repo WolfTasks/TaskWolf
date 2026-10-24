@@ -1,7 +1,7 @@
 # Spec: Projekt-Permissions-Fixes — Self-Role-Change (B1) + Read-only-Enforcement (B2)
 
 > Design 2026-07-11, **korrigiert 2026-07-11** nach Reproduktion. Backlog:
-> `2026-07-07-backlog-overview.md` B1 + B2. Baut auf #9 (Projekt-Permissions,
+> `backlog-overview.md` B1 + B2. Baut auf #9 (Projekt-Permissions,
 > `2026-07-11-project-permissions-design.md`, Release v1.0.10) auf.
 >
 > **Aktueller Umsetzungs-Scope dieser Spec: nur B1** (kleiner, bestätigter
