@@ -8,7 +8,7 @@ Complete every item before touching any file:
 
 1. Read [Conventions](conventions.md) — all cross-cutting rules apply to every module.
 2. Read the module page for the area you are modifying (e.g. `backend/issues.md`).
-3. Check the current Flyway version: **V30** (`V30__add_user_language.sql`). The next migration must be **V31**.
+3. Check the current Flyway version: **V31** (`V31__repair_untyped_transition_guards.sql`). The next migration must be **V32**.
 4. Run `cd backend && ./gradlew test` — establish a passing baseline before making any changes.
 5. Identify which pattern sections below apply to every layer you will touch.
 6. **Bevor du eine neue Dependency hinzufügst**, arbeite die Sektion
@@ -266,11 +266,14 @@ class LabelServiceTest {
   Handling (Guards: `JsonWireFormatGuardIntegrationTest`, `JsonCompatCharacterizationIntegrationTest`).
   Jackson 2 (`com.fasterxml.jackson.databind`) nicht mehr importieren; es ist nur noch für springdoc da (transitiv
   plus `runtimeOnly` Jackson-2-Kotlin-Modul, sonst fehlen in den OpenAPI-Schemas die `required`-Felder).
+  Polymorphe Listen (`@JsonTypeInfo`, z. B. `List<TransitionGuard>`) immer mit
+  `mapper.writerFor(object : TypeReference<List<X>>() {})` schreiben — `writeValueAsString(list)` verliert
+  wegen Type Erasure den `type`-Diskriminator (B4).
 - **Security-Overrides:** nur per `extra["<lib>.version"]` mit CVE-Kommentar; bei jedem Boot-Upgrade prüfen, ob der BOM ihn überholt hat.
 
 ### Backend: Flyway Migration
 
-File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V30** — the next file must be named **V31**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
+File: `backend/src/main/resources/db/migration/V{n}__{description}.sql`. Current version is **V31** — the next file must be named **V32**. Use PostgreSQL-native syntax. Avoid `JSONB` (not supported by H2 in tests).
 
 ```sql
 -- backend/src/main/resources/db/migration/V23__labels.sql
