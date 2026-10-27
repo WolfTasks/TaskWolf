@@ -8,8 +8,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 buildscript {
     dependencies {
         constraints {
-            classpath("tools.jackson.core:jackson-core:3.2.3")
-            classpath("tools.jackson.core:jackson-databind:3.2.3")
+            classpath("tools.jackson.core:jackson-core:3.2.4")
+            classpath("tools.jackson.core:jackson-databind:3.2.4")
         }
     }
 }
