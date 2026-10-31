@@ -8,14 +8,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 buildscript {
     dependencies {
         constraints {
-            classpath("tools.jackson.core:jackson-core:3.2.3")
-            classpath("tools.jackson.core:jackson-databind:3.2.3")
+            classpath("tools.jackson.core:jackson-core:3.2.4")
+            classpath("tools.jackson.core:jackson-databind:3.2.4")
         }
     }
 }
 
 plugins {
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.4.21"
     kotlin("plugin.spring") version "2.4.21"
@@ -55,7 +55,7 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0")
     // Jackson 2 Kotlin module for springdoc/swagger-core only (they still run on Jackson 2): without it
     // the OpenAPI schemas lose `required` derived from Kotlin nullability. Our code uses Jackson 3.
     // Guard: OpenApiKotlinSchemaIntegrationTest.
@@ -77,28 +77,8 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-postgresql")
     testImplementation("io.mockk:mockk:1.14.11")
     // okhttp3 is not managed by the Spring Boot BOM; pin explicitly.
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.1")
 }
-
-// Security override of a Spring Boot 4.1.1 BOM-managed transitive version.
-// jackson-2-bom 2.21.5 -> 2.21.7: Boot 4.1.1 still pins Jackson 2 at 2.21.5, which re-opens
-// CVE-2026-68497 (quadratic BigInteger/BigDecimal parsing in CoreXMLDeserializers), CVE-2026-91776
-// and CVE-2026-91777. 2.21.6 is NOT sufficient (verified against a current Trivy DB), 2.21.7 is the
-// newest 2.x on Maven Central.
-// Jackson 2 is no longer used by our code or by Spring, but springdoc 3.1.1 still pulls it in
-// transitively via swagger-core-jakarta 2.2.55 (no Jackson 3 swagger-core exists yet). Keep this
-// override until swagger-core moves to Jackson 3.
-extra["jackson-2-bom.version"] = "2.21.7"
-// jackson-bom (Jackson 3, tools.jackson) 3.1.5 -> 3.1.7: the same advisories exist on the 3.x line.
-// CVE-2026-68497 (fixed 3.1.6), CVE-2026-91776/91777 (databind) and CVE-2026-89407/89425 (core) are
-// fixed in 3.1.7, the minimal release clearing all five. Boot 4.1.1 pins 3.1.5.
-// Jackson 3 is the active mapper (HTTP, STOMP, application code).
-extra["jackson-bom.version"] = "3.1.7"
-// tomcat-embed 11.0.24 -> 11.0.25 fixes the three CRITICAL auth-bypass CVEs on the 11.0 line:
-// CVE-2026-68525 (FORM authentication), CVE-2026-65905 (DIGEST replay), CVE-2026-65182 (security
-// constraint bypass). Boot 4.1.1 pins 11.0.24; 11.0.25 is the minimal fixed release. Override the
-// shared property so core, el and websocket move together.
-extra["tomcat.version"] = "11.0.25"
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
