@@ -8,14 +8,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 buildscript {
     dependencies {
         constraints {
-            classpath("tools.jackson.core:jackson-core:3.2.3")
-            classpath("tools.jackson.core:jackson-databind:3.2.3")
+            classpath("tools.jackson.core:jackson-core:3.2.4")
+            classpath("tools.jackson.core:jackson-databind:3.2.4")
         }
     }
 }
 
 plugins {
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.4.21"
     kotlin("plugin.spring") version "2.4.21"
@@ -55,7 +55,7 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0")
     // Jackson 2 Kotlin module for springdoc/swagger-core only (they still run on Jackson 2): without it
     // the OpenAPI schemas lose `required` derived from Kotlin nullability. Our code uses Jackson 3.
     // Guard: OpenApiKotlinSchemaIntegrationTest.
@@ -77,7 +77,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-postgresql")
     testImplementation("io.mockk:mockk:1.14.11")
     // okhttp3 is not managed by the Spring Boot BOM; pin explicitly.
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.1")
 }
 
 // Security override of a Spring Boot 4.1.1 BOM-managed transitive version.
