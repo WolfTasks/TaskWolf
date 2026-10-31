@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- JDK 21 (Temurin recommended)
+- JDK 25 (Temurin recommended)
 - Node.js 22.22+ (required by react-router v8 at build time)
 - Docker (for Testcontainers)
 

@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad            # v5
         if: matrix.language == 'java-kotlin'
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'temurin'
       - uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370     # v4.39.1
         with:
