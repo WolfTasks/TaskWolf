@@ -16,6 +16,8 @@ import com.taskowolf.workflows.infrastructure.WorkflowStatusRepository
 import com.taskowolf.workflows.infrastructure.WorkflowTransitionRepository
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -164,5 +166,52 @@ class WorkflowTransitionGuardTest {
         assertDoesNotThrow {
             service.validateTransition(issue, toStatusId, actor)
         }
+    }
+
+    // ---- Write path (B4): updateGuards must persist the polymorphic "type" discriminator ----
+
+    private fun storedGuardsAfterUpdate(guards: List<TransitionGuard>): String {
+        val transitionId = UUID.randomUUID()
+        val transition = WorkflowTransition(workflow = mockk(), toStatus = mockk())
+        every { transitionRepository.findById(transitionId) } returns java.util.Optional.of(transition)
+        every { transitionRepository.save(any<WorkflowTransition>()) } answers { firstArg() }
+
+        service.updateGuards(transitionId, guards)
+
+        verify { transitionRepository.save(transition) }
+        return transition.guards!!
+    }
+
+    @Test
+    fun `updateGuards writes the type discriminator for every guard`() {
+        val stored = storedGuardsAfterUpdate(
+            listOf(RequiredFieldGuard("storyPoints"), RoleRestrictionGuard(listOf("ADMIN", "MEMBER")))
+        )
+
+        val nodes = mapper.readTree(stored)
+        assertEquals("REQUIRED_FIELD", nodes[0].get("type")?.asString())
+        assertEquals("storyPoints", nodes[0].get("field")?.asString())
+        assertEquals("ROLE_RESTRICTION", nodes[1].get("type")?.asString())
+        val roles = nodes[1].get("roles")
+        assertEquals(listOf("ADMIN", "MEMBER"), (0 until roles.size()).map { roles[it].asString() })
+    }
+
+    @Test
+    fun `guards written by updateGuards are read back by validateTransition`() {
+        val stored = storedGuardsAfterUpdate(listOf(RequiredFieldGuard("storyPoints")))
+
+        val workflowId = UUID.randomUUID()
+        val fromStatusId = UUID.randomUUID()
+        val toStatusId = UUID.randomUUID()
+        val issue = issueWithWorkflow(workflowId, fromStatusId, storyPoints = null)
+        val transition = mockk<WorkflowTransition>()
+        every { transition.guards } returns stored
+        every {
+            transitionRepository.findByWorkflowIdAndFromStatusIdAndToStatusId(workflowId, fromStatusId, toStatusId)
+        } returns transition
+
+        // Before the fix the untyped JSON made readValue throw (→ 500); now the guard itself rejects the move.
+        val ex = assertThrows<BadRequestException> { service.validateTransition(issue, toStatusId, actor) }
+        assertEquals("workflow.transitionFieldRequired", ex.messageKey)
     }
 }
