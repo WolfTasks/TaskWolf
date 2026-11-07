@@ -23,20 +23,20 @@
 | 16 | Backend-Text-Lokalisierung (Spring `MessageSource`) | Full-Stack | ✅ **AUSGELIEFERT** (Phasen 1–3 alle auf `main`: P1 Fundament+Pilot PR #83, P2 voller API-Fehler-Sweep PRs #84/#85/#86/#87/#90, P3 E-Mails+In-App-Notifications in Empfänger-Sprache PR #92 squash `00665f5`; en/de mit EN-Fallback, 3 CI-Gates grün [MessagesParity/KeyedReferenceIntegrity/NoUnkeyedUserFacingThrow]; **Release v1.0.15**. Offen: Wolfgangs manueller DE/EN-Smoke [post-release]) |
 | M1 | Dependency-/Base-Image-Wartung (Dependabot-Bündel) | Ops/Maintenance | ✅ **AUSGELIEFERT** (PRs #81/#62/#60/#59/#82, Release v1.0.14) |
 | M2 | jackson-databind @JsonView-Bypass-CVEs + Dependabot-Bündel | Ops/Security | ✅ **AUSGELIEFERT** (jackson-bom 2.21.4→2.21.5 PR #93 [GHSA-mhm7-754m-9p8w + GHSA-5gvw-p9qm-jgwh/CVE-2026-59889]; backend-deps #89 [postgresql 42.7.12], Actions #88; Release v1.0.15) |
-| M3 | Spring Boot 4 Migration (Spring Framework 7) | Ops/Security | ✅ **AUSGELIEFERT** (Phase 1 PR #156, Phase 2 PR #164, IMAP-Fix PR #166; Release v1.0.21). Jackson 2 bleibt nur für springdoc/swagger-core. Folgepunkte: B4–B7, H4 |
+| M3 | Spring Boot 4 Migration (Spring Framework 7) | Ops/Security | ✅ **AUSGELIEFERT** (Phase 1 PR #156, Phase 2 PR #164, IMAP-Fix PR #166; Release v1.0.21). Jackson 2 bleibt nur für springdoc/swagger-core. Folgepunkte B4–B7, H4 in v1.0.22 ausgeliefert |
 | H1 | nginx `index.html` no-cache Härtung | Ops/Hardening | ✅ **AUSGELIEFERT** (PR #51, Release v1.0.10) |
 | H2 | Notification-Prefs PUT: unbekannter Typ → 400 leakt Enum-Namen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | H3 | `changePassword`: `newPassword` erlaubt reine Leerzeichen | Hardening | ✅ **AUSGELIEFERT** (PR #50, Release v1.0.10) |
 | B1 | User können ihre eigene Rolle ändern | Bug | ✅ **AUSGELIEFERT** (PR #53, Release v1.0.11) |
-| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | ✅ **GEMERGT** (PR #173, 2026-10-24, noch nicht released): Regressionstest VIEWER PATCH/DELETE → 403 + Admin-only-Konfigseiten clientseitig auf `isAdmin` gegated |
+| B2 | Read-only greift nicht: User können Tickets trotz Read-only ändern | Bug | ✅ **AUSGELIEFERT** (PR #173, Release v1.0.22): Regressionstest VIEWER PATCH/DELETE → 403 + Admin-only-Konfigseiten clientseitig auf `isAdmin` gegated |
 | B3 | Logout-Button verschwindet, wenn das Menü länger als der Bildschirm ist | Bug/UI | ✅ **AUSGELIEFERT** (PR #54, Release v1.0.11) |
-| B4 | Transition-Guards: Issue über Transition mit Guards verschieben → 500 | Bug/Backend | ✅ **GEMERGT** (PR #171, 2026-10-24, noch nicht released): `writerFor(TypeReference)` + V31-Repair gespeicherter Guards |
-| B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | ✅ **GEMERGT** (PR #174, 2026-10-24, noch nicht released): Link, Proxy, Callback-Route + Refresh-Token, Fragment statt Query, `TW_BASE_URL`; E2E-Smoke grün |
-| B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | ✅ **GEMERGT** (PR #170, 2026-10-24, noch nicht released): Spring-`ErrorResponse`-Status respektiert (404/405/400) |
-| B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | ✅ **GEMERGT** (PR #172, 2026-10-24, noch nicht released): Dev-Profil auf lokales Postgres, H2 nur noch Test-Scope |
-| H4 | Jackson-3-Feinschliff: `asString()` im Webhook-Eingang, Mapper-Empfehlung im ai-guide | Hardening/Docs | ✅ **GEMERGT** (PR #178, 2026-10-24, noch nicht released): Webhook-`asString("")` (500 belegt), `builderWithJackson2Defaults`, ai-guide, Guard-Asserts |
-| H5 | Auth-Rate-Limit vertraut client-gesetztem `X-Forwarded-For` (umgehbar) bzw. teilt sich hinter nginx einen Bucket | Security/Hardening | ✅ **GEMERGT** (PR #177, 2026-10-24, noch nicht released): XFF ignoriert, `X-Real-IP` nur von privatem Peer, 429 keyed |
-| H6 | Prod-Compose veröffentlicht Postgres auf `5432:5432` (alle Interfaces) | Security/Ops | ✅ **UMGESETZT** (2026-10-24): prod + dev binden Postgres nur noch an `127.0.0.1` |
+| B4 | Transition-Guards: Issue über Transition mit Guards verschieben → 500 | Bug/Backend | ✅ **AUSGELIEFERT** (PR #171, Release v1.0.22): `writerFor(TypeReference)` + V31-Repair gespeicherter Guards |
+| B5 | SSO über die Oberfläche nicht nutzbar (Link, nginx-Proxy, Callback-Route) | Bug/Full-Stack | ✅ **AUSGELIEFERT** (PR #174, Release v1.0.22): Link, Proxy, Callback-Route + Refresh-Token, Fragment statt Query, `TW_BASE_URL`; E2E-Smoke grün |
+| B6 | Unbekannte Pfade liefern 500 statt 404 | Bug/Backend | ✅ **AUSGELIEFERT** (PR #170, Release v1.0.22): Spring-`ErrorResponse`-Status respektiert (404/405/400) |
+| B7 | Dev-Profil mit H2 startet nicht (`gen_random_uuid()` ab V11) | Bug/Dev-Setup | ✅ **AUSGELIEFERT** (PR #172, Release v1.0.22): Dev-Profil auf lokales Postgres, H2 nur noch Test-Scope |
+| H4 | Jackson-3-Feinschliff: `asString()` im Webhook-Eingang, Mapper-Empfehlung im ai-guide | Hardening/Docs | ✅ **AUSGELIEFERT** (PR #178, Release v1.0.22): Webhook-`asString("")` (500 belegt), `builderWithJackson2Defaults`, ai-guide, Guard-Asserts |
+| H5 | Auth-Rate-Limit vertraut client-gesetztem `X-Forwarded-For` (umgehbar) bzw. teilt sich hinter nginx einen Bucket | Security/Hardening | ✅ **AUSGELIEFERT** (PR #177, Release v1.0.22): XFF ignoriert, `X-Real-IP` nur von privatem Peer, 429 keyed |
+| H6 | Prod-Compose veröffentlicht Postgres auf `5432:5432` (alle Interfaces) | Security/Ops | ✅ **AUSGELIEFERT** (PR #179, Release v1.0.22): prod + dev binden Postgres nur noch an `127.0.0.1` |
 
 ## M1 — Dependency-/Base-Image-Wartung (Dependabot-Bündel)
 > ✅ **AUSGELIEFERT** (2026-07-18, Release **v1.0.14**). Reines Wartungsrelease,
@@ -67,7 +67,7 @@
 > Plan Phase 2: `docs/superpowers/plans/2026-10-19-m3-phase2-jackson3.md`
 >
 > **Folgepunkte (zurückgestellt, eigene Einträge):** B4 Transition-Guards 500 · B5 SSO-UI-Verdrahtung ·
-> B6 unbekannte Pfade 500 · B7 Dev-Profil H2 · H4 Jackson-3-Feinschliff.
+> B6 unbekannte Pfade 500 · B7 Dev-Profil H2 · H4 Jackson-3-Feinschliff. Alle in **v1.0.22** ausgeliefert.
 
 **Warum jetzt:** Spring Boot 3.5.16 (Framework 6.2.19) ist das letzte OSS-Release der
 3.5-Linie auf Maven Central; neue spring-webmvc-CVEs werden nur noch in Framework 7.0.x
@@ -346,7 +346,7 @@ möglich sein. Berührungspunkt: Rollen-/Rechte-Verwaltung aus #9
 serverseitig unterbinden) **und** UI (eigene Rolle nicht editierbar anzeigen).
 
 ## B2 — Read-only greift nicht: User können Tickets trotz Read-only ändern 🐞
-> Gemeldet 2026-07-11. Status: **✅ GEMERGT (PR #173, 2026-10-24, noch nicht released)** — (a) Regressionstest + (b) Admin-Gating umgesetzt, s. u.
+> Gemeldet 2026-07-11. Status: **✅ AUSGELIEFERT (PR #173, Release v1.0.22)** — (a) Regressionstest + (b) Admin-Gating umgesetzt, s. u.
 > Zwei Fehldiagnosen unterwegs korrigiert (beide durch fehlerhafte Greps): (1) das
 > Backend blockt Read-only bereits — Reproduktion VIEWER `PATCH /issues/{id}` →
 > **403**, Titel unverändert (jeder Ticket-Write via `@PreAuthorize canWrite` bzw.
@@ -383,7 +383,7 @@ unten gepinnt / `<aside>` fixe Viewport-Höhe) – der Fix deckt diesen Fall (Si
 selbst höher als Viewport) offenbar noch nicht ab. Eigener UI-Bug-Zyklus.
 
 ## B4 — Transition-Guards: Issue über Transition mit Guards verschieben → 500 🐞
-> Gefunden 2026-10-21 im M3-Phase-2-Smoke, Status: **✅ GEMERGT (PR #171, 2026-10-24, noch nicht released)**. Schon in v1.0.20.
+> Gefunden 2026-10-21 im M3-Phase-2-Smoke, Status: **✅ AUSGELIEFERT (PR #171, Release v1.0.22)**. Schon in v1.0.20.
 > Umsetzung wie skizziert: `writerFor`/`readValue(typeRef)`, Flyway **V31** repariert Altdaten, Charakterisierungstest umgedreht.
 
 `WorkflowService.updateGuards` schreibt `List<TransitionGuard>` per `mapper.writeValueAsString(guards)`.
@@ -403,7 +403,7 @@ Fix-Skizze:
 - Kandidat für Frontend-Check: liest der Editor `type`?
 
 ## B5 — SSO über die Oberfläche nicht nutzbar 🐞
-> Gefunden 2026-10-21 im Pre-Release-Smoke für v1.0.21, Status: **✅ GEMERGT (PR #174, 2026-10-24, noch nicht released)**.
+> Gefunden 2026-10-21 im Pre-Release-Smoke für v1.0.21, Status: **✅ AUSGELIEFERT (PR #174, Release v1.0.22)**.
 > Zusätzlich behoben: Refresh-Token wurde nie ausgeliefert; Tokens jetzt im URL-Fragment; Redirect-URI + Post-Login-Redirect
 > aus `TW_BASE_URL` (Tomcat macht relative Redirects aus dem Proxy-Request absolut); Fehlerpfade → `/login?sso=denied|failed`;
 > Admin → SSO zeigt die Redirect-URI. **Betreiber müssen `TW_BASE_URL` auf die öffentliche URL setzen.**
@@ -424,14 +424,14 @@ Testaufbau zum Wiederverwenden: `docker-compose.prod.yml` + Override mit `ghcr.i
 (JSON_CONFIG mit `email`/`name`/`aud`-Claims; Browser-Simulation mit `Host: mockoauth:8080`).
 
 ## B6 — Unbekannte Pfade liefern 500 statt 404 🐞
-> Nebenbefund M3 Phase 1 (2026-10-19), Status: **✅ GEMERGT (PR #170, 2026-10-24, noch nicht released)** — inkl. 405 und Typ-Mismatch → 400.
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **✅ AUSGELIEFERT (PR #170, Release v1.0.22)** — inkl. 405 und Typ-Mismatch → 400.
 
 `GlobalExceptionHandler.handleGeneric(Exception)` fängt Springs `NoResourceFoundException` mit ab → z. B.
 `/v3/api-docs` in prod oder `/login/oauth2/authorization/{id}` (B5) liefern `500 INTERNAL_ERROR` statt 404.
 Fix: eigener Handler für `NoResourceFoundException`/`NoHandlerFoundException` → 404 mit keyed Message + Test.
 
 ## B7 — Dev-Profil mit H2 startet nicht 🐞
-> Nebenbefund M3 Phase 1 (2026-10-19), Status: **✅ GEMERGT (PR #172, 2026-10-24, noch nicht released)** — Option 1 umgesetzt (Dev auf Postgres via
+> Nebenbefund M3 Phase 1 (2026-10-19), Status: **✅ AUSGELIEFERT (PR #172, Release v1.0.22)** — Option 1 umgesetzt (Dev auf Postgres via
 > `docker-compose.dev.yml`, H2 + Console aus dem Prod-Classpath, `bootRun` startet mit `dev`).
 
 Ab V11 nutzen die Flyway-Migrationen `gen_random_uuid()`, das H2 (auch schon 2.3.232 unter Boot 3) nicht kennt.
@@ -439,7 +439,7 @@ Lokal gegen Postgres entwickeln (`--spring.datasource.url=jdbc:postgresql://…`
 Postgres (Testcontainers/Docker) umstellen und H2 + `spring-boot-h2console` entfernen, oder H2-Alias-Funktion.
 
 ## H4 — Jackson-3-Feinschliff (Deferred Minors aus dem M3-Final-Review)
-> Status: **✅ GEMERGT (PR #178, 2026-10-24, noch nicht released)**. Der 500 im Webhook-Eingang war real (`JsonNodeException`, per Test belegt).
+> Status: **✅ AUSGELIEFERT (PR #178, Release v1.0.22)**. Der 500 im Webhook-Eingang war real (`JsonNodeException`, per Test belegt).
 > Durations: Boot 3 schrieb sie schon als ISO-8601 → Guard pinnt `WRITE_DURATIONS_AS_TIMESTAMPS=false`.
 
 - `IncomingWebhookService` (Zeilen ~73–108): `JsonNode.asString()` ohne Default **wirft** unter Jackson 3 bei
@@ -453,7 +453,7 @@ Postgres (Testcontainers/Docker) umstellen und H2 + `spring-boot-h2console` entf
   `READ_ENUMS_USING_TO_STRING` und `DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS` erweitern.
 
 ## H5 — Auth-Rate-Limit: Client-IP aus ungeprüftem `X-Forwarded-For`
-> Nebenbefund beim B5-Sichten (2026-10-24), Status: **✅ GEMERGT (PR #177, 2026-10-24, noch nicht released)** — nginx unverändert (setzt `X-Real-IP` bereits).
+> Nebenbefund beim B5-Sichten (2026-10-24), Status: **✅ AUSGELIEFERT (PR #177, Release v1.0.22)** — nginx unverändert (setzt `X-Real-IP` bereits).
 
 `AuthRateLimitFilter` nimmt den **ersten** Wert von `X-Forwarded-For`, sonst `remoteAddr`. `docker/nginx.conf` setzt
 den Header nicht, d. h. (1) ein Angreifer setzt pro Request einen anderen `X-Forwarded-For` und umgeht das
@@ -465,7 +465,7 @@ Fix-Skizze: nginx `proxy_set_header X-Real-IP $remote_addr` (schon da) bzw. `X-F
 Nebenbei: die 429-Message ist hart englisch (nicht keyed).
 
 ## H6 — Prod-Compose veröffentlicht Postgres auf allen Interfaces
-> Nebenbefund beim H5-Sichten (2026-10-24), Status: **✅ UMGESETZT (2026-10-24)** — `127.0.0.1:5432:5432` in
+> Nebenbefund beim H5-Sichten (2026-10-24), Status: **✅ AUSGELIEFERT (PR #179, Release v1.0.22)** — `127.0.0.1:5432:5432` in
 > `docker-compose.prod.yml` und `docker-compose.dev.yml`; `getting-started.md`: SSH-Tunnel statt Port-Freigabe.
 
 `docker-compose.prod.yml` mappt den `db`-Service mit `ports: - "5432:5432"`. Docker bindet das an `0.0.0.0` und
