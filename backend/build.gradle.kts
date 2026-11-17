@@ -8,8 +8,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 buildscript {
     dependencies {
         constraints {
-            classpath("tools.jackson.core:jackson-core:3.2.4")
-            classpath("tools.jackson.core:jackson-databind:3.2.4")
+            classpath("tools.jackson.core:jackson-core:3.3.0")
+            classpath("tools.jackson.core:jackson-databind:3.3.0")
         }
     }
 }
@@ -75,7 +75,7 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")
-    testImplementation("io.mockk:mockk:1.14.11")
+    testImplementation("io.mockk:mockk:1.14.12")
     // okhttp3 is not managed by the Spring Boot BOM; pin explicitly.
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.1")
 }
